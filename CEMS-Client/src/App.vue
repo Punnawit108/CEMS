@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import { RouterView } from "vue-router";
-import Sidebar from "./components/sidebar.vue";
+import Sidebar from "./components/sidebarAccountant.vue";
 
 </script>
 
 <template>
   <div>
-    <div class="flex h-screen">
+    <div>
     <Sidebar/>
     <div class="flex-1 overflow-y-auto bg-white">
       <RouterView />
