@@ -31,7 +31,7 @@ const findParentRoutes = (routeName: string | undefined, routes: Array<any> = []
     return routes;
 };
 
-// คำนวณ breadcrumb 
+// คำนวณเส้นทางที่ต้องการแสดง
 const breadcrumbs = computed(() => {
     // เริ่มจากเส้นทางที่ตรงกับเส้นทางปัจจุบัน
     let matchedRoutes = route.matched.map((route: RouteRecordNormalized) => ({
@@ -63,8 +63,7 @@ const breadcrumbs = computed(() => {
                     <router-link :to="breadcrumb.path" class="text-[#B6B7BA] hover:underline">
                         {{ breadcrumb.label }}
                     </router-link>
-                    <span class="mx-2"
-                        :class="index === breadcrumbs.length - 2 ? 'text-[#777777]' : 'text-[#B6B7BA]'">/</span>
+                    <span class="mx-2" :class="index === breadcrumbs.length - 2 ? 'text-[#777777]' : 'text-[#B6B7BA]'">/</span>
                 </div>
                 <span v-else class="text-[#777777]">{{ breadcrumb.label }}</span>
             </li>
