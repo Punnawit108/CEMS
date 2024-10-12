@@ -1,26 +1,71 @@
 <script setup lang="ts">
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+import Icon from './c_icon.vue';
+
+
+// ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
+const route = useRoute();
+
+// คำนวณข้อความของ navbar ตามเส้นทางปัจจุบัน
+let name_navbar: String = '';
+const navbarTitle = computed(() => {
+    switch (route.name) {
+        case 'dashboard':
+            name_navbar = 'dashboard'
+            return 'แดชบอร์ด';
+        case 'listWithdraw':
+            name_navbar = 'listWithdraw'
+            return 'รายการเบิกค่าใช้จ่าย';
+        case 'historyWithdraw':
+            name_navbar = 'historyWithdraw'
+        case 'reportProject':
+            name_navbar = 'reportProject'
+            return 'รายงานโครงการ';
+        case 'reportWithdraw':
+            name_navbar = 'reportWithdraw'
+            return 'รายงานเบิกค่าใช้จ่าย';
+        case 'listApproval':
+            name_navbar = 'listApproval'
+            return 'รายการรออนุมัติ';
+        case 'historyApproval':
+            name_navbar = 'historyApproval'
+            return 'ประวัติการอนุมัติ';
+    }
+});
 
 </script>
 
 <template>
-    <div class="flex flex-col items-center text-center ">
-
-        <!-- copy dashboard -->
-
-        <!-- navbar - dashboard -->
-        <div class="w-full flex justify-center items-center">
-            <div class="w-full h-[60px] bg-[#00FF8C] text-[#FFFFFF] flex justify-center items-center text-[48px]">
-                <p>Header</p>
+    <!-- navbar -->
+    <div class="w-full inline-flex justify-between items-center pt-6">
+        <div class="ml-6 inline-flex items-center">
+            <div>
+                <Icon :icon="name_navbar" :size="32" />
+            </div>
+            <div class=" ml-4 ">
+                <H1 class=" text-[24px] text-[#000000]">
+                    {{ navbarTitle }}
+                </H1>
+                <!-- ถ้าเป็นหน้า expense จะแสดง -->
             </div>
         </div>
-        <!-- Breadcrumb - dashboard -->
-        <div class="w-full h-[30px] bg-[#FFBE40] text-[#FFFFFF] flex justify-center items-center text-[38px]">
-            <p>Breadcrumb Navigation</p>
+        <div class="mr-6 inline-flex h-9 ">
+            <div class=" mr-6 items-end " v-if="route.name === 'listWithdraw'">
+                <button class=" flex justify-center items-center px-4 py-1 bg-emerald-500 rounded-md border-2
+            border-emerald-500 border-solid min-h-[30px]">
+                    <img loading="lazy"
+                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/2d66bb937008d0de5fc7f3175afcb11d55f1df5aec556599f71c92ceef192be1?placeholderIfAbsent=true&apiKey=9804936447ee44d9b9e8514cc347c2f4"
+                        class="object-contain shrink-0 self-stretch my-auto w-6 aspect-square" alt="Icon" />
+                    <span class=" flex justify-center items-center gap-2.5 self-stretch pr-1.5 pl-2 text-white">
+                        สร้างใบเบิกค่าใช้จ่าย
+                    </span>
+                </button>
+            </div>
+            <div class="inline-flex justify-center items-center">
+                <Icon :icon="'profile'" :size="32" />
+            </div>
         </div>
-
-        <!-- copy dashboard -->
-
-
     </div>
 
 </template>
