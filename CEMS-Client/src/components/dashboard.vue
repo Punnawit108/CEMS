@@ -149,6 +149,7 @@ onMounted(() => {
       </div>
     </div>
     <!-- navbar -->
+</template>
 
     <!-- breadcrumb -->
     <div class="w-full h-[30px] bg-[#FFBE40] text-[#FFFFFF] flex justify-center items-center text-[18px]">
