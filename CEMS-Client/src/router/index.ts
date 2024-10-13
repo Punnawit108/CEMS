@@ -1,6 +1,6 @@
 import { createWebHistory, createRouter } from 'vue-router'
-import Content from '../components/template/content.vue';
-import Button from "../components/UseButton.vue";
+import Content from '../components/template/Content.vue';
+import Button from "../components/template/UseButton.vue";
 
 
 

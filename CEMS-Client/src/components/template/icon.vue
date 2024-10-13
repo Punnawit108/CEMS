@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
-import Icon from './c_icon.vue';
-import Dashboard from '../dashboard.vue';
+import Icon from './CIcon.vue';
+import Dashboard from './Dashboard.vue';
 // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 </script>
 

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
-import Icon from './c_icon.vue';
+import Icon from './CIcon.vue';
 
 
 // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
