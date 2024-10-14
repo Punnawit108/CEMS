@@ -41,7 +41,7 @@ export default {
       'Content-Regular': '14px',
       'Content-Bold': '14px',
       'Header-Bold': '16px',
-      'Breadcrumb Navigation' : '14px',
+      'Breadcrumb-Navigation' : '14px',
       'Sarabun-Reqular12' : '12px'
     },
     

@@ -17,6 +17,9 @@ const navbarTitle = computed(() => {
         case 'listWithdraw':
             name_navbar = 'listWithdraw'
             return 'รายการเบิกค่าใช้จ่าย';
+        case 'createExpenseForm':
+            name_navbar = 'createExpenseForm'
+            return 'สร้างใบเบิกค่าใช้จ่าย';
         case 'historyWithdraw':
             name_navbar = 'historyWithdraw'
         case 'reportProject':

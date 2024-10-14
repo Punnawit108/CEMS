@@ -57,7 +57,7 @@ const breadcrumbs = computed(() => {
 <template>
     <nav class="bg-white px-[24px] rounded-md w-full h-[30px]" aria-label="breadcrumb">
         <ol class="list-reset flex">
-            <li v-for="(breadcrumb, index) in breadcrumbs" :key="index" class="flex items-center">
+            <li v-for="(breadcrumb, index) in breadcrumbs" :key="index" class="flex items-center text-Breadcrumb-Navigation">
                 <!-- ตรวจสอบหากเป็น breadcrumb สุดท้าย ไม่ต้องใส่ลิงก์ -->
                 <div v-if="index !== breadcrumbs.length - 1">
                     <router-link :to="breadcrumb.path" class="text-[#B6B7BA] hover:underline">
