@@ -1,8 +1,6 @@
 import { createWebHistory, createRouter } from 'vue-router'
+import Icon from '../components/template/Icon.vue';
 import Content from '../components/template/Content.vue';
-import Button from "../components/template/UseButton.vue";
-
-
 
 const router = createRouter({
   history: createWebHistory(),
@@ -10,27 +8,27 @@ const router = createRouter({
     { 
       path: '/icon', 
       name: 'icon',
-      component:  Icon
+      component:  Content
     },
     { 
       path: '/', 
       name: 'content',
       component:  Content
-   
+      
     },{
       path: '/btn', 
       name: 'Button',
-      component:  Button
+      component:  Icon
     },
     { 
       path: '/nav', 
       name: 'nav',
-      component:  Navbar
+      component:  Icon
     },
     { 
       path: '/filter', 
       name: 'filter',
-      component:  Filter
+      component:  Icon
     },
   ]
 })
