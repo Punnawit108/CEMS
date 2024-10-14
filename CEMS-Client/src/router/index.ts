@@ -25,7 +25,7 @@ import Filter from '../components/template/Filter.vue';
 import Progress from '../components/template/Progress.vue';
 import Table from '../components/template/Table.vue';
 import Popup from '../components/template/popup.vue';
-//import UploadPicture from '../components/template/UploadPicture.vue';
+import UploadPicture from '../components/template/UploadPicture.vue';
 
 
 
@@ -57,14 +57,11 @@ const router = createRouter({
       name: 'table',
       component: Table
     },
-
-    /* แก้ไข upload picture
     {
       path: '/temp/uploadpic',
       name: 'uploadpic',
       component: UploadPicture 
     },
-    */
     {
       path: '/temp/table',
       name: 'table',
