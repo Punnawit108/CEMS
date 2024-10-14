@@ -6,105 +6,277 @@ import CreateExpenseForm from '../pages/User/CreateExpenseForm.vue';
 import Details from '../pages/User/Details.vue';
 import EditExpenseForm from '../pages/User/EditExpenseForm.vue';
 import ExpenseReimbursementHistory from '../pages/User/ExpenseReimbursementHistory.vue';
+import Notifications from '../pages/User/Notifications.vue';
+import ProjectReport from '../pages/User/ProjectReport.vue';
+import ExpenseReport from '../pages/User/ExpenseReport.vue';
+import ApprovalHistory from '../pages/User/ApprovalHistory.vue';
+import UserSetting from '../pages/Admin/UserSetting.vue';
+import DetailUserSetting from '../pages/Admin/DetailUserSetting.vue';
+import DisbursementApprover from '../pages/Admin/DisbursementApprover.vue';
+import ExpenseManage from '../pages/Admin/ExpenseManage.vue';
+import TravelManage from '../pages/Admin/TravelManage.vue';
+
+
 const router = createRouter({
   history: createWebHistory(),
-  routes : [
-    { 
-      path: '/icon', 
+  routes: [
+    {
+      path: '/icon',
       name: 'icon',
-      component:  ExpenseReimbursementList
-    },
-    { 
-      path: '/', 
-      name: 'Dashboard',
-      component:  Dashboard
-      
+      component: ExpenseReimbursementList
     },
     {
-      path: '/btn', 
+      path: '/',
+      name: 'Dashboard',
+      component: Dashboard
+
+    },
+    {
+      path: '/btn',
       name: 'Button',
-      component:  Icon
+      component: Icon
     },
-    { 
-      path: '/nav', 
+    {
+      path: '/nav',
       name: 'nav',
-      component:  Icon
+      component: Icon
     },
-    { 
-      path: '/filter', 
+    {
+      path: '/filter',
       name: 'filter',
-      component:  Icon
+      component: Icon
     },
 
-    // ส่วนการเบิกค่าใช้จ่าย
+    // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
+    // การเบิกค่าใช้จ่าย
     {
       path: '/disbursement',
       name: 'disbursement',
       redirect: '/disbursement/listWithdraw', //เมื่อกด การเบิกค่าใช้จ่ายแล้วไปหน้า รายการ
       meta: { breadcrumb: 'การเบิกค่าใช้จ่าย' }  //ไว้ใช้ทำ breadcrumb
     },
-
     //รายการเบิกค่าใช้จ่าย
     {
       path: '/disbursement/listWithdraw',
       name: 'listWithdraw',
-      component: ExpenseReimbursementList,  
-      meta: { 
-        breadcrumb: 'รายการเบิกค่าใช้จ่าย' ,
+      component: ExpenseReimbursementList,
+      meta: {
+        breadcrumb: 'รายการเบิกค่าใช้จ่าย',
         parent: 'disbursement'
       }
     },
+    //สร้างใบเบิกค่าใช้จ่าย
     {
       path: '/disbursement/listWithdraw/createExpenseForm',
       name: 'createExpenseForm',
       component: CreateExpenseForm,
       meta: {
         breadcrumb: 'สร้างใบเบิกค่าใช้จ่าย',
-        parent: 'listWithdraw'  
-      } 
+        parent: 'listWithdraw'
+      }
     },
+    //รายละเอียดเบิกค่าใช้จ่าย
     {
       path: '/disbursement/listWithdraw/detail/:id',
       name: 'listWithdrawDetail',
       component: Details,
       meta: {
         breadcrumb: 'รายละเอียด',
-        parent: 'listWithdraw'  
-      } 
+        parent: 'listWithdraw'
+      }
     },
+    //แก้ไขใบเบิกค่าใช้จ่าย
     {
       path: '/disbursement/listWithdraw/detail/:id/editExpenseForm',
       name: 'editExpenseForm',
       component: EditExpenseForm,
       meta: {
         breadcrumb: 'แก้ไขรายการเบิกค่าใช้จ่าย',
-        parent: 'listWithdrawDetail'  
-      } 
+        parent: 'listWithdrawDetail'
+      }
     },
-
     //ประวัติการเบิกค่าใช้จ่าย
     {
       path: '/disbursement/historyWithdraw',
       name: 'historyWithdraw',
-      component: ExpenseReimbursementHistory,  
-      meta: { 
-        breadcrumb: 'ประวัติการเบิกค่าใช้จ่าย' ,
+      component: ExpenseReimbursementHistory,
+      meta: {
+        breadcrumb: 'ประวัติการเบิกค่าใช้จ่าย',
         parent: 'disbursement'
       }
     },
+    //รายละเอียดประวัติการเบิกค่าใช้จ่าย
     {
       path: '/disbursement/historyWithdraw/detail/:id',
       name: 'historyWithdrawDetail',
       component: Details,
       meta: {
         breadcrumb: 'รายละเอียด',
-        parent: 'historyWithdraw'  
-      } 
+        parent: 'historyWithdraw'
+      }
     },
+    //การแจ้งเตือน
+    {
+      path: '/notification',
+      name: 'notification',
+      component: Notifications,
+      meta: { breadcrumb: 'การแจ้งเตือน' }
+    },
+    //รายงาน
+    {
+      path: '/report',
+      name: 'report',
+      redirect: '/report/project',
+      meta: { breadcrumb: 'รายงาน' }
+    },
+    //รายงานโครงการ
+    {
+      path: '/report/project',
+      name: 'reportProject',
+      component: ProjectReport,
+      meta: {
+        breadcrumb: 'รายงานโครงการ',
+        parent: 'report'
+      }
+    },
+    //รายงานเบิกค่าใช้จ่าย
+    {
+      path: '/report/expense',
+      name: 'reportExpense',
+      component: ExpenseReport,
+      meta: {
+        breadcrumb: 'รายงานเบิกค่าใช้จ่าย',
+        parent: 'report'
+      }
+    },
+    //การอนุมัติ
+    {
+      path: '/approval',
+      name: 'approval',
+      redirect: '/approval/list',
+      meta: { breadcrumb: 'การอนุมัติ' }
+    },
+    //รายการรออนุมัติ
+    {
+      path: '/approval/list',
+      name: 'approvalList',
+      component: ProjectReport,
+      meta: {
+        breadcrumb: 'รายการรออนุมัติ',
+        parent: 'approval'
+      }
+    },
+    //ประวัติการอนุมัติ
+    {
+      path: '/approval/history',
+      name: 'approvalHistory',
+      component: ApprovalHistory,
+      meta: {
+        breadcrumb: 'ประวัติการอนุมัติ',
+        parent: 'approval'
+      }
+    },
+    //รายละเอียดประวัติการอนุมัติ
+    {
+      path: '/approval/history/detail/:id',
+      name: 'approvalHistoryDetail',
+      component: Details,
+      meta: {
+        breadcrumb: 'รายละเอียด',
+        parent: 'approvalHistory'
+      }
+    },
+    //ผู้ดูแลระบบ
+    //ตั้งค่าระบบ systemsettings
+    {
+      path: '/systemSettings',
+      name: 'systemSettings',
+      redirect: '/systemSettings/user',
+      meta: { breadcrumb: 'ตั้งค่าระบบ' }
+    },
+    //ตั้งค่าผู้ใช้
+    {
+      path: '/systemSettings/user',
+      name: 'systemSettingsUser',
+      component: UserSetting,
+      meta: {
+        breadcrumb: 'ตั้งค่าผู้ใช้',
+        parent: 'systemSettings'
+      }
+    },
+    //รายละเอียดตั้งค่าผู้ใช้
+    {
+      path: '/systemSettings/user/detail/:id',
+      name: 'systemSettingsUserDetail',
+      component: DetailUserSetting,
+      meta: {
+        breadcrumb: 'รายละเอียด',
+        parent: 'systemSettingsUser'
+      }
+    },
+    //แก้ไขรายละเอียดตั้งค่าผู้ใช้
+    {
+      path: '/systemSettings/user/detail/:id/editUser',
+      name: 'systemSettingsUserDetailEditUser',
+      component: DetailUserSetting,   //อยากให้ทำเป็น fn เมื่อกดปุ่มแก้ไขแล้วแสดงหน้าเดิม แต่สามารถแก้ไขได้ 
+      meta: {                         //ถ้าทำไม่ได้บอกทีม DEV ด้วย
+        breadcrumb: 'แก้ไขรายละเอียดผู้ใช้',
+        parent: 'systemSettingsUserDetail'
+      }
+    },
+    //ตั้งค่าผู้อนุมัติการเบิกจ่าย
+    {
+      path: '/systemSettings/disbursementApprover',
+      name: 'systemSettingsDisbursementApprover',
+      component: DisbursementApprover,
+      meta: {
+        breadcrumb: 'ผู้อนุมัติการเบิกจ่าย',
+        parent: 'systemSettings'
+      }
+    },  
+    //เพิ่มผู้อนุมัติการเบิกจ่าย
+    {
+      path: '/systemSettings/disbursementApprover/add',
+      name: 'systemSettingsDisbursementApproverAdd',
+      component: DisbursementApprover,
+      meta: {
+        breadcrumb: 'เพิ่มผู้อนุมัติการเบิกจ่าย',
+        parent: 'systemSettingsDisbursementApprover'
+      }
+    }, 
+    //ประเภทเบิกจ่าย
+    {
+      path: '/systemSettings/disbursementType',
+      name: 'systemSettingsDisbursementType',
+      redirect: '/systemSettings/disbursementType/expense',
+      meta: {
+        breadcrumb: 'ประเภทเบิกจ่าย',
+        parent: 'systemSettings'
+      }
+    },
+    //จัดการประเภทค่าใช้จ่าย
+    {
+      path: '/systemSettings/disbursementType/expense',
+      name: 'systemSettingsDisbursementTypeExpense',
+      component: ExpenseManage,
+      meta: {
+        breadcrumb: 'จัดการประเภทค่าใช้จ่าย',
+        parent: 'systemSettingsDisbursementType'
+      }
+    }, 
+    //จัดการประเภทการเดินทาง
+    {
+      path: '/systemSettings/disbursementType/travel',
+      name: 'systemSettingsDisbursementTypeTravel',
+      component: TravelManage,
+      meta: {
+        breadcrumb: 'จัดการประเภทการเดินทาง',
+        parent: 'systemSettingsDisbursementType'
+      }
+    }, 
 
-
-
+    
   ]
 })
 
-export default router ;
+export default router;

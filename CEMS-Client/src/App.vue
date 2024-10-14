@@ -13,7 +13,7 @@ import Navbar from "./components/template/Navbar.vue";
     <div class="flex-1 overflow-y-auto bg-white">
       <Navbar/>
       <Breadcrumb/>
-      <div class="mx-[25px] my-[24px]">
+      <div class="mx-[25px] my-[24px] ">
         <RouterView />
       </div>
     </div>
