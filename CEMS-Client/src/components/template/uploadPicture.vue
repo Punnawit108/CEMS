@@ -14,7 +14,7 @@
                 <p class="mt-3">อัปโหลดไฟล์ที่นี่</p>
                 <p class="mt-3">SVG, PNG หรือ JPG (MAX 800 800 px)</p>
             </div>
-            <img v-else :src="previewUrl" alt="Preview"
+            <img v-else :src="previewUrl!" alt="Preview"
                 class="max-w-full max-h-full object-contain absolute inset-0 m-auto" />
         </div>
     </section>
@@ -66,13 +66,16 @@ const uploadFile = async (file: File) => {
     }
 
     const isValidSize = await checkImageDimensions(file);
-    if (!isValidSize) {
-        alert(กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${MAX_WIDTH} x ${MAX_HEIGHT} พิกเซล);
-        return;
+    if (isValidSize) {
+        selectedFile.value = file;
+        previewUrl.value = URL.createObjectURL(file);
+        // uploadToServer(file);
+    } else {
+        alert(`กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${MAX_WIDTH} x ${MAX_HEIGHT} พิกเซล`);
+        // รีเซ็ตค่าเมื่อไฟล์ไม่ถูกต้อง
+        selectedFile.value = null;
+        previewUrl.value = null;
     }
-
-    selectedFile.value = file;
-    previewUrl.value = URL.createObjectURL(file);
 
     // uploadToServer(file);
 };
