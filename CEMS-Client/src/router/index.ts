@@ -1,7 +1,6 @@
 import { createWebHistory, createRouter } from 'vue-router'
-import Icon from '../components/template/Icon.vue';
 import Dashboard from '../pages/User/Dashboard.vue';
-import ExpenseReimbursementList from '../pages/User/expenseReimbursementList.vue';
+import ExpenseReimbursementList from '../pages/User/ExpenseReimbursementList.vue';
 import CreateExpenseForm from '../pages/User/CreateExpenseForm.vue';
 import Details from '../pages/User/Details.vue';
 import EditExpenseForm from '../pages/User/EditExpenseForm.vue';
@@ -19,38 +18,71 @@ import PaymentList from '../pages/Accountant/PaymentList.vue';
 import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
 import ApprovalList from '../pages/User/ApprovalList.vue';
 
+//template
+import CIcon from '../components/template/CIcon.vue';
+import DropDown from '../components/template/DropDown.vue';
+import Filter from '../components/template/Filter.vue';
+import Progress from '../components/template/Progress.vue';
+import Table from '../components/template/Table.vue';
+import Popup from '../components/template/popup.vue';
+//import UploadPicture from '../components/template/UploadPicture.vue';
+
+
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
     {
-      path: '/icon',
-      name: 'icon',
-      component: ExpenseReimbursementList
+      path: '/temp/icon',
+      name: 'cIcon',
+      component: CIcon
     },
+    {
+      path: '/temp/dropdown',
+      name: 'dropdown',
+      component: DropDown
+    },
+    {
+      path: '/temp/filter',
+      name: 'filter',
+      component: Filter
+    },
+    {
+      path: '/temp/progress',
+      name: 'progress',
+      component: Progress
+    },
+    {
+      path: '/temp/table',
+      name: 'table',
+      component: Table
+    },
+
+    /* แก้ไข upload picture
+    {
+      path: '/temp/uploadpic',
+      name: 'uploadpic',
+      component: UploadPicture 
+    },
+    */
+    {
+      path: '/temp/table',
+      name: 'table',
+      component: Table
+    },
+    {
+      path: '/temp/popup',
+      name: 'popup',
+      component: Popup
+    },
+
+
+    // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
     {
       path: '/',
       name: 'Dashboard',
       component: Dashboard
-
     },
-    {
-      path: '/btn',
-      name: 'Button',
-      component: Icon
-    },
-    {
-      path: '/nav',
-      name: 'nav',
-      component: Icon
-    },
-    {
-      path: '/filter',
-      name: 'filter',
-      component: Icon
-    },
-
-    // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
     // การเบิกค่าใช้จ่าย
     {
       path: '/disbursement',
