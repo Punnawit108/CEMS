@@ -141,6 +141,7 @@ onMounted(() => {
 </script>
 
 <template>
+  <!-- path for test = / -->
   <div class="flex flex-col items-center text-center">
 
     <!-- content -->

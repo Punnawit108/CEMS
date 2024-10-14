@@ -1,9 +1,9 @@
 <script setup lang="ts">
 
 </script>
-<!-- path for test = /approval/list -->
+<!-- path for test = /payment/List -->
 <template>
     <!-- content -->
-    <p>รายการรออนุมัติ</p>
+    <p>รายการรอนำจ่าย</p>
     <!-- content -->
 </template>

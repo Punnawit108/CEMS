@@ -15,6 +15,9 @@ import DetailUserSetting from '../pages/Admin/DetailUserSetting.vue';
 import DisbursementApprover from '../pages/Admin/DisbursementApprover.vue';
 import ExpenseManage from '../pages/Admin/ExpenseManage.vue';
 import TravelManage from '../pages/Admin/TravelManage.vue';
+import PaymentList from '../pages/Accountant/PaymentList.vue';
+import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
+import ApprovalList from '../pages/User/ApprovalList.vue';
 
 
 const router = createRouter({
@@ -160,7 +163,7 @@ const router = createRouter({
     {
       path: '/approval/list',
       name: 'approvalList',
-      component: ProjectReport,
+      component: ApprovalList,
       meta: {
         breadcrumb: 'รายการรออนุมัติ',
         parent: 'approval'
@@ -274,8 +277,54 @@ const router = createRouter({
         parent: 'systemSettingsDisbursementType'
       }
     }, 
-
-    
+    //นักบัญชี
+    //การนำจ่าย
+    {
+      path: '/payment',
+      name: 'payment',
+      redirect: '/payment/paymentList',
+      meta: { breadcrumb: 'การนำจ่าย' }
+    },
+    //รายการรอนำจ่าย
+    {
+      path: '/payment/List',
+      name: 'paymentList',
+      component: PaymentList,
+      meta: {
+        breadcrumb: 'รายการรอนำจ่าย',
+        parent: 'payment'
+      }
+    },
+    //รายละเอียดรายการรอนำจ่าย
+    {
+      path: '/payment/List/detail/:id',
+      name: 'paymentListDetail',
+      component: Details,
+      meta: {
+        breadcrumb: 'รายละเอียด',
+        parent: 'paymentList'
+      }
+    },
+    //ประวัติการนำจ่าย
+    {
+      path: '/payment/history',
+      name: 'paymentHistory',
+      component: PaymentHistory,
+      meta: {
+        breadcrumb: 'ประวัติการนำจ่าย',
+        parent: 'payment'
+      }
+    },
+    //รายละเอียดประวัติการนำจ่าย
+    {
+      path: '/payment/history/detail/:id',
+      name: 'paymentHistoryDetail',
+      component: Details,
+      meta: {
+        breadcrumb: 'รายละเอียด',
+        parent: 'paymentHistory'
+      }
+    },
   ]
 })
 
