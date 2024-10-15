@@ -1,35 +1,43 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
 import Icon from './CIcon.vue';
-import Dashboard from '../../pages/User/Dashboard.vue';
-// ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
+// import Dashboard from '../../pages/User/Dashboard.vue';
+// // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 </script>
 
 
 <template>
-    <div>
+    <div class=" text-xs">
 
         <div class="grid grid-cols-7 gap-4 m-5">
             <!-- Dashbord -->
             <div>
                 <Icon :icon="'dashboard'" />
-                <p>Dashbord</p>
+                <p>dashboard</p>
             </div>
             <!-- การเบิกค่าใช้จ่าย -->
             <div>
-                <Icon :icon="'Withdraw'" />
-                <p>Withdraw</p>
+                <Icon :icon="'disbursement'" />
+                <p>disbursement</p>
             </div>
             <!-- การเบิกค่าใช้จ่าย -->
             <div>
                 <Icon :icon="'listWithdraw'" />
                 <p>listWithdraw</p>
+                <p>createExpenseForm</p>
+                <p>listWithdrawDetail</p>
+                <p>editExpenseForm</p>
+
             </div>
             <!-- ประวัติ -->
             <div>
                 <Icon :icon="'historyWithdraw'" />
                 <p>historyWithdraw</p>
-                <p>history</p>
+                <p>historyWithdraw</p>
+                <p>historyWithdrawDetail</p>
+                <p>approvalHistory</p>
+                <p>approvalHistoryDetail</p>
+                <p>paymentHistoryDetail</p>
             </div>
 
             <!-- รายงาน -->
@@ -40,14 +48,14 @@ import Dashboard from '../../pages/User/Dashboard.vue';
             </div>
             <!-- รายงานโครงการ -->
             <div>
-                <Icon :icon="'Project'" />
+                <Icon :icon="'reportProject'" />
                 <p>reportProject</p>
-                <p>Project</p>
+
             </div>
             <!-- รายงานเบิกค่าใช้จ่าย -->
             <div>
-                <Icon :icon="'reportWithdraw'" />
-                <p>reportWithdraw</p>
+                <Icon :icon="'reportExpense'" />
+                <p>reportExpense</p>
             </div>
             <!-- การอนุมัติ -->
             <div>
@@ -56,32 +64,40 @@ import Dashboard from '../../pages/User/Dashboard.vue';
             </div>
             <!-- รายการรอนุมัติ -->
             <div>
-                <Icon :icon="'listApproval'" />
-                <p>listApproval</p>
+                <Icon :icon="'approvalList'" />
+                <p>approvalList</p>
             </div>
             <!-- ผู้ใช้งาน -->
             <div>
-                <Icon :icon="'cog'" />
-                <p>cog</p>
+                <Icon :icon="'systemSettings'" />
+                <p>systemSettings</p>
             </div>
             <div>
-                <Icon :icon="'user'" />
-                <p>user</p>
+                <Icon :icon="'systemSettingsUser'" />
+                <p>systemSettingsUser</p>
+                <p>systemSettingsUserDetail</p>
+                <p>systemSettingsUserDetailEditUser</p>
             </div>
             <!-- ผู้อนุมัติ -->
             <div>
-                <Icon :icon="'useraprove'" />
-                <p>useraprove</p>
+                <Icon :icon="'systemSettingsDisbursementApprover'" />
+                <p>systemSettingsDisbursementApprover</p>
+                <p>systemSettingsDisbursementApproverAdd</p>
             </div>
             <!-- ประเภทเบิกค่าใช้จ่าย -->
             <div>
-                <Icon :icon="'wallet'" />
-                <p>wallet</p>
+                <Icon :icon="'systemSettingsDisbursementType'" />
+                <p>systemSettingsDisbursementType</p>
             </div>
+            <div>
+                <Icon :icon="'systemSettingsDisbursementTypeExpense'" />
+                <p>systemSettingsDisbursementTypeExpense</p>
+            </div>
+
             <!-- ประเภทการเดินทาง -->
             <div>
-                <Icon :icon="'car'" />
-                <p>car</p>
+                <Icon :icon="'systemSettingsDisbursementTypeVehicle'" />
+                <p>systemSettingsDisbursementTypeVehicle</p>
             </div>
             <!-- แจ้งเตือน -->
             <div>

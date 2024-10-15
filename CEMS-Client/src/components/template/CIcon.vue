@@ -20,7 +20,7 @@ const props = defineProps<{
                 </svg>
             </div>
 
-            <div v-else-if="icon === 'Withdraw'">
+            <div v-else-if="icon === 'disbursement'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -32,7 +32,8 @@ const props = defineProps<{
                 </svg>
             </div>
 
-            <div v-else-if="icon === 'listWithdraw'">
+            <div
+                v-else-if="icon === 'listWithdraw' || icon === 'createExpenseForm' || icon === 'listWithdrawDetail' || icon === 'editExpenseForm'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -40,7 +41,8 @@ const props = defineProps<{
                 </svg>
             </div>
 
-            <div v-else-if="icon === 'historyWithdraw' || icon === 'historyApproval' || icon === 'history'">
+            <div
+                v-else-if="icon === 'historyWithdraw' || icon === 'approvalHistory' || icon === 'historyWithdraw' || icon === 'historyWithdrawDetail' || icon === 'approvalHistoryDetail' || icon === 'paymentHistory' || icon === 'paymentHistoryDetail'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -48,7 +50,7 @@ const props = defineProps<{
                 </svg>
             </div>
 
-            <div v-else-if="icon === 'reportProject' || icon === 'Project'">
+            <div v-else-if="icon === 'reportProject'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -56,7 +58,7 @@ const props = defineProps<{
                 </svg>
             </div>
 
-            <div v-else-if="icon === 'reportWithdraw'">
+            <div v-else-if="icon === 'reportExpense'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -65,7 +67,7 @@ const props = defineProps<{
 
             </div>
 
-            <div v-else-if="icon === 'listApproval'">
+            <div v-else-if="icon === 'approvalList'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -96,7 +98,7 @@ const props = defineProps<{
                         d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0a8.949 8.949 0 0 0 4.951-1.488A3.987 3.987 0 0 0 13 16h-2a3.987 3.987 0 0 0-3.951 3.512A8.948 8.948 0 0 0 12 21Zm3-11a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
             </div>
-            <div v-else-if="icon === 'cog'">
+            <div v-else-if="icon === 'systemSettings'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
@@ -106,23 +108,32 @@ const props = defineProps<{
                 </svg>
 
             </div>
-            <div v-else-if="icon === 'user'">
+            <div
+                v-else-if="icon === 'systemSettingsUser' || icon === 'systemSettingsUserDetail' || icon === 'systemSettingsUserDetailEditUser'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-width="1.5"
                         d="M7 17v1a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1v-1a3 3 0 0 0-3-3h-4a3 3 0 0 0-3 3Zm8-9a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
             </div>
-
-            <div v-else-if="icon === 'useraprove'">
+            <div
+                v-else-if="icon === 'systemSettingsDisbursementApprover' || icon === 'systemSettingsDisbursementApproverAdd'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="square" stroke-linejoin="round" stroke-width="1.5"
                         d="M10 19H5a1 1 0 0 1-1-1v-1a3 3 0 0 1 3-3h2m10 1a3 3 0 0 1-3 3m3-3a3 3 0 0 0-3-3m3 3h1m-4 3a3 3 0 0 1-3-3m3 3v1m-3-4a3 3 0 0 1 3-3m-3 3h-1m4-3v-1m-2.121 1.879-.707-.707m5.656 5.656-.707-.707m-4.242 0-.707.707m5.656-5.656-.707.707M12 8a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
                 </svg>
             </div>
+            <div
+                v-else-if="icon === 'systemSettingsDisbursementTypeExpense' || icon === 'systemSettingsDisbursementTypeExpenseAdd'">
+                <svg class="w-6 h-6 text-gray-800 dark:text-white" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"
+                    width="24" height="24" fill="none" viewBox="0 0 24 24">
+                    <path stroke="red" stroke-linecap="round" stroke-width="2"
+                        d="M8 7V6a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1h-1M3 18v-7a1 1 0 0 1 1-1h11a1 1 0 0 1 1 1v7a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1Zm8-3.5a1.5 1.5 0 1 1-3 0 1.5 1.5 0 0 1 3 0Z" />
+                </svg>
+            </div>
 
-            <div v-else-if="icon === 'wallet'">
+            <div v-else-if="icon === 'systemSettingsDisbursementType'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
@@ -130,7 +141,8 @@ const props = defineProps<{
                 </svg>
             </div>
 
-            <div v-else-if="icon === 'car'">
+            <div
+                v-else-if="icon === 'systemSettingsDisbursementTypeVehicle' || icon === 'systemSettingsDisbursementTypeVehicleAddPublic' || icon === 'systemSettingsDisbursementTypeVehicleAddPrivate'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5"
