@@ -311,12 +311,12 @@ const router = createRouter({
     {
       path: '/payment',
       name: 'payment',
-      redirect: '/payment/paymentList',
+      redirect: '/payment/paymentlist',
       meta: { breadcrumb: 'การนำจ่าย' }
     },
     //รายการรอนำจ่าย
     {
-      path: '/payment/List',
+      path: '/payment/list',
       name: 'paymentList',
       component: PaymentList,
       meta: {
@@ -326,7 +326,7 @@ const router = createRouter({
     },
     //รายละเอียดรายการรอนำจ่าย
     {
-      path: '/payment/List/detail/:id',
+      path: '/payment/list/detail/:id',
       name: 'paymentListDetail',
       component: Details,
       meta: {
