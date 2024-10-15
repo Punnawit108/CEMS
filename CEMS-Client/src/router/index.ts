@@ -1,5 +1,5 @@
 import { createWebHistory, createRouter } from 'vue-router'
-import Dashboard from '../pages/User/Dashboard.vue';
+import dashboard from '../pages/User/Dashboard.vue';
 import ExpenseReimbursementList from '../pages/User/ExpenseReimbursementList.vue';
 import CreateExpenseForm from '../pages/User/CreateExpenseForm.vue';
 import Details from '../pages/User/Details.vue';
@@ -19,13 +19,14 @@ import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
 import ApprovalList from '../pages/User/ApprovalList.vue';
 
 //template
-import CIcon from '../components/template/CIcon.vue';
+import icon from '../components/template/icon.vue';
 import DropDown from '../components/template/DropDown.vue';
 import Filter from '../components/template/Filter.vue';
 import Progress from '../components/template/Progress.vue';
 import Table from '../components/template/Table.vue';
 import Popup from '../components/template/popup.vue';
 import UploadPicture from '../components/template/UploadPicture.vue';
+// import btn from '../components/template/UseButton.vue';
 
 
 
@@ -34,8 +35,8 @@ const router = createRouter({
   routes: [
     {
       path: '/temp/icon',
-      name: 'cIcon',
-      component: CIcon
+      name: 'icon',
+      component: icon
     },
     {
       path: '/temp/dropdown',
@@ -60,7 +61,7 @@ const router = createRouter({
     {
       path: '/temp/uploadpic',
       name: 'uploadpic',
-      component: UploadPicture 
+      component: UploadPicture
     },
     {
       path: '/temp/table',
@@ -77,8 +78,9 @@ const router = createRouter({
     // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
     {
       path: '/',
-      name: 'Dashboard',
-      component: Dashboard
+      name: 'dashboard',
+      component: dashboard,
+      meta: { breadcrumb: 'แดชบอร์ด' }
     },
     // การเบิกค่าใช้จ่าย
     {
@@ -265,7 +267,7 @@ const router = createRouter({
         breadcrumb: 'ผู้อนุมัติการเบิกจ่าย',
         parent: 'systemSettings'
       }
-    },  
+    },
     //เพิ่มผู้อนุมัติการเบิกจ่าย
     {
       path: '/systemSettings/disbursementApprover/add',
@@ -275,7 +277,7 @@ const router = createRouter({
         breadcrumb: 'เพิ่มผู้อนุมัติการเบิกจ่าย',
         parent: 'systemSettingsDisbursementApprover'
       }
-    }, 
+    },
     //ประเภทเบิกจ่าย
     {
       path: '/systemSettings/disbursementType',
@@ -295,17 +297,47 @@ const router = createRouter({
         breadcrumb: 'จัดการประเภทค่าใช้จ่าย',
         parent: 'systemSettingsDisbursementType'
       }
-    }, 
+    },
+    //เพิ่มประเภทค่าใช้จ่าย
+    {
+      path: '/systemSettings/disbursementType/expense/add',
+      name: 'systemSettingsDisbursementTypeExpenseAdd',
+      component: ExpenseManage,
+      meta: {
+        breadcrumb: 'เพิ่มประเภทค่าใช้จ่าย',
+        parent: 'systemSettingsDisbursementTypeExpense'
+      }
+    },
     //จัดการประเภทการเดินทาง
     {
-      path: '/systemSettings/disbursementType/travel',
-      name: 'systemSettingsDisbursementTypeTravel',
+      path: '/systemSettings/disbursementType/vehicle',
+      name: 'systemSettingsDisbursementTypeVehicle',
       component: TravelManage,
       meta: {
         breadcrumb: 'จัดการประเภทการเดินทาง',
         parent: 'systemSettingsDisbursementType'
       }
-    }, 
+    },
+    //เพิ่มประเภทรถสาธารณะ
+    {
+      path: '/systemSettings/disbursementType/vehicle/addPublic',
+      name: 'systemSettingsDisbursementTypeVehicleAddPublic',
+      component: TravelManage,
+      meta: {
+        breadcrumb: 'เพิ่มประเภทรถสาธารณะ',
+        parent: 'systemSettingsDisbursementTypeVehicle'
+      }
+    },
+    //เพิ่มประเภทรถส่วนตัว
+    {
+      path: '/systemSettings/disbursementType/vehicle/addPrivate',
+      name: 'systemSettingsDisbursementTypeVehicleAddPrivate',
+      component: TravelManage,
+      meta: {
+        breadcrumb: 'เพิ่มประเภทรถส่วนตัว',
+        parent: 'systemSettingsDisbursementTypeVehicle'
+      }
+    },
     //นักบัญชี
     //การนำจ่าย
     {
