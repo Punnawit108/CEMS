@@ -6,13 +6,11 @@ import Sidebar from "./components/sidebarAccountant.vue";
 
 <template>
   <div>
-    <div>
-    <Sidebar/>
-    <div class="flex-1 overflow-y-auto bg-white">
-      <RouterView />
+    <div class="flex">
+      <Sidebar />
+      <div class="flex-1 overflow-y-auto bg-white">
+        <RouterView />
+      </div>
     </div>
   </div>
-  </div>
 </template>
-
-

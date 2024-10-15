@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Popup from './popup.vue';
 
 </script>
 
@@ -20,10 +21,9 @@
         <!-- breadcrumb -->
 
         <!-- content -->
-        <div
-            class="w-full h-screen border-[16px] flex justify-center items-center">
+        <div class="w-full h-screen border-[16px] flex justify-center items-center">
             <div>
-                
+                <Popup/>
             </div>
         </div>
         <!-- content -->

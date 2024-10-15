@@ -3,8 +3,8 @@
     <div class="flex flex-col items-center text-center ">
         <!-- content -->
         <!-- format1 -->
-        <button class="btn" onclick="my_modal_1.showModal()">format1</button>
-        <dialog id="my_modal_1" class="modal">
+        <button class="btn" onclick="modalOne.showModal()">format1</button>
+        <dialog id="modalOne" class="modal">
             <div class="modal-box bg-white w-[460px] h-[295px] ">
                 <div class="flex justify-center mt-[25px]">
                     <svg width="70px" height="70px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -26,14 +26,14 @@
                             class="bg-white border-solid border-[#B6B7BA] border-2 rounded px-7 py-2 text-[#B6B7BA] text-sm font-normal mr-3">ยกเลิก</button>
                         <button
                             class="bg-[#12B669] border-solid border-[#12B669] border-2 rounded px-7 py-2 text-white text-sm font-normal"
-                            onclick="my_modal_2.showModal()">ยืนยัน</button>
+                            onclick="modalTwo.showModal()">ยืนยัน</button>
                     </form>
                 </div>
             </div>
         </dialog>
         <!-- format2 -->
-        <button class="btn" onclick="my_modal_2.showModal()">format2</button>
-        <dialog id="my_modal_2" class="modal">
+        <button class="btn" onclick="modalTwo.showModal()">format2</button>
+        <dialog id="modalTwo" class="modal">
             <div class="modal-box bg-white w-[460px] h-[295px]">
                 <div class="flex justify-center mt-[50px]">
                     <svg width="80px" height="80px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -53,8 +53,8 @@
             </form>
         </dialog>
         <!-- format3 -->
-        <button class="btn" onclick="my_modal_3.showModal()">format3</button>
-        <dialog id="my_modal_3" class="modal">
+        <button class="btn" onclick="modalThree.showModal()">format3</button>
+        <dialog id="modalThree" class="modal">
             <div class="modal-box bg-white w-[460px] h-[400px] ">
                 <div class="flex justify-center mt-[45px]">
                     <div class="flex justify-between items-center">
@@ -88,7 +88,7 @@
                             class="bg-white border-solid border-[#B6B7BA] border-2 rounded px-7 py-2 text-[#B6B7BA] text-sm font-normal mr-3">ยกเลิก</button>
                         <button
                             class="bg-[#12B669] border-solid border-[#12B669] border-2 rounded px-7 py-2 text-white text-sm font-normal"
-                            onclick="my_modal_2.showModal()">ยืนยัน</button>
+                            onclick="modalTwo.showModal()">ยืนยัน</button>
                     </form>
                 </div>
             </div>

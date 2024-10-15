@@ -25,7 +25,7 @@ import { ref } from 'vue';
 
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
-const previewUrl = ref<string | null>(null);
+const previewUrl = ref();
 
 const MAX_WIDTH = 800;
 const MAX_HEIGHT = 800;
@@ -67,7 +67,7 @@ const uploadFile = async (file: File) => {
 
     const isValidSize = await checkImageDimensions(file);
     if (!isValidSize) {
-        alert(กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${MAX_WIDTH} x ${MAX_HEIGHT} พิกเซล);
+        alert("กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${MAX_WIDTH} x ${MAX_HEIGHT} พิกเซล");
         return;
     }
 
