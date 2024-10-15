@@ -26,7 +26,8 @@ import Progress from '../components/template/Progress.vue';
 import Table from '../components/template/Table.vue';
 import Popup from '../components/template/popup.vue';
 import UploadPicture from '../components/template/UploadPicture.vue';
-// import btn from '../components/template/UseButton.vue';
+import ForUseButton from '../components/template/ForUseButton.vue';
+
 
 
 
@@ -73,8 +74,13 @@ const router = createRouter({
       name: 'popup',
       component: Popup
     },
-
-
+    //button
+    {
+      path: '/temp/btn',
+      name: 'btn',
+      component: ForUseButton
+    },
+    //
     // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
     {
       path: '/',
