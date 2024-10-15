@@ -38,6 +38,7 @@ import Icon from './CIcon.vue';
                 <p>approvalHistory</p>
                 <p>approvalHistoryDetail</p>
                 <p>paymentHistoryDetail</p>
+                <p>paymentHistory</p>
             </div>
 
             <!-- รายงาน -->
