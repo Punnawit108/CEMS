@@ -7,7 +7,7 @@ const props = defineProps({
         required: true,
     },
 });
-
+const emit = defineEmits(['click']);
 </script>
 
 <template>
@@ -47,9 +47,12 @@ const props = defineProps({
 
     <!-- ยกเลิกสีกรอบเทา -->
     <button v-if="type === 'btn-cancleBorderGray'"
-        class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-        <slot>ยกเลิก</slot>
-    </button>
+        class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+        @click="$emit('click')">
+        
+    <slot>ยกเลิก</slot>
+</button>
+
 
     <!-- ยกเลิกสีเทา -->
     <button v-if="type === 'btn-cancleGray'"
@@ -71,7 +74,8 @@ const props = defineProps({
 
     <!-- ยืนยัน -->
     <button v-if="type === 'btn-summit'"
-        class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+        class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+        @click="$emit('click')">
         <slot>ยืนยัน</slot>
     </button>
 
@@ -140,7 +144,8 @@ const props = defineProps({
 
     <!-- ประเภทค่าใช้จ่าย -->
     <button v-if="type === 'btn-expenseType'"
-        class="btn-สร้างใบเบิกค่าใช้จ่าย bg-green text-white rounded-[6px] h-[40px] w-[185px] flex items-center text-[14px] font-thin">
+        class="btn-สร้างใบเบิกค่าใช้จ่าย bg-green text-white rounded-[6px] h-[40px] w-[185px] flex items-center text-[14px] font-thin" @click="$emit('click')"
+        >
         <svg class="mr-[8px] ml-[16px]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none">
             <path
@@ -155,11 +160,12 @@ const props = defineProps({
 
     <!-- ประเภทค่าใช้จ่ายเทา -->
     <button v-if="type === 'btn-expenseTypeGray'"
+<<<<<<< HEAD
         class="btn-ประเภทค่าใช้จ่าย bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[148px] text-[14px] font-thin">
-        <slot>ประเภทค่าใช้จ่าย</slot>
+=======
+        class="btn-ประเภทค่าใช้จ่าย bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[148px] text-[14px] font-thin" @click="$emit('click')"
     </button>
 
-    <!-- นำจ่าย -->
     <button v-if="type === 'btn-payment1'"
         class="btn-นำจ่าย bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
         <slot>นำจ่าย</slot>
@@ -203,10 +209,20 @@ const props = defineProps({
         <slot></slot>
     </button>
 
+<<<<<<< HEAD
     <button v-if="type === 'btn-private'" id="btn- ประเภทรถส่วนตัว"
         class="btn-ประเภทรถส่วนตัว bg-green text-white rounded-[6px] h-[40px] w-[185px] flex items-center text-[14px] font-thin">
         <svg class="mr-[8px] ml-[16px]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none">
+=======
+    <button 
+        v-if="type === 'btn-private'" 
+        id="btn-ประเภทรถส่วนตัว"
+        class="btn-ประเภทรถส่วนตัว bg-green text-white rounded-[6px] h-[40px] w-[185px] flex items-center text-[14px] font-thin"
+        @click="$emit('click')"
+    >
+        <svg class="mr-[8px] ml-[16px]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none">
+>>>>>>> feature/settingExpenseType
             <path
                 d="M10.7143 11.2857V7.71429C10.7143 7.52485 10.639 7.34316 10.5051 7.20921C10.3711 7.07525 10.1894 7 10 7C9.81056 7 9.62888 7.07525 9.49492 7.20921C9.36097 7.34316 9.28571 7.52485 9.28571 7.71429V11.2857H5.71429C5.52485 11.2857 5.34316 11.361 5.20921 11.4949C5.07525 11.6289 5 11.8106 5 12C5 12.1894 5.07525 12.3711 5.20921 12.5051C5.34316 12.639 5.52485 12.7143 5.71429 12.7143H9.28571V16.2857C9.28571 16.4752 9.36097 16.6568 9.49492 16.7908C9.62888 16.9247 9.81056 17 10 17C10.1894 17 10.3711 16.9247 10.5051 16.7908C10.639 16.6568 10.7143 16.4752 10.7143 16.2857V12.7143H14.2857C14.4752 12.7143 14.6568 12.639 14.7908 12.5051C14.9247 12.3711 15 12.1894 15 12C15 11.8106 14.9247 11.6289 14.7908 11.4949C14.6568 11.361 14.4752 11.2857 14.2857 11.2857H10.7143Z"
                 fill="white" />
@@ -219,7 +235,13 @@ const props = defineProps({
 
     <button v-if="type === 'btn-public1'"
         class="btn-ประเภทรถสาธารณะ bg-green text-white rounded-[6px] h-[40px] w-[185px] flex items-center text-[14px] font-thin"
+<<<<<<< HEAD
         id="btn-ประเภทรถสาธารณะ">
+=======
+        
+        id="btn-ประเภทรถสาธารณะ" @click="$emit('click')"
+        >
+>>>>>>> feature/settingExpenseType
         <svg class="mr-[8px] ml-[16px]" xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24"
             fill="none">
             <path
@@ -257,7 +279,12 @@ const props = defineProps({
     </button>
 
     <button v-if="type === 'btn-transport'" id="btn-ประเภทค่าเดินทาง"
+<<<<<<< HEAD
         class="btn-ประเภทค่าเดินทาง bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[148px] text-[14px] font-thin">
+=======
+        class="btn-ประเภทค่าเดินทาง bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[148px] text-[14px] font-thin" @click="$emit('click')"
+        >
+>>>>>>> feature/settingExpenseType
         <slot>ประเภทค่าเดินทาง</slot>
     </button>
 
