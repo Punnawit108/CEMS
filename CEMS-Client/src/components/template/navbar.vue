@@ -8,33 +8,12 @@ import Icon from './CIcon.vue';
 const route = useRoute();
 
 // คำนวณข้อความของ navbar ตามเส้นทางปัจจุบัน
-let name_navbar: String = '';
+let name_navbar: string = '';
 const navbarTitle = computed(() => {
-    switch (route.name) {
-        case 'dashboard':
-            name_navbar = 'dashboard'
-            return 'แดชบอร์ด';
-        case 'listWithdraw':
-            name_navbar = 'listWithdraw'
-            return 'รายการเบิกค่าใช้จ่าย';
-        case 'createExpenseForm':
-            name_navbar = 'createExpenseForm'
-            return 'สร้างใบเบิกค่าใช้จ่าย';
-        case 'historyWithdraw':
-            name_navbar = 'historyWithdraw'
-        case 'reportProject':
-            name_navbar = 'reportProject'
-            return 'รายงานโครงการ';
-        case 'reportWithdraw':
-            name_navbar = 'reportWithdraw'
-            return 'รายงานเบิกค่าใช้จ่าย';
-        case 'listApproval':
-            name_navbar = 'listApproval'
-            return 'รายการรออนุมัติ';
-        case 'historyApproval':
-            name_navbar = 'historyApproval'
-            return 'ประวัติการอนุมัติ';
-    }
+    name_navbar = route.name as string
+
+
+    return route.meta.breadcrumb
 });
 
 </script>

@@ -36,7 +36,13 @@ onMounted(() => {
     new Chart(ctx, {
       type: "pie",
       data: {
-        labels: ["ค่าที่พัก", "ค่าอาหาร", "ค่าเดินทาง", "ค่ารักษาพยาบาล", "อื่นๆ"],
+        labels: [
+          "ค่าที่พัก",
+          "ค่าอาหาร",
+          "ค่าเดินทาง",
+          "ค่ารักษาพยาบาล",
+          "อื่นๆ",
+        ],
         datasets: [
           {
             label: "ประเภทค่าใช้จ่ายของรายการเบิก",
@@ -46,7 +52,7 @@ onMounted(() => {
               "#FF928A",
               "#3CC3DF",
               "#FFAE4C",
-              "#537FF1"
+              "#537FF1",
             ],
             hoverOffset: 5,
           },
@@ -55,6 +61,59 @@ onMounted(() => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        animation: {
+          animateScale: true,
+        },
+        plugins: {
+          tooltip: {
+            callbacks: {
+              label: (tooltipItem: any) => {
+                const { dataset, raw } = tooltipItem;
+                const value = raw as number; // แปลง raw ให้เป็น number
+                const total = dataset.data.reduce(
+                  (acc: number, val: number) => acc + val,
+                  0
+                ); // คำนวณผลรวม
+                const percentage = ((value / total) * 100).toFixed(2) + "%"; // คำนวณเปอร์เซ็นต์
+                return `${tooltipItem.label}: ${percentage}`;
+              },
+            },
+          },
+          datalabels: {
+            formatter: (value: number, context: any) => {
+              const total = context.chart.data.datasets[0].data.reduce(
+                (acc: number, val: number) => acc + val,
+                0
+              ); // คำนวณผลรวม
+              const percentage = ((value / total) * 100).toFixed(2) + "%"; // คำนวณเปอร์เซ็นต์
+              return percentage; // ส่งกลับเปอร์เซ็นต์
+            },
+            color: "#fff", // สีของตัวอักษร
+            anchor: "end",
+            align: "end",
+            font: {
+              weight: "bold",
+            },
+          },
+
+          legend: {
+            position: "right",
+            align: "center",
+
+            labels: {
+              padding: 16,
+              usePointStyle: true,
+              pointStyle: "circle",
+              boxHeight: 8,
+              boxWidth: 8,
+              font: {
+                size: 14,
+                weight: "bold",
+                family: "Sarabun",
+              },
+            },
+          },
+        },
       },
     });
   } else {
@@ -87,20 +146,23 @@ onMounted(() => {
         labels: labels,
         datasets: [
           {
-            label: "ยอดเบิกจ่าย",
+            label: "ยอดรวมการเบิกจ่าย (บาท)",
             data: [65, 59, 80, 81, 56, 55, 40, 90, 100, 105, 140, 80],
 
             fill: false,
             borderColor: "#8979FF",
+            backgroundColor: "white",
+            borderWidth: 2,
             tension: 0.4,
             datalabels: {
-              align: 'end',
-              anchor: 'end',
-              color: 'rgba(0, 0, 0, 0.7)', // ตัวอักษรสีจาง
+              align: "top",
+              anchor: "center",
+              color: "rgba(0, 0, 0, 0.7)", // ตัวอักษรสีจาง
               font: {
-                weight: 'normal',
+                weight: "normal",
+                size: 10,
+                family: "Sarabun",
               },
-
             },
           },
         ],
@@ -108,6 +170,25 @@ onMounted(() => {
       options: {
         responsive: true,
         maintainAspectRatio: false,
+        scales: {
+          y: {
+            beginAtZero: true,
+            ticks: {
+              font: {
+                size: 12,
+              },
+            },
+          },
+
+          x: {
+            beginAtZero: true,
+            ticks: {
+              font: {
+                size: 12,
+              },
+            },
+          },
+        },
         layout: {
           padding: {
             left: 20,
@@ -118,17 +199,29 @@ onMounted(() => {
         },
         plugins: {
           tooltip: {
-            callbacks: {
-              label: (tooltipItem) => {
-                return `ยอดเบิกจ่าย: ${tooltipItem.raw}`;
-              },
-            },
+            enabled: true,
+            mode: "index",
+            intersect: false,
+            // callbacks: {
+            //   label: (tooltipItem) => {
+            //     return `ยอดเบิกจ่าย: ${tooltipItem.raw}`;
+            //   },
+            // },
           },
-          datalabels: {
-            display: true, // แสดงตัวเลข
-            color: 'rgba(0, 0, 0, 0.7)',
-            font: {
-              weight: 'normal',
+          legend: {
+            position: "bottom",
+            align: "center",
+            labels: {
+              padding: 16,
+              usePointStyle: true,
+              pointStyle: "line",
+              boxHeight: 16,
+              boxWidth: 16,
+              font: {
+                size: 14,
+                weight: "bold",
+                family: "Sarabun",
+              },
             },
           },
         },
@@ -136,19 +229,18 @@ onMounted(() => {
     });
   }
 });
-
-
 </script>
 
 <template>
   <!-- path for test = / -->
   <div class="flex flex-col items-center text-center">
-
     <!-- content -->
 
     <div class="mainfloat clearFix">
       <!-- Summary section -->
-      <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
+      <div
+        class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch"
+      >
         <div class="columnDashboard shadowBox">
           <p class="font16">คำขอรอดำเนินการ</p>
           <p class="font35">2</p>
@@ -257,8 +349,12 @@ onMounted(() => {
       </div>
 
       <!-- Pie chart -->
-      <div class="graphPie w-[817px] h-[400px] shadowBox ml-6 mb-6 mr-6 summaryfloat">
-        <p class="font16 font-bold m-3 text-left">ประเภทค่าใช้จ่ายของรายการเบิก</p>
+      <div
+        class="graphPie w-[817px] h-[400px] shadowBox ml-6 mb-6 mr-6 summaryfloat"
+      >
+        <p class="font16 font-bold m-3 text-left">
+          ประเภทค่าใช้จ่ายของรายการเบิก
+        </p>
         <div>
           <canvas id="pieChart"></canvas>
         </div>
@@ -266,10 +362,9 @@ onMounted(() => {
     </div>
 
     <!-- Line chart -->
-    <div class="w-[1136px] h-[550px] items-center  shadowBox mx-6 mb-6 ">
+    <div class="w-[1136px] h-[550px] items-center shadowBox mx-6 mb-6">
       <p class="font16 font-bold m-3 text-left">ยอดการเบิกจ่ายจริง</p>
       <canvas id="lineChart"></canvas>
     </div>
-
   </div>
 </template>
