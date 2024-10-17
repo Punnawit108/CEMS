@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
@@ -287,7 +288,11 @@ onMounted(() => {
                     <th class="py-[12px] px-5 text-start ">ค่าเดินทาง</th>
                     <th class="py-[12px] px-2 text-end ">08/10/2567</th>
                     <th class="py-[12px] px-2 text-end ">200.00</th>
-                    <th class="py-[12px] px-2 text-center ">icon</th>
+                    <th class="py-[12px] px-2 text-center">
+                        <div class="flex justify-center items-center">
+                            <Icon :icon="'viewDetails'" />
+                        </div>
+                    </th>
                 </tr>
                 <!-- ข้อมูลว่าง -->
                 <tr class=" text-[14px] ">
