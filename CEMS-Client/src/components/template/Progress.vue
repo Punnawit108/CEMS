@@ -3,7 +3,7 @@
 </script>
 
 <template>
-    <div class=" h-[732px] border border-[#B6B7BA] px-[24px] py-[16px]">
+    <div class=" h-[732px] border border-[#B6B7BA] px-[16px] py-[16px]">
         <div class="row">
             <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                 <path
@@ -27,7 +27,7 @@
             </svg>
             <div class="text">
                 <p class="w-fit">นายพรชัย เพิ่มพูลกิจ</p>
-                <p class="text-sm text-gray-400">อนุมัติเมื่อ :10/02/67 10:52</p>
+                <p class="text-[11px] text-gray-400">อนุมัติเมื่อ :10/02/67 10:52</p>
             </div>
         </div>
         <div class="row ">
@@ -40,7 +40,7 @@
             </svg>
             <div class="text">
                 <p class="w-fit">นายพรชัย เพิ่มพูลกิจ</p>
-                <p class="text-sm text-gray-400">อนุมัติเมื่อ :10/02/67 10:52</p>
+                <p class="text-[11px] text-gray-400">อนุมัติเมื่อ :10/02/67 10:52</p>
             </div>
         </div>
         <div class="row my-[50px]">
@@ -53,7 +53,7 @@
             </svg>
             <div class="text">
                 <p class="w-fit">นายพรชัย เพิ่มพูลกิจ</p>
-                <p class="text-sm text-gray-400">อนุมัติเมื่อ :10/02/67 10:52</p>
+                <p class="text-[11px] text-gray-400">อนุมัติเมื่อ :10/02/67 10:52</p>
             </div>
         </div>
         <div class="row">
@@ -70,7 +70,7 @@
                     stroke="white" stroke-width="2" />
             </svg>
             <div class="text">
-                <p>รอดำเนินการ</p>
+                <p>เบิกจ่าย</p>
             </div>
         </div>
         <div class="row my-[50px]">
@@ -82,7 +82,7 @@
                     stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
             </svg>
             <div class="text">
-                <p>รอดำเนินการ</p>
+                <p>เสร็จสิ้น</p>
             </div>
         </div>
     </div>
@@ -91,7 +91,6 @@
 <style scoped>
 @tailwind base;
 @tailwind components;
-
 .row {
     @apply flex items-center text-black
 }
@@ -101,4 +100,8 @@
 }
 
 @tailwind utilities;
+
+p{
+    font-size:14px;
+}
 </style>
