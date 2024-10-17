@@ -1,10 +1,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-import BtnCancleBorderGray from '../../components/Button/BtnCancleBorderGray.vue';
-import BtnConfirm from '../../components/Button/BtnConfirm.vue';
-import BtnExpense from '../../components/Button/BtnExpense.vue';
 import Icon from '../../components/template/CIcon.vue';
+import Button from '../../components/template/Button.vue';
 
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isAddPage = ref(false);
@@ -41,11 +39,12 @@ onMounted(() => {
   <!-- ปุ่มเปลี่ยนเส้นทาง -->
   <div class="h-[50px] flex justify-end items-center">
     <div v-if="isAddPage">
-      <BtnCancleBorderGray  @click="goToList" type="secondary">ยกเลิก</BtnCancleBorderGray>
-      <BtnConfirm  @click="goToList" type="secondary" class="ml-5">ยืนยัน</BtnConfirm>
+      <Button :type="'btn-cancleBorderGray'" @click="goToList" >ยกเลิก</Button>
+      <span class="ml-5"></span>
+      <Button :type="'btn-summit'" @click="goToList" class="ml-5">ยืนยัน</Button>
     </div>
     <div v-else>
-      <BtnExpense  @click="goToAdd">ผู้มีสิทธิอนุมัติ</BtnExpense>
+      <Button :type="'btn-expense'" @click="goToAdd">ผู้มีสิทธิอนุมัติ</Button>
     </div>
   </div>
 

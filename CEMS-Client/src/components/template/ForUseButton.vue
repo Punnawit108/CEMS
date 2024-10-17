@@ -4,11 +4,7 @@ import Button from './Button.vue';
 </script>
 
 <template>
-<<<<<<< HEAD
-    <div class="grid grid-cols-5 m-5 gap-5">
-=======
     <div class="grid grid-cols-5 gap-5 m-5">
->>>>>>> feature/settingExpenseType
         <div>
             <!-- เพิ่มโครงการ -->
             <Button :type="'btn-addProject'"></Button>
