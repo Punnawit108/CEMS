@@ -1,5 +1,5 @@
 <template>
-    <nav class="flex flex-col bg-white max-w-[256px] pb-[564px] relative ">
+    <nav class="flex flex-col bg-white max-w-[256px] pb-[564px] relative drop-shadow-md ">
         <header class="flex  flex-col justify-center py-6 w-full ">
             <div class="flex flex-col px-5 w-full ">
                 <img loading="lazy"
@@ -19,7 +19,7 @@
                         class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-red-100  rounded-xl"
                         tabindex="0">
                         <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                        <Icon :icon="'dashboard'" />
+                        <Icon :icon="'dashboard'" class="ml-2" />
 
                         <span class="self-stretch py-2.5 my-auto w-[174px] text-left">แดชบอร์ด</span>
                         
@@ -35,9 +35,7 @@
                     class="flex relative gap-2.5 items-center w-56 max-w-full hover:bg-neutral-100 rounded-xl  "
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <img loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/03778099500b2f98224640a7c0d0c308da4cbfc93c511866614b728b299bef10?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                        class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square" alt="" />
+                    <Icon :icon="'disbursement'"  class="ml-2"/>
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การเบิกจ่าย</span>
                     <img loading="lazy"
                         src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
@@ -55,10 +53,7 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/78773019f1878802996c7647863089b1029e5a2cedd37f5bb689ab1a3b1c02bd?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'listWithdraw'"  />
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายการเบิกค่าใช้จ่าย</span>
                             </a>
                         </RouterLink>
@@ -72,10 +67,7 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/a887bf583dd45e6fcab5ada6177f5df5e1879444be88e86158b6178d7191bf4d?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'historyWithdraw'" />
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">ประวัติเบิกค่าใช้จ่าย</span>
                             </a>
                         </RouterLink>
@@ -91,9 +83,7 @@
                     class="flex relative gap-2.5 items-center w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px] hover:bg-neutral-100 rounded-xl"
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <img loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/c02761727dcf26d682e23bb827b9ace5885b3a9c2ee9d6205240096ecfa13e1d?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                        class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square" alt="" />
+                    <Icon :icon="'report'"  class="ml-2" />
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">รายงาน</span>
                     <img loading="lazy"
                         src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
@@ -111,10 +101,8 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/031bd0f136b68469d0809d7c1fea60fd88d63a5b5e82179d1772844aa325c962?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                                <Icon :icon="'reportProject'" />
+
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายงานโครงการ</span>
                             </a>
                         </RouterLink>
@@ -130,10 +118,7 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/78773019f1878802996c7647863089b1029e5a2cedd37f5bb689ab1a3b1c02bd?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'reportExpense'" />
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายงานเบิกค่าใช้จ่าย</span>
                             </a>
                         </RouterLink>
@@ -150,9 +135,7 @@
                     class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <img loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/97a9e7a65c377f08f5eca9c2d6750b561e7f0aba4e56306a9e103bb9ac509b1b?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                        class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square" alt="" />
+                    <Icon :icon="'approval'" class="ml-2" />
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การอนุมัติ</span>
                     <img loading="lazy"
                         src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
@@ -171,10 +154,7 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/d53dec75d1c99fd36c2f77c9a2d06dc8ca69b8340832d36a5f8cc8ef2a6c7360?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'approvalList'" />
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายการอนุมัติ</span>
                             </a>
                         </RouterLink>
@@ -189,10 +169,8 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/a887bf583dd45e6fcab5ada6177f5df5e1879444be88e86158b6178d7191bf4d?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'historyWithdraw'" />
+
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">ประวัติการอนุมัติ</span>
                             </a>
                         </RouterLink>
@@ -210,9 +188,8 @@
                     class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <img loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/5d27f4d04d18e2ade2269d8c1ebe454ffdb3f4b1f6b065a61ae156ed18d72715?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                        class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square" alt="" />
+                    <Icon :icon="'systemSettingsDisbursementTypeExpense'" class="ml-2"/>
+
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การนำจ่าย</span>
                     <img loading="lazy"
                         src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
@@ -232,10 +209,8 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/46185c3d2e7c068668b6199bff591760cb9b2634efff560dcf20f8de07b98edb?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'listWithdraw'" />
+
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายการรอนำจ่าย</span>
                             </a>
                         </RouterLink>
@@ -251,10 +226,8 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/a887bf583dd45e6fcab5ada6177f5df5e1879444be88e86158b6178d7191bf4d?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'historyWithdraw'" />
+
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">ประวัติการนำจ่าย</span>
                             </a>
                         </RouterLink>
@@ -272,9 +245,8 @@
                     class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <img loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/e4e8d97123341e4b4142dd4b01667ede31c8c18ff38ed0633acc94174645d315?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                        class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square" alt="" />
+                    <Icon :icon="'systemSettings'" class="ml-2" />
+
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">ตั้งค่าระบบ</span>
                     <img loading="lazy"
                         src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
@@ -293,10 +265,8 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/4892a32ccf47c66c799d43b34971298344db7aa390aa7be1404d6165b8b9c0f6?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'systemSettingsUser'" />
+
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">ผู้ใช้งาน</span>
                             </a>
                         </RouterLink>
@@ -311,10 +281,8 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/209db2e88b8d0a400aaf859bf42a616fa472a702a362147144582562aef7a8a4?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'systemSettingsDisbursementApprover'" />
+
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">ผู้อนุมัติการเบิกจ่าย</span>
                             </a>
                         </RouterLink>
@@ -330,10 +298,8 @@
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <img loading="lazy"
-                                    src="https://cdn.builder.io/api/v1/image/assets/TEMP/96e725e419425ca7c9bede7f9a01d1ab72f39c0764f0a00dc1b15026c5676ac3?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                                    class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square"
-                                    alt="" />
+                                <Icon :icon="'systemSettingsDisbursementType'" />
+
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">ประเภทเบิกจ่าย</span>
                             </a>
                         </RouterLink>
@@ -351,9 +317,8 @@
                         class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-red-100  rounded-xl"
                         tabindex="0">
                         <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                        <img loading="lazy"
-                            src="https://cdn.builder.io/api/v1/image/assets/TEMP/b4675fb7b7b61dd2f3d546d6038dfb20306e4726504bcab26f727202704f03ee?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-                            class="object-contain z-0 shrink-0 self-stretch my-auto w-10 aspect-square" alt="" />
+                        <Icon :icon="'notification'" class="ml-2" />
+
                         <span class="self-stretch py-2.5 my-auto w-[174px] text-left">การแจ้งเตือน</span>
                     </button>
                 </RouterLink>
@@ -367,8 +332,8 @@
 import { ref } from 'vue';
 import Icon from './CIcon.vue';
 
-const role = "Approver";
-const clickDashboard = ref(false);
+const role = "Accountant";
+const clickDashboard = ref(true);
 const clickNotification = ref(false);
 
 const clickListWithdraw = ref(false);           //ปุ่มใน dropdown เบิกค่าใช้จ่าย
