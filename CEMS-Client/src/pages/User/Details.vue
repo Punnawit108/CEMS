@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import { ref } from "vue";
 import Progress from "../../components/template/Progress.vue";
-import BtnApprove from "../../components/Button/BtnApprove.vue";
-import BtnEditSend from "../../components/Button/BtnEditSend.vue";
-import BtnUnapprove from "../../components/Button/BtnUnapprove.vue";
+import Button from "../../components/template/Button.vue";
 
 const statusDetail = ref("edit"); // 'reject' is the initial value
 
@@ -70,7 +68,7 @@ const progressInfo = {
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
     <div class="flex justify-between">
-      <div class="left w-[85%]">
+      <div class="left w-[80%]">
         <h3 class="text-base font-bold text-black">
           รายละเอียดคำขอเบิก<span
             :class="`bg-[${colorStatus[statusDetail]}]`"
@@ -150,11 +148,19 @@ const progressInfo = {
       </div>
       <div class="right">
         <div class="flex mb-[24px]">
-          <BtnApprove />
-          <BtnEditSend class="mx-[24px] "/>
-          <BtnUnapprove />
+          <Button type="btn-unapprove" />
+          <span class="mx-[12px]"></span>
+          <Button type="btn-editSend" class="mx-[24px]" />
+          <span class="mx-[12px]"></span>
+          <Button type="btn-approve" />
         </div>
-        <Progress :progressInfo="progressInfo" :colorStatus="colorStatus" />
+        <div class="flex justify-end">
+          <Progress
+            :progressInfo="progressInfo"
+            :colorStatus="colorStatus"
+            class="w-[80%]"
+          />
+        </div>
       </div>
     </div>
   </div>
