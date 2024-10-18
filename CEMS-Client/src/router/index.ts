@@ -17,7 +17,7 @@ import TravelManage from '../pages/Admin/TravelManage.vue';
 import PaymentList from '../pages/Accountant/PaymentList.vue';
 import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
 import ApprovalList from '../pages/User/ApprovalList.vue';
-
+import Login from '../pages/Login.vue'
 //template
 import icon from '../components/template/icon.vue';
 import DropDown from '../components/template/DropDown.vue';
@@ -83,10 +83,20 @@ const router = createRouter({
     //
     // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
     {
-      path: '/',
+      path: '/dashboard',
       name: 'dashboard',
       component: dashboard,
       meta: { breadcrumb: 'แดชบอร์ด' }
+    },
+    {
+      path: '/login',
+      name: 'login',
+      component: Login,
+    },
+    {
+      path: '/',
+      name: 'home',
+      redirect: '/login'
     },
     // การเบิกค่าใช้จ่าย
     {
