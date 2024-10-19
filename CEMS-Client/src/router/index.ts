@@ -27,6 +27,8 @@ import Table from '../components/template/Table.vue';
 import Popup from '../components/template/popup.vue';
 import UploadPicture from '../components/template/UploadPicture.vue';
 import ForUseButton from '../components/template/ForUseButton.vue';
+import ForUseStatus from '../components/template/ForUseStatus.vue';
+
 
 
 
@@ -79,6 +81,13 @@ const router = createRouter({
       path: '/temp/btn',
       name: 'btn',
       component: ForUseButton
+    },
+    //
+    //StatusBudge
+    {
+      path: '/temp/Status',
+      name: 'ForUseStatus',
+      component: ForUseStatus
     },
     //
     // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
