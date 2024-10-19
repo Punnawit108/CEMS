@@ -140,7 +140,10 @@ const toDetails = (id: string) => {
                     <th class="py-[12px] px-5 text-start ">ค่าเดินทาง</th>
                     <th class="py-[12px] px-2 text-end ">08/10/2567</th>
                     <th class="py-[12px] px-2 text-end ">200.00</th>
-                    <th class="flex justify-center"><button v-on:click="toDetails"> <Icon :icon="'viewDetails'" /> </button></th>
+                    <th class="flex justify-center">
+                        <button v-on:click="toDetails"> 
+                            <Icon :icon="'viewDetails'" /> 
+                        </button></th>
                 </tr>
                 <!-- ข้อมูลว่าง -->
                 <tr class=" text-[14px] ">

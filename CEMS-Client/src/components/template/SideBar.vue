@@ -332,7 +332,7 @@
 import { ref } from 'vue';
 import Icon from './CIcon.vue';
 
-const role = "Accountant";
+const role = "Approver";
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
 
