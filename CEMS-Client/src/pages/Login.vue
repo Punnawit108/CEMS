@@ -1,32 +1,36 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
-import { ref } from 'vue';
+import { ref, defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
+
 const router = useRouter();
-const selectedRole = ref('');
-const selectRole = (roles: string) => {
-    router.push({ path: '/dashboard'});
-    selectedRole.value = roles; 
+const emit = defineEmits(['updateRole']);
+
+const selectRole = (role: string) => {
+    emit('updateRole', role); // Emit ค่า role
+    console.log(role)
+    router.push({ path: '/dashboard' }); // เปลี่ยนเส้นทางไปที่ dashboard
 };
+
 const props = defineProps<{
-    roles:string 
+    roles: string
 }>();
 </script>
 <template>
     <div>
         <dialog id="roleSelected" class="modal">
-          <div class="modal-box">
-            <div class="modal-action flex justify-center">
-              <form method="dialog" class="flex gap-3">
-                <button class="btn" v-on:click="selectRole('User')">User</button>
-                <button class="btn" v-on:click="selectRole('Approver')">Approver</button>
-                <button class="btn" v-on:click="selectRole('Accountant')">Accountant</button>
-                <button class="btn" v-on:click="selectRole('Admin')">Admin</button>
-              </form>
+            <div class="modal-box">
+                <div class="modal-action flex justify-center">
+                    <form method="dialog" class="flex gap-3">
+                        <button class="btn" v-on:click="selectRole('User')">User</button>
+                        <button class="btn" v-on:click="selectRole('Approver')">Approver</button>
+                        <button class="btn" v-on:click="selectRole('Accountant')">Accountant</button>
+                        <button class="btn" v-on:click="selectRole('Admin')">Admin</button>
+                    </form>
+                </div>
             </div>
-          </div>
         </dialog>
-      </div>
+    </div>
 
     <div class="h-screen w-screen overflow-hidden">
         <main class="bg-[#FFFFFF] h-full">
@@ -81,10 +85,10 @@ const props = defineProps<{
                             </form>
                         </div>
                         <div class="login">
-                            <button
+                            <button onclick="roleSelected.showModal()"
                                 class="flex rounded-[10px] bg-[#FF0000] w-[400px] h-[50px] justify-center items-center shrink-0 gap-2 text-white mt-[39px]">
-                                    <div class="  flex justify-center items-center text-base font-[500] leading-normal" onclick="roleSelected.showModal()">
-                                        เข้าสู่ระบบ</div>
+                                <div class="  flex justify-center items-center text-base font-[500] leading-normal">
+                                    เข้าสู่ระบบ</div>
                             </button>
                             <div class="flex items-center mt-[39px]">
                                 <div class="lineLeft border-t-2 border-[#C1C1C1] w-[148px] mr-[30px]"></div>
