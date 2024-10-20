@@ -17,9 +17,9 @@ public class PositionController : ControllerBase
 
     // GET: api/todos
     [HttpGet]
-    public ActionResult<IEnumerable<Position>> GetPositionss()
+    public ActionResult<IEnumerable<cems_position>> GetPositionss()
     {
-        return _context.Positions.ToList();
+        return _context.cems_position.ToList();
     }
 
 }

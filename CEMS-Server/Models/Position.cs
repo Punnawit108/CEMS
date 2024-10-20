@@ -1,7 +1,7 @@
 namespace CEMS_Server.Models;
 using System.ComponentModel.DataAnnotations;
 
-public class Position
+public class cems_position
 {
     [Key]
     public int pst_id {get; set;}
