@@ -1,11 +1,48 @@
 <script setup lang="ts">
-const props = defineProps(["progressInfo", "colorStatus"]);
+const props = defineProps(["colorStatus"]);
 
-console.log(props.progressInfo);
+const colorStatus: { [key: string]: string } = {
+  reject: "#E1032B",
+  edit: "#FFBE40",
+  accept: "#12B669",
+  waiting: "#1976D2",
+  sketch: "#B6B7BA",
+};
+
+//ดึงข้อมูล approver ที่กดเข้ามา โดย
+const progressInfo = {
+  disbursement: {
+    dbm_id: 1 ,
+    status: "accept",
+    datetime: "10/02/67 10:52",
+  },
+  acceptor: [
+    {
+      name: "นายพรชัย เพิ่มพูลกิจ",
+      status: "accept",
+      datetime: "10/02/67 10:52",
+    },
+    {
+      name: "นายจักรวาล ร่วมนิคม",
+      status: "waiting",
+      datetime: null,
+    },
+    {
+      name: "นายพงศธร บุญญามา",
+      status: "edit",
+      datetime: "10/02/67 10:52",
+    },
+    {
+      name: "นายจักวรรดิ หงวนเจริญ",
+      status: "reject",
+      datetime: "10/02/67 10:52",
+    },
+  ],
+};
 </script>
 
 <template>
-  <div class="border border-[#B6B7BA] px-[16px] py-[16px]">
+  <div class="border border-[#B6B7BA] px-[16px] py-[16px] w-[266px] h-[720px]">
     <div class="row">
       <svg
         width="48"

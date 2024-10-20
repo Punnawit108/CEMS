@@ -2,7 +2,9 @@
 import { ref } from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
+import { useRoute } from "vue-router";
 
+const route = useRoute();
 const statusDetail = ref("edit"); // 'reject' is the initial value
 
 const colorStatus: { [key: string]: string } = {
@@ -13,68 +15,44 @@ const colorStatus: { [key: string]: string } = {
   sketch: "#B6B7BA",
 };
 
-const progressInfo = {
-  disbursement: {
-    status: "accept",
-    datetime: "10/02/67 10:52",
-  },
-  acceptor: [
-    {
-      name: "นายพรชัย เพิ่มพูลกิจ",
-      status: "accept",
-      datetime: "10/02/67 10:52",
-    },
-    {
-      name: "นายจักรวาล ร่วมนิคม",
-      status: "waiting",
-      datetime: null,
-    },
-    {
-      name: "นายพงศธร บุญญามา",
-      status: "edit",
-      datetime: "10/02/67 10:52",
-    },
-    {
-      name: "นายจักวรรดิ หงวนเจริญ",
-      status: "reject",
-      datetime: "10/02/67 10:52",
-    },
-  ],
+// Function ตรวจสอบ path ว่าเข้าหน้าไหน
+const hasHistoryInPath = (path: string): boolean => {
+  return path.includes('history');
 };
+const isHistoryInCurrentRoute = hasHistoryInPath(route.path); // แทนค่า path ปัจจุบัน
+
 </script>
 
-<!-- path for test = /disbursement/listWithdraw/detailsExpenseForm/:id -->
+<!-- path for test = /disbursement/listWithdraw/detail/:id -->
 <!-- path for test = /disbursement/historyWithdraw/detail/:id -->
 <!-- path for test = /approval/history/detail/:id -->
-<!-- path for test = /payment/List/detail/:id -->
+<!-- path for test = /payment/list/detail/:id -->
 <!-- path for test = /payment/history/detail/:id -->
 
+
+<!-- หน้ารายการต่างๆ แก้ไข -->
+<!-- หน้ารายการต่างๆ ไม่อนุมัติ -->
 <template>
   <!-- content -->
   <div class="ml-[16px]">
-    <div
-      class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]"
-    >
+    <!-- เหตุผลส่งกลับ -->
+    <div v-if="!isHistoryInCurrentRoute" class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]">
       <div class="flex justify-between">
         <p class="!text-[#ED0000] font-bold">เหตุผลส่งกลับ :</p>
         <p class="!text-[#FF0000]">วันที่ส่งกลับ : 11/09/2567</p>
       </div>
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
-    <div
-      class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]"
-    >
+    <!-- เหตุผลการไม่อนุมัติ -->
+    <div v-if="isHistoryInCurrentRoute" class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
       <p class="!text-[#ED0000] font-bold">เหตุผลการไม่อนุมัติ :</p>
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
     <div class="flex justify-between">
       <div class="left w-[80%]">
         <h3 class="text-base font-bold text-black">
-          รายละเอียดคำขอเบิก<span
-            :class="`bg-[${colorStatus[statusDetail]}]`"
-            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]"
-            >แก้ไข</span
-          >
+          รายละเอียดคำขอเบิก<span :class="`bg-[${colorStatus[statusDetail]}]`"
+            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">แก้ไข</span>
         </h3>
         <div class="row">
           <p>โครงการ</p>
@@ -137,29 +115,22 @@ const progressInfo = {
         <div class="row flex">
           <div class="flex-1">
             <h3 class="mb-[16px] text-base font-bold text-black">รูปหลักฐาน</h3>
-            <img
-              src="/evidence.PNG"
-              alt=""
-              class="w-[50%] h-auto cursor-pointer"
-            />
+            <img src="/evidence.PNG" alt="" class="w-[50%] h-auto cursor-pointer" />
           </div>
           <div class="flex-1"></div>
         </div>
       </div>
       <div class="right">
-        <div class="flex mb-[24px]">
+        <!-- ปุ่ม -->
+        <div v-if="!isHistoryInCurrentRoute" class="flex mb-[24px]">
           <Button type="btn-unapprove" />
           <span class="mx-[12px]"></span>
           <Button type="btn-editSend" class="mx-[24px]" />
           <span class="mx-[12px]"></span>
           <Button type="btn-approve" />
         </div>
-        <div class="flex justify-end">
-          <Progress
-            :progressInfo="progressInfo"
-            :colorStatus="colorStatus"
-            class="w-[80%]"
-          />
+        <div class="flex justify-end ">
+          <Progress colorStatus="colorStatus" class="w-[266px]" />
         </div>
       </div>
     </div>
