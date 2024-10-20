@@ -7,6 +7,7 @@ const toDetails = (id: string) => {
 }
 </script>
 <!-- path for test = /disbursement/listWithdraw -->
+ 
 <template>
     <div>
         <!-- content -->
