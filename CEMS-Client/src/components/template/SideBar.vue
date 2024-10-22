@@ -331,8 +331,12 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import Icon from './CIcon.vue';
+import { defineProps } from 'vue';
 
-const role = "Approver";
+const props = defineProps<{
+  role: string; // กำหนด type ของ role
+}>();
+const role = props.role;
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
 

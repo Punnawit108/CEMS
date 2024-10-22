@@ -1,0 +1,18 @@
+# ใช้ SDK image สำหรับการ build application
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
+WORKDIR /app
+
+# คัดลอกไฟล์ทั้งหมดใน directory ไปยัง container
+COPY . ./
+
+# Restore packages และ build application
+RUN dotnet restore
+RUN dotnet publish -c Release -o out
+
+# สร้าง runtime image โดยใช้ ASP.NET runtime
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build-env /app/out .
+
+# กำหนดจุดเริ่มต้นของ application
+ENTRYPOINT ["dotnet", "YourApp.dll"]
