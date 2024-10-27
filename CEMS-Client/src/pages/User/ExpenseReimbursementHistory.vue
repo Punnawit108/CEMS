@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
+import Ctable from '../../components/template/Ctable.vue';
 const router = useRouter();
 
 const toDetails = (id: string) => {
@@ -81,200 +82,40 @@ const toDetails = (id: string) => {
         </div>
     </div>
     
-    <div class="Table3.2ผู้ใช้-ประวัติเบิกค่าใช้จ่าย mt-12">
-    <!-- Table3.2ผู้ใช้-ประวัติเบิกค่าใช้จ่าย -->
-    
-    <div class="w-full h-fit border-[1px] flex items-start">
-        <!-- แถบหัวข้อ -->
-        <table class="table-auto w-screen text-center text-black">
-            <thead class="bg-[#F2F4F8]">
-                <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                    <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
-                    <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อโครงการ</th>
-                    <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                    <th class="py-[11px] px-2 text-end w-20 font-bold">วันที่เบิก</th>
-                    <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
-                    <th class="py-[11px] px-2 text-center w-32 font-bold">สถานะ</th>
-                    <th class="py-[11px] px-2 text-center w-24 font-bold">รายละเอียด</th>
+    <div class="w-full  border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
+        <!-- ตาราง -->
+        <div>
+            <Ctable :table="'Table9-head'" />
+        </div>
+        <table class="w-full">
+            <tbody>
+                <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
+                    <th class="py-[12px] px-2 w-14">1</th>
+                    <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                        title="นายเทียนชัย คูเมือง">
+                        นายเทียนชัย คูเมือง
+                    </th>
+                    <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                        title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                        กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                    </th>
+                    <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
+                    <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
+                    <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
+                    <th class="py-[12px] px-2 w-28 text-center text-green-500">นำจ่ายแล้ว</th>
+                    <th class="py-[10px] px-2 w-20 text-center ">
+                        <span class="flex justify-center" v-on:click="toDetails">
+                            <Icon :icon="'viewDetails'" />
+                        </span>
+                    </th>
                 </tr>
-            </thead>
-            <!-- ข้อมูลชุดที่ 1 -->
-            <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[12px] px-2 ">1</th>
-                <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                    style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                    title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Elegant">
-                    กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
-                </th>
-                <th class="py-[12px] px-5 text-start font-[100]">ค่าเดินทาง</th>
-                <th class="py-[12px] px-2 text-end ">08/10/2567</th>
-                <th class="py-[12px] px-2 text-end ">200.00</th>
-                <th class="py-[12px] px-2"> 
-                    <div class="ml-10 rounded-[28px] w-[92px] h-[24px] bg-green text-white text-Sarabun-Reqular12 grid justify-items-center flex items-center">อนุมัติแล้ว</div>
-                </th>
-                <th class="flex justify-center mt-1">
-                    <button v-on:click="toDetails"> 
-                        <Icon :icon="'viewDetails'" /> 
-                    </button>
-                </th>
-            </tr>
-            <!-- ข้อมูลว่าง 2 -->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 3 -->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 4 -->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 5-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 6-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 7-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 8-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 9-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 10-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 11-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 12-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 13-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- ข้อมูลว่าง 14-->
-            <tr class=" text-[14px] ">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            
-            <!-- ข้อมูลว่างอันล่างสุด 15 -->
-            <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
-                <th class="py-[12px] px-2 h-[47px]"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-5"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-                <th class="py-[12px] px-2"></th>
-            </tr>
-            <!-- footer -->
-            <tr class=" text-[14px] border-b-1 border-[#BBBBBB]">
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th></th>
-                <th class="py-[12px] text-end pr-7">1 of 10</th>
-                <th class="py-[12px] flex justify-between text-[14px] font-bold">
-                    <span class="ml-10 text-[#A0A0A0]">
-                        < </span>
-                            <span class="mr-6"> > </span>
-                </th>
-            </tr>
+            </tbody>
         </table>
-    </div>
+        <div>
+            <Ctable :table="'Table9-footer'" />
+        </div>
     </div>
     </div>
     <!-- content -->
