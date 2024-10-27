@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
+import Ctable from '../../components/template/Ctable.vue';
 const router = useRouter();
 
 const toDetails = (id: string) => {
@@ -108,83 +108,41 @@ const toDetails = (id: string) => {
         </div>
     </div>
 
-    <div class="w-full h-screen border-[2px] flex flex-col">
+    <div class="w-full h-screen border-[2px] ">
         <!-- ตาราง -->
-        <div class="flex-grow overflow-auto">
-            <table class="table-auto w-full text-center text-black">
-                <!-- แถบหัวข้อ -->
-                <thead class="bg-[#F2F4F8]">
-                    <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
-                        <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อ-นามสกุล</th>
-                        <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อโครงการ</th>
-                        <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                        <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่เบิก</th>
-                        <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
-                        <th class="py-[11px] px-2 text-center w-32 font-bold">รายละเอียด</th>
-                    </tr>
-                </thead>
-                <!-- ข้อมูลชุดที่ 1 -->
-                <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                    <th class="py-[12px] px-2 ">1</th>
-                    <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                        style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+        <div>
+            <Ctable :table="'Table9-head'" />
+        </div>
+        <table>
+            <tbody>
+                <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
+                    <th class="py-[12px] px-2 w-14">1</th>
+                    <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                         title="นายเทียนชัย คูเมือง">
                         นายเทียนชัย คูเมือง
                     </th>
-                    <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                        style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                    <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                         title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                         กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                     </th>
-                    <th class="py-[12px] px-5 text-start ">ค่าเดินทาง</th>
-                    <th class="py-[12px] px-2 text-end ">08/10/2567</th>
-                    <th class="py-[12px] px-2 text-end ">200.00</th>
-                    <th class="flex justify-center">
-                        <button v-on:click="toDetails"> 
-                            <Icon :icon="'viewDetails'" /> 
-                        </button></th>
+                    <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
+                    <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
+                    <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
+                    <th class="py-[12px] px-2 w-28 text-center text-green-500">นำจ่ายแล้ว</th>
+                    <th class="py-[10px] px-2 w-20 text-center ">
+                        <span class="flex justify-center">
+                            <Icon :icon="'viewDetails'" />
+                        </span>
+                    </th>
                 </tr>
-                <!-- ข้อมูลว่าง -->
-                <tr class=" text-[14px] ">
-                    <th class="py-[12px] px-2 h-[47px]"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-5"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                </tr>
-                <!-- ข้อมูลว่างอันล่างสุด -->
-                <tr class=" text-[14px]">
-                    <th class="py-[12px] px-2 h-[47px]"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-5"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                </tr>
-
-            </table>
-        </div>
-        <!-- footer -->
-        <div class="w-full flex justify-end text-[14px] font-bold py-[12px] px-8 border-t-2 border-[#BBBBBB]">
-            <div class=" flex flex-wrap gap-14
-            ">
-            <span class="text-black">1 of 10</span>     
-            <span class="text-[#A0A0A0]"> < </span>
-            <span class="text-black"> > </span>   
-            </div>
-            
+            </tbody>
+        </table>
+        <div>
+            <Ctable :table="'Table9-footer'" />
         </div>
     </div>
-
-
-
-
-
-
     <!-- content -->
 </template>
 <style scoped>
