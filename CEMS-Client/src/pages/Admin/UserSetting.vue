@@ -2,6 +2,7 @@
 import Icon from '../../components/template/CIcon.vue';
 import { useRouter } from 'vue-router';
 import { ref } from 'vue';
+import Ctable from '../../components/template/Ctable.vue';
 
 const router = useRouter();
 
@@ -10,16 +11,14 @@ const navigateToDetail = (userId: string) => {
 };
 
 // สร้าง ref สำหรับเก็บสถานะของ checkbox
-const isChecked = ref(false);
+const viewReportPermission = ref(false);
 
 // ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลงของ checkbox
 const handleCheckboxChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
-    isChecked.value = target.checked;
-    // คุณสามารถเพิ่มลอจิกเพิ่มเติมที่นี่ เช่น การอัปเดต state หรือเรียก API
+    viewReportPermission.value = target.checked;
 };
 </script>
-<!-- path for test = /systemSettings/user -->
 <template>
     <div class="flex flex-col text-center">
         <!-- Filter Section -->
@@ -112,86 +111,51 @@ const handleCheckboxChange = (event: Event) => {
         </div>
 
         <!-- Table 5 ดูแลระบบ-จัดการผู้ใช้งาน -->
-        <div class="w-full h-fit border-[2px] flex items-start">
-            <table class="table-auto w-screen text-center text-black">
-                <thead class="bg-[#F2F4F8]">
-                    <tr class="text-[16px] border-b-2 border-[#BBBBBB]">
-                        <th class="py-[11px] px-2 w-12 font-bold">ลำดับ</th>
-                        <th class="py-[11px] px-2 text-center w-24 font-bold">รหัสพนักงาน</th>
-                        <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
-                        <th class="py-[11px] px-2 text-start w-20 font-bold">แผนก</th>
-                        <th class="py-[11px] px-2 text-start w-24 font-bold">ฝ่าย</th>
-                        <th class="py-[11px] px-2 text-start w-20 font-bold">บทบาท</th>
-                        <th class="py-[11px] px-2 text-start w-24 font-bold">สถานะ</th>
-                        <th class="py-[11px] px-2 text-center w-24 font-bold">ดูรายงาน</th>
-                        <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
-                    </tr>
-                </thead>
+        <div class="w-full h-fit border-[2px] flex flex-col items-start">
+            <!-- Table Header -->
+            <Ctable :table="'Table5-head'" />
+
+            <!-- Table Data -->
+            <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <!-- ข้อมูลชุดที่ 1 -->
                     <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
-                        <th class="py-[12px] px-2">1</th>
-                        <th class="py-[12px] px-2">651122</th>
-                        <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                            style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                        <th class="py-[12px] px-2 w-12 h-[46px]">1</th>
+                        <th class="py-[12px] px-2 w-24">651122</th>
+                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                            style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="นายเทียนชัย คูเมือง">
                             นายเทียนชัย คูเมือง
                         </th>
-                        <th class="py-[12px] px-2 text-start font-[100]">ไอที</th>
-                        <th class="py-[12px] px-2 text-start">การตลาด</th>
-                        <th class="py-[12px] px-2 text-start">ผู้ใช้งาน</th>
-                        <th class="py-[12px] px-2 text-start">อยู่ในระบบ</th>
-                        <th class="py-[12px] px-2 text-center">
-                            <input type="checkbox" :checked="isChecked" @change="handleCheckboxChange"
-                                class="form-checkbox h-5 w-5 text-blue-600">
+                        <th class="py-[12px] px-2 w-20 text-start font-[100]">ไอที</th>
+                        <th class="py-[12px] px-2 w-24 text-start">การตลาด</th>
+                        <th class="py-[12px] px-2 w-20 text-start">ผู้ใช้งาน</th>
+                        <th class="py-[12px] px-2 w-24 text-start">อยู่ในระบบ</th>
+                        <th class="w-24">
+                            <span class="flex justify-center">
+                                <input type="checkbox" v-model="viewReportPermission" @change="handleCheckboxChange"
+                                    class="w-4 h-4 border-2 border-[#BBBBBB] rounded">
+                            </span>
                         </th>
-                        <th class="flex justify-center">
-                            <div @click="navigateToDetail('651122')" class="cursor-pointer">
-                                <Icon :icon="'viewDetails'" />
-                            </div>
+                        <th class="py-[10px] px-2 w-24 text-center">
+                            <span class="flex justify-center">
+                                <div @click="() => navigateToDetail('651122')" class="cursor-pointer">
+                                    <Icon :icon="'viewDetails'" />
+                                </div>
+                            </span>
                         </th>
                     </tr>
-                    <!-- ข้อมูลว่าง -->
+                    <!-- Empty rows -->
                     <tr class="text-[14px]">
-                        <th class="py-[12px] px-2 h-[47px]"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
+                        <th class="py-[12px] px-2 h-[47px]" colspan="9"></th>
                     </tr>
-                    <!-- ข้อมูลว่างอันล่างสุด -->
                     <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
-                        <th class="py-[12px] px-2 h-[47px]"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                        <th class="py-[12px] px-2"></th>
-                    </tr>
-                    <!-- footer -->
-                    <tr class="text-[14px] ">
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th></th>
-                        <th class="py-[12px] text-end pr-7">1 of 10</th>
-                        <th class="py-[12px] flex justify-between text-[14px] font-bold">
-                            <span class="ml-4 text-[#A0A0A0]">&lt;</span>
-                            <span class="mr-6">&gt;</span>
-                        </th>
+                        <th class="py-[12px] px-2 h-[47px]" colspan="9"></th>
                     </tr>
                 </tbody>
             </table>
+
+            <!-- Table Footer -->
+            <Ctable :table="'Table5-footer'" />
         </div>
     </div>
 </template>
@@ -223,7 +187,6 @@ select option[value=""] {
     display: none;
 }
 
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
 @media screen and (-webkit-min-device-pixel-ratio:0) {
     .custom-select {
         background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
