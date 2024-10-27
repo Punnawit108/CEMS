@@ -2,6 +2,7 @@
 import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import Ctable from '../../components/template/Ctable.vue';
 import {
     Chart,
     BarController,
@@ -219,73 +220,34 @@ onMounted(() => {
         <!-- end::Filter -->
 
         <!-- begin::Table -->
-        <div class="w-full h-fit border flex items-start">
-            <!-- แถบหัวข้อ -->
-            <table class="table-auto w-screen text-center text-black">
-                <thead class="bg-[#F2F4F8]">
-                    <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
-                        <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อโครงการ</th>
-                        <th class="py-[11px] px-2 text-end w-28 font-bold">งบประมาณ</th>
-                        <th class="py-[11px] px-2 text-end w-28 font-bold">ยอดเบิกจ่าย</th>
-                        <th class="py-[11px] px-5 text-end w-36 font-bold">วันที่จัดโครงการ</th>
-                        <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่สิ้นสุด</th>
-                        <th class="py-[11px] px-2 text-center w-16 font-bold">รายละเอียด</th>
+        <div class="w-full h-fit border-[2px] flex flex-col items-start">
+            <!-- Table Header -->
+            <Ctable :table="'Table4-head'" />
+            <!-- Table Data -->
+            <!-- <Ctable :table="'Table4-data'" />    -->
+            <table class="table-auto w-full text-center text-black">
+                <tbody>
+                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                        <th class="py-[12px] w-14 px-2 h-[46px]">1</th>
+                        <th class="py-[12px] w-52 px-2 text-start truncate overflow-hidden"
+                            style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                            กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                        </th>
+                        <th class="py-[12px] w-28 px-2 text-end font-[100]">1,000,000.00</th>
+                        <th class="py-[12px] w-28 px-2 text-end ">600,000.00</th>
+                        <th class="py-[12px] w-36 px-5 text-end ">08/09/2567</th>
+                        <th class="py-[12px] w-24 px-2 text-end ">08/10/2567</th>
+                        <th class="py-[10px] w-16 px-2 text-center ">
+                            <span class="flex justify-center">
+                                <Icon :icon="'viewDetails'" />
+                            </span>
+                        </th>
                     </tr>
-                </thead>
-                <!-- ข้อมูล -->
-                <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                    <th class="py-[12px] px-2 ">1</th>
-                    <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                        style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                        title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                        กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
-                    </th>
-                    <th class="py-[12px] px-2 text-end font-[100]">1,000,000.00</th>
-                    <th class="py-[12px] px-2 text-end ">600,000.00</th>
-                    <th class="py-[12px] px-5 text-end ">08/09/2567</th>
-                    <th class="py-[12px] px-2 text-end ">08/10/2567</th>
-                    <th class="py-[12px] px-2 text-center ">
-                        <div class="flex justify-center items-center">
-                            <Icon :icon="'viewDetails'" />
-                        </div>
-                    </th>
-                </tr>
-                <!-- ข้อมูลว่าง -->
-                <tr class=" text-[14px] ">
-                    <th class="py-[12px] px-2 h-[47px]"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-5"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                </tr>
-                <!-- ข้อมูลว่างอันล่างสุด -->
-                <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
-                    <th class="py-[12px] px-2 h-[47px]"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-5"></th>
-                    <th class="py-[12px] px-2"></th>
-                    <th class="py-[12px] px-2"></th>
-                </tr>
-                <!-- footer -->
-                <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th class="py-[12px] text-end pr-7">1 of 10</th>
-                    <th class="py-[12px] flex justify-between text-[14px] font-bold">
-                        <span class="ml-10 text-[#A0A0A0]">
-                            < </span>
-                                <span class="mr-6"> > </span>
-                    </th>
-                </tr>
+                </tbody>
             </table>
+            <!-- Table Footer -->
+            <Ctable :table="'Table4-footer'" />
         </div>
         <!-- end::Table -->
 
