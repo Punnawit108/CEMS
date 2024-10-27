@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
+import Ctable from '../../components/template/Ctable.vue';
+import StatusBudge from '../../components/template/StatusBudge.vue';
 const router = useRouter();
 const toDetails = (id: string) => {
     router.push(`/payment/list/detail/${id}`);
@@ -113,96 +115,40 @@ const toDetails = (id: string) => {
         </div>
 
         <!-- Table -->
+        <div class="w-full h-fit border-2 border-b-grayDark items-start">
+            <Ctable :table="'Table3-head'" />
+            <table class="table-auto w-full text-center text-black">
 
-        <div class="w-full h-screen border-[2px] flex flex-col">
-            <!-- ตาราง -->
-            <div class="flex-grow overflow-auto">
-                <table class="table-auto w-full text-center text-black">
-                    <!-- แถบหัวข้อ -->
-                    <thead class="bg-[#F2F4F8]">
-                        <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                            <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
-
-                            <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อโครงการ</th>
-                            <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                            <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่เบิก</th>
-                            <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
-
-                            <th class="py-[11px] px-2 text-center w-32 font-bold">สถานะ</th>
-                            <th class="py-[11px] px-2 text-center w-32 font-bold">รายละเอียด</th>
-                        </tr>
-                    </thead>
-
-                    <!-- ข้อมูลชุดที่ 1 -->
+                <tbody>
                     <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 ">1</th>
-
-                        <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                            style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="อบรมการบริหาร">
-                            อบรมการบริหาร
+                        <th class=" py-[12px] px-2 w-14 h-[46px]">1</th>
+                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                            style="max-width: 211px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                            สัมพันธ์ในองค์กรทีม 4 Eleant
                         </th>
-                        <th class="py-[12px] px-5 text-start ">ค่าเดินทาง</th>
-                        <th class="py-[12px] px-2 text-end ">08/10/2567</th>
-                        <th class="py-[12px] px-2 text-end ">200.00</th>
-                        <th class="flex justify-center">
-                            <button v-on:click="toDetails">
+                        <th class="py-[12px] px-5 w-44 text-start font-[100]">ค่าเดินทาง</th>
+                        <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
+                        <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
+                        <th class="py-[12px] px-2 w-32 text-center "><span>
+                                <StatusBudge :status="'sts-waiting'"></StatusBudge>
+                            </span></th>
+                        <th class="py-[10px] px-2 w-24 text-center ">
+                            <span v-on:click="toDetails" class="flex justify-center ">
                                 <Icon :icon="'viewDetails'" />
-                            </button>
+                            </span>
                         </th>
+
+
 
                     </tr>
+                </tbody>
+            </table>
+            <Ctable :table="'Table3-footer'" />
 
-                    <!-- ข้อมูลชุดที่ 2 -->
-                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 ">2</th>
-                        <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                            style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="โครงการฝึกอบรมพัฒนาทักษะการทำงาน">
-                            โครงการฝึกอบรมพัฒนาทักษะการทำงาน
-                        </th>
-                        <th class="py-[12px] px-5 text-start ">ค่าเดินทาง</th>
-                        <th class="py-[12px] px-2 text-end ">09/10/2567</th>
-                        <th class="py-[12px] px-2 text-end ">250.00</th>
-                        <th class="flex justify-center">
-                            <button v-on:click="toDetails">
-                                <Icon :icon="'viewDetails'" />
-                            </button>
-                        </th>
-                    </tr>
-
-                    <!-- ข้อมูลชุดที่ 3 -->
-                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 ">3</th>
-                        <th class="py-[12px] px-2 text-start truncate overflow-hidden"
-                            style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="โครงการศึกษาดูงานต่างประเทศ">
-                            โครงการศึกษาดูงานต่างประเทศ
-                        </th>
-                        <th class="py-[12px] px-5 text-start ">ค่าเดินทาง</th>
-                        <th class="py-[12px] px-2 text-end ">10/10/2567</th>
-                        <th class="py-[12px] px-2 text-end ">300.00</th>
-                        <th class="flex justify-center">
-                            <button v-on:click="toDetails">
-                                <Icon :icon="'viewDetails'" />
-                            </button>
-                        </th>
-                    </tr>
-                </table>
-            </div>
-
-            <!-- footer -->
-            <div class="w-full flex justify-end text-[14px] font-bold py-[12px] px-8 border-t-2 border-[#BBBBBB]">
-                <div class=" flex flex-wrap gap-14">
-                    <span class="text-black">1 of 10</span>
-                    <span class="text-[#A0A0A0]">
-                    </span>
-                    <span class="text-black"> > </span>
-                </div>
-            </div>
-            <!-- footer -->
-             </div>
         </div>
+
+    </div>
 </template>
 <style scoped>
 .custom-select {
