@@ -1,6 +1,8 @@
 <script setup lang="ts">
 import { useRouter } from 'vue-router';
 import Ctable from '../../components/template/Ctable.vue';
+import Icon from '../../components/template/CIcon.vue';
+
 const router = useRouter();
 
 const toDetails = (id: string) => {
@@ -108,12 +110,12 @@ const toDetails = (id: string) => {
         </div>
     </div>
 
-    <div class="w-full h-screen border-[2px] ">
+    <div class="w-full  border-r-[2px] border-l-[2px] border-t-[2px]">
         <!-- ตาราง -->
         <div>
             <Ctable :table="'Table9-head'" />
         </div>
-        <table>
+        <table class="w-full">
             <tbody>
                 <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
                     <th class="py-[12px] px-2 w-14">1</th>
@@ -132,7 +134,7 @@ const toDetails = (id: string) => {
                     <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
                     <th class="py-[12px] px-2 w-28 text-center text-green-500">นำจ่ายแล้ว</th>
                     <th class="py-[10px] px-2 w-20 text-center ">
-                        <span class="flex justify-center">
+                        <span class="flex justify-center" v-on:click="toDetails">
                             <Icon :icon="'viewDetails'" />
                         </span>
                     </th>
