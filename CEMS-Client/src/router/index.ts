@@ -19,12 +19,12 @@ import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
 import ApprovalList from '../pages/User/ApprovalList.vue';
 import Login from '../pages/Login.vue'
 //template
-import icon from '../components/template/icon.vue';
-import DropDown from '../components/template/DropDown.vue';
+import icon from '../components/template/Icon.vue';
+import DropDown from '../components/template/Dropdown.vue';
 import Filter from '../components/template/Filter.vue';
 import Progress from '../components/template/Progress.vue';
 import Table from '../components/template/Table.vue';
-import Popup from '../components/template/popup.vue';
+import Popup from '../components/template/Popup.vue';
 import UploadPicture from '../components/template/UploadPicture.vue';
 import ForUseButton from '../components/template/ForUseButton.vue';
 import ForUseStatus from '../components/template/ForUseStatus.vue';
