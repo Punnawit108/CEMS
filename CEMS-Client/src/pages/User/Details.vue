@@ -138,7 +138,7 @@ const progressInfo = {
           <div class="flex-1">
             <h3 class="mb-[16px] text-base font-bold text-black">รูปหลักฐาน</h3>
             <img
-              src="/evidence.PNG"
+              src="/evidence.jpg"
               alt=""
               class="w-[50%] h-auto cursor-pointer"
             />
