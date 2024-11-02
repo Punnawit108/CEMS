@@ -1,0 +1,32 @@
+{
+  "name": "cems-client",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc -b && vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "chart.js": "^4.4.5",
+    "chartjs-plugin-datalabels": "^2.2.0",
+    "flatpickr": "^4.6.13",
+    "flowbite": "^2.5.2",
+    "pinia": "^2.2.4",
+    "styled-components": "^6.1.13",
+    "vue": "^3.5.10",
+    "vue-router": "^4.4.5"
+  },
+  "devDependencies": {
+    "@types/chart.js": "^2.9.41",
+    "@vitejs/plugin-vue": "^5.1.4",
+    "autoprefixer": "^10.4.20",
+    "daisyui": "^4.12.12",
+    "postcss": "^8.4.47",
+    "tailwindcss": "^3.4.13",
+    "typescript": "^5.5.3",
+    "vite": "^5.4.8",
+    "vue-tsc": "^2.1.6"
+  }
+}
