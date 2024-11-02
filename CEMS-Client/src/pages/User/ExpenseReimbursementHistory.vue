@@ -117,6 +117,6 @@ const toDetails = (id: string) => {
             <Ctable :table="'Table9-footer'" />
         </div>
     </div>
-    </div>
-    <!-- content -->
+</div>
+<!-- content -->
 </template>
