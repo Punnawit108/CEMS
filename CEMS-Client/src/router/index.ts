@@ -1,3 +1,10 @@
+/**
+* ชื่อไฟล์: index.ts
+* คำอธิบาย: สำหรับเก็บ Route ที่สร้างไว้ทั้งหมด
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+* วันที่จัดทำ/แก้ไข: 10 พฤศจิกายน 2567
+*/
+
 import { createWebHistory, createRouter } from 'vue-router'
 import dashboard from '../pages/User/Dashboard.vue';
 import ExpenseReimbursementList from '../pages/User/ExpenseReimbursementList.vue';
