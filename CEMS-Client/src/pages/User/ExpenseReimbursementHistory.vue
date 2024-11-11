@@ -1,12 +1,12 @@
 <script setup lang="ts">
 /**
-* ชื่อไฟล์: ExpenseReimbursementHistory.vue
-* คำอธิบาย: ไฟล์นี้แสดงประวัติการเบิกจ่าย
-* Input: -
-* Output: ประวัติการเบิกจ่าย
-* ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
-*/
+ * ชื่อไฟล์ : ExpenseReimbursementHistory.vue
+ * คำอธิบาย : ไฟล์นี้แสดงประวัติการเบิกค่าใช้จ่าย
+ * Input : -
+ * Output : ประวัติเบิกค่าใช้จ่าย
+ * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
+ * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
+ */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/Ctable.vue';
