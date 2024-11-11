@@ -1,6 +1,14 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
 import Icon from './CIcon.vue';
+/**
+ * ชื่อไฟล์ : icon.vue
+ * คำอธิบาย : ไฟล์นี้แสดง icon
+ * Input : -
+ * Output : แสดง icon
+ * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
+ * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
+ */
 // import Dashboard from '../../pages/User/Dashboard.vue';
 // // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 </script>
