@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { defineProps } from 'vue';
-import { ref, defineEmits } from 'vue';
+import {  defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();
