@@ -1,23 +1,47 @@
 <script setup lang="ts">
-import { ref, onMounted } from "vue";
+import { ref } from "vue";
 import Progress from "../../components/template/Progress.vue";
+import Button from "../../components/template/Button.vue";
 
-const status = ref("edit"); // 'reject' is the initial value
-const statusColor = ref(""); // Status color class
+const statusDetail = ref("edit"); // 'reject' is the initial value
 
-onMounted(() => {
-  const colorStatus: { [key: string]: string } = {
-    reject: "bg-[#E1032B]",
-    edit: "bg-[#FFBE40]",
-    accept: "bg-[#12B669]",
-    wating: "bg-[#1976D2]",
-    sketch: "bg-[#B6B7BA]",
-  };
+const colorStatus: { [key: string]: string } = {
+  reject: "#E1032B",
+  edit: "#FFBE40",
+  accept: "#12B669",
+  waiting: "#1976D2",
+  sketch: "#B6B7BA",
+};
 
-  // Access the value of 'status' using .value and set the color class
-  statusColor.value = colorStatus[status.value];
-});
-</script>        
+const progressInfo = {
+  disbursement: {
+    status: "accept",
+    datetime: "10/02/67 10:52",
+  },
+  acceptor: [
+    {
+      name: "นายพรชัย เพิ่มพูลกิจ",
+      status: "accept",
+      datetime: "10/02/67 10:52",
+    },
+    {
+      name: "นายจักรวาล ร่วมนิคม",
+      status: "waiting",
+      datetime: null,
+    },
+    {
+      name: "นายพงศธร บุญญามา",
+      status: "edit",
+      datetime: "10/02/67 10:52",
+    },
+    {
+      name: "นายจักวรรดิ หงวนเจริญ",
+      status: "reject",
+      datetime: "10/02/67 10:52",
+    },
+  ],
+};
+</script>
 
 <!-- path for test = /disbursement/listWithdraw/detailsExpenseForm/:id -->
 <!-- path for test = /disbursement/historyWithdraw/detail/:id -->
@@ -44,9 +68,13 @@ onMounted(() => {
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
     <div class="flex justify-between">
-      <div class="left w-[85%]">
+      <div class="left w-[80%]">
         <h3 class="text-base font-bold text-black">
-          รายละเอียดคำขอเบิก<span :class="statusColor" class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">แก้ไข</span>
+          รายละเอียดคำขอเบิก<span
+            :class="`bg-[${colorStatus[statusDetail]}]`"
+            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]"
+            >แก้ไข</span
+          >
         </h3>
         <div class="row">
           <p>โครงการ</p>
@@ -119,7 +147,20 @@ onMounted(() => {
         </div>
       </div>
       <div class="right">
-        <Progress />
+        <div class="flex mb-[24px]">
+          <Button type="btn-unapprove" />
+          <span class="mx-[12px]"></span>
+          <Button type="btn-editSend" class="mx-[24px]" />
+          <span class="mx-[12px]"></span>
+          <Button type="btn-approve" />
+        </div>
+        <div class="flex justify-end">
+          <Progress
+            :progressInfo="progressInfo"
+            :colorStatus="colorStatus"
+            class="w-[80%]"
+          />
+        </div>
       </div>
     </div>
   </div>
