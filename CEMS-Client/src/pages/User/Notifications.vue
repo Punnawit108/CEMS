@@ -1,3 +1,14 @@
+<script>
+
+/**
+* ชื่อไฟล์: Notifications.vue
+* คำอธิบาย: ไฟล์นี้แสดงการแจ้งเตือนที่เข้ามาในระบบ
+* Input: ข้อมูลคำขอเบิก และสถานะคำขอเบิก
+* Output: -
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
+</script>
 <template>
     <div>
         <nav class="flex overflow-hidden items-center whitespace-nowrap" aria-label="Filter options">
