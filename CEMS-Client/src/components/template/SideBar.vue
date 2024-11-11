@@ -1,3 +1,13 @@
+<script>
+/**
+* ชื่อไฟล์: SideBar.vue
+* คำอธิบาย: ไฟล์นี้เป็น Component สำหรับใช้ในทุกๆหน้า
+* Input: -
+* Output: -
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
+</script>
 <template>
     <nav class="flex flex-col bg-white max-w-[256px] pb-[564px] relative drop-shadow-md ">
         <header class="flex  flex-col justify-center py-6 w-full ">
