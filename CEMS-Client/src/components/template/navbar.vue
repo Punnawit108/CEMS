@@ -1,9 +1,4 @@
 <script setup lang="ts">
-import { useRoute } from 'vue-router';
-import { computed } from 'vue';
-import Icon from './CIcon.vue';
-import Button from './Button.vue';
-
 /**
  * ชื่อไฟล์ : navbar.vue
  * คำอธิบาย : ไฟล์นี้ Component navbar หรือ Header
@@ -12,6 +7,10 @@ import Button from './Button.vue';
  * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
  * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
  */
+import { useRoute } from 'vue-router';
+import { computed } from 'vue';
+import Icon from './CIcon.vue';
+import Button from './Button.vue';
 // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 const route = useRoute();
 

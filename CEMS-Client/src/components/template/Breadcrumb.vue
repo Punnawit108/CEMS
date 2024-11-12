@@ -1,3 +1,4 @@
+<script setup lang="ts">
 /**
 * ชื่อไฟล์: Breadcrumb.vue
 * คำอธิบาย: ไฟล์นี้แสดงแถบนำทาง
@@ -6,7 +7,6 @@
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-<script setup lang="ts">
 import { computed } from 'vue';
 import { useRoute, useRouter, RouteRecordNormalized } from 'vue-router';
 

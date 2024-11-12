@@ -1,20 +1,20 @@
  <script setup lang="ts">
+/**
+* ชื่อไฟล์ : EditExpenseForm.vue
+* คำอธิบาย : ไฟล์นี้แสดงแก้ไขฟอร์มเบิกค่าใช้จ่าย
+* Input : ข้อมูลฟอร์มเบิกค่าใช้จ่าย
+* Output : ข้อมูลแก้ไขฟอร์มเบิกค่าใช้จ่าย
+* ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
+* วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
+*/
+
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 const router = useRouter();
 
 const toDetails = (id: string) => {
     router.push(`/disbursement/listWithdraw/detail/:${id}/editExpenseForm`);
-}
-/**
- * ชื่อไฟล์ : EditExpenseForm.vue
- * คำอธิบาย : ไฟล์นี้แสดงแก้ไขฟอร์มเบิกค่าใช้จ่าย
- * Input : ข้อมูลฟอร์มเบิกค่าใช้จ่าย
- * Output : ข้อมูลแก้ไขฟอร์มเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
- */
- 
+} 
 </script> 
 <!-- path for test = /disbursement/listWithdraw/detail/:id/editExpenseForm -->
 <template>

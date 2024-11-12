@@ -1,4 +1,4 @@
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 /**
  * ชื่อไฟล์ : CreateExpenseForm.vue
  * คำอธิบาย : ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
@@ -7,7 +7,7 @@
  * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
  * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
  */
-</script> -->
+</script>
 
 <!-- path for test = /disbursement/listWithdraw/createExpenseForm -->
 <template>
