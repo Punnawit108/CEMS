@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+ * ชื่อไฟล์ : ExpenseReimbursementHistory.vue
+ * คำอธิบาย : ไฟล์นี้แสดงประวัติการเบิกค่าใช้จ่าย
+ * Input : -
+ * Output : ประวัติเบิกค่าใช้จ่าย
+ * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
+ * วันที่จัดทำ / วันที่แก้ไข : 11 พฤศจิกายน 2567
+ */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/Ctable.vue';

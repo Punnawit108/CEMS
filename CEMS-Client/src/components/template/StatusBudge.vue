@@ -1,4 +1,13 @@
 <script setup lang="ts">
+/**
+* ชื่อไฟล์: StatusBudge.vue
+* คำอธิบาย: ไฟล์นี้เป็น Component Status
+* Input: -
+* Output: ส่งออกเป็น props
+* ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
+
 import { defineProps } from 'vue';
 
 const props = defineProps<{

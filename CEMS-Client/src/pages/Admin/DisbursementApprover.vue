@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+* ชื่อไฟล์: DisbursementApprover.vue
+* คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
+* Input: -
+* Output: -
+* ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';

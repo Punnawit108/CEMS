@@ -1,6 +1,14 @@
 <script setup lang="ts">
+/**
+ * ชื่อไฟล์ : Login.vue
+ * คำอธิบาย : ไฟล์นี้แสดงหน้าเข้าสู่ระบบ
+ * Input : -
+ * Output : เข้าสู่ระบบ
+ * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
+ * วันที่จัดทำ / วันแก้ไข : 13 พฤศจิกายน 2567
+ */
 import { defineProps } from 'vue';
-import { ref, defineEmits } from 'vue';
+import {  defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
 
 const router = useRouter();

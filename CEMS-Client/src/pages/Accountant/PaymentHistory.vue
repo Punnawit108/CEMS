@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+* ชื่อไฟล์: PaymentHistory.vue
+* คำอธิบาย: ไฟล์นี้แสดงรายการประวัติการนำจ่าย
+* Input: -
+* Output: -
+* ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
 import { useRouter } from 'vue-router';
 import Ctable from '../../components/template/Ctable.vue';
 import Icon from '../../components/template/CIcon.vue';

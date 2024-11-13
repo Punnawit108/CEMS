@@ -1,19 +1,30 @@
 <script setup lang="ts">
-import Icon from '../../components/template/CIcon.vue';
-import { useRouter } from 'vue-router';
-import { ref } from 'vue';
-import Ctable from '../../components/template/Ctable.vue';
+/**
+* ชื่อไฟล์: UserSetting.vue
+* คำอธิบาย: ไฟล์นี้แสดงหน้าจอจัดการผู้ใช้ ซึ่งแสดงตารางผู้ใช้ภายในระบบ
+* Input: -
+* Output: รายการผู้ใช้ภายในระบบ
+* ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
 
+import Icon from '../../components/template/CIcon.vue';        // Import component icon ที่กำหนดเอง
+import { useRouter } from 'vue-router';                        // Import router สำหรับการนำทาง
+import { ref } from 'vue';                                     // Import ref สำหรับ reactive state
+import Ctable from '../../components/template/Ctable.vue';     // Import component table ที่กำหนดเอง
+
+// สร้าง instance router
 const router = useRouter();
 
+// ฟังก์ชันสำหรับนำทางไปยังหน้ารายละเอียดผู้ใช้
 const navigateToDetail = (userId: string) => {
     router.push(`/systemSettings/user/detail/${userId}`);
 };
 
-// สร้าง ref สำหรับเก็บสถานะของ checkbox
+// สร้าง ref สำหรับเก็บสถานะของ checkbox สิทธิ์การดูรายงาน
 const viewReportPermission = ref(false);
 
-// ฟังก์ชันสำหรับจัดการการเปลี่ยนแปลงของ checkbox
+// ฟังก์ชันจัดการการเปลี่ยนแปลงของ checkbox
 const handleCheckboxChange = (event: Event) => {
     const target = event.target as HTMLInputElement;
     viewReportPermission.value = target.checked;

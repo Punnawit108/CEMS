@@ -1,11 +1,21 @@
 <script setup lang="ts">
-import { ref, reactive } from 'vue';
-import { useRoute, useRouter } from 'vue-router';
+/**
+* ชื่อไฟล์: DetailUserSetting.vue
+* คำอธิบาย: ไฟล์นี้แสดงหน้าจอการแก้ไขรายละเอียดของผู้ใช้ 
+* Input: รายละเอียดข้อมูลของผู้ใช้
+* Output: รายละเอียดข้อมูลของผู้ใช้
+* ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
 
-const route = useRoute();
-const router = useRouter();
-const userId = route.params.id;
-const isEditing = ref(false);
+// Import และการตั้งค่าเริ่มต้น
+import { ref, reactive } from 'vue';                // import ref และ reactive สำหรับจัดการ reactive state
+import { useRoute, useRouter } from 'vue-router';   // import hooks สำหรับจัดการ routing
+
+const route = useRoute();                           // สร้าง instance สำหรับอ่านค่าจาก route ปัจจุบัน
+const router = useRouter();                         // สร้าง instance สำหรับจัดการ navigation
+const userId = route.params.id;                     // ดึง id จาก route parameters
+const isEditing = ref(false);                      // สถานะการแก้ไขข้อมูล
 
 // ตัวอย่างข้อมูลผู้ใช้
 const originalUser = {
@@ -24,30 +34,36 @@ const originalUser = {
   viewReportPermission: false
 };
 
+// สร้าง reactive copy ของข้อมูลผู้ใช้สำหรับการแก้ไข
 const user = reactive({ ...originalUser });
 
+// ฟังก์ชันสลับโหมดแก้ไข
 const toggleEdit = () => {
-  isEditing.value = !isEditing.value;
-  if (isEditing.value) {
-      Object.assign(originalUser, user);
-      router.push(`/systemSettings/user/detail/${userId}/editUser`);
-  } else {
-      router.push(`/systemSettings/user/detail/${userId}`);
-  }
+    isEditing.value = !isEditing.value;            // สลับสถานะการแก้ไข
+    if (isEditing.value) {
+        Object.assign(originalUser, user);          // บันทึกข้อมูลปัจจุบันไว้ใน originalUser
+        router.push(`/systemSettings/user/detail/${userId}/editUser`); // นำทางไปยังหน้าแก้ไข
+    } else {
+        router.push(`/systemSettings/user/detail/${userId}`);          // นำทางกลับหน้าแสดงรายละเอียด
+    }
 };
 
+// ฟังก์ชันบันทึกการเปลี่ยนแปลง
 const saveChanges = () => {
-  isEditing.value = false;
-  originalUser.role = user.role;
-  originalUser.viewReportPermission = user.viewReportPermission;
-  router.push(`/systemSettings/user/detail/${userId}`);
+    isEditing.value = false;                       // ปิดโหมดแก้ไข
+    // บันทึกเฉพาะข้อมูลที่สามารถแก้ไขได้
+    originalUser.role = user.role;
+    originalUser.viewReportPermission = user.viewReportPermission;
+    router.push(`/systemSettings/user/detail/${userId}`);  // นำทางกลับหน้าแสดงรายละเอียด
 };
 
+// ฟังก์ชันยกเลิกการแก้ไข
 const cancelEdit = () => {
-  user.role = originalUser.role;
-  user.viewReportPermission = originalUser.viewReportPermission;
-  isEditing.value = false;
-  router.push(`/systemSettings/user/detail/${userId}`);
+    // คืนค่าข้อมูลที่แก้ไขได้กลับไปเป็นค่าเดิม
+    user.role = originalUser.role;
+    user.viewReportPermission = originalUser.viewReportPermission;
+    isEditing.value = false;                       // ปิดโหมดแก้ไข
+    router.push(`/systemSettings/user/detail/${userId}`);  // นำทางกลับหน้าแสดงรายละเอียด
 };
 </script>
 

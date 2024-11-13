@@ -1,5 +1,14 @@
+<script setup lang="ts">
+/**
+* ชื่อไฟล์: Popup.vue
+* คำอธิบาย: ไฟล์นี้เป็นComponentสำหรับแสดงPopup
+* Input: -
+* Output: -
+* ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
+</script>
 <template>
-
     <div class="flex flex-col items-center text-center ">
         <!-- content -->
         <!-- format1 -->
