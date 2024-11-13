@@ -5,7 +5,7 @@
  * Input : -
  * Output : ประวัติเบิกค่าใช้จ่าย
  * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
+ * วันที่จัดทำ / วันที่แก้ไข : 11 พฤศจิกายน 2567
  */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
