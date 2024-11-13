@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { defineProps } from 'vue';
 /**
  * ชื่อไฟล์ : CIcon.vue
  * คำอธิบาย : ไฟล์นี้ข้อมูล icon
@@ -8,6 +7,8 @@ import { defineProps } from 'vue';
  * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
  * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
  */
+
+import { defineProps } from 'vue';
 
 const props = defineProps<{
     icon: String
