@@ -1,5 +1,4 @@
-<script>
-
+<script setup lang="ts">
 /**
 * ชื่อไฟล์: Notifications.vue
 * คำอธิบาย: ไฟล์นี้แสดงการแจ้งเตือนที่เข้ามาในระบบ
@@ -8,6 +7,39 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
+import { ref } from 'vue';
+let filterNotification = "all"
+
+
+
+const clickAllNotification = ref(true);
+const clickReadedNotification = ref(false);
+const clickNotReadNotification = ref(false);
+
+const toggleAllNotification = () => {
+    resetAllToggles();
+    filterNotification = "all"
+    clickAllNotification.value = true;
+};
+
+const toggleReadedNotification = () => {
+    resetAllToggles();
+    filterNotification = "Readed"
+    clickReadedNotification.value = true;
+};
+
+const toggleNotReadNotification = () => {
+    resetAllToggles();
+    filterNotification = "NotRead"
+    clickNotReadNotification.value = true;
+};
+
+const resetAllToggles = () => {
+    clickAllNotification.value = false;
+    clickReadedNotification.value = false;
+    clickNotReadNotification.value = false;
+
+};
 </script>
 <template>
     <div>
@@ -136,38 +168,4 @@
     </div>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-let filterNotification = "all"
 
-
-
-const clickAllNotification = ref(true);
-const clickReadedNotification = ref(false);
-const clickNotReadNotification = ref(false);
-
-const toggleAllNotification = () => {
-    resetAllToggles();
-    filterNotification = "all"
-    clickAllNotification.value = true;
-};
-
-const toggleReadedNotification = () => {
-    resetAllToggles();
-    filterNotification = "Readed"
-    clickReadedNotification.value = true;
-};
-
-const toggleNotReadNotification = () => {
-    resetAllToggles();
-    filterNotification = "NotRead"
-    clickNotReadNotification.value = true;
-};
-
-const resetAllToggles = () => {
-    clickAllNotification.value = false;
-    clickReadedNotification.value = false;
-    clickNotReadNotification.value = false;
-
-};
-</script>
