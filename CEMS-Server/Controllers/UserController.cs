@@ -29,16 +29,18 @@ public class UserControllers : ControllerBase
         var users = await _context.cems_user
         .Include(u => u.Role)        // Include cems_role เพื่อดึง rol_name
         .Include(u => u.Position)   // Include position เพื่อดึง pst_name
+        .Include(u => u.Company)
+        .Include(u => u.Department)
+        .Include(u => u.Section)
         .Select(u => new UserDto
         {
             usr_id = u.usr_id,
             usr_employee_id = u.usr_employee_id,
             RoleName = u.Role.rol_name,       // ดึง rol_name
             PositionName = u.Position.pst_name, // ดึง pst_name
-            usr_cpn_id = u.usr_cpn_id,
-            //usr_pst_id = u.usr_pst_id,
-            usr_dpt_id = u.usr_dpt_id,
-            usr_st_id = u.usr_st_id,
+            CompanyName = u.Company.cpn_name,
+            SectionName = u.Section.st_name,
+            DepartmentName = u.Department.dpt_name,
             usr_profile_picture = u.usr_profile_picture,
             usr_first_name = u.usr_first_name,
             usr_last_name = u.usr_last_name,

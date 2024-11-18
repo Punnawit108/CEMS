@@ -21,4 +21,7 @@ public class cems_user
 
     public cems_role Role { get; set; }
     public cems_position Position { get; set; }
+    public cems_section Section { get; set; }
+    public cems_department Department { get; set; }
+    public cems_company Company { get; set; }
 }
