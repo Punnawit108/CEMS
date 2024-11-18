@@ -23,7 +23,7 @@ public class UserControllers : ControllerBase
         return _context.cems_user.ToList();
     }
 
-    [HttpGet("WithRoleName")]
+    [HttpGet("userWithMutiTable")]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUsersWithRoleName()
     {
         var users = await _context.cems_user
