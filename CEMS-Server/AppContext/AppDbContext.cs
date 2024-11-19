@@ -1,3 +1,4 @@
+/*
 using Microsoft.EntityFrameworkCore;
 using CEMS_Server.Models;
 
@@ -10,3 +11,4 @@ namespace CEMS_Server.AppContext
 
     }
 }
+*/

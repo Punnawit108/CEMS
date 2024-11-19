@@ -1,3 +1,4 @@
+/*
 using CEMS_Server.AppContext;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -23,3 +24,4 @@ public class PositionController : ControllerBase
     }
 
 }
+*/

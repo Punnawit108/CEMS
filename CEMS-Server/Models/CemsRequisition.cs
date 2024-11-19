@@ -45,6 +45,7 @@ public partial class CemsRequisition
 
     public virtual ICollection<CemsApproverRequistion> CemsApproverRequistions { get; set; } = new List<CemsApproverRequistion>();
 
+    public virtual CemsUser RqUsr { get; set; }
     public virtual CemsProject RqPj { get; set; } = null!;
 
     public virtual CemsRequisitionType RqRqt { get; set; } = null!;

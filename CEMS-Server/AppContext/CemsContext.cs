@@ -2,8 +2,9 @@
 using System.Collections.Generic;
 using Microsoft.EntityFrameworkCore;
 using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
+using CEMS_Server.Models;
 
-namespace CEMS_Server.Models;
+namespace CEMS_Server.AppContext {
 
 public partial class CemsContext : DbContext
 {
@@ -141,75 +142,81 @@ public partial class CemsContext : DbContext
         });
 
         modelBuilder.Entity<CemsRequisition>(entity =>
-        {
-            entity.HasKey(e => e.RqId).HasName("PRIMARY");
+{
+    entity.HasKey(e => e.RqId).HasName("PRIMARY");
 
-            entity.ToTable("cems_requisition");
+    entity.ToTable("cems_requisition");
 
-            entity.HasIndex(e => e.RqPjId, "fk_requisition_project_idx");
+    entity.HasIndex(e => e.RqPjId, "fk_requisition_project_idx");
+    entity.HasIndex(e => e.RqRqtId, "fk_requisition_requisition_type_idx");
+    entity.HasIndex(e => e.RqUsrId, "fk_requisition_user_idx");
+    entity.HasIndex(e => e.RqVhId, "fk_requisition_vehicle_idx");
 
-            entity.HasIndex(e => e.RqRqtId, "fk_requisition_requisition_type_idx");
+    entity.Property(e => e.RqId).HasColumnName("rq_id");
+    entity.Property(e => e.RqCode)
+        .HasMaxLength(10)
+        .HasColumnName("rq_code");
+    entity.Property(e => e.RqDatePay).HasColumnName("rq_date_pay");
+    entity.Property(e => e.RqDateWithdraw).HasColumnName("rq_date_withdraw");
+    entity.Property(e => e.RqDistance)
+        .HasMaxLength(45)
+        .HasColumnName("rq_distance");
+    entity.Property(e => e.RqEmail)
+        .HasMaxLength(45)
+        .HasColumnName("rq_email");
+    entity.Property(e => e.RqEndLocation)
+        .HasMaxLength(45)
+        .HasColumnName("rq_end_location");
+    entity.Property(e => e.RqExpenses).HasColumnName("rq_expenses");
+    entity.Property(e => e.RqImage)
+        .HasColumnType("text")
+        .HasColumnName("rq_image");
+    entity.Property(e => e.RqLocation)
+        .HasMaxLength(45)
+        .HasColumnName("rq_location");
+    entity.Property(e => e.RqPjId).HasColumnName("rq_pj_id");
+    entity.Property(e => e.RqProgress)
+        .HasMaxLength(45)
+        .HasColumnName("rq_progress");
+    entity.Property(e => e.RqPurpose)
+        .HasColumnType("text")
+        .HasColumnName("rq_purpose");
+    entity.Property(e => e.RqReason)
+        .HasMaxLength(45)
+        .HasColumnName("rq_reason");
+    entity.Property(e => e.RqRqtId).HasColumnName("rq_rqt_id");
+    entity.Property(e => e.RqStartLocation)
+        .HasMaxLength(45)
+        .HasColumnName("rq_start_location");
+    entity.Property(e => e.RqStatus)
+        .HasMaxLength(45)
+        .HasColumnName("rq_status");
+    entity.Property(e => e.RqUsrId).HasColumnName("rq_usr_id");
+    entity.Property(e => e.RqVhId).HasColumnName("rq_vh_id");
 
-            entity.HasIndex(e => e.RqUsrId, "fk_requisition_user_idx");
+    entity.HasOne(d => d.RqPj).WithMany(p => p.CemsRequisitions)
+        .HasForeignKey(d => d.RqPjId)
+        .OnDelete(DeleteBehavior.ClientSetNull)
+        .HasConstraintName("fk_requisition_project");
 
-            entity.HasIndex(e => e.RqVhId, "fk_requisition_vehicle_idx");
+    entity.HasOne(d => d.RqRqt).WithMany(p => p.CemsRequisitions)
+        .HasForeignKey(d => d.RqRqtId)
+        .OnDelete(DeleteBehavior.ClientSetNull)
+        .HasConstraintName("fk_requisition_requisition_type");
 
-            entity.Property(e => e.RqId).HasColumnName("rq_id");
-            entity.Property(e => e.RqCode)
-                .HasMaxLength(10)
-                .HasColumnName("rq_code");
-            entity.Property(e => e.RqDatePay).HasColumnName("rq_date_pay");
-            entity.Property(e => e.RqDateWithdraw).HasColumnName("rq_date_withdraw");
-            entity.Property(e => e.RqDistance)
-                .HasMaxLength(45)
-                .HasColumnName("rq_distance");
-            entity.Property(e => e.RqEmail)
-                .HasMaxLength(45)
-                .HasColumnName("rq_email");
-            entity.Property(e => e.RqEndLocation)
-                .HasMaxLength(45)
-                .HasColumnName("rq_end_location");
-            entity.Property(e => e.RqExpenses).HasColumnName("rq_expenses");
-            entity.Property(e => e.RqImage)
-                .HasColumnType("text")
-                .HasColumnName("rq_image");
-            entity.Property(e => e.RqLocation)
-                .HasMaxLength(45)
-                .HasColumnName("rq_location");
-            entity.Property(e => e.RqPjId).HasColumnName("rq_pj_id");
-            entity.Property(e => e.RqProgress)
-                .HasMaxLength(45)
-                .HasColumnName("rq_progress");
-            entity.Property(e => e.RqPurpose)
-                .HasColumnType("text")
-                .HasColumnName("rq_purpose");
-            entity.Property(e => e.RqReason)
-                .HasMaxLength(45)
-                .HasColumnName("rq_reason");
-            entity.Property(e => e.RqRqtId).HasColumnName("rq_rqt_id");
-            entity.Property(e => e.RqStartLocation)
-                .HasMaxLength(45)
-                .HasColumnName("rq_start_location");
-            entity.Property(e => e.RqStatus)
-                .HasMaxLength(45)
-                .HasColumnName("rq_status");
-            entity.Property(e => e.RqUsrId).HasColumnName("rq_usr_id");
-            entity.Property(e => e.RqVhId).HasColumnName("rq_vh_id");
+    entity.HasOne(d => d.RqVh).WithMany(p => p.CemsRequisitions)
+        .HasForeignKey(d => d.RqVhId)
+        .HasConstraintName("fk_requisition_vehicle");
 
-            entity.HasOne(d => d.RqPj).WithMany(p => p.CemsRequisitions)
-                .HasForeignKey(d => d.RqPjId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_requisition_project");
-
-            entity.HasOne(d => d.RqRqt).WithMany(p => p.CemsRequisitions)
-                .HasForeignKey(d => d.RqRqtId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_requisition_requisition_type");
-
-            entity.HasOne(d => d.RqVh).WithMany(p => p.CemsRequisitions)
-                .HasForeignKey(d => d.RqVhId)
-                .HasConstraintName("fk_requisition_vehicle");
-        });
+    // เพิ่มความสัมพันธ์กับ CemsUser
+    
+    entity.HasOne(d => d.RqUsr)
+        .WithMany(p => p.CemsRequisitions)
+        .HasForeignKey(d => d.RqUsrId )
+        .OnDelete(DeleteBehavior.ClientSetNull)
+        .HasConstraintName("fk_requisition_user");
+        
+});
 
         modelBuilder.Entity<CemsRequisitionType>(entity =>
         {
@@ -363,4 +370,5 @@ public partial class CemsContext : DbContext
     }
 
     partial void OnModelCreatingPartial(ModelBuilder modelBuilder);
+}
 }

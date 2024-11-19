@@ -42,4 +42,5 @@ public partial class CemsUser
     public virtual CemsRole UsrRol { get; set; } = null!;
 
     public virtual CemsSection UsrSt { get; set; } = null!;
+    public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; }
 }
