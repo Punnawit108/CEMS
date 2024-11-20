@@ -21,7 +21,7 @@ public partial class CemsRequisition
 
     public string? RqCode { get; set; }
 
-    public string RqEmail { get; set; } = null!;
+    public string RqInsteadEmail { get; set; } = null!;
 
     public double RqExpenses { get; set; }
 
@@ -35,19 +35,21 @@ public partial class CemsRequisition
 
     public string? RqPurpose { get; set; }
 
-    public string? RqImage { get; set; }
+    public string? RqReason { get; set; }
+
+    public string? RqProof { get; set; }
 
     public string RqStatus { get; set; } = null!;
 
     public string RqProgress { get; set; } = null!;
-
-    public string? RqReason { get; set; }
 
     public virtual ICollection<CemsApproverRequistion> CemsApproverRequistions { get; set; } = new List<CemsApproverRequistion>();
 
     public virtual CemsProject RqPj { get; set; } = null!;
 
     public virtual CemsRequisitionType RqRqt { get; set; } = null!;
+
+    public virtual CemsUser RqUsr { get; set; } = null!;
 
     public virtual CemsVehicle? RqVh { get; set; }
 }

@@ -9,11 +9,9 @@ public partial class CemsRole
 
     public string RolName { get; set; } = null!;
 
-    public sbyte RolIsManageUser { get; set; }
+    public sbyte RolIsSettingSystem { get; set; }
 
     public sbyte RolIsManageExpenses { get; set; }
-
-    public sbyte RolIsManagePermission { get; set; }
 
     public sbyte RolIsApprover { get; set; }
 

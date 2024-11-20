@@ -13,7 +13,7 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (connectionString != null)
 {
-    builder.Services.AddDbContext<AppDbContext>(options =>
+    builder.Services.AddDbContext<CemsContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 

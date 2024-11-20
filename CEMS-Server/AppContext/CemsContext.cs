@@ -1,9 +1,8 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using CEMS_Server.Models;
 using Microsoft.EntityFrameworkCore;
-using Pomelo.EntityFrameworkCore.MySql.Scaffolding.Internal;
 
-namespace CEMS_Server.Models;
+namespace CEMS_Server.AppContext;
+
 
 public partial class CemsContext : DbContext
 {
@@ -36,15 +35,12 @@ public partial class CemsContext : DbContext
 
     public virtual DbSet<CemsSection> CemsSections { get; set; }
 
-    public virtual DbSet<CemsTravelType> CemsTravelTypes { get; set; }
-
     public virtual DbSet<CemsUser> CemsUsers { get; set; }
 
     public virtual DbSet<CemsVehicle> CemsVehicles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-#warning To protect potentially sensitive information in your connection string, you should move it out of source code. You can avoid scaffolding the connection string by using the Name= syntax to read it from configuration - see https://go.microsoft.com/fwlink/?linkid=2131148. For more guidance on storing connection strings, see https://go.microsoft.com/fwlink/?LinkId=723263.
-        => optionsBuilder.UseMySql("server=dekdee2.informatics.buu.ac.th;port=8033;database=cems;user=team4Member;password=filltumtrong", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.3.0-mysql"));
+        => optionsBuilder.UseMySql("server=localhost;database=cems;user=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.30-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -65,22 +61,38 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.ApId).HasColumnName("ap_id");
             entity.Property(e => e.ApSequence).HasColumnName("ap_sequence");
             entity.Property(e => e.ApUsrId).HasColumnName("ap_usr_id");
+
+            entity.HasOne(d => d.ApUsr).WithMany(p => p.CemsApprovers)
+                .HasForeignKey(d => d.ApUsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_approver_user");
         });
 
         modelBuilder.Entity<CemsApproverRequistion>(entity =>
         {
-            entity.HasKey(e => new { e.AprRqId, e.AprApUsrId })
-                .HasName("PRIMARY")
-                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+            entity.HasKey(e => e.AprId).HasName("PRIMARY");
 
             entity.ToTable("cems_approver_requistion");
 
-            entity.HasIndex(e => e.AprApUsrId, "fk_requisition_has_approver_approver_idx");
+            entity.HasIndex(e => e.AprApId, "fk_requisition_has_approver_approver_idx");
 
             entity.HasIndex(e => e.AprRqId, "fk_requisition_has_approver_requisition_idx");
 
+            entity.Property(e => e.AprId)
+                .ValueGeneratedNever()
+                .HasColumnName("apr_id");
+            entity.Property(e => e.AprApId).HasColumnName("apr_ap_id");
+            entity.Property(e => e.AprDate)
+                .HasColumnType("datetime")
+                .HasColumnName("apr_date");
+            entity.Property(e => e.AprName)
+                .HasMaxLength(45)
+                .HasColumnName("apr_name");
             entity.Property(e => e.AprRqId).HasColumnName("apr_rq_id");
-            entity.Property(e => e.AprApUsrId).HasColumnName("apr_ap_usr_id");
+
+            entity.HasOne(d => d.AprAp).WithMany(p => p.CemsApproverRequistions)
+                .HasForeignKey(d => d.AprApId)
+                .HasConstraintName("fk_requisition_has_approver_approver");
 
             entity.HasOne(d => d.AprRq).WithMany(p => p.CemsApproverRequistions)
                 .HasForeignKey(d => d.AprRqId)
@@ -132,9 +144,7 @@ public partial class CemsContext : DbContext
 
             entity.Property(e => e.PjId).HasColumnName("pj_id");
             entity.Property(e => e.PjAmountExpenses).HasColumnName("pj_amount_expenses");
-            entity.Property(e => e.PjIsActive)
-                .HasMaxLength(45)
-                .HasColumnName("pj_is_active");
+            entity.Property(e => e.PjIsActive).HasColumnName("pj_is_active");
             entity.Property(e => e.PjName)
                 .HasMaxLength(45)
                 .HasColumnName("pj_name");
@@ -163,35 +173,35 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.RqDistance)
                 .HasMaxLength(45)
                 .HasColumnName("rq_distance");
-            entity.Property(e => e.RqEmail)
-                .HasMaxLength(45)
-                .HasColumnName("rq_email");
             entity.Property(e => e.RqEndLocation)
                 .HasMaxLength(45)
                 .HasColumnName("rq_end_location");
             entity.Property(e => e.RqExpenses).HasColumnName("rq_expenses");
-            entity.Property(e => e.RqImage)
-                .HasColumnType("text")
-                .HasColumnName("rq_image");
+            entity.Property(e => e.RqInsteadEmail)
+                .HasMaxLength(45)
+                .HasColumnName("rq_instead_email");
             entity.Property(e => e.RqLocation)
                 .HasMaxLength(45)
                 .HasColumnName("rq_location");
             entity.Property(e => e.RqPjId).HasColumnName("rq_pj_id");
             entity.Property(e => e.RqProgress)
-                .HasMaxLength(45)
+                .HasColumnType("enum('accepting','paying','complate')")
                 .HasColumnName("rq_progress");
+            entity.Property(e => e.RqProof)
+                .HasColumnType("text")
+                .HasColumnName("rq_proof");
             entity.Property(e => e.RqPurpose)
                 .HasColumnType("text")
                 .HasColumnName("rq_purpose");
             entity.Property(e => e.RqReason)
-                .HasMaxLength(45)
+                .HasColumnType("text")
                 .HasColumnName("rq_reason");
             entity.Property(e => e.RqRqtId).HasColumnName("rq_rqt_id");
             entity.Property(e => e.RqStartLocation)
                 .HasMaxLength(45)
                 .HasColumnName("rq_start_location");
             entity.Property(e => e.RqStatus)
-                .HasMaxLength(45)
+                .HasColumnType("enum('sketch','waiting','edit','accept','reject')")
                 .HasColumnName("rq_status");
             entity.Property(e => e.RqUsrId).HasColumnName("rq_usr_id");
             entity.Property(e => e.RqVhId).HasColumnName("rq_vh_id");
@@ -205,6 +215,11 @@ public partial class CemsContext : DbContext
                 .HasForeignKey(d => d.RqRqtId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_requisition_requisition_type");
+
+            entity.HasOne(d => d.RqUsr).WithMany(p => p.CemsRequisitions)
+                .HasForeignKey(d => d.RqUsrId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_requisition_user");
 
             entity.HasOne(d => d.RqVh).WithMany(p => p.CemsRequisitions)
                 .HasForeignKey(d => d.RqVhId)
@@ -232,8 +247,7 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.RolId).HasColumnName("rol_id");
             entity.Property(e => e.RolIsApprover).HasColumnName("rol_is_approver");
             entity.Property(e => e.RolIsManageExpenses).HasColumnName("rol_is_manage_expenses");
-            entity.Property(e => e.RolIsManagePermission).HasColumnName("rol_is_manage_permission");
-            entity.Property(e => e.RolIsManageUser).HasColumnName("rol_is_manage_user");
+            entity.Property(e => e.RolIsSettingSystem).HasColumnName("rol_is_setting_system");
             entity.Property(e => e.RolName)
                 .HasMaxLength(45)
                 .HasColumnName("rol_name");
@@ -251,23 +265,9 @@ public partial class CemsContext : DbContext
                 .HasColumnName("st_name");
         });
 
-        modelBuilder.Entity<CemsTravelType>(entity =>
-        {
-            entity.HasKey(e => e.TtId).HasName("PRIMARY");
-
-            entity.ToTable("cems_travel_type");
-
-            entity.Property(e => e.TtId).HasColumnName("tt_id");
-            entity.Property(e => e.TtName)
-                .HasMaxLength(45)
-                .HasColumnName("tt_name");
-        });
-
         modelBuilder.Entity<CemsUser>(entity =>
         {
-            entity.HasKey(e => new { e.UsrId, e.UsrEmployeeId })
-                .HasName("PRIMARY")
-                .HasAnnotation("MySql:IndexPrefixLength", new[] { 0, 0 });
+            entity.HasKey(e => e.UsrId).HasName("PRIMARY");
 
             entity.ToTable("cems_user");
 
@@ -283,17 +283,17 @@ public partial class CemsContext : DbContext
 
             entity.HasIndex(e => e.UsrStId, "fk_user_section_idx");
 
-            entity.Property(e => e.UsrId)
-                .ValueGeneratedOnAdd()
-                .HasColumnName("usr_id");
-            entity.Property(e => e.UsrEmployeeId)
-                .HasMaxLength(45)
-                .HasColumnName("usr_employee_id");
+            entity.HasIndex(e => e.UsrEmail, "usr_email_UNIQUE").IsUnique();
+
+            entity.Property(e => e.UsrId).HasColumnName("usr_id");
             entity.Property(e => e.UsrCpnId).HasColumnName("usr_cpn_id");
             entity.Property(e => e.UsrDptId).HasColumnName("usr_dpt_id");
             entity.Property(e => e.UsrEmail)
                 .HasMaxLength(45)
                 .HasColumnName("usr_email");
+            entity.Property(e => e.UsrEmployeeId)
+                .HasMaxLength(45)
+                .HasColumnName("usr_employee_id");
             entity.Property(e => e.UsrFirstName)
                 .HasMaxLength(45)
                 .HasColumnName("usr_first_name");
@@ -305,9 +305,6 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.UsrPhoneNumber)
                 .HasMaxLength(10)
                 .HasColumnName("usr_phone_number");
-            entity.Property(e => e.UsrProfilePicture)
-                .HasColumnType("text")
-                .HasColumnName("usr_profile_picture");
             entity.Property(e => e.UsrPstId).HasColumnName("usr_pst_id");
             entity.Property(e => e.UsrRolId).HasColumnName("usr_rol_id");
             entity.Property(e => e.UsrStId).HasColumnName("usr_st_id");
@@ -344,19 +341,14 @@ public partial class CemsContext : DbContext
 
             entity.ToTable("cems_vehicle");
 
-            entity.HasIndex(e => e.VhTtId, "fk_vehicle_travel_type_idx");
-
             entity.Property(e => e.VhId).HasColumnName("vh_id");
             entity.Property(e => e.VhPayrate).HasColumnName("vh_payrate");
-            entity.Property(e => e.VhTtId).HasColumnName("vh_tt_id");
+            entity.Property(e => e.VhType)
+                .HasColumnType("enum('private','public')")
+                .HasColumnName("vh_type");
             entity.Property(e => e.VhVehicle)
                 .HasMaxLength(45)
                 .HasColumnName("vh_vehicle");
-
-            entity.HasOne(d => d.VhTt).WithMany(p => p.CemsVehicles)
-                .HasForeignKey(d => d.VhTtId)
-                .OnDelete(DeleteBehavior.ClientSetNull)
-                .HasConstraintName("fk_vehicle_travel_type");
         });
 
         OnModelCreatingPartial(modelBuilder);
