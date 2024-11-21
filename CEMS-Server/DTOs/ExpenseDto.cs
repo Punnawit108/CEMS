@@ -17,7 +17,7 @@ namespace CEMS_Server.DTOs
 
         public string? RqCode { get; set; }
 
-        public string RqInsteadEmail { get; set; } = null!;
+        public string? RqInsteadEmail { get; set; }
 
         public double RqExpenses { get; set; }
 

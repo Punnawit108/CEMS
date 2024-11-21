@@ -6,14 +6,9 @@ namespace CEMS_Server.AppContext;
 
 public partial class CemsContext : DbContext
 {
-    public CemsContext()
-    {
-    }
+    public CemsContext(){}
 
-    public CemsContext(DbContextOptions<CemsContext> options)
-        : base(options)
-    {
-    }
+    public CemsContext(DbContextOptions<CemsContext> options):base(options){}
 
     public virtual DbSet<CemsApprover> CemsApprovers { get; set; }
 
