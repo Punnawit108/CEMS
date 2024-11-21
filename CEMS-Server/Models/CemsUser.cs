@@ -19,8 +19,6 @@ public partial class CemsUser
 
     public int UsrStId { get; set; }
 
-    public string? UsrProfilePicture { get; set; }
-
     public string UsrFirstName { get; set; } = null!;
 
     public string UsrLastName { get; set; } = null!;
@@ -32,6 +30,8 @@ public partial class CemsUser
     public sbyte UsrIsSeeReport { get; set; }
 
     public sbyte UsrIsActive { get; set; }
+
+    public virtual ICollection<CemsApprover> CemsApprovers { get; set; } = new List<CemsApprover>();
 
     public virtual CemsCompany UsrCpn { get; set; } = null!;
 
