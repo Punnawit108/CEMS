@@ -6,14 +6,9 @@ namespace CEMS_Server.AppContext;
 
 public partial class CemsContext : DbContext
 {
-    public CemsContext()
-    {
-    }
+    public CemsContext(){}
 
-    public CemsContext(DbContextOptions<CemsContext> options)
-        : base(options)
-    {
-    }
+    public CemsContext(DbContextOptions<CemsContext> options):base(options){}
 
     public virtual DbSet<CemsApprover> CemsApprovers { get; set; }
 
@@ -38,9 +33,6 @@ public partial class CemsContext : DbContext
     public virtual DbSet<CemsUser> CemsUsers { get; set; }
 
     public virtual DbSet<CemsVehicle> CemsVehicles { get; set; }
-
-    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        => optionsBuilder.UseMySql("server=localhost;database=cems;user=root", Microsoft.EntityFrameworkCore.ServerVersion.Parse("8.0.30-mysql"));
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
