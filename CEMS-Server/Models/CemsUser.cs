@@ -33,6 +33,8 @@ public partial class CemsUser
 
     public virtual ICollection<CemsApprover> CemsApprovers { get; set; } = new List<CemsApprover>();
 
+    public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; } = new List<CemsRequisition>();
+
     public virtual CemsCompany UsrCpn { get; set; } = null!;
 
     public virtual CemsDepartment UsrDpt { get; set; } = null!;
@@ -42,5 +44,4 @@ public partial class CemsUser
     public virtual CemsRole UsrRol { get; set; } = null!;
 
     public virtual CemsSection UsrSt { get; set; } = null!;
-    public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; }
 }
