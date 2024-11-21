@@ -108,7 +108,7 @@ export interface DashboardForUser {
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Accountant
-export interface DashboardForUser {
+export interface DashboardForAccountant {
     rqSumOfWaiting: number ;
     rqSumOfComplate: number ;
     rqSumOfExpense: number ;
@@ -116,7 +116,7 @@ export interface DashboardForUser {
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Admin
-export interface DashboardForUser {
+export interface DashboardForAdmin {
     usrAll: number ;
     rqSumOfExpense: number ;
     pjAll: number ;
