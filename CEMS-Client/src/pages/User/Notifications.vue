@@ -7,8 +7,31 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { ref } from 'vue';
-let filterNotification = "all"
+import { ref,computed } from 'vue';
+import { useNotification } from '../../store/NotificationStore';
+import { onMounted } from 'vue';
+import CardNotification from '../../components/template/CardNotification.vue';
+
+
+
+const notificationStore = useNotification();
+let filterNotification = ref("All")
+
+onMounted(() =>{
+    notificationStore.getAllNotifications();
+    console.log(notificationStore.notifications)
+})
+
+const filteredNotifications = computed(() => {
+    if (filterNotification.value === "Readed") {
+        return notificationStore.notifications.filter(n => n.statusNoti); // กรองเฉพาะที่อ่านแล้ว
+        
+    } else if (filterNotification.value === "NotRead") {
+        return notificationStore.notifications.filter(n => !n.statusNoti); // กรองเฉพาะที่ยังไม่ได้อ่าน
+    }
+    return notificationStore.notifications; // แสดงทั้งหมด
+});
+
 
 
 
@@ -18,19 +41,20 @@ const clickNotReadNotification = ref(false);
 
 const toggleAllNotification = () => {
     resetAllToggles();
-    filterNotification = "all"
+    filterNotification.value = "All"
     clickAllNotification.value = true;
 };
 
 const toggleReadedNotification = () => {
     resetAllToggles();
-    filterNotification = "Readed"
+    filterNotification.value = "Readed"
+    
     clickReadedNotification.value = true;
 };
 
 const toggleNotReadNotification = () => {
     resetAllToggles();
-    filterNotification = "NotRead"
+    filterNotification.value = "NotRead"
     clickNotReadNotification.value = true;
 };
 
@@ -47,7 +71,7 @@ const resetAllToggles = () => {
             <ul
                 class="flex flex-wrap gap-4 self-stretch py-2 pr-20 pl-2 my-auto text-sm leading-snug w-[1136px] max-md:pr-5 max-md:max-w-full">
                 <li>
-                    <button @click="toggleAllNotification"
+                    <button @click="toggleAllNotification" 
                         :class="['flex px-4 py-1.5 bg-white rounded-3xl border border-solid', clickAllNotification ? 'border-red-600 text-red-600' : 'border-neutral-400 text-neutral-500 text-opacity-80']">
                         <svg :style="{ fill: clickAllNotification ? 'red' : '#777777' }" width="18" height="17"
                             viewBox="0 0 18 17" xmlns="http://www.w3.org/2000/svg">
@@ -88,41 +112,21 @@ const resetAllToggles = () => {
 
                 </li>
             </ul>
+                
         </nav>
         <article class="flex flex-col border border-solid border-zinc-400">
             <!-- ลูปข้อมูลการแจ้งเตือน -->
-            <section class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400">
-                <div
-                    class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
-                    <h2 class="text-sm text-gray-800">
-                        <span>คำขอเบิกค่าใช้จ่าย </span>
-                        <strong>โครงการอบรมการบริหาร</strong>
-                    </h2>
-                    <p class="text-xs text-gray-500 max-md:max-w-full">
-                        รหัส : CNXXXXXX ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล
-                        และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง
-                    </p>
-                </div>
-                <time class=" text-sm font-medium text-gray-400   flex justify-end mr-4 items-center">
-                    เมื่อวานนี้ เวลา 11.12 น.
-                </time>
-            </section>
-            <section class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400">
-                <div
-                    class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
-                    <h2 class="text-sm text-gray-800">
-                        <span>คำขอเบิกค่าใช้จ่าย </span>
-                        <strong>โครงการอบรมการบริหาร</strong>
-                    </h2>
-                    <p class="text-xs text-gray-500 max-md:max-w-full">
-                        รหัส : CNXXXXXX ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล
-                        และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง
-                    </p>
-                </div>
-                <time class=" text-sm font-medium text-gray-400   flex justify-end mr-4 items-center">
-                    เมื่อวานนี้ เวลา 11.12 น.
-                </time>
-            </section>
+            
+            <CardNotification  class=" hover:bg-current  " 
+            v-for="notification in filteredNotifications"
+            :id="notification.id" 
+            :idWithdraw="notification.idWithdraw" 
+            :nameProject="notification.nameProject" 
+            :statusNoti="notification.statusNoti" 
+            :description="notification.description" 
+
+            :key=String(notification.id)
+            />
             <section class="h-[84.8px]"></section>
             <section class="h-[84.8px]"></section>
             <section class="h-[84.8px]"></section>
