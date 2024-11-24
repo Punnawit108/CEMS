@@ -1,6 +1,72 @@
-<!-- <script setup lang="ts">
+<script setup lang="ts">
+/**
+ * ชื่อไฟล์ : CreateExpenseForm.vue
+ * คำอธิบาย : ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
+ * Input : ข้อมูลฟอร์มเบิกค่าใช้จ่าย
+ * Output : -
+ * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
+ * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
+ */
+ import { ref, computed } from 'vue';
+const selectedExpenseType = ref('ค่าเดินทาง');
 
-</script> -->
+const formData = ref({
+    name: '',
+    startLocation: '',
+    endLocation: '',
+    amount: '',
+    preview: null,
+});
+
+const handleSubmit = () => {
+    console.log('Form submitted:', formData.value);
+};
+
+const onFileChange = (event) => {
+    const file = event.target.files[0];
+    if (file && file.type.startsWith('image/')) {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+            formData.value.preview = e.target.result;
+        };
+    }
+};
+
+
+const expenseOptions = ref(['ค่าเดินทาง', 'ค่าอาหาร']);
+const customExpenseType = ref('');
+const isCustomExpenseTypeAdded = ref(false);
+const isEditing = ref(false);
+
+// Computed property to check if "อื่นๆ" is selected
+const isOtherSelected = computed(() => selectedExpenseType.value === 'อื่นๆ' || customExpenseType.value !== '');
+
+function handleSelectChange() {
+    if (!isOtherSelected.value) {
+        customExpenseType.value = ''; // Reset the input when other option is not selected
+    }
+    isEditing.value = false;
+}
+
+function startEditing() {
+    isEditing.value = true;
+    customExpenseType.value = selectedExpenseType.value;
+}
+
+function addCustomExpense() {
+    if (customExpenseType.value && !expenseOptions.value.includes(customExpenseType.value)) {
+        expenseOptions.value.push(customExpenseType.value); // Add custom option
+        selectedExpenseType.value = customExpenseType.value; // Set as selected
+        isCustomExpenseTypeAdded.value = true; // Set flag to hide "อื่นๆ"
+    } else if (customExpenseType.value) {
+        selectedExpenseType.value = customExpenseType.value; // Just set the selected value
+    }
+    isEditing.value = false;
+    customExpenseType.value = ''; // Reset the input
+}
+</script>
+
 <!-- path for test = /disbursement/listWithdraw/createExpenseForm -->
 <template>
     <div class="">
@@ -277,66 +343,7 @@
     </div>
 </template>
 
-<script setup lang="ts">
-import { ref, computed } from 'vue';
-const selectedExpenseType = ref('ค่าเดินทาง');
 
-const formData = ref({
-    name: '',
-    startLocation: '',
-    endLocation: '',
-    amount: '',
-    preview: null,
-});
-
-const handleSubmit = () => {
-    console.log('Form submitted:', formData.value);
-};
-
-const onFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (e) => {
-            formData.value.preview = e.target.result;
-        };
-    }
-};
-
-
-const expenseOptions = ref(['ค่าเดินทาง', 'ค่าอาหาร']);
-const customExpenseType = ref('');
-const isCustomExpenseTypeAdded = ref(false);
-const isEditing = ref(false);
-
-// Computed property to check if "อื่นๆ" is selected
-const isOtherSelected = computed(() => selectedExpenseType.value === 'อื่นๆ' || customExpenseType.value !== '');
-
-function handleSelectChange() {
-    if (!isOtherSelected.value) {
-        customExpenseType.value = ''; // Reset the input when other option is not selected
-    }
-    isEditing.value = false;
-}
-
-function startEditing() {
-    isEditing.value = true;
-    customExpenseType.value = selectedExpenseType.value;
-}
-
-function addCustomExpense() {
-    if (customExpenseType.value && !expenseOptions.value.includes(customExpenseType.value)) {
-        expenseOptions.value.push(customExpenseType.value); // Add custom option
-        selectedExpenseType.value = customExpenseType.value; // Set as selected
-        isCustomExpenseTypeAdded.value = true; // Set flag to hide "อื่นๆ"
-    } else if (customExpenseType.value) {
-        selectedExpenseType.value = customExpenseType.value; // Just set the selected value
-    }
-    isEditing.value = false;
-    customExpenseType.value = ''; // Reset the input
-}
-</script>
 
 <style scoped>
 .upload-container {

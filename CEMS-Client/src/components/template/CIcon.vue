@@ -1,4 +1,13 @@
 <script setup lang="ts">
+/**
+ * ชื่อไฟล์ : CIcon.vue
+ * คำอธิบาย : ไฟล์นี้ข้อมูล icon
+ * Input : -
+ * Output : ข้อมูล icon
+ * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
+ * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
+ */
+
 import { defineProps } from 'vue';
 
 const props = defineProps<{
@@ -33,7 +42,7 @@ const props = defineProps<{
             </div>
 
             <div
-                v-else-if="icon === 'listWithdraw' || icon === 'createExpenseForm' || icon === 'listWithdrawDetail' || icon === 'editExpenseForm'">
+                v-else-if="icon === 'listWithdraw' || icon === 'createExpenseForm' || icon === 'listWithdrawDetail' || icon === 'editExpenseForm' || icon === 'paymentList' || icon === 'paymentListDetail'">
                 <svg :class="`w-[${size}px] h-[${size}px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24">
                     <path stroke="red" stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

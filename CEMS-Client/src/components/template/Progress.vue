@@ -1,48 +1,19 @@
 <script setup lang="ts">
-const props = defineProps(["colorStatus"]);
+/**
+ * ชื่อไฟล์ : Progress.vue
+ * คำอธิบาย : ไฟล์นี้ใช้สำหรับแสดงความก้าวหน้าของการอนุมัติ
+ * Input : props => "progressInfo", "colorStatus"
+ * Output : แสดงความก้าวของการอนุมัติ
+ * ชื่อผู้เขียน/แก้ไข : นายพรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำแก้ไข : 8 ตุลาคม 2567
+ */
+const props = defineProps(["progressInfo", "colorStatus"]);
 
-const colorStatus: { [key: string]: string } = {
-  reject: "#E1032B",
-  edit: "#FFBE40",
-  accept: "#12B669",
-  waiting: "#1976D2",
-  sketch: "#B6B7BA",
-};
-
-//ดึงข้อมูล approver ที่กดเข้ามา โดย
-const progressInfo = {
-  disbursement: {
-    dbm_id: 1 ,
-    status: "accept",
-    datetime: "10/02/67 10:52",
-  },
-  acceptor: [
-    {
-      name: "นายพรชัย เพิ่มพูลกิจ",
-      status: "accept",
-      datetime: "10/02/67 10:52",
-    },
-    {
-      name: "นายจักรวาล ร่วมนิคม",
-      status: "waiting",
-      datetime: null,
-    },
-    {
-      name: "นายพงศธร บุญญามา",
-      status: "edit",
-      datetime: "10/02/67 10:52",
-    },
-    {
-      name: "นายจักวรรดิ หงวนเจริญ",
-      status: "reject",
-      datetime: "10/02/67 10:52",
-    },
-  ],
-};
+console.log(props.progressInfo);
 </script>
 
 <template>
-  <div class="border border-[#B6B7BA] px-[16px] py-[16px] w-[266px] h-[720px]">
+  <div class="border border-[#B6B7BA] px-[16px] py-[16px]">
     <div class="row">
       <svg
         width="48"

@@ -1,3 +1,156 @@
+<script setup lang="ts">
+/**
+* ชื่อไฟล์: SideBar.vue
+* คำอธิบาย: ไฟล์นี้เป็น Component สำหรับใช้ในทุกๆหน้า
+* Input: -
+* Output: -
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
+import { ref } from 'vue';
+import Icon from './CIcon.vue';
+import { defineProps } from 'vue';
+
+const props = defineProps<{
+  role: string; // กำหนด type ของ role
+}>();
+const role = props.role;
+const clickDashboard = ref(true);
+const clickNotification = ref(false);
+
+const clickListWithdraw = ref(false);           //ปุ่มใน dropdown เบิกค่าใช้จ่าย
+const clickHistoryWithdraw = ref(false);
+const clickReportProject = ref(false);          //ปุ่มใน dropdown รายงาน
+const clickReportWithdraw = ref(false);
+const clickListApproval = ref(false);           //ปุ่มใน dropdown การอนุมัติ
+const clickHistoryApproval = ref(false);
+const clickListDeliverWithdraw = ref(false);    //ปุ่มใน dropdown การนำจ่าย
+const clickHistoryDeliverWithdraw = ref(false);
+const clickSettingUser = ref(false);            //ปุ่มใน dropdown ตั้งค่าระบบ
+const clickSettingApprover = ref(false);
+const clickSettingTypeWithdraw = ref(false);
+
+const isWithdrawDropdownOpen = ref(false);
+const isReportDropdownOpen = ref(false);
+const isApprovalDropdownOpen = ref(false);
+const isDeliverDropdownOpen = ref(false);
+const isSettingDropdownOpen = ref(false);
+
+const toggleWithdrawDropdown = () => { 
+    isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
+};
+
+const toggleReportDropdown = () => { 
+    isReportDropdownOpen.value = !isReportDropdownOpen.value;
+};
+
+const toggleApprovalDropdown = () => { 
+    isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
+};
+
+const toggleDeliverDropdown = () => { 
+    isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
+};
+
+const toggleSettingDropdown = () => { 
+    isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
+};
+
+const resetAllToggles = () => {
+    clickNotification.value = false;
+    clickDashboard.value = false;
+    clickListWithdraw.value = false;
+    clickHistoryWithdraw.value = false;
+    clickReportProject.value = false;
+    clickReportWithdraw.value = false;
+    clickListApproval.value = false;
+    clickHistoryApproval.value = false;
+    clickListDeliverWithdraw.value = false;
+    clickHistoryDeliverWithdraw.value = false;
+    clickSettingUser.value = false;
+    clickSettingApprover.value = false;
+    clickSettingTypeWithdraw.value = false;
+};
+
+const toggleDashboard = () => {
+    clickDashboard.value = !clickDashboard.value;
+    resetAllToggles();
+    clickDashboard.value = true;
+};
+
+const toggleNotification = () => {
+    clickNotification.value = !clickNotification.value;
+    resetAllToggles();
+    clickNotification.value = true;
+};
+
+const toggleListWithdraw = () => {
+    clickListWithdraw.value = !clickListWithdraw.value;
+    resetAllToggles();
+    clickListWithdraw.value = true;
+};
+
+const toggleHistoryWithdraw = () => {
+    clickHistoryWithdraw.value = !clickHistoryWithdraw.value;
+    resetAllToggles();
+    clickHistoryWithdraw.value = true;
+};
+
+const toggleReportProject = () => {
+    clickReportProject.value = !clickReportProject.value;
+    resetAllToggles();
+    clickReportProject.value = true;
+};
+
+const toggleReportWithdraw = () => {
+    clickReportWithdraw.value = !clickReportWithdraw.value;
+    resetAllToggles();
+    clickReportWithdraw.value = true;
+};
+
+const toggleListApproval = () => {
+    clickListApproval.value = !clickListApproval.value;
+    resetAllToggles();
+    clickListApproval.value = true;
+};
+
+const toggleHistoryApproval = () => {
+    clickHistoryApproval.value = !clickHistoryApproval.value;
+    resetAllToggles();
+    clickHistoryApproval.value = true;
+};
+
+const toggleListDeliverWithdraw = () => {
+    clickListDeliverWithdraw.value = !clickListDeliverWithdraw.value;
+    resetAllToggles();
+    clickListDeliverWithdraw.value = true;
+};
+
+const toggleHistoryDeliverWithdraw = () => {
+    clickHistoryDeliverWithdraw.value = !clickHistoryDeliverWithdraw.value;
+    resetAllToggles();
+    clickHistoryDeliverWithdraw.value = true;
+};
+
+const toggleSettingUser = () => {
+    clickSettingUser.value = !clickSettingUser.value;
+    resetAllToggles();
+    clickSettingUser.value = true;
+};
+
+const toggleSettingApprover = () => {
+    clickSettingApprover.value = !clickSettingApprover.value;
+    resetAllToggles();
+    clickSettingApprover.value = true;
+};
+
+const toggleSettingTypeWithdraw = () => {
+    clickSettingTypeWithdraw.value = !clickSettingTypeWithdraw.value;
+    resetAllToggles();
+    clickSettingTypeWithdraw.value = true;
+};
+</script>
+
 <template>
     <nav class="flex flex-col bg-white max-w-[256px] pb-[564px] relative drop-shadow-md ">
         <header class="flex  flex-col justify-center py-6 w-full ">
@@ -328,143 +481,3 @@
     </nav>
 </template>
 
-<script setup lang="ts">
-import { ref } from 'vue';
-import Icon from './CIcon.vue';
-
-const role = "Accountant";
-const clickDashboard = ref(true);
-const clickNotification = ref(false);
-
-const clickListWithdraw = ref(false);           //ปุ่มใน dropdown เบิกค่าใช้จ่าย
-const clickHistoryWithdraw = ref(false);
-const clickReportProject = ref(false);          //ปุ่มใน dropdown รายงาน
-const clickReportWithdraw = ref(false);
-const clickListApproval = ref(false);           //ปุ่มใน dropdown การอนุมัติ
-const clickHistoryApproval = ref(false);
-const clickListDeliverWithdraw = ref(false);    //ปุ่มใน dropdown การนำจ่าย
-const clickHistoryDeliverWithdraw = ref(false);
-const clickSettingUser = ref(false);            //ปุ่มใน dropdown ตั้งค่าระบบ
-const clickSettingApprover = ref(false);
-const clickSettingTypeWithdraw = ref(false);
-
-const isWithdrawDropdownOpen = ref(false);
-const isReportDropdownOpen = ref(false);
-const isApprovalDropdownOpen = ref(false);
-const isDeliverDropdownOpen = ref(false);
-const isSettingDropdownOpen = ref(false);
-
-const toggleWithdrawDropdown = () => { 
-    isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
-};
-
-const toggleReportDropdown = () => { 
-    isReportDropdownOpen.value = !isReportDropdownOpen.value;
-};
-
-const toggleApprovalDropdown = () => { 
-    isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
-};
-
-const toggleDeliverDropdown = () => { 
-    isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
-};
-
-const toggleSettingDropdown = () => { 
-    isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
-};
-
-const resetAllToggles = () => {
-    clickNotification.value = false;
-    clickDashboard.value = false;
-    clickListWithdraw.value = false;
-    clickHistoryWithdraw.value = false;
-    clickReportProject.value = false;
-    clickReportWithdraw.value = false;
-    clickListApproval.value = false;
-    clickHistoryApproval.value = false;
-    clickListDeliverWithdraw.value = false;
-    clickHistoryDeliverWithdraw.value = false;
-    clickSettingUser.value = false;
-    clickSettingApprover.value = false;
-    clickSettingTypeWithdraw.value = false;
-};
-
-const toggleDashboard = () => {
-    clickDashboard.value = !clickDashboard.value;
-    resetAllToggles();
-    clickDashboard.value = true;
-};
-
-const toggleNotification = () => {
-    clickNotification.value = !clickNotification.value;
-    resetAllToggles();
-    clickNotification.value = true;
-};
-
-const toggleListWithdraw = () => {
-    clickListWithdraw.value = !clickListWithdraw.value;
-    resetAllToggles();
-    clickListWithdraw.value = true;
-};
-
-const toggleHistoryWithdraw = () => {
-    clickHistoryWithdraw.value = !clickHistoryWithdraw.value;
-    resetAllToggles();
-    clickHistoryWithdraw.value = true;
-};
-
-const toggleReportProject = () => {
-    clickReportProject.value = !clickReportProject.value;
-    resetAllToggles();
-    clickReportProject.value = true;
-};
-
-const toggleReportWithdraw = () => {
-    clickReportWithdraw.value = !clickReportWithdraw.value;
-    resetAllToggles();
-    clickReportWithdraw.value = true;
-};
-
-const toggleListApproval = () => {
-    clickListApproval.value = !clickListApproval.value;
-    resetAllToggles();
-    clickListApproval.value = true;
-};
-
-const toggleHistoryApproval = () => {
-    clickHistoryApproval.value = !clickHistoryApproval.value;
-    resetAllToggles();
-    clickHistoryApproval.value = true;
-};
-
-const toggleListDeliverWithdraw = () => {
-    clickListDeliverWithdraw.value = !clickListDeliverWithdraw.value;
-    resetAllToggles();
-    clickListDeliverWithdraw.value = true;
-};
-
-const toggleHistoryDeliverWithdraw = () => {
-    clickHistoryDeliverWithdraw.value = !clickHistoryDeliverWithdraw.value;
-    resetAllToggles();
-    clickHistoryDeliverWithdraw.value = true;
-};
-
-const toggleSettingUser = () => {
-    clickSettingUser.value = !clickSettingUser.value;
-    resetAllToggles();
-    clickSettingUser.value = true;
-};
-
-const toggleSettingApprover = () => {
-    clickSettingApprover.value = !clickSettingApprover.value;
-    resetAllToggles();
-    clickSettingApprover.value = true;
-};
-
-const toggleSettingTypeWithdraw = () => {
-    clickSettingTypeWithdraw.value = !clickSettingTypeWithdraw.value;
-    resetAllToggles();
-    clickSettingTypeWithdraw.value = true;
-};
-</script>

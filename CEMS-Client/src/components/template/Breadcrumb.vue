@@ -1,4 +1,12 @@
 <script setup lang="ts">
+/**
+* ชื่อไฟล์: Breadcrumb.vue
+* คำอธิบาย: ไฟล์นี้แสดงแถบนำทาง
+* Input: route
+* Output: แถบเส้นทางทุกหน้าจอ
+* ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
 import { computed } from 'vue';
 import { useRoute, useRouter, RouteRecordNormalized } from 'vue-router';
 

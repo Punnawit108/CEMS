@@ -1,9 +1,16 @@
 <script setup lang="ts">
+/**
+ * ชื่อไฟล์ : navbar.vue
+ * คำอธิบาย : ไฟล์นี้ Component navbar หรือ Header
+ * Input : -
+ * Output : ข้อมูล Component navbar หรือ Header
+ * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
+ * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
+ */
 import { useRoute } from 'vue-router';
 import { computed } from 'vue';
 import Icon from './CIcon.vue';
-
-
+import Button from './Button.vue';
 // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 const route = useRoute();
 
@@ -34,15 +41,19 @@ const navbarTitle = computed(() => {
         </div>
         <div class="mr-6 inline-flex h-9 ">
             <div class=" mr-6 items-end " v-if="route.name === 'listWithdraw'">
-                <button class=" flex justify-center items-center px-4 py-1 bg-emerald-500 rounded-md border-2
-            border-emerald-500 border-solid min-h-[30px]">
-                    <img loading="lazy"
-                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/2d66bb937008d0de5fc7f3175afcb11d55f1df5aec556599f71c92ceef192be1?placeholderIfAbsent=true&apiKey=9804936447ee44d9b9e8514cc347c2f4"
-                        class="object-contain shrink-0 self-stretch my-auto w-6 aspect-square" alt="Icon" />
-                    <span class=" flex justify-center items-center gap-2.5 self-stretch pr-1.5 pl-2 text-white">
-                        สร้างใบเบิกค่าใช้จ่าย
-                    </span>
-                </button>
+                <RouterLink to="/disbursement/listWithdraw/createExpenseForm">
+                    <Button :type="'btn-expense'"></Button>
+                </RouterLink>
+            </div>
+            <div class=" mr-6 items-end " v-if="route.name === 'listWithdrawDetail'">
+                <RouterLink to="/disbursement/listWithdraw/detail/:id">
+                    <Button :type="'btn-print1'"></Button>
+                </RouterLink>
+            </div>
+            <div class=" mr-6 items-end " v-if="route.name === 'listWithdrawDetail'">
+                <RouterLink to="/disbursement/listWithdraw/detail/:id">
+                    <Button :type="'btn-editRequest'"></Button>
+                </RouterLink>
             </div>
             <div class="inline-flex justify-center items-center">
                 <Icon :icon="'profile'" :size="32" />
