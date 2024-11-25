@@ -52,9 +52,9 @@ public class ApprovalController : ControllerBase
         return Ok(approveProgress);
     }
 
-    // Req => usrFirstName, usrLastName
-    [HttpPost]
-    public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
+        // Req => usrFirstName, usrLastName
+    [HttpPost("approve")]
+    public async Task<ActionResult> ApproveRequisition([FromBody] CemsApprover approver)
     {
         _context.CemsApprovers.Add(approver);
         await _context.SaveChangesAsync();
@@ -66,5 +66,20 @@ public class ApprovalController : ControllerBase
             approver
         );
     }
+
+    [HttpPost]
+    public async Task<ActionResult> AddApprover([FromBody] CemsApproverRequistion approverRequistion)
+    {
+        _context.CemsApproverRequistions.Add(approverRequistion);
+        await _context.SaveChangesAsync();
+
+
+        return CreatedAtAction(
+            nameof(ApproverList),
+            new { id = approverRequistion.AprId },
+            approverRequistion
+        );
+    }
+
 
 }

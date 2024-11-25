@@ -45,7 +45,6 @@ public class ExpenseController : ControllerBase
                 RqCode = u.RqCode,
                 RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
-                RqLocation = u.RqLocation,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
                 RqDistance = u.RqDistance,
