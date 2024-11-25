@@ -72,7 +72,7 @@ public class DashboardApproverGetDto
     }
 
     //ของ Accountant
-    public class DashboardAdminGetDto
+    public class DashboardAccountantGetDto
 {
     public int AprRqId { get; }
 
