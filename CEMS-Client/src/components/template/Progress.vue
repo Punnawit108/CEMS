@@ -32,7 +32,7 @@ console.log(props.progressInfo);
         />
       </svg>
       <div class="text">
-        <p>รอดำเนินการ</p>
+        <p class="font-bold">รอดำเนินการ</p>
       </div>
     </div>
     <div class="row my-[50px]" v-for="item in progressInfo.acceptor">
@@ -80,19 +80,19 @@ console.log(props.progressInfo);
       </svg>
 
       <div class="text">
-        <p class="w-fit">{{ item.name }}</p>
+        <p class="w-fit font-bold">{{ item.name }}</p>
         <div v-if="item.status === 'accept'">
-          <p class="text-[11px] text-gray-400">
+          <p class="text-[11px] text-gray-400 font-bold">
             อนุมัติเมื่อ :{{ item.datetime }}
           </p>
         </div>
         <div v-else-if="item.status === 'reject'">
-          <p class="text-[11px] text-gray-400">
+          <p class="text-[11px] text-gray-400 font-bold">
             ไม่อนุมัติเมื่อ :{{ item.datetime }}
           </p>
         </div>
         <div v-else-if="item.status === 'edit'">
-          <p class="text-[11px] text-gray-400">
+          <p class="text-[11px] text-gray-400 font-bold">
             ส่งกลับเมื่อ :{{ item.datetime }}
           </p>
         </div>
@@ -127,7 +127,7 @@ console.log(props.progressInfo);
         />
       </svg>
       <div class="text">
-        <p>เบิกจ่าย</p>
+        <p class="font-bold">เบิกจ่าย</p>
       </div>
     </div>
     <div class="row my-[50px]">
@@ -155,7 +155,7 @@ console.log(props.progressInfo);
         />
       </svg>
       <div class="text">
-        <p>เสร็จสิ้น</p>
+        <p class="font-bold">เสร็จสิ้น</p>
       </div>
     </div>
   </div>

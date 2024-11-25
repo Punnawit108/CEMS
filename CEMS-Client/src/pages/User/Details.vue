@@ -10,8 +10,16 @@
 import { ref } from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
+import { useRoute } from "vue-router";
 
 const statusDetail = ref("edit"); // 'reject' is the initial value
+
+const route = useRoute();
+
+// ตรวจสอบว่ามีคำว่า 'approval' ใน path หรือไม่
+const isApprovalPath = computed(() => {
+  return route.path.includes('approval');
+});
 
 const colorStatus: { [key: string]: string } = {
   reject: "#E1032B",
@@ -121,7 +129,7 @@ const progressInfo = {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">รหัสรายการเบิก</p>
-            <p class="item"></p>
+            <p class="item">CN-1998</p>
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
