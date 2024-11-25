@@ -46,11 +46,11 @@ export interface TravelManage {
 export interface User {
     usrId: number;
     usrEmployeeId: string;
-    usrRolId: number;
-    usrCpnId: number;
-    usrPstId: number;
-    usrDptId: number;
-    usrStId: number;
+    usrRolName: string;
+    usrCpnName: string;
+    usrPstName: string;
+    usrDptName: string;
+    usrStName: string;
     usrFirstName: string;
     usrLastName: string;
     usrPhoneNumber: string;
