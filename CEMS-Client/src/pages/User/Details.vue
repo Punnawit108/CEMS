@@ -21,6 +21,33 @@ const colorStatus: { [key: string]: string } = {
   sketch: "#B6B7BA",
 };
 
+
+const requestInfo = [
+  {
+    rqId: 1001,
+    rqUsrName: "Pongsatorn Boonyama",
+    rqPjName: "งานเลี้ยง",
+    rqRqtName: "ค่าเดินทาง",
+    rqVhName: "รถยนต์ส่วนตัว",
+    rqDatePay: "2024-11-01",
+    rqDateWithdraw: "2024-11-02",
+    rqCode: "CN-1001",
+    rqInsteadEmail: "",
+    rqExpenses: 100,
+    rqLocation: "หอประชุมปิยพัฒน์",
+    rqStartLocation: "Bangkok",
+    rqEndLocation: "Nonthaburi",
+    rqDistance: "15 KM",
+    rqPurpose: "เดินทาง",
+    rqReason: null,
+    rqProof: "เพื่อเดินทางไปงานเลี้ยงรุ่นน้องของบริษัท",
+    rqStatus: "waiting",
+    rqProgress: "accepting",
+  },
+];
+
+
+
 const progressInfo = {
   disbursement: {
     status: "accept",
@@ -49,6 +76,8 @@ const progressInfo = {
     },
   ],
 };
+
+
 </script>
 
 <!-- path for test = /disbursement/listWithdraw/detailsExpenseForm/:id -->
@@ -60,114 +89,138 @@ const progressInfo = {
 <template>
   <!-- content -->
   <div class="ml-[16px]">
-    <div
-      class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]"
-    >
+    <div class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]">
       <div class="flex justify-between">
         <p class="!text-[#ED0000] font-bold">เหตุผลส่งกลับ :</p>
         <p class="!text-[#FF0000]">วันที่ส่งกลับ : 11/09/2567</p>
       </div>
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
-    <div
-      class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]"
-    >
+
+    <div class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
       <p class="!text-[#ED0000] font-bold">เหตุผลการไม่อนุมัติ :</p>
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
-    <div class="flex justify-between">
-      <div class="left w-[80%]">
-        <h3 class="text-base font-bold text-black">
-          รายละเอียดคำขอเบิก<span
-            :class="`bg-[${colorStatus[statusDetail]}]`"
-            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]"
-            >แก้ไข</span
-          >
-        </h3>
-        <div class="row">
-          <p>โครงการ</p>
-          <p>อบรมการบริหาร</p>
-        </div>
-        <div class="row flex justify-around">
-          <div class="col">
-            <p>ชื่อผู้เบิก</p>
-            <p>นางสาวอลิสา ปะกังพลัง</p>
-          </div>
-          <div class="col">
-            <p>ชื่อผู้เบิกแทน</p>
-            <p>นายปุณณวิชน์ วิเชียร์มาร์น</p>
-          </div>
-        </div>
-        <div class="row flex justify-around">
-          <div class="col">
-            <p>ประเภทค่าใช้จ่าย</p>
-            <p>ค่าเดินทาง</p>
-          </div>
-          <div class="col">
-            <p>วันที่ขอเบิก</p>
-            <p>11/09/2567</p>
-          </div>
-          <div class="col">
-            <p>วันที่อนุมัติ</p>
-            <p>13/09/2567</p>
-          </div>
-          <div class="col">
-            <p>จำนวนเงิน(บาท)</p>
-            <p>315.00</p>
-          </div>
-        </div>
-        <div class="travel row flex">
-          <div class="col">
-            <p>ประเภทการเดินทาง</p>
-            <p>รถสาธารณะ</p>
-          </div>
-          <div class="col">
-            <p>ประเภทรถ</p>
-            <p>รถไฟฟ้า</p>
-          </div>
-          <div class="col">
-            <p>ระยะทาง</p>
-            <p>40 กิโลเมตร</p>
-          </div>
-          <div class="col">
-            <p>อัตราค่าเดินทาง</p>
-            <p>7 บาท/กิโลเมตร</p>
-          </div>
-        </div>
-        <div class="row">
-          <p>สถานที่เริ่มต้น</p>
-          <p>Clicknext กรุงเทพฯ</p>
-        </div>
-        <div class="row">
-          <p>วัตถุประสงค์</p>
-          <p>เพื่อติดต่อสหกิจศึกษา</p>
-        </div>
-        <div class="row flex">
-          <div class="flex-1">
-            <h3 class="mb-[16px] text-base font-bold text-black">รูปหลักฐาน</h3>
-            <img
-              src="/evidence.jpg"
-              alt=""
-              class="w-[50%] h-auto cursor-pointer"
-            />
-          </div>
-          <div class="flex-1"></div>
-        </div>
-      </div>
-      <div class="right">
-        <div class="flex mb-[24px]">
+
+    <div class="flex justify-end">
+      <div class="flex mb-[22px]">
           <Button type="btn-unapprove" />
           <span class="mx-[12px]"></span>
           <Button type="btn-editSend" class="mx-[24px]" />
           <span class="mx-[12px]"></span>
           <Button type="btn-approve" />
         </div>
+    </div>
+
+    <div class="flex justify-between">
+      <div class="left w-[80%]">
+        <h3 class="text-base font-bold text-black">
+          เบิกค่าใช้จ่าย<span :class="`bg-[${colorStatus[statusDetail]}]`"
+            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">แก้ไข</span>
+        </h3>
+        <div class="row flex justify-around">
+          <div class="col">
+            <p class="head">รหัสรายการเบิก</p>
+            <p class="item"></p>
+          </div>
+          <div class="col">
+            <p class="head">โครงการ</p>
+            <p class="item">อบรมการบริหาร</p>
+          </div>
+          <div class="col">
+            <p class="head">วันที่เกิดค่าใช้จ่าย</p>
+            <p class="item">13/09/2567</p>
+          </div>
+          <div class="col">
+            <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
+            <p class="item">13/09/2567</p>
+          </div>
+        </div>
+        
+        <div class="row flex justify-around">
+          <div class="col">
+            <p class="head">ชื่อผู้เบิก</p>
+            <p class="item">นางสาวอลิสา ปะกังพลัง</p>
+          </div>
+          <div class="col">
+            <p class="head">ชื่อผู้เบิกแทน</p>
+            <p class="item">นายปุณณวิชน์ วิเชียร์มาร์น</p>
+          </div>
+        </div>
+
+        <div class="row flex justify-around">
+          <div class="col">
+            <p class="head">ประเภทค่าใช้จ่าย</p>
+            <p class="item">ค่าเดินทาง</p>
+          </div>
+          <div class="col">
+            <p class="head">วันที่อนุมัติ</p>
+            <p class="item">13/09/2567</p>
+          </div>
+          <div class="col">
+            <p class="head">จำนวนเงิน(บาท)</p>
+            <p class="item">315.00</p>
+          </div>
+          <div class="col">
+
+          </div>
+        </div>
+
+        <div class="travel row flex">
+          <div class="col">
+            <p class="head">ประเภทการเดินทาง</p>
+            <p class="item">รถสาธารณะ</p>
+          </div>
+          <div class="col">
+            <p class="head">ประเภทรถ</p>
+            <p class="item">รถไฟฟ้า</p>
+          </div>
+          <div class="col">
+            <p class="head">ระยะทาง</p>
+            <p class="item">40 กิโลเมตร</p>
+          </div>
+          <div class="col">
+            <p class="head">อัตราค่าเดินทาง</p>
+            <p class="item">7 บาท/กิโลเมตร</p>
+          </div>
+          
+        </div>
+
+        <div class="row flex justify-around">
+          <div class="col">
+            <p class="head">สถานที่เริ่มต้น</p>
+            <p class="item">Clicknext กรุงเทพฯ</p>
+          </div>
+          <div class="col">
+            <p class="head">สถานที่สิ้นสุด</p>
+            <p class="item">Clicknext กรุงเทพฯ</p>
+          </div>
+        </div>
+
+        <div class="row">
+          <p class="head">รายละเอียด</p>
+          <p class="item">เพื่อติดต่อสหกิจศึกษา</p>
+        </div>
+
+        <div class="row flex">
+          <div class="flex-1">
+            <h3 class="mb-[16px] text-base font-bold text-black">รูปหลักฐาน</h3>
+            <img src="/evidence.jpg" alt="" class="w-[50%] h-auto cursor-pointer" />
+          </div>
+          <div class="flex-1"></div>
+        </div>
+      </div>
+
+      <div class="right">
+        <!-- <div class="flex mb-[24px]">
+          <Button type="btn-unapprove" />
+          <span class="mx-[12px]"></span>
+          <Button type="btn-editSend" class="mx-[24px]" />
+          <span class="mx-[12px]"></span>
+          <Button type="btn-approve" />
+        </div> -->
         <div class="flex justify-end">
-          <Progress
-            :progressInfo="progressInfo"
-            :colorStatus="colorStatus"
-            class="w-[80%]"
-          />
+          <Progress :progressInfo="progressInfo" :colorStatus="colorStatus" class="w-[100%]" />
         </div>
       </div>
     </div>
@@ -182,6 +235,16 @@ p {
 
 .row {
   margin: 16px 0;
+}
+
+.head {
+  font-weight: 600;
+  color: gray; 
+}
+
+.item {
+  font-weight: bold; 
+  color: black; 
 }
 
 .col {
