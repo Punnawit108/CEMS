@@ -13,7 +13,5 @@ public partial class CemsRole
 
     public sbyte RolIsManageExpenses { get; set; }
 
-    public sbyte RolIsApprover { get; set; }
-
     public virtual ICollection<CemsUser> CemsUsers { get; set; } = new List<CemsUser>();
 }

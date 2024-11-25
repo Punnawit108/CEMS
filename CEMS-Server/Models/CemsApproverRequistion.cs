@@ -15,7 +15,11 @@ public partial class CemsApproverRequistion
 
     public DateTime? AprDate { get; set; }
 
+    public string? AprStatus { get; set; }
+
     public virtual CemsApprover? AprAp { get; set; }
 
     public virtual CemsRequisition AprRq { get; set; } = null!;
+
+    public virtual ICollection<CemsNotification> CemsNotifications { get; set; } = new List<CemsNotification>();
 }
