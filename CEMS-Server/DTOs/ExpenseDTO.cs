@@ -41,7 +41,7 @@ namespace CEMS_Server.DTOs
         public string RqProgress { get; set; } = null!;
     }
 
-    public class ExpensePostDto
+    public class ExpenseManageDto
     {
         public int RqUsrId { get; set; }
         public int RqPjId { get; set; }
