@@ -1,9 +1,7 @@
 using CEMS_Server.AppContext;
-using CEMS_Server.DTOs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.VisualBasic;
 
 namespace CEMS_Server.Controllers;
 
@@ -14,35 +12,59 @@ public class ApprovalController : ControllerBase
 {
     private readonly CemsContext _context;
 
+
     public ApprovalController(CemsContext context)
     {
         _context = context;
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<object>>> ProgressData()
+    public async Task<ActionResult<IEnumerable<object>>> ApproverList()
     {
 
-        var disbursementData = await _context.CemsRequisitions.Select(e => new {e.RqDatePay,e.RqProgress}).ToListAsync();
-        var acceptorData = await _context.CemsApproverRequistions
-        .Include(e => e.AprAp)
+        var acceptorList = await _context.CemsApprovers.Include(e => e.ApUsr).Select(e => new
+        {
+            e.ApUsr.UsrFirstName,
+            e.ApUsr.UsrLastName,
+            e.ApSequence
+
+        }).ToListAsync();
+        return Ok(acceptorList);
+    }
+
+    [HttpGet("progress/{requisitionId:int}")]
+    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId){
+        var approveProgress = await _context.CemsApproverRequistions
+        .Where(e => e.AprRqId == requisitionId)
+        .Include(e => e.AprRq)
+        .Include(e => e.AprAp) 
         .Include(e => e.AprAp.ApUsr)
         .Select(e => new {
-            e.AprRq,
+            e.AprId,
             e.AprAp.ApUsr.UsrFirstName,
-            e.AprAp.ApUsr.UsrLastName
-            }).ToListAsync();
+            e.AprAp.ApUsr.UsrLastName,
+            e.AprName,
+            e.AprDate,
+        })
+        .OrderBy(e => e.AprId)
+        .ToListAsync();
 
-        var progressInfo = new
-        {
+        return Ok(approveProgress);
+    }
 
-            disbursement = new {
-                
-            }
+    // Req => usrFirstName, usrLastName
+    [HttpPost]
+    public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
+    {
+        _context.CemsApprovers.Add(approver);
+        await _context.SaveChangesAsync();
 
-        };
 
-        return Ok(acceptorData);
+        return CreatedAtAction(
+            nameof(ApproverList),
+            new { id = approver.ApId },
+            approver
+        );
     }
 
 }
