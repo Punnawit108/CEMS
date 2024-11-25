@@ -17,8 +17,8 @@ public class ExpenseController : ControllerBase
         _context = context;
     }
 
-    [HttpGet]
-    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpense()
+    [HttpGet("list")]
+    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList()
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -132,7 +132,7 @@ public class ExpenseController : ControllerBase
         _context.CemsRequisitions.Add(expense);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetExpense), new { id = expense.RqId }, expenseDto);
+        return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
     }
 
     [HttpPut("{id}")]
