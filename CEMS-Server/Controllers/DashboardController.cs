@@ -1,0 +1,134 @@
+using CEMS_Server.AppContext;
+using CEMS_Server.DTOs;
+using CEMS_Server.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+
+namespace CEMS_Server.Controllers;
+
+
+[ApiController]
+[Route("api/user/dashboard")]
+public class DashboardController : ControllerBase
+{
+    private readonly CemsContext _context;
+
+    public DashboardController(CemsContext context)
+    {
+        _context = context;
+    }
+
+// DashboardUser
+    [HttpGet("user")]
+    public async Task<ActionResult<IEnumerable<DashboardUserGetDto>>> GetDashboardUser() //ติดไว้ก่อน
+    {
+        var requisition = await _context
+            .CemsRequisitions.Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Include(e => e.RqVh)
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
+            .Select(u => new DashboardUserGetDto
+            {
+                RqId = u.RqId,
+                RqPjId = u.RqPjId,
+                PjName = u.RqPj.PjName,
+                RqDateWithdraw = u.RqDateWithdraw,
+                RqExpenses = u.RqExpenses,
+                PjAmountExpenses = u.RqPj.PjAmountExpenses,
+                RqProof = u.RqProof,
+                RqStatus = u.RqStatus,
+                RqRqtId = u.RqRqtId,
+                RqtName = u.RqRqt.RqtName,
+                RqDateWithdraw = u.RqDateWithdraw,
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+//Approver
+    [HttpGet("approver")]
+    public async Task<ActionResult<IEnumerable<DashboardApproverGetDto>>> GetDashboardApprover()
+    {
+        var requisition = await _context
+            .CemsRequisitions.Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Include(e => e.RqVh)
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
+            .Select(u => new DashboardApproverGetDto
+            {
+                AprRqId = u.AprRqId,
+                RqStatus = u.RqStatus,
+                AprId = u.AprId,
+                RqExpenses = u.RqExpenses,
+                RqPjId = u.RqPjId,
+                PjName = u.RqPj.PjName,
+                PjAmountExpenses = u.RqPj.PjAmountExpenses,
+                RqRqtId = u.RqRqtId,
+                RqtName = u.RqRqt.RqtName,
+                RqDateWithdraw = u.RqDateWithdraw,
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+//Admin
+    [HttpGet("admin")]
+    public async Task<ActionResult<IEnumerable<DashboardAdminGetDto>>> GetDashboardAdmin()
+    {
+        var requisition = await _context
+            .CemsRequisitions.Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Include(e => e.RqVh)
+            .Where(u => u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
+            .Select(u => new DashboardAdminGetDto
+            {
+                UsrId = u.UsrId,
+                AprRqId = u.AprRqId,
+                RqStatus = u.RqStatus,
+                RqExpenses = u.RqExpenses,
+                RqPjId = u.RqPjId,
+                PjName = u.RqPj.PjName,
+                PjAmountExpenses = u.RqPj.PjAmountExpenses,
+                RqRqtId = u.RqRqtId,
+                RqtName = u.RqRqt.RqtName,
+                RqDateWithdraw = u.RqDateWithdraw,
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+//Accountant
+    [HttpGet("accountant")]
+    public async Task<ActionResult<IEnumerable<DashboardAccountant>>> GetDashboardAccountant()
+    {
+        var requisition = await _context
+            .CemsRequisitions.Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Include(e => e.RqVh)
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
+            .Select(u => new DashboardAccountant
+            {
+                AprRqId = u.AprRqId,
+                RqStatus = u.RqStatus,
+                AprId = u.AprId,
+                RqExpenses = u.RqExpenses,
+                RqPjId = u.RqPjId,
+                PjName = u.RqPj.PjName,
+                PjAmountExpenses = u.RqPj.PjAmountExpenses,
+                RqRqtId = u.RqRqtId,
+                RqtName = u.RqRqt.RqtName,
+                RqDateWithdraw = u.RqDateWithdraw,
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+}
