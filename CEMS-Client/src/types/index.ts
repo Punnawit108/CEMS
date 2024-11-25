@@ -61,13 +61,13 @@ export interface User {
 
 //ข้อมูลแสดงผลของกราฟ และตาราง project 
 export interface ProjectReport{
-    PjId: number;
-    PjName: string;
+    pjId: number;
+    pjName: string;
     pjSumAmountExpenses: string;
 }
 //ข้อมูลแสดงผลของกราฟ expense
 export interface ExpenseReportGraph {
-    rqRqtId:number;
+    rqRqtId: number;
     rqRqtName: string;
     rqSumExpenses: number;
 }

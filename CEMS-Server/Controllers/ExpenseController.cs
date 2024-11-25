@@ -45,7 +45,7 @@ public class ExpenseController : ControllerBase
                 RqCode = u.RqCode,
                 RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
-                RqLocation = u.RqLocation,
+                RqName = u.RqName,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
                 RqDistance = u.RqDistance,
@@ -54,6 +54,30 @@ public class ExpenseController : ControllerBase
                 RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqProgress = u.RqProgress,
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+    [HttpGet("report")]
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> getExpenseReport()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Select(u => new ExpenseReportDto
+            {
+                RqId = u.RqId,
+                RqName = u.RqName,
+                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqPjName = u.RqPj.PjName,
+                RqRqtName = u.RqRqt.RqtName,
+                RqDatePay = u.RqDatePay,
+                RqExpenses = u.RqExpenses,
+                
             })
             .ToListAsync();
 

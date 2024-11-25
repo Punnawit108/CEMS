@@ -21,7 +21,7 @@ namespace CEMS_Server.DTOs
 
         public double RqExpenses { get; set; }
 
-        public string? RqLocation { get; set; }
+        public string? RqName { get; set; }
 
         public string? RqStartLocation { get; set; }
 
