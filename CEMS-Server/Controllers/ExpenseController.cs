@@ -25,6 +25,43 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
+            .Where(u => u.RqStatus == "waiting") // เพิ่มเงื่อนไข Where
+            .Select(u => new ExpenseGetDto
+            {
+                RqId = u.RqId,
+                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqPjName = u.RqPj.PjName,
+                RqRqtName = u.RqRqt.RqtName,
+                RqVhName = u.RqVh.VhVehicle,
+                RqName = u.RqName,
+                RqDatePay = u.RqDatePay,
+                RqDateWithdraw = u.RqDateWithdraw,
+                RqCode = u.RqCode,
+                RqInsteadEmail = u.RqInsteadEmail,
+                RqExpenses = u.RqExpenses,
+                RqStartLocation = u.RqStartLocation,
+                RqEndLocation = u.RqEndLocation,
+                RqDistance = u.RqDistance,
+                RqPurpose = u.RqPurpose,
+                RqReason = u.RqReason,
+                RqProof = u.RqProof,
+                RqStatus = u.RqStatus,
+                RqProgress = u.RqProgress,
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+    [HttpGet("History")]
+    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory()
+    {
+        var requisition = await _context
+            .CemsRequisitions.Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Include(e => e.RqVh)
+            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
