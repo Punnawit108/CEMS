@@ -1,14 +1,19 @@
-﻿using CEMS_Server.Models;
-using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.EntityFrameworkCore;
+
 
 namespace CEMS_Server.AppContext;
-
+using CEMS_Server.Models;
 
 public partial class CemsContext : DbContext
 {
-    public CemsContext(){}
+    public CemsContext()
+    {
+    }
 
-    public CemsContext(DbContextOptions<CemsContext> options):base(options){}
+    public CemsContext(DbContextOptions<CemsContext> options)
+        : base(options)
+    {
+    }
 
     public virtual DbSet<CemsApprover> CemsApprovers { get; set; }
 
@@ -17,6 +22,8 @@ public partial class CemsContext : DbContext
     public virtual DbSet<CemsCompany> CemsCompanies { get; set; }
 
     public virtual DbSet<CemsDepartment> CemsDepartments { get; set; }
+
+    public virtual DbSet<CemsNotification> CemsNotifications { get; set; }
 
     public virtual DbSet<CemsPosition> CemsPositions { get; set; }
 
@@ -47,8 +54,6 @@ public partial class CemsContext : DbContext
             entity.ToTable("cems_approver");
 
             entity.HasIndex(e => e.ApUsrId, "fk_approver_user_idx");
-
-            entity.HasIndex(e => e.ApSequence, "sequence_UNIQUE").IsUnique();
 
             entity.Property(e => e.ApId).HasColumnName("ap_id");
             entity.Property(e => e.ApSequence).HasColumnName("ap_sequence");
@@ -81,6 +86,9 @@ public partial class CemsContext : DbContext
                 .HasMaxLength(45)
                 .HasColumnName("apr_name");
             entity.Property(e => e.AprRqId).HasColumnName("apr_rq_id");
+            entity.Property(e => e.AprStatus)
+                .HasColumnType("enum('waiting','accept')")
+                .HasColumnName("apr_status");
 
             entity.HasOne(d => d.AprAp).WithMany(p => p.CemsApproverRequistions)
                 .HasForeignKey(d => d.AprApId)
@@ -114,6 +122,31 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.DptName)
                 .HasMaxLength(45)
                 .HasColumnName("dpt_name");
+        });
+
+        modelBuilder.Entity<CemsNotification>(entity =>
+        {
+            entity.HasKey(e => e.NtId).HasName("PRIMARY");
+
+            entity.ToTable("cems_notification");
+
+            entity.HasIndex(e => e.NtAprId, "fk_cems_notification_cems_approver_requistion1_idx");
+
+            entity.Property(e => e.NtId)
+                .ValueGeneratedNever()
+                .HasColumnName("nt_id");
+            entity.Property(e => e.NtAprId).HasColumnName("nt_apr_id");
+            entity.Property(e => e.NtDate)
+                .HasColumnType("datetime")
+                .HasColumnName("nt_date");
+            entity.Property(e => e.NtStatus)
+                .HasColumnType("enum('read','unread')")
+                .HasColumnName("nt_status");
+
+            entity.HasOne(d => d.NtApr).WithMany(p => p.CemsNotifications)
+                .HasForeignKey(d => d.NtAprId)
+                .OnDelete(DeleteBehavior.ClientSetNull)
+                .HasConstraintName("fk_cems_notification_cems_approver_requistion1");
         });
 
         modelBuilder.Entity<CemsPosition>(entity =>
@@ -172,9 +205,9 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.RqInsteadEmail)
                 .HasMaxLength(45)
                 .HasColumnName("rq_instead_email");
-            entity.Property(e => e.RqLocation)
+            entity.Property(e => e.RqName)
                 .HasMaxLength(45)
-                .HasColumnName("rq_location");
+                .HasColumnName("rq_name");
             entity.Property(e => e.RqPjId).HasColumnName("rq_pj_id");
             entity.Property(e => e.RqProgress)
                 .HasColumnType("enum('accepting','paying','complate')")
@@ -237,7 +270,6 @@ public partial class CemsContext : DbContext
             entity.ToTable("cems_role");
 
             entity.Property(e => e.RolId).HasColumnName("rol_id");
-            entity.Property(e => e.RolIsApprover).HasColumnName("rol_is_approver");
             entity.Property(e => e.RolIsManageExpenses).HasColumnName("rol_is_manage_expenses");
             entity.Property(e => e.RolIsSettingSystem).HasColumnName("rol_is_setting_system");
             entity.Property(e => e.RolName)
