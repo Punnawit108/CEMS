@@ -17,7 +17,7 @@ export const useProjectsStore = defineStore("projects", {
     actions: {
         async getAllProjects() {
             try {
-                const result = await axios.get(`https://673c124496b8dcd5f3f86b39.mockapi.io/api/project`);
+                const result = await axios.get(`http://localhost:5247/api/project`);
                 this.projects = result.data;
             } catch (error) {
                 console.error("Failed to fetch projects:", error);

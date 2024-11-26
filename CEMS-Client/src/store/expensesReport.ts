@@ -18,7 +18,7 @@ export const useExpensesListStore = defineStore("expenses", {
     actions: {
         async getAllExpenses() {
             try {
-                const result = await axios.get(`https://673c124496b8dcd5f3f86b39.mockapi.io/api/expense`);
+                const result = await axios.get(`http://localhost:5247/api/expense/list`);
                 this.expenses = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);
@@ -34,7 +34,7 @@ export const useExpensesGraphStore = defineStore("expenses", {
     actions: {
         async getAllExpenses() {
             try {
-                const result = await axios.get(`https://673c124496b8dcd5f3f86b39.mockapi.io/api/expense`);
+                const result = await axios.get(`http://localhost:5247/api/expense/graph`);
                 this.expenses = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);
