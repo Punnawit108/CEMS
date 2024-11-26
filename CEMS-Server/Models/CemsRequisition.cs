@@ -15,17 +15,17 @@ public partial class CemsRequisition
 
     public int? RqVhId { get; set; }
 
+    public string RqName { get; set; } = null!;
+
     public DateOnly RqDatePay { get; set; }
 
     public DateOnly RqDateWithdraw { get; set; }
 
     public string? RqCode { get; set; }
 
-    public string RqInsteadEmail { get; set; } = null!;
+    public string? RqInsteadEmail { get; set; }
 
     public double RqExpenses { get; set; }
-
-    public string? RqLocation { get; set; }
 
     public string? RqStartLocation { get; set; }
 
