@@ -75,7 +75,7 @@ onMounted(async () => {
                         label: "จำนวนเงิน (บาท)",
                         data: amountMoney,
                         backgroundColor: "#C81C1B",
-                        barPercentage: 0.33, // ความหนาของแท่งกราฟ
+                        barPercentage: 0.2, // ความหนาของแท่งกราฟ
                         datalabels: {
                             display: false, // ช่อนข้อมูลของ "จำนวนเงิน (บาท)" ที่ขึ้นบนแท่งกราฟ
                         },
