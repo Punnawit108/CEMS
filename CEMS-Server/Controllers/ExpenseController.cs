@@ -88,7 +88,49 @@ public class ExpenseController : ControllerBase
 
         return Ok(requisition);
     }
+    
+    // Expense report list
+    [HttpGet("report")]
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Select(u => new ExpenseReportDto
+            {
+                RqId = u.RqId,
+                RqName = u.RqName,
+                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqPjName = u.RqPj.PjName,
+                RqRqtName = u.RqRqt.RqtName,
+                RqDatePay = u.RqDatePay,
+                RqExpenses = u.RqExpenses,
+            })
+            .ToListAsync();
 
+        return Ok(requisition);
+    }
+
+    // Expense report graph
+    [HttpGet("graph")]
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Include(e => e.RqRqt)
+            .Select(u => new ExpenseGraphDto
+            {
+                RqRqtId = u.RqRqt.RqtId,
+                RqRqtName = u.RqRqt.RqtName,
+                // RqSumExpenses
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+    
     //get by id
     [HttpGet("{id}")]
     public async Task<ActionResult<ExpenseGetDto>> GetExpenseById(int id)

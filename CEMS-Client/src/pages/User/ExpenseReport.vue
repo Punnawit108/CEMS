@@ -5,12 +5,14 @@
 * Input: -
 * Output: รายงานของคำขอเบิกค่าใช้จ่าย
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
-* วันที่จัดทำ/แก้ไข: 10 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from '../../components/template/Ctable.vue';
+import { useExpensesListStore } from '../../store/expensesReport';
+import ExpenseReportList from '../../types/index';
 import {
     Chart,
     BarController,
@@ -44,33 +46,36 @@ Chart.register(
     ChartDataLabels
 );
 
-// Bar chart setup
+const expensesListStore = useExpensesListStore();
 
+// Bar chart setup
 // ประเภทค่าใช้จ่าย
-const project = [
-    "ค่าเดินทาง",
-    "ค่าที่พัก",
-    "ค่าอาหาร",
-    "ค่ารักษาพยาบาล",
-    "ค่าใช้จ่ายอื่น ๆ",
-];
+const expense: string[] = [];    
 
 // จำนวนเงินของแต่ละประเภทค่าใช้จ่าย
-const amountMoney = [
-    70000,
-    95000,
-    50000,
-    20000,
-    15000,
-];
+const amountMoney: number[] = [];
 
-onMounted(() => {
+onMounted(async () => {
+    await expensesListStore.getAllExpenses();
+    const expenses = expensesListStore.expenses;
+
+    expenses.forEach((item: ExpenseReportList) => {
+        const existingIndex = expense.indexOf(item.rqRqtName);
+
+        if (existingIndex !== -1) {
+            amountMoney[existingIndex] += item.rqExpenses;
+        } else {
+            expense.push(item.rqRqtName);
+            amountMoney.push(item.rqExpenses);
+        }
+    });
+
     const barchart = document.getElementById("barChart") as HTMLCanvasElement;
     if (barchart) {
         new Chart(barchart, {
             type: "bar",
             data: {
-                labels: project,
+                labels: expense,
                 datasets: [
                     {
                         label: "จำนวนเงิน (บาท)",
@@ -116,7 +121,7 @@ onMounted(() => {
                                 weight: 'bold',
                                 size: 12,
                             },
-                            stepSize: 20000, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
+                            // stepSize: 20000, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
                         },
                         border: {
                             display: false, // ลบเส้นแรกของแกน y
@@ -274,21 +279,22 @@ onMounted(() => {
             <!-- <Ctable :table="'Table7-data'" />    -->
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 w-14 h-[46px]">1</th>
+                    <tr v-for="(expense, index) in expensesListStore.expenses" :key="index"
+                        class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="นายเทียนชัย คูเมือง">
-                            นายเทียนชัย คูเมือง
+                            {{ expense.rqUsrName }}
                         </th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                            {{ expense.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-44 text-start ">ค่าเดินทาง</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">08/10/2567</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
+                        <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
+                        <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDatePay }}</th>
+                        <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
                         <th class="py-[10px] px-2 w-32 text-center ">
                             <span class="flex justify-center">
                                 <Icon :icon="'viewDetails'" />
