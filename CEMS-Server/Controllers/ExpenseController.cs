@@ -83,4 +83,21 @@ public class ExpenseController : ControllerBase
 
         return Ok(requisition);
     }
+
+    [HttpGet("graph")]
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> getExpenseGraph()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Include(e => e.RqRqt)
+            .Select(u => new ExpenseGraphDto
+            {
+                RqRqtId = u.RqRqt.RqtId,
+                RqRqtName = u.RqRqt.RqtName,
+                // RqSumExpenses = u
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
 }
