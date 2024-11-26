@@ -19,7 +19,7 @@ public partial class CemsApproverRequistion
 
     public virtual CemsApprover? AprAp { get; set; }
 
-    public virtual CemsRequisition AprRq { get; set; } = null!;
+    public virtual CemsRequisition? AprRq { get; set; }
 
     public virtual ICollection<CemsNotification> CemsNotifications { get; set; } = new List<CemsNotification>();
 }

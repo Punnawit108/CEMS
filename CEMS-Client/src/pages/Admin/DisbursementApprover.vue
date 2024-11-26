@@ -4,13 +4,14 @@
 * คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
 * Input: -
 * Output: -
-* ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 import { ref, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Button from '../../components/template/Button.vue';
+import { useApprovalStore } from '../../store/approval';
 
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isAddPage = ref(false);
@@ -18,6 +19,7 @@ const isAddPage = ref(false);
 // ใช้ Vue Router
 const router = useRouter();
 const route = useRoute();
+const approvalStore = useApprovalStore();
 
 // ฟังก์ชันสำหรับเปลี่ยนไปหน้า Add
 const goToAdd = () => {
@@ -32,7 +34,8 @@ const goToList = () => {
 };
 
 // ตรวจสอบ path เมื่อ component โหลด
-onMounted(() => {
+onMounted(async () => {
+  await approvalStore.getApprovers();
   if (route.path === '/systemSettings/disbursementApprover/add') {
     isAddPage.value = true;
   } else {
@@ -68,9 +71,10 @@ onMounted(() => {
       </div>
 
       <!-- แถบเนื้อหา -->
-      <div class="h-[50px] flex items-center text-[14px] text-black border-b border-[#BBBBBB]">
-        <p class="w-28 pl-2">1</p>
-        <p class="w-full pl-2">นายเทียนชัย คูเมือง</p>
+      <div class="h-[50px] flex items-center text-[14px] text-black border-b border-[#BBBBBB]"
+        v-for="(approver, index) in approvalStore.approvers">
+        <p class="w-28 pl-2">{{ index + 1 }}</p>
+        <p class="w-full pl-2">{{ approver.usrFirstName }} {{ approver.usrLastName }}</p>
         <p class="w-40 text-center"></p>
       </div>
     </div>
@@ -87,9 +91,10 @@ onMounted(() => {
       </div>
 
       <!-- แถบเนื้อหา -->
-      <div class="h-[50px] flex items-center text-[14px] text-black border-b border-[#BBBBBB]">
-        <p class="w-28 pl-2">1</p>
-        <p class="w-full pl-2">นายเทียนชัย คูเมือง</p>
+      <div class="h-[50px] flex items-center text-[14px] text-black border-b border-[#BBBBBB]"
+        v-for="(approver, index) in approvalStore.approvers">
+        <p class="w-28 pl-2">{{ index + 1 }}</p>
+        <p class="w-full pl-2">{{ approver.usrFirstName }} {{ approver.usrLastName }}</p>
         <div class="w-40 text-center flex justify-between">
           <Icon :icon="'bin'" class="pl-8" />
           <Icon :icon="'eye'" class="pr-8" />
@@ -98,12 +103,12 @@ onMounted(() => {
 
       <!-- แถบเพิ่ม เนื้อหา -->
       <div class="h-[50px] flex items-center text-[14px] text-black border-b border-[#BBBBBB]">
-        <p class="w-28 pl-2">2</p>
-        <div class="w-full pl-2">
+        <p class="w-28 pl-2">{{ approvalStore.approvers.length+1 }}</p>
+        <div class="w-full pl-1.5">
           <form class="grid">
             <div class="relative">
               <select required
-                class="appearance-none flex justify-between w-[400px] bg-white border-solid border-[#B6B7BA] border rounded py-2.5 px-4 focus:outline-none ">
+                class="appearance-none flex justify-between w-[400px] bg-white border-solid border-[#B6B7BA] border rounded py-2.5 p-4 focus:outline-none ">
                 <option value="" disabled selected hidden class="placeholder">เลือกชื่อ-นามสกุล</option>
                 <option class="font-sm text-base" value="item">นาย ก.
                 </option>
