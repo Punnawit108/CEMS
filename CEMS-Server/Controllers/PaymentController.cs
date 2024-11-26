@@ -61,7 +61,7 @@ public class PaymentController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "accept" && u.RqProgress =="complate") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "accept" && u.RqProgress =="complete") // เพิ่มเงื่อนไข Where
             .Select(u => new PaymentGetDto
             {
                 RqId = u.RqId,
