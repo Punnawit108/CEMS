@@ -1,3 +1,11 @@
+/*
+* ชื่อไฟล์: VehicleController.cs
+* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการapiของvehicle ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้ 
+* Input: ประเภทการเดินทาง
+* Output: ประเภทการเดินทาง
+* ชื่อผู้เขียน/ผู้แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
+* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+*/
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
