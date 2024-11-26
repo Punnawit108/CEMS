@@ -1,4 +1,5 @@
 <script setup lang="ts">
+
 /**
 * ชื่อไฟล์: ApprovalList
 * คำอธิบาย: ไฟล์นี้แสดงหน้า รายการอนุมัติ
@@ -11,11 +12,17 @@
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/Ctable.vue';
+import { useExpense } from '../../store/ExpenseStore';
+import { onMounted } from 'vue';
 
-
+const expense = useExpense();
 const router = useRouter();
+onMounted(() => {
+    expense.getAllApprovalList()
+})
+
 const toDetails = (id: string) => {
-    router.push(`/payment/history/detail/${id}`);
+    router.push(`/approval/list/detail/${id}`);
 }
 </script>
 <!-- path for test = /approval/list -->
@@ -129,23 +136,24 @@ const toDetails = (id: string) => {
             </div>
             <table class="w-full">
                 <tbody>
-                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 w-14 h-[46px]">1</th>
+                    <tr v-for="(expense, index) in expense.expense" :key="expense.rqId"
+                        class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="นายเทียนชัย คูเมือง">
-                            นายเทียนชัย คูเมือง
+                            title="{{expense.rqName}}">
+                            {{ expense.rqName }}
                         </th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                            title="{{expense.rqPjName}}">
+                            {{ expense.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-44 text-start ">ค่าเดินทาง</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">08/10/2567</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
+                        <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
+                        <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDateWithdraw }}</th>
+                        <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
                         <th class="py-[10px] px-2 w-32 text-center">
-                            <span class="flex justify-center">
+                            <span class="flex justify-center" v-on:click="toDetails">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>
