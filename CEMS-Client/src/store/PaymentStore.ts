@@ -15,9 +15,9 @@ export const usePayment = defineStore('expense', {
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
             }
-        },async getPaymentById(){
+        },async getPaymentById(id:string){
             try{
-                const result = await axios.get(``)
+                const result = await axios.get(`http://localhost:5247/api/payment/${id}`)
                 return result.data;
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
