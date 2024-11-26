@@ -9,7 +9,7 @@
  */
 const props = defineProps(["progressInfo", "colorStatus"]);
 
-console.log(props.progressInfo);
+//console.log(props.progressInfo);
 </script>
 
 <template>

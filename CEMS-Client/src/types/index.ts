@@ -31,6 +31,14 @@ export interface Expense{
     rqProgress: string;
 }
 
+export interface Approval {
+    aprId: number;           
+    usrFirstName: string;    
+    usrLastName: string;     
+    aprName: string | null;  
+    aprDate: string;         
+}
+
 export interface ExpenseManage{
     rqtId: number;
     rqtName: string;

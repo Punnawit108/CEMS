@@ -7,16 +7,26 @@
  * ชื่อผู้เขียน/แก้ไข : นายพรชัย เพิ่มพูลกิจ, นายพงศธร บุญญามา
  * วันที่จัดทำแก้ไข : 22 ตุลาคม 2567
  */
-import { ref } from "vue";
+import { ref , computed , onMounted} from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
 import { useRoute } from "vue-router";
+import { Expense } from '../../types';
+import { useDetailStore } from "../../store/detail";
 
 const statusDetail = ref("edit"); // 'reject' is the initial value
 
 const route = useRoute();
+const detailStore = useDetailStore(); 
 
-// ตรวจสอบว่ามีคำว่า 'approval' ใน path หรือไม่
+const expenseData = detailStore.selectedExpense;  
+const progressData = detailStore.approvals;
+
+if (!expenseData) {
+    console.error("ไม่มีใบคำขอเบิก");
+}
+
+// FN ตรวจสอบว่ามีคำว่า 'approval' ใน path หรือไม่
 const isApprovalPath = computed(() => {
   return route.path.includes('approval');
 });
@@ -28,32 +38,6 @@ const colorStatus: { [key: string]: string } = {
   waiting: "#1976D2",
   sketch: "#B6B7BA",
 };
-
-
-const requestInfo = [
-  {
-    rqId: 1001,
-    rqUsrName: "Pongsatorn Boonyama",
-    rqPjName: "งานเลี้ยง",
-    rqRqtName: "ค่าเดินทาง",
-    rqVhName: "รถยนต์ส่วนตัว",
-    rqDatePay: "2024-11-01",
-    rqDateWithdraw: "2024-11-02",
-    rqCode: "CN-1001",
-    rqInsteadEmail: "",
-    rqExpenses: 100,
-    rqLocation: "หอประชุมปิยพัฒน์",
-    rqStartLocation: "Bangkok",
-    rqEndLocation: "Nonthaburi",
-    rqDistance: "15 KM",
-    rqPurpose: "เดินทาง",
-    rqReason: null,
-    rqProof: "เพื่อเดินทางไปงานเลี้ยงรุ่นน้องของบริษัท",
-    rqStatus: "waiting",
-    rqProgress: "accepting",
-  },
-];
-
 
 
 const progressInfo = {
@@ -129,37 +113,38 @@ const progressInfo = {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">รหัสรายการเบิก</p>
-            <p class="item">CN-1998</p>
+            <p class="item">{{expenseData?.rqCode}}</p>
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
-            <p class="item">อบรมการบริหาร</p>
+            <p class="item">{{expenseData?.rqPjName}}</p>
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">13/09/2567</p>
+            <p class="item">{{expenseData?.rqDatePay}}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">13/09/2567</p>
+            <p class="item">{{expenseData?.rqDateWithdraw}}</p>
           </div>
         </div>
         
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">ชื่อผู้เบิก</p>
-            <p class="item">นางสาวอลิสา ปะกังพลัง</p>
+            <p class="item">{{ expenseData?.rqUsrName }}</p>
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
-            <p class="item">นายปุณณวิชน์ วิเชียร์มาร์น</p>
+            <!-- ต้องปรับแก้ให้แสดงข้อมูลเป็น ชื่อแทน getuser -->
+            <p class="item">{{ expenseData?.rqInsteadEmail }}</p> 
           </div>
         </div>
 
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">ประเภทค่าใช้จ่าย</p>
-            <p class="item">ค่าเดินทาง</p>
+            <p class="item">{{expenseData?.rqRqtName}}</p>
           </div>
           <div class="col">
             <p class="head">วันที่อนุมัติ</p>
@@ -167,7 +152,7 @@ const progressInfo = {
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
-            <p class="item">315.00</p>
+            <p class="item">{{ expenseData?.rqExpenses }}</p>
           </div>
           <div class="col">
 
@@ -177,19 +162,21 @@ const progressInfo = {
         <div class="travel row flex">
           <div class="col">
             <p class="head">ประเภทการเดินทาง</p>
-            <p class="item">รถสาธารณะ</p>
+            <!-- แก้ข้อมูลหลังบ้าน เพิ่ม rqVhType -->
+            <p class="item">{{expenseData?.rqVhName}}</p>
           </div>
           <div class="col">
             <p class="head">ประเภทรถ</p>
-            <p class="item">รถไฟฟ้า</p>
+            <p class="item">{{expenseData?.rqVhName}}</p>
           </div>
           <div class="col">
             <p class="head">ระยะทาง</p>
-            <p class="item">40 กิโลเมตร</p>
+            <p class="item">{{ expenseData?.rqDistance }}</p>
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
-            <p class="item">7 บาท/กิโลเมตร</p>
+            <!-- แก้ข้อมูลหลังบ้าน เพิ่ม rqVhPayrate -->
+            <p class="item">{{expenseData?.rqVhName}}</p>
           </div>
           
         </div>
@@ -197,17 +184,17 @@ const progressInfo = {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">สถานที่เริ่มต้น</p>
-            <p class="item">Clicknext กรุงเทพฯ</p>
+            <p class="item">{{expenseData?.rqStartLocation}}</p>
           </div>
           <div class="col">
             <p class="head">สถานที่สิ้นสุด</p>
-            <p class="item">Clicknext กรุงเทพฯ</p>
+            <p class="item">{{expenseData?.rqEndLocation}}</p>
           </div>
         </div>
 
         <div class="row">
           <p class="head">รายละเอียด</p>
-          <p class="item">เพื่อติดต่อสหกิจศึกษา</p>
+          <p class="item">{{expenseData?.rqPurpose}}</p>
         </div>
 
         <div class="row flex">
@@ -228,7 +215,7 @@ const progressInfo = {
           <Button type="btn-approve" />
         </div> -->
         <div class="flex justify-end">
-          <Progress :progressInfo="progressInfo" :colorStatus="colorStatus" class="w-[100%]" />
+          <Progress :progressInfo="progressData" :colorStatus="colorStatus" class="w-[100%]" />
         </div>
       </div>
     </div>

@@ -11,7 +11,7 @@ export const useExpense = defineStore('expense', {
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approvalList/history`)
                 this.expense = result.data;
-                console.log(this.expense)
+                
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
             }
@@ -20,7 +20,7 @@ export const useExpense = defineStore('expense', {
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approvalList/list `)
                 this.expense = result.data;
-                console.log(this.expense)
+                
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
             }
