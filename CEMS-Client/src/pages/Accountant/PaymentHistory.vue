@@ -10,8 +10,14 @@
 import { useRouter } from 'vue-router';
 import Ctable from '../../components/template/Ctable.vue';
 import Icon from '../../components/template/CIcon.vue';
-
+import { usePayment } from '../../store/PaymentStore';
+import { onMounted } from 'vue';
+const paymentHistory = usePayment();
 const router = useRouter();
+onMounted(() => {
+    paymentHistory.getAllPaymentHistory();
+}
+)
 
 const toDetails = (id: string) => {
     router.push(`/payment/history/detail/${id}`);
@@ -129,22 +135,23 @@ const toDetails = (id: string) => {
             </div>
             <table class="w-full">
                 <tbody>
-                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
-                        <th class="py-[12px] px-2 w-14">1</th>
+                    <tr v-for="(history, index) in paymentHistory.expense" :key="history.rqId"
+                        class=" text-[14px] border-b-2 border-[#BBBBBB]">
+                        <th class="py-[12px] px-2 w-14">{{ index }}</th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="นายเทียนชัย คูเมือง">
-                            นายเทียนชัย คูเมือง
+                            title="history.rqName">
+                            {{ history.rqUsrName }}
                         </th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                            {{ history.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
-                        <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
-                        <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
-                        <th class="py-[12px] px-2 w-28 text-center text-green-500">นำจ่ายแล้ว</th>
+                        <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ history.rqRqtName }}</th>
+                        <th class="py-[12px] px-2 w-20 text-end ">{{ history.rqDateWithdraw }}</th>
+                        <th class="py-[12px] px-5 w-32 text-end ">{{ history.rqExpenses }}</th>
+                        <th class="py-[12px] px-2 w-28 text-center text-green-500">{{ history.rqProgress }}</th>
                         <th class="py-[10px] px-2 w-20 text-center ">
                             <span class="flex justify-center" v-on:click="toDetails">
                                 <Icon :icon="'viewDetails'" />
