@@ -19,7 +19,11 @@ if (connectionString != null)
 
 var app = builder.Build();
 
-app.UseCors("AllowSpecificOrigin");
+app.UseCors(builder => builder
+    .WithOrigins("http://localhost:5173")
+    .AllowAnyHeader()
+    .AllowAnyMethod()
+);
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())

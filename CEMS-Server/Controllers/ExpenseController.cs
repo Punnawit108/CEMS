@@ -62,7 +62,7 @@ public class ExpenseController : ControllerBase
 
     // Expense report list
     [HttpGet("report")]
-    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> getExpenseReport()
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
     {
         var requisition = await _context
             .CemsRequisitions
@@ -78,7 +78,6 @@ public class ExpenseController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqDatePay = u.RqDatePay,
                 RqExpenses = u.RqExpenses,
-                
             })
             .ToListAsync();
 
@@ -87,7 +86,7 @@ public class ExpenseController : ControllerBase
 
     // Expense report graph
     [HttpGet("graph")]
-    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> getExpenseGraph()
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
     {
         var requisition = await _context
             .CemsRequisitions
@@ -96,7 +95,7 @@ public class ExpenseController : ControllerBase
             {
                 RqRqtId = u.RqRqt.RqtId,
                 RqRqtName = u.RqRqt.RqtName,
-                // RqSumExpenses = u
+                // RqSumExpenses
             })
             .ToListAsync();
 
