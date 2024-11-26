@@ -6,7 +6,6 @@ namespace CEMS_Server.DTOs
         public int NtAprId { get; set; }
         public DateOnly NtDate { get; set; }
         public string NtStatus { get; set; } = null!;
-        public string  { get; set; } = null!; 
     }
 
     

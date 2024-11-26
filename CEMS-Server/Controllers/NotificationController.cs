@@ -20,23 +20,22 @@ public class NotificationController : ControllerBase
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<NotificationGetDto>>> GetNotificationList()
     {
-        var requisition = await _context.CemsRequisitions
-            .Include(e => e.RqPj)
-            .Include(e => e.RqUsr)
-            .ThenInclude(u => u.Approver)
-            .Include(e => e.RqUsr)
-            .Select(u => new NotificationGetDto{
-            NtId = u.NtId,
-            NtRqPj = u.RqPj.PjName,
-            NtRqId = u.RqId,
-            NtRqStatus = u.RqStatus,
-            NtRqdate = u.RqDateWithdraw,
-            NtStatus = u.NtStatus,
-            NtRqUsrId = u.RqUsrId
+        var notification = await _context.CemsNotifications
+            .Include(e => e.NtApr)
+            .Include(e => e.NtApr.AprRq)
+            .Include(e => e.NtApr.AprRq.RqPj)
+            .Include(e => e.NtApr.AprRq.RqUsr)
+            .Select(e => new {
+            e.NtId,                     //รหัสแจ้งเตือน
+            e.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
+            e.NtApr.AprRq.RqId,         //รหัสใบคำขอเบิก
+            e.NtApr.AprStatus,          //สถานะคำขอเบิก
+            e.NtApr.AprDate,            //วันที่เบิก
+            e.NtApr.AprRq.RqUsrId,      //ไอดีผู้สร้างใบเบิก
             })
             .ToListAsync();
 
-        return Ok(requisition);
+        return Ok(notification);
     }
 
     
