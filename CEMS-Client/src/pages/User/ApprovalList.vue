@@ -1,4 +1,4 @@
-<script setup>
+<script setup lang="ts">
 /**
  * ชื่อไฟล์: ApprovalList
  * คำอธิบาย: ไฟล์นี้แสดงหน้า รายการอนุมัติ
