@@ -60,6 +60,7 @@ public class ExpenseController : ControllerBase
         return Ok(requisition);
     }
 
+    // Expense report list
     [HttpGet("report")]
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> getExpenseReport()
     {
@@ -84,6 +85,7 @@ public class ExpenseController : ControllerBase
         return Ok(requisition);
     }
 
+    // Expense report graph
     [HttpGet("graph")]
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> getExpenseGraph()
     {
