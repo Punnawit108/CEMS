@@ -11,12 +11,12 @@
 // Import และการตั้งค่าเริ่มต้น
 import { ref, reactive, onMounted } from 'vue';                // import ref และ reactive สำหรับจัดการ reactive state
 import { useRoute, useRouter } from 'vue-router';   // import hooks สำหรับจัดการ routing
-import { useUsers } from '../../store/user';
+import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
 
 const route = useRoute();                           // สร้าง instance สำหรับอ่านค่าจาก route ปัจจุบัน
 const router = useRouter();                         // สร้าง instance สำหรับจัดการ navigation
-const store = useUsers();                           // สร้าง instance ของ store
+const store = useUserStore();                           // สร้าง instance ของ store
 const { users } = storeToRefs(store);              // ดึงข้อมูล users จาก store
 const userId = route.params.id;                     // ดึง id จาก route parameters
 const isEditing = ref(false);                      // สถานะการแก้ไขข้อมูล

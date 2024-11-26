@@ -7,14 +7,17 @@ interface UpdateUserRoleDto {
   usrIsSeeReport: number;
 }
 
-export const useUsers = defineStore('users', {
+// นำเข้า Base URL จาก environment variable
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+
+export const useUserStore = defineStore('users', {
   state: () => ({
     users: [] as User[]
   }),
   actions: {
     async getAllUsers() {
       try {
-        const result = await axios.get('http://localhost:5247/api/user');
+        const result = await axios.get(`${BASE_URL}/user`);
         this.users = result.data;
       } catch (error) {
         console.error('Failed to fetch users:', error);
@@ -23,7 +26,7 @@ export const useUsers = defineStore('users', {
     },
     async editUserRole(userId: number, updateData: UpdateUserRoleDto) {
       try {
-        await axios.put(`http://localhost:5247/api/user/${userId}`, updateData);
+        await axios.put(`${BASE_URL}/user/${userId}`, updateData);
         // อัพเดทข้อมูลใน store
         const userIndex = this.users.findIndex(u => u.usrId === userId);
         if (userIndex !== -1) {

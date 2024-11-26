@@ -12,11 +12,11 @@ import Icon from '../../components/template/CIcon.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, computed } from 'vue';
 import Ctable from '../../components/template/Ctable.vue';
-import { useUsers } from '../../store/user';
+import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
 
 const router = useRouter();
-const store = useUsers();
+const store = useUserStore();
 const { users } = storeToRefs(store);
 const loading = ref(false);
 
