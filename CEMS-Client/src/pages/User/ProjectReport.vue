@@ -7,10 +7,12 @@
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
 * วันที่จัดทำ/แก้ไข: 10 พฤศจิกายน 2567
 */
-import Icon from '../../components/template/CIcon.vue';
+// import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from '../../components/template/Ctable.vue';
+import { useProjectsStore } from '../../store/projectsReport';
+import ProjectReport from '../../types/index';
 import {
     Chart,
     BarController,
@@ -44,27 +46,24 @@ Chart.register(
     ChartDataLabels
 );
 
-// Bar chart setup
+const projectsStore = useProjectsStore();
 
+// Bar chart setup
 // โครงการ
-const project = [
-    "อบรมการบริหาร",
-    "ระบบจัดการงานอัตโนมัติ",
-    "ทัศนศึกษาทางทะเล",
-    "กระชับมิตรความสัมพันธ์ในองค์กร",
-    "การวางแผนงานแบบมืออาชีพ",
-];
+const project: string[] = [];
 
 // จำนวนเงินของแต่ละโครงการ
-const amountMoney = [
-    70000,
-    95000,
-    50000,
-    20000,
-    15000,
-];
+const amountMoney: number[] = [];
 
-onMounted(() => {
+onMounted(async () => {
+    await projectsStore.getAllProjects();
+    const projects = projectsStore.projects;
+
+    projects.forEach((item: ProjectReport) => {
+        project.push(item.pjName);
+        amountMoney.push(item.pjSumAmountExpenses);
+    });
+
     const barchart = document.getElementById("barChart") as HTMLCanvasElement;
     if (barchart) {
         new Chart(barchart, {
@@ -116,7 +115,7 @@ onMounted(() => {
                                 weight: 'bold',
                                 size: 12,
                             },
-                            stepSize: 20000, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
+                            stepSize: 500, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
                         },
                         border: {
                             display: false, // ลบเส้นแรกของแกน y
@@ -228,29 +227,22 @@ onMounted(() => {
         <!-- end::Filter -->
 
         <!-- begin::Table -->
+        <!-- <div class="w-full h-fit border-[2px] flex flex-col items-start"> -->
         <div class="w-full h-fit border-[2px] flex flex-col items-start">
             <!-- Table Header -->
             <Ctable :table="'Table4-head'" />
             <!-- Table Data -->
-            <!-- <Ctable :table="'Table4-data'" />    -->
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] w-14 px-2 h-[46px]">1</th>
-                        <th class="py-[12px] w-52 px-2 text-start truncate overflow-hidden"
+                    <tr v-for="(project, index) in projectsStore.projects" :key="index"
+                        class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
+                        <th class="py-3 px-2 w-14">{{ index + 1 }}</th>
+                        <th class="py-3 px-2 w-auto text-start truncate overflow-hidden"
                             style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                            {{ project.pjName }}
                         </th>
-                        <th class="py-[12px] w-28 px-2 text-end font-[100]">1,000,000.00</th>
-                        <th class="py-[12px] w-28 px-2 text-end ">600,000.00</th>
-                        <th class="py-[12px] w-36 px-5 text-end ">08/09/2567</th>
-                        <th class="py-[12px] w-24 px-2 text-end ">08/10/2567</th>
-                        <th class="py-[10px] w-16 px-2 text-center ">
-                            <span class="flex justify-center">
-                                <Icon :icon="'viewDetails'" />
-                            </span>
-                        </th>
+                        <th class="py-3 px-2 w-60 text-end font-[100]">{{ project.pjSumAmountExpenses }}</th>
                     </tr>
                 </tbody>
             </table>
