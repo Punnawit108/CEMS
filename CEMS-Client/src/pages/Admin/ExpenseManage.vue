@@ -10,93 +10,89 @@
 import { ref, onMounted } from "vue";
 import axios from "axios";
 import Button from "../../components/template/Button.vue";
+import { useExpenseManageStore } from "../../store/ExpenseManageStore";
 
 
+// ดึง store
+const expenseManageStore = useExpenseManageStore();
 
-const API_URL = "http://localhost:5247/api/RequisitionType"; 
-const API_URL_VEHICLE = "http://localhost:5247/api/vehicle";
+// ใช้ state จาก store
+const expenseRow = ref(expenseManageStore.expenseRows);
+const vehicleRow = ref(expenseManageStore.vehicleRows);
 
-
-
-const data = ref([]); // ใช้ ref ในการเก็บข้อมูลที่ได้จาก API
-const expenseRow = ref([]);
-const vehicleRow = ref([]);
-const vehicle = ref([]);
-
-// ฟังก์ชันในการดึงข้อมูลจาก API
-async function fetchExpenseData() {
+onMounted(async () => {
   try {
-    const response = await axios.get(API_URL);
-    const data = response.data;
-    console.log("API Response Data:", data); // ตรวจสอบข้อมูลทั้งหมดจาก API
-
-   
-    expenseRow.value = data.map((item: any) => ({
-
-      dataMap: item.rqtName || "", // ใช้ rqt_name หรือแสดงค่าว่างถ้าไม่มี
-      isSubmitted: true,
-      isDisabled: false,
-      isIconChanged: false,
-    }));
-
-    console.log("expenseRow value:", expenseRow.value);  // ตรวจสอบค่า expenseRows
-
+    await expenseManageStore.fetchExpenses();
+    await expenseManageStore.fetchVehicles();
   } catch (error) {
     console.error("Error fetching data:", error);
   }
-}
-// ดึงข้อมูลเมื่อ component โหลด
-onMounted(fetchExpenseData);
-async function fetchVehicleData() {
+});
+
+const privateRows = ref<{
+  vehicleType: string;
+  fareRate: number | null;
+  isSubmitted: boolean;
+  isDisabled: boolean;
+  isIconChanged: boolean;
+}[]>([]);
+const publicRows = ref<{
+  vehicleType: string;
+  fareRate: number | null;
+  isSubmitted: boolean;
+  isDisabled: boolean;
+  isIconChanged: boolean;
+}[]>([]);
+const expenseRows = ref<{
+  expenseType: string;
+  fareRate: number | null;
+  isSubmitted: boolean;
+  isDisabled: boolean;
+  isIconChanged: boolean;
+}[]>([]);
+
+const fetchExpenseData = async () => {
   try {
-    const response = await axios.get(API_URL_VEHICLE); 
-    const data_vehicle = response.data; 
-
-    console.log("API vehicle:", data_vehicle); 
-
-    
-    vehicleRow.value = data_vehicle.map((item: any) => ({
-      vehicleType: item.vh_type || "", 
-      vehicle: item.vh_vehicle,
-      payrate:item.vh_payrate,
-      isSubmitted: true,
+    const response = await axios.get(API_URL);
+    expenseRows.value = response.data.map((item: any) => ({
+      expenseType: item.type,
+      fareRate: item.rate,
+      isSubmitted: false,
       isDisabled: false,
       isIconChanged: false,
     }));
-
-    console.log("vehicleRow value:", vehicleRow.value); // ตรวจสอบค่า vehicleRow
   } catch (error) {
-    console.error("Error fetching data:", error); // แสดงข้อผิดพลาด
+    console.error("Failed to fetch expense data:", error);
   }
-}
-onMounted(fetchVehicleData);
-const privateRows = ref<
-  {
-    vehicleType: string;
-    fareRate: number | null;
-    isSubmitted: boolean;
-    isDisabled: boolean;
-    isIconChanged: boolean;
-  }[]
->([]);
-const publicRows = ref<
-  {
-    vehicleType: string;
-    fareRate: number | null;
-    isSubmitted: boolean;
-    isDisabled: boolean;
-    isIconChanged: boolean;
-  }[]
->([]);
-const expenseRows = ref<
-  {
-    expenseType: string;
-    fareRate: number | null;
-    isSubmitted: boolean;
-    isDisabled: boolean;
-    isIconChanged: boolean;
-  }[]
->([]);
+};
+
+const fetchVehicleData = async () => {
+  try {
+    const response = await axios.get(API_URL_VEHICLE);
+    privateRows.value = response.data.filter((item: any) => item.type === "Private").map((item: any) => ({
+      vehicleType: item.vehicleType,
+      fareRate: item.fareRate,
+      isSubmitted: false,
+      isDisabled: false,
+      isIconChanged: false,
+    }));
+    publicRows.value = response.data.filter((item: any) => item.type === "Public").map((item: any) => ({
+      vehicleType: item.vehicleType,
+      fareRate: item.fareRate,
+      isSubmitted: false,
+      isDisabled: false,
+      isIconChanged: false,
+    }));
+  } catch (error) {
+    console.error("Failed to fetch vehicle data:", error);
+  }
+};
+
+// ดึงข้อมูลเมื่อหน้าโหลด
+onMounted(() => {
+  fetchExpenseData();
+  fetchVehicleData();
+});
 
 const isHiddenPrivate = ref(false);
 const isHiddenPublic = ref(false);
