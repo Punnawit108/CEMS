@@ -7,9 +7,8 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { ref } from 'vue';
+import { ref,defineProps } from 'vue';
 import Icon from './CIcon.vue';
-import { defineProps } from 'vue';
 
 const props = defineProps<{
   role: string; // กำหนด type ของ role
