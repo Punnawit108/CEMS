@@ -1,5 +1,5 @@
 /**
-* ชื่อไฟล์: projects.ts
+* ชื่อไฟล์: projectsReport.ts
 * คำอธิบาย: จัดการ state
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
@@ -17,7 +17,7 @@ export const useProjectsStore = defineStore("projects", {
     actions: {
         async getAllProjects() {
             try {
-                const result = await axios.get(`http://localhost:5247/api/project`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/project`);
                 this.projects = result.data;
             } catch (error) {
                 console.error("Failed to fetch projects:", error);

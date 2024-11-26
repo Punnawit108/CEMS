@@ -1,5 +1,5 @@
 /**
-* ชื่อไฟล์: expenses.ts
+* ชื่อไฟล์: expensesReport.ts
 * คำอธิบาย: จัดการ state
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
@@ -18,7 +18,7 @@ export const useExpensesListStore = defineStore("expenses", {
     actions: {
         async getAllExpenses() {
             try {
-                const result = await axios.get(`http://localhost:5247/api/expense/list`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/expense/list`);
                 this.expenses = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);
@@ -34,7 +34,7 @@ export const useExpensesGraphStore = defineStore("expenses", {
     actions: {
         async getAllExpenses() {
             try {
-                const result = await axios.get(`http://localhost:5247/api/expense/graph`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/expense/graph`);
                 this.expenses = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);
