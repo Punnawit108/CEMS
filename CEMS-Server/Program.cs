@@ -19,7 +19,15 @@ if (connectionString != null)
 
 var app = builder.Build();
 
-app.UseCors("AllowSpecificOrigin");
+// เพิ่มการตั้งค่า CORS
+
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin",
+        builder => builder.WithOrigins("http://localhost:5173") // ระบุ URL ที่จะอนุญาต
+                          .AllowAnyMethod()
+                          .AllowAnyHeader());
+});
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
