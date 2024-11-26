@@ -13,13 +13,18 @@ builder.Services.AddSwaggerGen();
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (connectionString != null)
 {
-    builder.Services.AddDbContext<AppDbContext>(options =>
+    builder.Services.AddDbContext<CemsContext>(options =>
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
 var app = builder.Build();
 
-app.UseCors("AllowSpecificOrigin");
+// เพิ่มการตั้งค่า CORS
+
+app.UseCors(builder => builder
+    .WithOrigins("http://localhost:5173")
+    .AllowAnyHeader()
+    .AllowAnyMethod());
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
