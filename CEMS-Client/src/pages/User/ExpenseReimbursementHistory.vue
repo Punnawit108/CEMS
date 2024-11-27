@@ -125,7 +125,7 @@ const toDetails = (id: string) => {
                     <th class="py-[12px] px-2 w-20 text-end ">{{ExpenseReimbursementHistory.date}}</th>
                     <th class="py-[12px] px-2 w-40 text-end ">{{ExpenseReimbursementHistory.amount}}</th>
                         <th class="py-[12px] px-2 w-32 text-center "><span>
-                                <StatusBudge :status="'sts-waiting'"></StatusBudge>
+                                <StatusBudge :status="'sts-approve'"></StatusBudge>
                             </span>
                         </th>
                         <th class="py-[10px] px-2 w-24 text-center ">
