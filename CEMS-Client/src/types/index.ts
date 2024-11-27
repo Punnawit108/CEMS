@@ -122,3 +122,9 @@ export interface DashboardForAdmin {
     pjAll: number ;
     rqSumExpense: number ;
 }
+
+export interface Project {
+    pjId : number ;
+    pjName : string ;
+    pjAmountExpenses : number ;
+}

@@ -7,7 +7,16 @@
  * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
  * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
  */
- import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useDropdown } from '../../store/requisition';
+
+const dropdownStore = useDropdown();
+
+onMounted(async () => {
+    const projectData = await dropdownStore.getAllProject();
+    const requisitionTypeData = await dropdownStore.getAllRequisitionType();
+
+})
 const selectedExpenseType = ref('ค่าเดินทาง');
 
 const formData = ref({
@@ -53,7 +62,7 @@ function startEditing() {
     isEditing.value = true;
     customExpenseType.value = selectedExpenseType.value;
 }
-
+//แก้ fn นี้ให้มัน จับค่าของ requisition type 
 function addCustomExpense() {
     if (customExpenseType.value && !expenseOptions.value.includes(customExpenseType.value)) {
         expenseOptions.value.push(customExpenseType.value); // Add custom option
@@ -83,8 +92,9 @@ function addCustomExpense() {
                         <select id="projectName"
                             class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full  md:w-[400px]  focus:border-gray-400 focus:ring-0 focus:outline-none">
                             <option>เลือกโครงการ</option>
-                            <option>ระบบจัดการงานอัตโนมัติ</option>
-                            <option>อบรมการบริหาร</option>
+                            <option v-for="project in dropdownStore.projects" :key="project.pjId" :value="project.pjId">
+                                {{ project.pjName }} 
+                            </option>
                         </select>
                     </div>
                 </div>
@@ -96,7 +106,8 @@ function addCustomExpense() {
                     <select id="selectExpenseType" v-model="selectedExpenseType" @change="handleSelectChange"
                         class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none">
                         <option value="">เลือกประเภทค่าใช้จ่าย</option>
-                        <option v-for="option in expenseOptions" :key="option" :value="option">{{ option }}</option>
+                        <!-- <option v-for="option in expenseOptions" :key="option" :value="option">{{ option }}</option> -->
+                        <option v-for="requisitionType in dropdownStore.requisitionType" :key="requisitionType.rqtId" :value="requisitionType.rqtName">{{ requisitionType.rqtName }}</option>
                         <option value="อื่นๆ" v-if="!isCustomExpenseTypeAdded">อื่นๆ</option>
                     </select>
                     <input v-if="isOtherSelected" v-model="customExpenseType" @keyup.enter="addCustomExpense"

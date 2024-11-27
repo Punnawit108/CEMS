@@ -18,10 +18,17 @@ public class DataTypeController : ControllerBase
     }
 
     [HttpGet("project")]
-    public ActionResult<IEnumerable<object>> GetCemsPositions()
+    public ActionResult<IEnumerable<object>> GetProjects()
     {
-        var positions = _context.CemsPositions.Select(p => new { p.PstId, p.PstName }).ToList();
-        return Ok(positions);
+        var projects = _context
+            .CemsProjects.Select(p => new
+            {
+                p.PjId,
+                p.PjName,
+                p.PjAmountExpenses,
+            })
+            .ToList();
+        return Ok(projects);
     }
 
     [HttpGet("requisition")]
@@ -47,5 +54,4 @@ public class DataTypeController : ControllerBase
             .ToList();
         return Ok(vehicles);
     }
-    
 }
