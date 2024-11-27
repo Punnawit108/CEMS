@@ -7,18 +7,18 @@ using Microsoft.EntityFrameworkCore;
 namespace CEMS_Server.Controllers;
 
 [ApiController]
-[Route("api/expense")]
-public class ExpenseController : ControllerBase
+[Route("api/approvalList")]
+public class ApprovalList : ControllerBase
 {
     private readonly CemsContext _context;
 
-    public ExpenseController(CemsContext context)
+    public ApprovalList(CemsContext context)
     {
         _context = context;
     }
 
     [HttpGet("list")]
-    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList()
+    public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalList()
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -26,7 +26,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
             .Where(u => u.RqStatus == "waiting") // เพิ่มเงื่อนไข Where
-            .Select(u => new ExpenseGetDto
+            .Select(u => new ApprovalGetDto
             {
                 RqId = u.RqId,
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
@@ -54,7 +54,7 @@ public class ExpenseController : ControllerBase
     }
 
     [HttpGet("History")]
-    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory()
+    public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalHistory()
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -62,7 +62,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
             .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where
-            .Select(u => new ExpenseGetDto
+            .Select(u => new ApprovalGetDto
             {
                 RqId = u.RqId,
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
@@ -88,52 +88,10 @@ public class ExpenseController : ControllerBase
 
         return Ok(requisition);
     }
-    
-    // Expense report list
-    [HttpGet("report")]
-    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
-    {
-        var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqUsr)
-            .Include(e => e.RqPj)
-            .Include(e => e.RqRqt)
-            .Select(u => new ExpenseReportDto
-            {
-                RqId = u.RqId,
-                RqName = u.RqName,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
-                RqPjName = u.RqPj.PjName,
-                RqRqtName = u.RqRqt.RqtName,
-                RqDatePay = u.RqDatePay,
-                RqExpenses = u.RqExpenses,
-            })
-            .ToListAsync();
 
-        return Ok(requisition);
-    }
-
-    // Expense report graph
-    [HttpGet("graph")]
-    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
-    {
-        var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqRqt)
-            .Select(u => new ExpenseGraphDto
-            {
-                RqRqtId = u.RqRqt.RqtId,
-                RqRqtName = u.RqRqt.RqtName,
-                // RqSumExpenses
-            })
-            .ToListAsync();
-
-        return Ok(requisition);
-    }
-    
     //get by id
     [HttpGet("{id}")]
-    public async Task<ActionResult<ExpenseGetDto>> GetExpenseById(int id)
+    public async Task<ActionResult<ApprovalGetDto>> GetApprovalById(int id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -141,7 +99,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
             .Where(u => u.RqId == id) // ค้นหา RqId ด้วย id (parameter ที่รับค่าด้านบน)
-            .Select(u => new ExpenseGetDto
+            .Select(u => new ApprovalGetDto
             {
                 RqId = u.RqId,
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
@@ -174,11 +132,11 @@ public class ExpenseController : ControllerBase
     }
 
     [HttpPost]
-    public async Task<ActionResult> CreateExpense([FromBody] ExpenseManageDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
+    public async Task<ActionResult> CreateApproval([FromBody] ApprovalManageDto approvalDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
     {
-        if (expenseDto == null)
+        if (approvalDto == null)
         {
-            return BadRequest("Expense data is null.");
+            return BadRequest("Approval data is null.");
         }
 
         if (!ModelState.IsValid)
@@ -186,69 +144,69 @@ public class ExpenseController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        var expense = new CemsRequisition
+        var approval = new CemsRequisition
         {
-            RqUsrId = expenseDto.RqUsrId,
-            RqPjId = expenseDto.RqPjId,
-            RqRqtId = expenseDto.RqRqtId,
-            RqVhId = expenseDto.RqVhId,
-            RqName = expenseDto.RqName,
-            RqDatePay = expenseDto.RqDatePay,
-            RqDateWithdraw = expenseDto.RqDateWithdraw,
-            RqCode = expenseDto.RqCode,
-            RqInsteadEmail = expenseDto.RqInsteadEmail,
-            RqExpenses = expenseDto.RqExpenses,
-            RqStartLocation = expenseDto.RqStartLocation,
-            RqEndLocation = expenseDto.RqEndLocation,
-            RqDistance = expenseDto.RqDistance,
-            RqPurpose = expenseDto.RqPurpose,
-            RqReason = expenseDto.RqReason,
-            RqProof = expenseDto.RqProof,
-            RqStatus = expenseDto.RqStatus,
-            RqProgress = expenseDto.RqProgress,
+            RqUsrId = approvalDto.RqUsrId,
+            RqPjId = approvalDto.RqPjId,
+            RqRqtId = approvalDto.RqRqtId,
+            RqVhId = approvalDto.RqVhId,
+            RqName = approvalDto.RqName,
+            RqDatePay = approvalDto.RqDatePay,
+            RqDateWithdraw = approvalDto.RqDateWithdraw,
+            RqCode = approvalDto.RqCode,
+            RqInsteadEmail = approvalDto.RqInsteadEmail,
+            RqExpenses = approvalDto.RqExpenses,
+            RqStartLocation = approvalDto.RqStartLocation,
+            RqEndLocation = approvalDto.RqEndLocation,
+            RqDistance = approvalDto.RqDistance,
+            RqPurpose = approvalDto.RqPurpose,
+            RqReason = approvalDto.RqReason,
+            RqProof = approvalDto.RqProof,
+            RqStatus = approvalDto.RqStatus,
+            RqProgress = approvalDto.RqProgress,
         };
 
-        _context.CemsRequisitions.Add(expense);
+        _context.CemsRequisitions.Add(approval);
         await _context.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
+        return CreatedAtAction(nameof(GetApprovalList), new { id = approval.RqId }, approvalDto);
     }
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseManageDto expenseDto)
+    public async Task<IActionResult> UpdateApproval(int id, [FromBody] ApprovalManageDto approvalDto)
     {
-        if (expenseDto == null)
+        if (approvalDto == null)
         {
-            return BadRequest("Expense data is null.");
+            return BadRequest("Approval data is null.");
         }
 
-        var expense = await _context.CemsRequisitions.FindAsync(id);
+        var approval = await _context.CemsRequisitions.FindAsync(id);
 
-        if (expense == null)
+        if (approval == null)
         {
             return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
         }
-        expense.RqUsrId = expenseDto.RqUsrId;
-        expense.RqPjId = expenseDto.RqPjId;
-        expense.RqRqtId = expenseDto.RqRqtId;
-        expense.RqVhId = expenseDto.RqVhId;
-        expense.RqName = expenseDto.RqName;
-        expense.RqDatePay = expenseDto.RqDatePay;
-        expense.RqDateWithdraw = expenseDto.RqDateWithdraw;
-        expense.RqCode = expenseDto.RqCode;
-        expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
-        expense.RqExpenses = expenseDto.RqExpenses;
-        expense.RqStartLocation = expenseDto.RqStartLocation;
-        expense.RqEndLocation = expenseDto.RqEndLocation;
-        expense.RqDistance = expenseDto.RqDistance;
-        expense.RqPurpose = expenseDto.RqPurpose;
-        expense.RqReason = expenseDto.RqReason;
-        expense.RqProof = expenseDto.RqProof;
-        expense.RqStatus = expenseDto.RqStatus;
-        expense.RqProgress = expenseDto.RqProgress;
+        approval.RqUsrId = approvalDto.RqUsrId;
+        approval.RqPjId = approvalDto.RqPjId;
+        approval.RqRqtId = approvalDto.RqRqtId;
+        approval.RqVhId = approvalDto.RqVhId;
+        approval.RqName = approvalDto.RqName;
+        approval.RqDatePay = approvalDto.RqDatePay;
+        approval.RqDateWithdraw = approvalDto.RqDateWithdraw;
+        approval.RqCode = approvalDto.RqCode;
+        approval.RqInsteadEmail = approvalDto.RqInsteadEmail;
+        approval.RqExpenses = approvalDto.RqExpenses;
+        approval.RqStartLocation = approvalDto.RqStartLocation;
+        approval.RqEndLocation = approvalDto.RqEndLocation;
+        approval.RqDistance = approvalDto.RqDistance;
+        approval.RqPurpose = approvalDto.RqPurpose;
+        approval.RqReason = approvalDto.RqReason;
+        approval.RqProof = approvalDto.RqProof;
+        approval.RqStatus = approvalDto.RqStatus;
+        approval.RqProgress = approvalDto.RqProgress;
 
         // บันทึกการเปลี่ยนแปลง
-        _context.CemsRequisitions.Update(expense);
+        _context.CemsRequisitions.Update(approval);
         await _context.SaveChangesAsync();
 
         // ส่งคืนสถานะ 204 No Content
