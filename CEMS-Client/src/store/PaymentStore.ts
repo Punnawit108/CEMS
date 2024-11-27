@@ -1,3 +1,9 @@
+/**
+* ชื่อไฟล์: paymentStore.ts
+* คำอธิบาย: จัดการ state
+* ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+*/
 import axios from "axios";
 import { defineStore } from "pinia";
 import { Expense } from "../types";
