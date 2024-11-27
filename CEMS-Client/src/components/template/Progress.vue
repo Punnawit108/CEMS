@@ -7,9 +7,9 @@
  * ชื่อผู้เขียน/แก้ไข : นายพรชัย เพิ่มพูลกิจ
  * วันที่จัดทำแก้ไข : 8 ตุลาคม 2567
  */
+
 const props = defineProps(["progressInfo", "colorStatus"]);
 
-//console.log(props.progressInfo);
 </script>
 
 <template>

@@ -24,13 +24,9 @@ const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
 
 onMounted(async () => {
-  expenseData.value = await detailStore.getRequisition(id);  
   progressData.value = await detailStore.getApprover(id);
-  console.log(progressData)
+  expenseData.value = await detailStore.getRequisition(id);  
 })
-
-
-
 
 
 // FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่
@@ -49,7 +45,7 @@ const colorStatus: { [key: string]: string } = {
 // แนบตรง disbursement เพิ่ม
 const progressInfo = {
   disbursement: {
-    status: "accept",
+    status: "accept",  
     datetime: "10/02/67 10:52",
   },
   acceptor: [
@@ -223,7 +219,7 @@ const progressInfo = {
           <Button type="btn-approve" />
         </div> -->
         <div class="flex justify-end">
-          <Progress :progressInfo="progressInfo" :colorStatus="colorStatus" class="w-[100%]" />
+          <Progress v-if="progressData !== null" :progressInfo="progressData" :colorStatus="colorStatus" class="w-[100%]" />
         </div>
       </div>
     </div>
