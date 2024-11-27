@@ -10,11 +10,12 @@
 
 import Icon from '../../components/template/CIcon.vue';        // Import component icon ที่กำหนดเอง
 import { useRouter } from 'vue-router';                        // Import router สำหรับการนำทาง
-import { ref } from 'vue';                                     // Import ref สำหรับ reactive state
+import { onMounted, ref } from 'vue';                                     // Import ref สำหรับ reactive state
 import Ctable from '../../components/template/Ctable.vue';     // Import component table ที่กำหนดเอง
 
 // สร้าง instance router
 const router = useRouter();
+
 
 // ฟังก์ชันสำหรับนำทางไปยังหน้ารายละเอียดผู้ใช้
 const navigateToDetail = (userId: string) => {
