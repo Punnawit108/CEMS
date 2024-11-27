@@ -22,7 +22,7 @@ const updateRole = (role: string) => {
   <div>
     <Login @updateRole="updateRole" v-if="isLoginPage" class="fixed inset-0" />
     <div v-else>
-      <div class="flex h-screen">
+      <div class="flex h-full">
         <SideBar :role="userRole"/>
         <div class="flex-1 overflow-y-auto bg-white">
           <Navbar />

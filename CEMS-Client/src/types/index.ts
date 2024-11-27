@@ -123,3 +123,11 @@ export interface DashboardForAdmin {
     pjAll: number ;
     rqSumExpense: number ;
 }
+//ข้อมูล notification
+export interface Notification{
+    id:number,
+    idWithdraw:number,
+    nameProject:string,
+    statusNoti:boolean,
+    description:string,
+}
