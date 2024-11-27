@@ -11,7 +11,7 @@ export const useExpenseManageStore = defineStore('expenseManage', {
   actions: {
     async getExpensesType() {
       try {
-        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/RequisitionType/`);
+        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/RequisitionType/`);
         this.expenseRows = result.data;
         console.log("Fetched expenses:", this.expenseRows);
       } catch (error) {
@@ -20,7 +20,7 @@ export const useExpenseManageStore = defineStore('expenseManage', {
     },
     async getVehicles() {
         try {
-          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/vehicle/`);
+          const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/vehicle/`);
           console.log("API response:", response);  // ตรวจสอบ response จาก API
           this.vehicleRows = response.data;
       
