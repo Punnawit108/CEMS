@@ -7,15 +7,46 @@
  * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
  * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
  */
-import { ref } from "vue";
-import VueDatePicker from "@vuepic/vue-datepicker";
+import { onMounted, ref } from "vue";
+// import VueDatePicker from "@vuepic/vue-datepicker";
 import Button from "../../components/template/Button.vue";
 import { createTodo } from "../../store/createExpenseForm"; // Import createTodo function
-import "@vuepic/vue-datepicker/dist/main.css";
+import { useDropdown } from "../../store/requisition";
+
+const dropdownStore = useDropdown();
+
+onMounted(async () => {
+  const projectData = await dropdownStore.getAllProject();
+  const requisitionTypeData = await dropdownStore.getAllRequisitionType();
+  const vehicleTypeData = await dropdownStore.getAllvehicleType();
+});
+// import "@vuepic/vue-datepicker/dist/main.css";
 
 const date = ref();
 const expenseOptions = ref(["ค่าเดินทาง", "ค่าอาหาร"]);
 const rqRqtName = ref("ค่าเดินทาง");
+const selectedTravelType = ref();
+const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
+const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
+const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
+const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
+
+function handleSelectChange() {
+  if (rqtName.value === "อื่นๆ") {
+    isOtherSelected.value = true; // แสดงช่องกรอกข้อมูลเมื่อเลือก "อื่นๆ"
+  } else {
+    isOtherSelected.value = false; // ซ่อนช่องกรอกข้อมูลเมื่อเลือกประเภทอื่น
+  }
+}
+
+function addCustomExpense() {
+  if (customExpenseType.value) {
+    isCustomExpenseTypeAdded.value = true;
+    rqtName.value = customExpenseType.value; // กำหนดค่าที่กรอกเป็นประเภทที่เลือก
+    customExpenseType.value = ""; // ล้างค่าหลังจากกรอก
+    isOtherSelected.value = false; // ซ่อนช่องกรอกข้อมูล
+  }
+}
 
 const formData = ref({
   rqId: "",
@@ -230,6 +261,7 @@ const resetForm = () => {
               type="text"
               id="rqDatePay"
               v-model="formData.rqDatePay"
+              placeholder="11/11/1111"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
@@ -246,18 +278,20 @@ const resetForm = () => {
             />
           </div>
           <div class="content-center m-4">
-            <label for="rqPjName" class="block text-sm font-medium py-1"
-              >โครงการ</label
-            >
+            <label for="projectName" class="self-start text-sm">โครงการ</label>
             <div class="text-xs">
               <select
-                v-model="rqPjName"
-                id="rqPjName"
+                id="projectName"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
-                <option>เลือกโครงการ</option>
-                <option>อบรมการเงิน</option>
-                <option>อบรมการบริหาร</option>
+                <option disabled selected>เลือกโครงการ</option>
+                <option
+                  v-for="project in dropdownStore.projects"
+                  :key="project.pjId"
+                  :value="project.pjId"
+                >
+                  {{ project.pjName }}
+                </option>
               </select>
             </div>
           </div>
@@ -278,8 +312,7 @@ const resetForm = () => {
         <div class="border border-gray-200"></div>
 
         <!-- Form Right -->
-        <div class="w-1/2 rounded-[10px] grid justify-items-end">
-          <!-- ช่อง "ประเภทการเดินทาง" -->
+        <div class="w-1/2 rounded-[10px] place-items-end">
           <div class="m-4">
             <label
               for="selectExpenseType"
@@ -289,46 +322,78 @@ const resetForm = () => {
             <div class="relative">
               <select
                 id="selectExpenseType"
-                v-model="rqRqtName"
+                v-model="rqtName"
                 @change="handleSelectChange"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
-                <option value="">เลือกประเภทค่าใช้จ่าย</option>
+                <option disabled selected>เลือกประเภทค่าใช้จ่าย</option>
                 <option
-                  v-for="option in expenseOptions"
-                  :key="option"
-                  :value="option"
+                  v-for="requisitionTypeData in dropdownStore.requisitionType"
+                  :key="requisitionTypeData.rqtId"
+                  :value="requisitionTypeData.rqtId"
                 >
-                  {{ option }}
+                  {{ requisitionTypeData.rqtName }}
                 </option>
+
+                <!-- Option for custom expense type -->
                 <option value="อื่นๆ" v-if="!isCustomExpenseTypeAdded">
                   อื่นๆ
                 </option>
               </select>
+
+              <!-- Input for custom expense type when "อื่นๆ" is selected -->
               <input
                 v-if="isOtherSelected"
                 v-model="customExpenseType"
                 @keyup.enter="addCustomExpense"
                 placeholder="กรุณาระบุประเภทค่าใช้จ่าย"
-                class="absolute top-0 left-0 mt-2 px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                style="width: calc(100% - 16px)"
+                class="absolute top-0 left-1 mt-[1.5px] px-3 py-3 border-1 border-grayDark bg-white rounded-md sm:text-sm text-sm focus:border-gray-400 focus:ring-0 focus:outline-none"
+                style="width: calc(50% - 16px)"
+              />
+            </div>
+          </div>
+          <!-- ช่อง "ประเภทการเดินทาง" -->
+          <div class="m-4" v-show="rqRqtName === 'ค่าเดินทาง'">
+            <label for="travelType" class="block text-sm font-medium py-1">
+              ประเภทการเดินทาง
+            </label>
+            <div class="text-xs">
+              <select
+                id="travelType"
+                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+                v-model="dropdownStore.selectedTravelType"
+              >
+                <option value="">เลือกประเภทการเดินทาง</option>
+                <option value="private">ประเภทส่วนตัว</option>
+                <option value="public">ประเภทสาธารณะ</option>
+              </select>
+              <img
+                loading="lazy"
+                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
+                alt=""
+                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
               />
             </div>
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-          <div v-show="rqRqtName !== 'ค่าอาหาร'" class="m-4">
-            <label for="vehicleType" class="block text-sm font-medium py-1"
-              >ประเภทรถ</label
-            >
+          <div class="m-4" v-show="rqRqtName === 'ค่าเดินทาง'">
+            <label for="vehicleType" class="block text-sm font-medium py-1">
+              ประเภทรถ
+            </label>
             <div class="text-xs">
               <select
                 id="vehicleType"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
-                <option>เลือกประเภทรถ</option>
-                <option>รถยนต์</option>
-                <option>รถจักรยานยนต์</option>
+                <option value="">เลือกประเภทรถ</option>
+                <option
+                  v-for="vehicle in dropdownStore.filteredVehicleType"
+                  :key="vehicle.vehicleType"
+                  :value="vehicle.vehicleType"
+                >
+                  {{ vehicle.vhVehicle }}
+                </option>
               </select>
               <img
                 loading="lazy"
@@ -339,7 +404,7 @@ const resetForm = () => {
             </div>
           </div>
           <!-- ช่อง "สถานที่เริ่มต้น" -->
-          <div v-show="rqRqtName !== 'ค่าอาหาร'" class="m-4">
+          <div v-show="rqRqtName === 'ค่าเดินทาง'" class="m-4">
             <label for="rqStartLocation" class="block text-sm font-medium py-1"
               >สถานที่เริ่มต้น</label
             >
@@ -352,7 +417,7 @@ const resetForm = () => {
           </div>
 
           <!-- ช่อง "สถานที่สิ้นสุด" -->
-          <div v-show="rqRqtName !== 'ค่าอาหาร'" class="m-4">
+          <div v-show="rqRqtName === 'ค่าเดินทาง'" class="m-4">
             <label for="rqEndLocation" class="block text-sm font-medium py-1"
               >สถานที่สิ้นสุด</label
             >
@@ -400,12 +465,12 @@ const resetForm = () => {
       <div class="">
         <textarea
           v-model="formData.rqPurpose"
-          class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full focus:border-gray-400 focus:ring-0 focus:outline-none"
+          class="py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full focus:border-gray-400 focus:ring-0 focus:outline-none"
         ></textarea>
       </div>
     </div>
     <!-- upload -->
-    <div class="upload-container w-2/4 m-5">
+    <div class="upload-container w-2/6 m-5">
       <label class="z-0 max-md:max-w-full"> อัปโหลดไฟล์ </label>
       <div
         class="flex z-0 mt-1 w-full bg-white rounded-md border border-solid border-zinc-400 min-h-[395px] max-md:max-w-full cursor-pointer relative"

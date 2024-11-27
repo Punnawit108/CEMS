@@ -7,407 +7,404 @@
  * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
  * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
  */
-import { ref, computed, onMounted } from 'vue';
-import { useDropdown } from '../../store/requisition';
+import { onMounted, ref } from "vue";
+import Button from "../../components/template/Button.vue";
+import { useDropdown, createExpense } from "../../store/requisition";
 
 const dropdownStore = useDropdown();
 
 onMounted(async () => {
-    const projectData = await dropdownStore.getAllProject();
-    const requisitionTypeData = await dropdownStore.getAllRequisitionType();
-
-})
-const selectedExpenseType = ref('ค่าเดินทาง');
-
-const formData = ref({
-    name: '',
-    startLocation: '',
-    endLocation: '',
-    amount: '',
-    preview: null,
+  const projectData = await dropdownStore.getAllProject();
+  const requisitionTypeData = await dropdownStore.getAllRequisitionType();
+  const vehicleTypeData = await dropdownStore.getAllvehicleType();
 });
 
-const handleSubmit = () => {
-    console.log('Form submitted:', formData.value);
+const date = ref();
+const expenseOptions = ref(["ค่าเดินทาง", "ค่าอาหาร"]);
+const rqRqtName = ref("ค่าเดินทาง");
+const selectedTravelType = ref();
+const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
+const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
+const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
+const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
+
+const formData = ref({
+  rqId: "",
+  rqName: "",
+  rqUsrName: "",
+  rqPjName: "1",
+  rqRqtName: "",
+  rqVhName: "",
+  rqDatePay: "",
+  rqDateWithdraw: "",
+  rqCode: "",
+  rqInsteadEmail: "",
+  rqExpenses: "",
+  rqLocation: "",
+  rqStartLocation: "",
+  rqEndLocation: "",
+  rqDistance: "",
+  rqPurpose: "",
+  rqReason: "",
+  rqProof: "",
+  rqStatus: "",
+  rqProgress: "",
+  preview: null,
+});
+
+// ฟังก์ชันการจัดการไฟล์
+const fileInput = ref<HTMLInputElement | null>(null); // อ้างอิงถึง input element ที่ใช้เลือกไฟล์
+const selectedFile = ref<File | null>(null); // เก็บไฟล์ที่ผู้ใช้เลือก
+const previewUrl = ref<string | null>(null); // URL สำหรับแสดงตัวอย่างรูปภาพ
+
+const MAX_WIDTH = 800; // ความกว้างสูงสุดที่ยอมรับ (พิกเซล)
+const MAX_HEIGHT = 800; // ความสูงสูงสุดที่ยอมรับ (พิกเซล)
+
+const handleSelectChange = () => {
+  if (rqtName.value === "อื่นๆ") {
+    isOtherSelected.value = true; // แสดงช่องกรอกข้อมูลเมื่อเลือก "อื่นๆ"
+  } else {
+    isOtherSelected.value = false; // ซ่อนช่องกรอกข้อมูลเมื่อเลือกประเภทอื่น
+  }
 };
 
-const onFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file && file.type.startsWith('image/')) {
-        const reader = new FileReader();
-        reader.readAsDataURL(file);
-        reader.onload = (e) => {
-            formData.value.preview = e.target.result;
-        };
+import axios from 'axios';
+
+const handleSubmit = async () => {
+    try {
+        const response = await axios.post(
+            `${import.meta.env.VITE_BASE_URL}/api/expense`,  // URL ของ API บน Server
+            formData.value  // ข้อมูลจากฟอร์มใน Vue
+        );
+        console.log("Data saved:", response.data);
+    } catch (error) {
+        console.error("Error sending data:", error);
     }
 };
 
+const handleCancel = () => {
+  // Reset form data or navigate away
+  alert("ยกเลิกการส่งข้อมูล");
+  resetForm();
+};
 
-const expenseOptions = ref(['ค่าเดินทาง', 'ค่าอาหาร']);
-const customExpenseType = ref('');
-const isCustomExpenseTypeAdded = ref(false);
-const isEditing = ref(false);
-
-// Computed property to check if "อื่นๆ" is selected
-const isOtherSelected = computed(() => selectedExpenseType.value === 'อื่นๆ' || customExpenseType.value !== '');
-
-function handleSelectChange() {
-    if (!isOtherSelected.value) {
-        customExpenseType.value = ''; // Reset the input when other option is not selected
-    }
-    isEditing.value = false;
-}
-
-function startEditing() {
-    isEditing.value = true;
-    customExpenseType.value = selectedExpenseType.value;
-}
-//แก้ fn นี้ให้มัน จับค่าของ requisition type 
-function addCustomExpense() {
-    if (customExpenseType.value && !expenseOptions.value.includes(customExpenseType.value)) {
-        expenseOptions.value.push(customExpenseType.value); // Add custom option
-        selectedExpenseType.value = customExpenseType.value; // Set as selected
-        isCustomExpenseTypeAdded.value = true; // Set flag to hide "อื่นๆ"
-    } else if (customExpenseType.value) {
-        selectedExpenseType.value = customExpenseType.value; // Just set the selected value
-    }
-    isEditing.value = false;
-    customExpenseType.value = ''; // Reset the input
-}
+const resetForm = () => {
+  formData.value = {
+    rqId: "",
+    rqName: "",
+    rqUsrName: "",
+    rqPjName: "1",
+    rqRqtName: rqRqtName.value,
+    rqVhName: "",
+    rqDatePay: "",
+    rqDateWithdraw: "",
+    rqCode: "",
+    rqInsteadEmail: "",
+    rqExpenses: "",
+    rqLocation: "",
+    rqStartLocation: "",
+    rqEndLocation: "",
+    rqDistance: "",
+    rqPurpose: "",
+    rqReason: "",
+    rqProof: "",
+    rqStatus: "",
+    rqProgress: "",
+  };
+};
 </script>
-
-<!-- path for test = /disbursement/listWithdraw/createExpenseForm -->
 <template>
-    <div class="">
-
-        <!-- Content -->
-        <main class="m-5  bg-white-500 text-black p-5  rounded-[10px] grid gap-y-2  ">
-
-
-            <!-- เลือกประเภทค่าใช้จ่าย -->
-            <div class="content-center px-5 flex justify-between  flex flex-col md:flex-row">
-                <div class="  content-center ">
-                    <label for="projectName" class="self-start text-sm ">โครงการ</label>
-                    <div class="text-xs">
-                        <select id="projectName"
-                            class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full  md:w-[400px]  focus:border-gray-400 focus:ring-0 focus:outline-none">
-                            <option>เลือกโครงการ</option>
-                            <option v-for="project in dropdownStore.projects" :key="project.pjId" :value="project.pjId">
-                                {{ project.pjName }} 
-                            </option>
-                        </select>
-                    </div>
-                </div>
-            </div>
-
-            <div class="px-5 ">
-                <label for="selectExpenseType" class="text-sm">ประเภทค่าใช้จ่าย</label>
-                <div class="relative">
-                    <select id="selectExpenseType" v-model="selectedExpenseType" @change="handleSelectChange"
-                        class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none">
-                        <option value="">เลือกประเภทค่าใช้จ่าย</option>
-                        <!-- <option v-for="option in expenseOptions" :key="option" :value="option">{{ option }}</option> -->
-                        <option v-for="requisitionType in dropdownStore.requisitionType" :key="requisitionType.rqtId" :value="requisitionType.rqtName">{{ requisitionType.rqtName }}</option>
-                        <option value="อื่นๆ" v-if="!isCustomExpenseTypeAdded">อื่นๆ</option>
-                    </select>
-                    <input v-if="isOtherSelected" v-model="customExpenseType" @keyup.enter="addCustomExpense"
-                        placeholder="กรุณาระบุประเภทค่าใช้จ่าย"
-                        class="absolute top-0 left-0 mt-2 px-3 py-0 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                        style="width: calc(100% - 16px);" />
-                </div>
-            </div>
-            <div>
-                <h1 class="font-bold  text-lg ">รายละเอียดคำขอเบิก</h1>
-            </div>
-            <form @submit.prevent="handleSubmit" class="space-y-4">
-
-                <!-- Fromประเภทค่าเดินทาง-->
-                <div class="px-5 " v-show="selectedExpenseType !== 'ค่าอาหาร'">
-                    <!-- แบ่งเป็น 2 คอลัมน์ -->
-                    <div class="flex flex-col md:flex-row justify-between gap-5">
-                        <!-- Form Left -->
-                        <div class="w-1/2  rounded-[10px] ">
-                            <!-- ช่อง "ชื่อผู้เบิก" -->
-                            <div>
-                                <label for="name" class="block text-sm font-medium  py-1">ชื่อผู้ขอเบิก</label>
-                                <input type="text" id="name" v-model="formData.name"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "ประเภทการเดินทาง" -->
-                            <div>
-                                <label for="travelType" class="self-start text-sm ">ประเภทการเดินทาง</label>
-                                <div class="text-xs">
-                                    <select id="travelType"
-                                        class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none">
-                                        <option>เลือกประเภทการเดินทาง</option>
-                                        <option>ประเภทส่วนตัว</option>
-                                        <option>ประเภทสาธารณะ</option>
-                                    </select>
-                                    <img loading="lazy"
-                                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-                                        alt=""
-                                        class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2" />
-                                </div>
-                            </div>
-
-                            <!-- ช่อง "ประเภทรถ" -->
-                            <div>
-                                <label for="vehicleType" class="self-start text-sm">ประเภทรถ</label>
-                                <div class="text-xs">
-                                    <select id="vehicleType"
-                                        class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none">
-                                        <option>เลือกประเภทรถ</option>
-                                        <option>รถยนต์</option>
-                                        <option>รถจักรยานยนต์</option>
-                                    </select>
-                                    <img loading="lazy"
-                                        src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-                                        alt=""
-                                        class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2" />
-                                </div>
-                            </div>
-                            <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
-                            <div>
-                                <label for="startLocation" class="block text-sm font-medium py-1">วันที่เกิดค่าใช้จ่าย
-                                    *</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
-                            <div>
-                                <label for="startLocation"
-                                    class="block text-sm font-medium py-1">วันที่ทำรายการเบิกค่าใช้จ่าย
-                                    *</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "รหัสรายการเบิก *" -->
-                            <div>
-                                <label for="startLocation"
-                                    class="block text-sm font-medium py-1">รหัสรายการเบิก*</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-
-                            <!-- ช่อง "อีเมลผู้ขอเบิกแทน *" -->
-                            <div>
-                                <label for="startLocation" class="block text-sm font-medium py-1">อีเมลผู้ขอเบิกแทน
-                                    *</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "จำนวนเงิน (บาท)" -->
-                            <div>
-
-                                <label for="amount" class="block text-sm font-medium  py-1">จำนวนเงิน (บาท)</label>
-                                <input type="text" id="amount" v-model="formData.amount"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-
-
-                            <!-- ช่อง "สถานที่เริ่มต้น" -->
-                            <div>
-                                <label for="startLocation"
-                                    class="block text-sm font-medium py-1">สถานที่เริ่มต้น</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-
-                            <div>
-                                <!-- ช่อง "สถานที่สิ้นสุด" -->
-                                <div>
-                                    <label for="endLocation"
-                                        class="block text-sm font-medium  py-1">สถานที่สิ้นสุด</label>
-                                    <input type="text" id="endLocation" v-model="formData.endLocation"
-                                        class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                                </div>
-
-                            </div>
-                            <div class="text-sm">
-                                <label>วัตถุประสงค์</label>
-                                <div class=" md:w-[400px]">
-                                    <textarea
-                                        class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full  md:h-[120px] focus:border-gray-400 focus:ring-0 focus:outline-none"></textarea>
-                                </div>
-
-                            </div>
-                        </div>
-
-                        <!-- Form Right -->
-                        <div class="w-1/2   rounded-[10px] grid content-between  ">
-                            <div class="  sm:w-1/2  rounded-[10px]  ">
-                                <div class="upload-container ">
-                                    <label for="file-upload" class="custom-file-upload w-full">
-                                        <div class="upload-box  w-full">
-                                            <img v-if="formData.preview" :src="formData.preview" alt="Preview Image"
-                                                class=" object-contain" />
-                                            <div v-else class="icon-upload  text-gray-500">
-                                                <i class="fas fa-upload text-4xl"></i>
-                                                <p>อัปโหลดไฟล์</p>
-                                            </div>
-                                        </div>
-                                    </label>
-                                    <input type="file" id="file-upload" @change="onFileChange" class="hidden" />
-                                </div>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Fromประเภทอื่นๆ-->
-                <div v-show="selectedExpenseType == 'ค่าอาหาร'" class="px-5 ">
-                    <!-- แบ่งเป็น 2 คอลัมน์ -->
-                    <div class="flex flex-col md:flex-row justify-between gap-5">
-                        <!-- Form Left -->
-                        <div class="w-1/2  rounded-[10px]  ">
-                            <!-- ช่อง "ชื่อผู้เบิก" -->
-                            <div>
-                                <label for="name" class="block text-sm font-medium   py-1">ชื่อผู้ขอเบิก</label>
-                                <input type="text" id="name" v-model="formData.name"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
-                            <div>
-                                <label for="startLocation" class="block text-sm font-medium py-1">วันที่เกิดค่าใช้จ่าย
-                                    *</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
-                            <div>
-                                <label for="startLocation"
-                                    class="block text-sm font-medium py-1">วันที่ทำรายการเบิกค่าใช้จ่าย
-                                    *</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "รหัสรายการเบิก *" -->
-                            <div>
-                                <label for="startLocation"
-                                    class="block text-sm font-medium py-1">รหัสรายการเบิก*</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-
-                            <!-- ช่อง "อีเมลผู้ขอเบิกแทน *" -->
-                            <div>
-                                <label for="startLocation" class="block text-sm font-medium py-1">อีเมลผู้ขอเบิกแทน
-                                    *</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-                            <!-- ช่อง "จำนวนเงิน (บาท)" -->
-                            <div class="">
-
-                                <label for="amount" class="block text-sm font-medium  py-1">จำนวนเงิน (บาท)</label>
-                                <input type="text" id="amount" v-model="formData.amount"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-
-                            <!-- ช่อง "สถานที่" -->
-                            <div>
-                                <label for="startLocation" class="block text-sm font-medium py-1">สถานที่</label>
-                                <input type="text" id="startLocation" v-model="formData.startLocation"
-                                    class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-                            </div>
-
-
-                        </div>
-
-                        <!-- Form Right -->
-                        <div class="w-1/2   rounded-[10px] ">
-                            <div class="  sm:w-1/2  rounded-[10px] ">
-                                <div class="upload-container ">
-                                    <label for="file-upload" class="custom-file-upload w-full">
-                                        <div class="upload-box  w-full">
-                                            <img v-if="formData.preview" :src="formData.preview" alt="Preview Image"
-                                                class=" object-contain" />
-                                            <div v-else class="icon-upload  text-gray-500">
-                                                <i class="fas fa-upload text-4xl"></i>
-                                                <p>อัปโหลดไฟล์</p>
-                                            </div>
-                                        </div>
-                                    </label>
-                                    <input type="file" id="file-upload" @change="onFileChange" class="hidden" />
-                                </div>
-                            </div>
-
-
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <div class="flex justify-center px-5">
-                    <button type="submit"
-                        class="px-4 py-2 m-5 w-[180px] bg-[#B6B7BA] text-black rounded-[10px]">บันทึก</button>
-                    <button type="submit"
-                        class="px-4 py-2 m-5 w-[180px] bg-[#FF0000] text-white rounded-[10px]">ยกเลิก</button>
-                    <button type="submit"
-                        class="px-4 py-2 m-5 w-[180px] bg-[#15CC1C] text-white rounded-[10px]">ยืนยัน</button>
-                </div>
-
-            </form>
-        </main>
+  <form @submit.prevent="handleSubmit" class="text-black text-sm">
+    <!-- btn -->
+    <div class="flex justify-end gap-4">
+      <Button :type="'btn-save'"></Button>
+      <Button :type="'btn-cancleBorderGray'"></Button>
+      <Button :type="'btn-summit'"></Button>
     </div>
+    <!-- Fromประเภทค่าเดินทาง-->
+    <div class="">
+      <!-- แบ่งเป็น 2 คอลัมน์ -->
+      <div class="flex flex-col md:flex-row justify-between gap-5">
+        <!-- Form Left -->
+        <div class="w-1/2 rounded-[10px]">
+          <!-- ช่อง "รหัสรายการเบิก *" -->
+          <div class="m-4">
+            <label for="rqCode" class="block text-sm font-medium py-1"
+              >รหัสรายการเบิก *</label
+            >
+            <input
+              type="text"
+              id="rqCode"
+              v-model="formData.rqCode"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+          <!-- ช่อง "ชื่อรายการเบิก" -->
+          <div class="m-4">
+            <label for="rqName" class="block text-sm font-medium py-1"
+              >ชื่อรายการเบิก *</label
+            >
+            <input
+              type="text"
+              id="rqName"
+              v-model="formData.rqName"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+
+          <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
+          <div class="m-4">
+            <label for="rqDatePay" class="block text-sm font-medium py-1"
+              >วันที่เกิดค่าใช้จ่าย *</label
+            >
+            <input
+              type="text"
+              id="rqDatePay"
+              v-model="formData.rqDatePay"
+              placeholder="11/11/1111"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+          <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
+          <div class="m-4">
+            <label for="rqDateWithdraw" class="block text-sm font-medium py-1"
+              >วันที่ทำรายการเบิกค่าใช้จ่าย *</label
+            >
+            <input
+              type="text"
+              id="rqDateWithdraw"
+              v-model="formData.rqDateWithdraw"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+          <div class="content-center m-4">
+            <label for="projectName" class="self-start text-sm">โครงการ</label>
+            <div class="text-xs">
+              <select
+                id="projectName"
+                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+              >
+                <option disabled selected>เลือกโครงการ</option>
+                <option
+                  v-for="project in dropdownStore.projects"
+                  :key="project.pjId"
+                  :value="project.pjId"
+                >
+                  {{ project.pjName }}
+                </option>
+              </select>
+            </div>
+          </div>
+
+          <!-- ช่อง "อีเมลผู้ขอเบิกแทน *" -->
+          <div class="m-4">
+            <label for="rqInsteadEmail" class="block text-sm font-medium py-1"
+              >อีเมลผู้ขอเบิกแทน *</label
+            >
+            <input
+              type="text"
+              id="rqInsteadEmail"
+              v-model="formData.rqInsteadEmail"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+        </div>
+        <div class="border border-gray-200"></div>
+
+        <!-- Form Right -->
+        <div class="w-1/2 rounded-[10px] place-items-end">
+          <div class="m-4">
+            <label
+              for="selectExpenseType"
+              class="block text-sm font-medium py-1"
+              >ประเภทค่าใช้จ่าย</label
+            >
+            <div class="relative">
+              <select
+                id="selectExpenseType"
+                v-model="rqtName"
+                @change="handleSelectChange"
+                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+              >
+                <option disabled selected>เลือกประเภทค่าใช้จ่าย</option>
+                <option
+                  v-for="requisitionTypeData in dropdownStore.requisitionType"
+                  :key="requisitionTypeData.rqtId"
+                  :value="requisitionTypeData.rqtId"
+                >
+                  {{ requisitionTypeData.rqtName }}
+                </option>
+
+                <!-- Option for custom expense type -->
+                <option value="อื่นๆ" v-if="!isCustomExpenseTypeAdded">
+                  อื่นๆ
+                </option>
+              </select>
+
+              <!-- Input for custom expense type when "อื่นๆ" is selected -->
+              <input
+                v-if="isOtherSelected"
+                v-model="customExpenseType"
+                @keyup.enter="addCustomExpense"
+                placeholder="กรุณาระบุประเภทค่าใช้จ่าย"
+                class="absolute top-0 left-1 mt-[1.5px] px-3 py-3 border-1 border-grayDark bg-white rounded-md sm:text-sm text-sm focus:border-gray-400 focus:ring-0 focus:outline-none"
+                style="width: calc(50% - 16px)"
+              />
+            </div>
+          </div>
+          <!-- ช่อง "ประเภทการเดินทาง" -->
+          <div class="m-4" v-show="rqRqtName === 'ค่าเดินทาง'">
+            <label for="travelType" class="block text-sm font-medium py-1">
+              ประเภทการเดินทาง
+            </label>
+            <div class="text-xs">
+              <select
+                id="travelType"
+                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+                v-model="dropdownStore.selectedTravelType"
+              >
+                <option value="">เลือกประเภทการเดินทาง</option>
+                <option value="private">ประเภทส่วนตัว</option>
+                <option value="public">ประเภทสาธารณะ</option>
+              </select>
+              <img
+                loading="lazy"
+                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
+                alt=""
+                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
+              />
+            </div>
+          </div>
+
+          <!-- ช่อง "ประเภทรถ" -->
+          <div class="m-4" v-show="rqRqtName === 'ค่าเดินทาง'">
+            <label for="vehicleType" class="block text-sm font-medium py-1">
+              ประเภทรถ
+            </label>
+            <div class="text-xs">
+              <select
+                id="vehicleType"
+                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+              >
+                <option value="">เลือกประเภทรถ</option>
+                <option
+                  v-for="vehicle in dropdownStore.filteredVehicleType"
+                  :key="vehicle.vehicleType"
+                  :value="vehicle.vehicleType"
+                >
+                  {{ vehicle.vhVehicle }}
+                </option>
+              </select>
+              <img
+                loading="lazy"
+                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
+                alt=""
+                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
+              />
+            </div>
+          </div>
+          <!-- ช่อง "สถานที่เริ่มต้น" -->
+          <div v-show="rqRqtName === 'ค่าเดินทาง'" class="m-4">
+            <label for="rqStartLocation" class="block text-sm font-medium py-1"
+              >สถานที่เริ่มต้น</label
+            >
+            <input
+              type="text"
+              id="rqStartLocation"
+              v-model="formData.rqStartLocation"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+
+          <!-- ช่อง "สถานที่สิ้นสุด" -->
+          <div v-show="rqRqtName === 'ค่าเดินทาง'" class="m-4">
+            <label for="rqEndLocation" class="block text-sm font-medium py-1"
+              >สถานที่สิ้นสุด</label
+            >
+            <input
+              type="text"
+              id="rqEndLocation"
+              v-model="formData.rqEndLocation"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+
+          <!-- ช่อง "สถาน *" -->
+          <div v-show="rqRqtName !== 'ค่าเดินทาง'" class="m-4">
+            <label for="rqLocation" class="block text-sm font-medium py-1"
+              >สถาน *</label
+            >
+            <input
+              type="text"
+              id="rqLocation"
+              v-model="formData.rqLocation"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+
+          <div class="m-4">
+            <!-- ช่อง "จำนวนเงิน (บาท)" -->
+            <div>
+              <label for="rqExpenses" class="block text-sm font-medium py-1"
+                >จำนวนเงิน (บาท)</label
+              >
+              <input
+                type="text"
+                id="rqExpenses"
+                v-model="formData.rqExpenses"
+                class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+              />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- วัตถุประสงค์ -->
+    <div class="text-sm m-5">
+      <label class="block text-sm font-medium py-1">วัตถุประสงค์</label>
+      <div class="">
+        <textarea
+          v-model="formData.rqPurpose"
+          class="py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full focus:border-gray-400 focus:ring-0 focus:outline-none"
+        ></textarea>
+      </div>
+    </div>
+    <!-- upload -->
+    <div class="upload-container w-2/6 m-5">
+      <label class="z-0 max-md:max-w-full"> อัปโหลดไฟล์ </label>
+      <div
+        class="flex z-0 mt-1 w-full bg-white rounded-md border border-solid border-zinc-400 min-h-[395px] max-md:max-w-full cursor-pointer relative"
+        @click="triggerFileInput"
+        @dragover.prevent
+        @drop.prevent="handleDrop"
+      >
+        <input
+          type="file"
+          ref="fileInput"
+          @change="handleFileChange"
+          accept="image/"
+          style="display: none"
+        />
+        <div
+          v-if="!selectedFile"
+          class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[color:var(--,#B8B8B8)]"
+        >
+          <img
+            loading="lazy"
+            src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
+            alt="Upload icon"
+            class="object-contain w-16 aspect-[1.1]"
+          />
+          <p class="mt-3">อัปโหลดไฟล์ที่นี่</p>
+          <p class="mt-3">SVG, PNG หรือ JPG (MAX 800 800 px)</p>
+        </div>
+        <img
+          v-else
+          :src="previewUrl!"
+          alt="Preview"
+          class="max-w-full max-h-full object-contain absolute inset-0 m-auto"
+        />
+      </div>
+    </div>
+  </form>
 </template>
-
-
-
-<style scoped>
-.upload-container {
-    text-align: center;
-    width: 300px;
-    margin: auto;
-}
-
-.custom-file-upload {
-    display: block;
-    width: 100%;
-    height: 200px;
-    border: 2px dashed #ccc;
-    border-radius: 10px;
-    cursor: pointer;
-    position: relative;
-    overflow: hidden;
-}
-
-.custom-file-upload:hover {
-    background-color: #f9f9f9;
-}
-
-.upload-box {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100%;
-}
-
-.icon-upload {
-    text-align: center;
-    color: #999;
-}
-
-.icon-upload i {
-    font-size: 48px;
-    margin-bottom: 10px;
-}
-
-img {
-    max-width: 100%;
-    max-height: 100%;
-    object-fit: cover;
-    border-radius: 10px;
-}
-
-input[type="file"] {
-    display: none;
-}
-
-.selectExpenseType {
-    position: relative;
-    top: 0;
-}
-</style>
