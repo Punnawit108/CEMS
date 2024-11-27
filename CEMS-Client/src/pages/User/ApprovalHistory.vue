@@ -17,6 +17,7 @@ import { useExpense } from '../../store/ExpenseStore';
 import { onMounted } from 'vue';
 import { Expense } from '../../types';
 import { useDetailStore } from '../../store/detail';
+import CryptoJS from 'crypto-js';
 
 const expense = useExpense();
 const router = useRouter();
@@ -28,7 +29,6 @@ onMounted(()=>{
 const detailStore = useDetailStore();
 
 const toDetails = async (data: Expense) => {
-    await detailStore.setSelectedExpense(data); 
     router.push(`/approval/history/detail/${data.rqId}`);
 };
 

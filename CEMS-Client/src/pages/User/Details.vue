@@ -15,20 +15,27 @@ import { Expense } from '../../types';
 import { useDetailStore } from "../../store/detail";
 
 const statusDetail = ref("edit"); // 'reject' is the initial value
-
 const route = useRoute();
-const detailStore = useDetailStore(); 
 
-const expenseData = detailStore.selectedExpense;  
-const progressData = detailStore.approvals;
+const detailStore = useDetailStore();
+const id = Number(route.params.id);
 
-if (!expenseData) {
-    console.error("ไม่มีใบคำขอเบิก");
-}
+const expenseData = ref<any>(null);
+const progressData = ref<any>(null);
 
-// FN ตรวจสอบว่ามีคำว่า 'approval' ใน path หรือไม่
+onMounted(async () => {
+  expenseData.value = await detailStore.getRequisition(id);  
+  progressData.value = await detailStore.getApprover(id);
+  console.log(progressData)
+})
+
+
+
+
+
+// FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่
 const isApprovalPath = computed(() => {
-  return route.path.includes('approval');
+  return route.path.includes('approver') && route.path.includes('list');
 });
 
 const colorStatus: { [key: string]: string } = {
@@ -39,7 +46,7 @@ const colorStatus: { [key: string]: string } = {
   sketch: "#B6B7BA",
 };
 
-
+// แนบตรง disbursement เพิ่ม
 const progressInfo = {
   disbursement: {
     status: "accept",
@@ -80,7 +87,8 @@ const progressInfo = {
 
 <template>
   <!-- content -->
-  <div class="ml-[16px]">
+  <div v-if="expenseData" class="ml-[16px] ">
+
     <div class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]">
       <div class="flex justify-between">
         <p class="!text-[#ED0000] font-bold">เหตุผลส่งกลับ :</p>
@@ -89,12 +97,12 @@ const progressInfo = {
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
 
-    <div class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
+    <div v-if="expenseData.rqStatus === 'reject'" class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
       <p class="!text-[#ED0000] font-bold">เหตุผลการไม่อนุมัติ :</p>
-      <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
+      <p class="!text-[#FF0000]">{{expenseData.rqReason}}</p>
     </div>
 
-    <div class="flex justify-end">
+    <div v-if="isApprovalPath" class="flex justify-end">
       <div class="flex mb-[22px]">
           <Button type="btn-unapprove" />
           <span class="mx-[12px]"></span>
@@ -110,10 +118,10 @@ const progressInfo = {
           เบิกค่าใช้จ่าย<span :class="`bg-[${colorStatus[statusDetail]}]`"
             class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">แก้ไข</span>
         </h3>
-        <div class="row flex justify-around">
+        <div  class="row flex justify-around">
           <div class="col">
             <p class="head">รหัสรายการเบิก</p>
-            <p class="item">{{expenseData?.rqCode}}</p>
+            <p class="item">{{expenseData.rqCode}}</p>
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
@@ -215,7 +223,7 @@ const progressInfo = {
           <Button type="btn-approve" />
         </div> -->
         <div class="flex justify-end">
-          <Progress :progressInfo="progressData" :colorStatus="colorStatus" class="w-[100%]" />
+          <Progress :progressInfo="progressInfo" :colorStatus="colorStatus" class="w-[100%]" />
         </div>
       </div>
     </div>
