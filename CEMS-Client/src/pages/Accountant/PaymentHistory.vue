@@ -10,7 +10,7 @@
 import { useRouter } from 'vue-router';
 import Ctable from '../../components/template/Ctable.vue';
 import Icon from '../../components/template/CIcon.vue';
-import { usePayment } from '../../store/PaymentStore';
+import { usePayment } from '../../store/paymentStore';
 import { onMounted } from 'vue';
 const paymentHistory = usePayment();
 const router = useRouter();
