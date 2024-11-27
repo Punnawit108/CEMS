@@ -18,7 +18,7 @@ export const useExpensesListStore = defineStore("expenses", {
     actions: {
         async getAllExpenses() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/expense/list`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list`);
                 this.expenses = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);
@@ -34,7 +34,7 @@ export const useExpensesGraphStore = defineStore("expenses", {
     actions: {
         async getAllExpenses() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/expense/graph`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/graph`);
                 this.expenses = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);

@@ -8,7 +8,7 @@ export const useApprovalStore = defineStore('todo', {
     actions: {
         async getApprovers() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/approval`)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approval`)
                 this.approvers = result.data;
             } catch (err) {
                 console.log(err)
