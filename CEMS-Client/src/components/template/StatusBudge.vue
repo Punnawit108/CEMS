@@ -32,6 +32,10 @@ const props = defineProps<{
             <span v-if="status==='sts-edit'" class="!text-white rounded-[28px] bg-[#FFBE40] w-[58px] h-[24px] flex justify-center items-center font-sarabun">แก้ไข</span>
             <!-- แบบร่าง -->
             <span v-if="status==='sts-draft'" class="!text-white rounded-[28px] bg-[#B6B7BA] w-[72px] h-[24px] flex justify-center items-center font-sarabun">แบบร่าง</span>
+            <!-- accept -->
+            <span v-if="status==='sts-accept'" class="!text-white rounded-[28px] bg-[#12B669] w-[72px] h-[24px] flex justify-center items-center font-sarabun">accept</span>
+            <!-- reject -->
+            <span v-if="status==='sts-reject'" class="!text-white rounded-[28px] bg-[#E1032B] w-[72px] h-[24px] flex justify-center items-center font-sarabun">reject</span>
         </div>
         <!-- content -->
     </div>

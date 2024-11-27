@@ -19,6 +19,7 @@ if (connectionString != null)
 
 var app = builder.Build();
 
+// เพิ่มการตั้งค่า CORS
 app.UseCors(builder => builder
     .WithOrigins("http://localhost:5173")
     .AllowAnyHeader()

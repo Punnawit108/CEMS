@@ -62,13 +62,13 @@ export interface User {
 
 //ข้อมูลแสดงผลของกราฟ และตาราง project 
 export interface ProjectReport{
-    PjId: number;
-    PjName: string;
+    pjId: number;
+    pjName: string;
     pjSumAmountExpenses: string;
 }
 //ข้อมูลแสดงผลของกราฟ expense
 export interface ExpenseReportGraph {
-    rqRqtId:number;
+    rqRqtId: number;
     rqRqtName: string;
     rqSumExpenses: number;
 }
@@ -81,7 +81,7 @@ export interface ExpenseReportList {
     rqRqtName: string;
     rqDatePay: Date;
     rqExpenses: number;
-    rqSumExpenses: number;
+    // rqSumExpenses: number;
 }
 
 export interface Dashboard {
@@ -91,7 +91,7 @@ export interface Dashboard {
     pjSumAmountExpenses: string;
 
     //กราฟ ประเภทค่าใช้จ่ายของรายการเบิก
-    rqRqtId:number;
+    rqRqtId: number;
     rqRqtName: string;
     rqSumExpenses: number;
 
@@ -102,10 +102,10 @@ export interface Dashboard {
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ User
 export interface DashboardForUser {
-    rqSumOfWaiting: number ;
-    rqSumOfApprove: number ;
-    rqSumOfExpense: number ;
-    rqSumExpense: number ;
+    rqSumOfWaiting: number;
+    rqSumOfApprove: number;
+    rqSumOfExpense: number;
+    rqSumExpense: number;
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Accountant
