@@ -24,6 +24,7 @@ public class ApprovalController : ControllerBase
 
         var acceptorList = await _context.CemsApprovers.Include(e => e.ApUsr).Select(e => new
         {
+            e.ApUsr.UsrId,
             e.ApUsr.UsrFirstName,
             e.ApUsr.UsrLastName,
             e.ApSequence
