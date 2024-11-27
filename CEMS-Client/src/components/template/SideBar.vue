@@ -13,7 +13,7 @@ import Icon from './CIcon.vue';
 const props = defineProps<{
   role: string; // กำหนด type ของ role
 }>();
-const role = props.role;
+const role = localStorage.getItem('updateRole')
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
 
