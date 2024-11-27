@@ -35,7 +35,17 @@ public class ApprovalController : ControllerBase
 
     [HttpGet("progress/{requisitionId:int}")]
     public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId){
-        var approveProgress = await _context.CemsApproverRequistions
+        var disbursement = await _context.CemsRequisitions
+        .Where(e => e.RqId == requisitionId)
+        .Select(e => new {
+            e.RqId,
+            e.RqStatus,
+            e.RqProgress,
+            e.RqDatePay,
+            e.RqDateWithdraw
+        }).ToListAsync();
+
+        var acceptor = await _context.CemsApproverRequistions
         .Where(e => e.AprRqId == requisitionId)
         .Include(e => e.AprRq)
         .Include(e => e.AprAp) 
@@ -50,7 +60,14 @@ public class ApprovalController : ControllerBase
         .OrderBy(e => e.AprId)
         .ToListAsync();
 
-        return Ok(approveProgress);
+        var progress = new {
+            disbursement,
+            acceptor
+        };
+
+
+
+        return Ok(progress);
     }
 
         // Req => usrFirstName, usrLastName
