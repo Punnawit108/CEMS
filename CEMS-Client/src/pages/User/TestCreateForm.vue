@@ -10,7 +10,7 @@
 import { ref } from "vue";
 import VueDatePicker from "@vuepic/vue-datepicker";
 import Button from "../../components/template/Button.vue";
-import { createTodo } from "../../store/CreateExpenseForm"; // Import createTodo function
+import { createTodo } from "../../store/createExpenseForm"; // Import createTodo function
 import "@vuepic/vue-datepicker/dist/main.css";
 
 const date = ref();
