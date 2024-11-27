@@ -15,7 +15,7 @@ const router = useRouter();
 const emit = defineEmits(['updateRole']);
 
 const selectRole = (role: string) => {
-    emit('updateRole', role); // Emit ค่า role
+    localStorage.setItem('updateRole', role); 
     console.log(role)
     router.push({ path: '/dashboard' }); // เปลี่ยนเส้นทางไปที่ dashboard
 };
