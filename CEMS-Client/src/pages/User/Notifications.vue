@@ -8,7 +8,7 @@
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 import { ref,computed } from 'vue';
-import { useNotification } from '../../store/NotificationStore';
+import { useNotification } from '../../store/notification';
 import { onMounted } from 'vue';
 import CardNotification from '../../components/template/CardNotification.vue';
 

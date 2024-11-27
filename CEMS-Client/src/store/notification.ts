@@ -1,6 +1,6 @@
 import axios from "axios";
 import { defineStore } from "pinia";
-import { Notification } from '../types/NotificationTypes';
+import { Notification } from '../types/index';
 
 export const useNotification = defineStore('notifications', {
 
