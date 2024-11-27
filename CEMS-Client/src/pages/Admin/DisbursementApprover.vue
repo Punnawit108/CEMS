@@ -13,9 +13,12 @@ import Icon from '../../components/template/CIcon.vue';
 import Button from '../../components/template/Button.vue';
 import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
+import { User } from '../../types';
 
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isAddPage = ref(false);
+let userNotRepeatWithApprovers = ref<User[]>([]);
+const selectedUserId = ref<string>("");
 
 // ใช้ Vue Router
 const router = useRouter();
@@ -40,19 +43,22 @@ onMounted(async () => {
   await approvalStore.getApprovers();
   await userStore.getAllUsers();
 
-
-  const userNotRepeatWithApprovers = userStore.users.filter((user:any) => {
-    return !approvalStore.approvers.map(approver =>  approver.usrId).includes(user.usrId);
+  // filter only people doesn't in approver
+  userNotRepeatWithApprovers.value = userStore.users.filter((user:any) => {
+    return !(approvalStore.approvers.map(approver =>  approver.usrId)).includes(user.usrId);
   })
 
-  console.log(userNotRepeatWithApprovers);
-  
   if (route.path === '/systemSettings/disbursementApprover/add') {
     isAddPage.value = true;
   } else {
     isAddPage.value = false;
   }
 });
+
+const addApprover = async() => {
+  await approvalStore.addApprovers(selectedUserId.value);
+}
+
 
 </script>
 <!-- path for test = /systemSettings/disbursementApprover -->
@@ -65,7 +71,7 @@ onMounted(async () => {
       <div v-if="isAddPage">
         <Button :type="'btn-cancleBorderGray'" @click="goToList">ยกเลิก</Button>
         <span class="ml-5"></span>
-        <Button :type="'btn-summit'" @click="goToList" class="ml-5">ยืนยัน</Button>
+        <Button :type="'btn-summit'" @click="addApprover" class="ml-5">ยืนยัน</Button>
       </div>
       <div v-else>
         <Button :type="'btn-expense'" @click="goToAdd">ผู้มีสิทธิอนุมัติ</Button>
@@ -120,10 +126,10 @@ onMounted(async () => {
         <div class="w-full pl-1.5">
           <form class="grid">
             <div class="relative">
-              <select required
-                class="appearance-none flex justify-between w-[400px] bg-white border-solid border-[#B6B7BA] border rounded py-2.5 p-4 focus:outline-none ">
+              <select required v-model="selectedUserId"
+                class="appearance-none flex justify-between w-[400px] bg-white border-solid border-[#B6B7BA] border rounded py-2.5 p-4 focus:outline-none">
                 <option value="" disabled selected hidden class="placeholder">เลือกชื่อ-นามสกุล</option>
-                <option class="font-sm text-base" value="item" v-for="user in userStore.users">{{ user.usrFirstName }}
+                <option class="font-sm text-base" :value="user.usrId" v-for="user in userNotRepeatWithApprovers">{{ user.usrFirstName }}
                   {{ user.usrLastName }}</option>
               </select>
             </div>
