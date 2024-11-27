@@ -24,6 +24,7 @@ public class ApprovalController : ControllerBase
 
         var acceptorList = await _context.CemsApprovers.Include(e => e.ApUsr).Select(e => new
         {
+            e.ApUsr.UsrId,
             e.ApUsr.UsrFirstName,
             e.ApUsr.UsrLastName,
             e.ApSequence
@@ -34,7 +35,17 @@ public class ApprovalController : ControllerBase
 
     [HttpGet("progress/{requisitionId:int}")]
     public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId){
-        var approveProgress = await _context.CemsApproverRequistions
+        var disbursement = await _context.CemsRequisitions
+        .Where(e => e.RqId == requisitionId)
+        .Select(e => new {
+            e.RqId,
+            e.RqStatus,
+            e.RqProgress,
+            e.RqDatePay,
+            e.RqDateWithdraw
+        }).ToListAsync();
+
+        var acceptor = await _context.CemsApproverRequistions
         .Where(e => e.AprRqId == requisitionId)
         .Include(e => e.AprRq)
         .Include(e => e.AprAp) 
@@ -49,12 +60,19 @@ public class ApprovalController : ControllerBase
         .OrderBy(e => e.AprId)
         .ToListAsync();
 
-        return Ok(approveProgress);
+        var progress = new {
+            disbursement,
+            acceptor
+        };
+
+
+
+        return Ok(progress);
     }
 
         // Req => usrFirstName, usrLastName
-    [HttpPost("approve")]
-    public async Task<ActionResult> ApproveRequisition([FromBody] CemsApprover approver)
+    [HttpPost]
+    public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
     {
         _context.CemsApprovers.Add(approver);
         await _context.SaveChangesAsync();
@@ -67,8 +85,8 @@ public class ApprovalController : ControllerBase
         );
     }
 
-    [HttpPost]
-    public async Task<ActionResult> AddApprover([FromBody] CemsApproverRequistion approverRequistion)
+    [HttpPost("approve")]
+    public async Task<ActionResult> ApproveRequisition([FromBody] CemsApproverRequistion approverRequistion)
     {
         _context.CemsApproverRequistions.Add(approverRequistion);
         await _context.SaveChangesAsync();
