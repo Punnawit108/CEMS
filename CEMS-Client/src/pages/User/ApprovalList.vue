@@ -18,7 +18,7 @@ const router = useRouter();
 //   router.push(`/approval/history/detail/${id}`);
 // };
 import { ref, computed, onMounted } from "vue";
-import { useTodoStore } from "../../store/ApprovalListStore";
+import { useTodoStore } from "../../store/approvalList";
 
 const store = useTodoStore();
 const currentPage = ref(1);
