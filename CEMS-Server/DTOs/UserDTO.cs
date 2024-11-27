@@ -6,15 +6,15 @@ namespace CEMS_Server.DTOs
 
         public string UsrEmployeeId { get; set; } = null!;
 
-        public string UsrRolName { get; set; }
+        public string UsrRolName { get; set; } = null!;
 
-        public string UsrCpnName { get; set; }
+        public string UsrCpnName { get; set; } = null!;
 
-        public string UsrPstName { get; set; }
+        public string UsrPstName { get; set; } = null!;
 
-        public string UsrDptName { get; set; }
+        public string UsrDptName { get; set; } = null!;
 
-        public string UsrStName { get; set; }
+        public string UsrStName { get; set; } = null!;
 
         public string UsrFirstName { get; set; } = null!;
 

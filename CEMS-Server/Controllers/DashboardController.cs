@@ -30,12 +30,9 @@ public class DashboardController : ControllerBase
             .Select(u => new DashboardUserGetDto
             {
                 RqId = u.RqId,
-                RqPjId = u.RqPjId,
                 PjName = u.RqPj.PjName,
-                RqDateWithdraw = u.RqDateWithdraw,
                 RqExpenses = u.RqExpenses,
                 PjAmountExpenses = u.RqPj.PjAmountExpenses,
-                RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqRqtId = u.RqRqtId,
                 RqtName = u.RqRqt.RqtName,
@@ -79,8 +76,8 @@ public class DashboardController : ControllerBase
     public async Task<ActionResult<IEnumerable<DashboardAdminGetDto>>> GetDashboardAdmin()
     {
         var requisition = await _context
-            .CemsApproverRequistion.Include(e => e.AprRq)
-            .CemsRequisitions.Include(e => e.RqUsr)
+            .CemsApproverRequistions.Include(e => e.AprRq)
+            .Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Where(u => u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
@@ -104,7 +101,7 @@ public class DashboardController : ControllerBase
 
 //Accountant
     [HttpGet("accountant")]
-    public async Task<ActionResult<IEnumerable<DashboardAccountant>>> GetDashboardAccountant()
+    public async Task<ActionResult<IEnumerable<DashboardAccountantGetDto>>> GetDashboardAccountant()
     {
         var requisition = await _context
             .CemsApproverRequistion.Include(e => e.AprRq)

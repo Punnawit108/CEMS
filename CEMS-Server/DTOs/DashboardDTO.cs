@@ -3,98 +3,95 @@ namespace CEMS_Server.DTOs
     //ของ User
     public class DashboardUserGetDto
     {
-        public int RqId { get; }
+        public int RqId { get; set; }
 
-        public int RqPjId { get; }
+        public string PjName { get; set; } = null!;
 
-        public string PjName { get; }
+        public double RqExpenses { get; set; }
 
-        public double RqExpenses { get; }
+        public double PjAmountExpenses { get; set; }
 
-        public double PjAmountExpenses { get; }
+        public string RqStatus { get; set; } = null!;
 
-        public enum RqStatus { get; } = null!; 
+        public int RqRqtId { get; set; }
 
-        public int RqRqtId { get; }
+        public string RqtName { get; set; } = null!;
 
-        public string RqtName { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
-        public RqDateWithdraw { get; }
+    }
 
-}
+    //ของ Approver
+    public class DashboardApproverGetDto
+    {
+        public int AprRqId { get; set; }
 
-//ของ Approver
-public class DashboardApproverGetDto
-{
-    public int AprRqId { get; }
+        public int AprId { get; set; }
 
-    public int AprId { get; }
+        public int RqPjId { get; set; }
 
-    public int RqPjId { get; }
+        public string PjName { get; set; } = null!;
 
-    public string PjName { get; }
+        public double RqExpenses { get; set; }
 
-    public double RqExpenses { get; }
+        public double PjAmountExpenses { get; set; }
 
-    public double PjAmountExpenses { get; }
+        public string RqStatus { get; set; } = null!;
 
-    public enum RqStatus { get; } = null!; 
+        public int RqRqtId { get; set; }
 
-    public int RqRqtId { get; }
+        public string RqtName { get; set; } = null!;
 
-    public string RqtName { get; }
-
-    public RqDateWithdraw { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
     }
 
     //ของ Admin
     public class DashboardAdminGetDto
-{
-    public int UsrId { get; }
+    {
+        public int UsrId { get; set; }
 
-    public int RqPjId { get; }
+        public int RqPjId { get; set; }
 
-    public string PjName { get; }
+        public string PjName { get; set; } = null!;
 
-    public double RqExpenses { get; }
+        public double RqExpenses { get; set; }
 
-    public double PjAmountExpenses { get; }
+        public double PjAmountExpenses { get; set; }
 
-    public enum RqStatus { get; } = null!; 
+        public string RqStatus { get; set; } = null!;
 
-    public int RqRqtId { get; }
+        public int RqRqtId { get; set; }
 
-    public string RqtName { get; }
+        public string RqtName { get; set; } = null!;
 
-    public RqDateWithdraw { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
     }
 
     //ของ Accountant
     public class DashboardAccountantGetDto
-{
-    public int AprRqId { get; }
+    {
+        public int AprRqId { get; set; }
 
-    public int AprId { get; }
+        public int AprId { get; set; }
 
-    public int RqPjId { get; }
+        public int RqPjId { get; set; }
 
-    public string PjName { get; }
+        public string PjName { get; set; } = null!;
 
-    public double RqExpenses { get; }
+        public double RqExpenses { get; set; }
 
-    public double PjAmountExpenses { get; }
+        public double PjAmountExpenses { get; set; }
 
-    public enum RqStatus { get; } = null!; 
+        public string RqStatus { get; set; } = null!;
 
-    public int RqRqtId { get; }
+        public int RqRqtId { get; set; }
 
-    public string RqtName { get; }
+        public string RqtName { get; set; } = null!;
 
-    public RqDateWithdraw { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
     }
 }
 
-    
