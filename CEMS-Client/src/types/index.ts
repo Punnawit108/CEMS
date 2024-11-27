@@ -40,15 +40,16 @@ export interface Approval {
 }
 
 export interface ExpenseManage{
-    rqtId: number;
+    rqtId?: number;
     rqtName: string;
+    
 }
 
 export interface TravelManage {
-    vhId: number;
+    vhId?: number;
     vhType: string;
     vhVehicle: string;
-    vhPayrate: number | null;
+    vhPayrate?: number | null;
 }
 
 export interface User {
@@ -129,4 +130,12 @@ export interface DashboardForAdmin {
     rqSumOfExpense: number ;
     pjAll: number ;
     rqSumExpense: number ;
+}
+//ข้อมูล notification
+export interface Notification{
+    id:number,
+    idWithdraw:number,
+    nameProject:string,
+    statusNoti:boolean,
+    description:string,
 }

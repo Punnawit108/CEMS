@@ -315,11 +315,11 @@ const router = createRouter({
     },
     //เพิ่มผู้อนุมัติการเบิกจ่าย
     {
-      path: '/systemSettings/disbursementApprover/add',
-      name: 'systemSettingsDisbursementApproverAdd',
+      path: '/systemSettings/disbursementApprover/edit',
+      name: 'systemSettingsDisbursementApproverEdit',
       component: DisbursementApprover,
       meta: {
-        breadcrumb: 'เพิ่มผู้อนุมัติการเบิกจ่าย',
+        breadcrumb: 'แก้ไขผู้อนุมัติการเบิกจ่าย',
         parent: 'systemSettingsDisbursementApprover'
       }
     },
