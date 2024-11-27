@@ -6,6 +6,8 @@
 * Output: -
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* แก้ไข: 27 พฤศจิกายน 2567
+* คำอธิบาย: ดึงapiมาแสดง
 */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
