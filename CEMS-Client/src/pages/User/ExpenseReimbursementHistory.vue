@@ -7,14 +7,26 @@
  * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
  * วันที่จัดทำ / วันที่แก้ไข : 11 พฤศจิกายน 2567
  */
+
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
+import StatusBudge from '../../components/template/StatusBudge.vue';
 import Ctable from '../../components/template/Ctable.vue';
+import { useExpenseReimbursementHistory } from '../../store/expenseReimbursementHistoryStore';
+import { onMounted } from 'vue';
+
 const router = useRouter();
+const ExpenseReimbursementHistory = useExpenseReimbursementHistory();
+
+onMounted (()=>{
+    ExpenseReimbursementHistory.getAllExpenseReimbursementHistory();
+})
 
 const toDetails = (id: string) => {
     router.push(`/payment/history/detail/${id}`);
 }
+
+
 </script>
 <!-- path for test = /approval/history -->
 <template>
@@ -93,31 +105,34 @@ const toDetails = (id: string) => {
     <div class="w-full  border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
         <!-- ตาราง -->
         <div>
-            <Ctable :table="'Table9-head'" />
+            <Ctable :table="'Table9-head-New'" />
         </div>
-        <table class="w-full">
+        <table class="table-auto w-full text-center text-black">
             <tbody>
-                <tr class=" text-[14px] border-b-2 border-[#BBBBBB]">
-                    <th class="py-[12px] px-2 w-14">1</th>
+                <tr v-for="(ExpenseReimbursementHistory,index) in ExpenseReimbursementHistory.expenseReimbursementHistory" :key="ExpenseReimbursementHistory.id" class=" text-[14px] border-b-2 border-[#BBBBBB]">
+                    <th class="py-[12px] px-2 w-14">{{index}}</th>
                     <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                         style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                         title="นายเทียนชัย คูเมือง">
-                        นายเทียนชัย คูเมือง
+                        {{ ExpenseReimbursementHistory.name }}
                     </th>
                     <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                         style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                         title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                        กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                        {{ ExpenseReimbursementHistory.project }}
                     </th>
-                    <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
-                    <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
-                    <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
-                    <th class="py-[12px] px-2 w-28 text-center text-green-500">นำจ่ายแล้ว</th>
-                    <th class="py-[10px] px-2 w-20 text-center ">
-                        <span class="flex justify-center" v-on:click="toDetails">
-                            <Icon :icon="'viewDetails'" />
-                        </span>
-                    </th>
+                    <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ExpenseReimbursementHistory.expenseType}}</th>
+                    <th class="py-[12px] px-2 w-20 text-end ">{{ExpenseReimbursementHistory.date}}</th>
+                    <th class="py-[12px] px-2 w-40 text-end ">{{ExpenseReimbursementHistory.amount}}</th>
+                        <th class="py-[12px] px-2 w-32 text-center "><span>
+                                <StatusBudge :status="'sts-approve'"></StatusBudge>
+                            </span>
+                        </th>
+                        <th class="py-[10px] px-2 w-24 text-center ">
+                            <span v-on:click="toDetails" class="flex justify-center ">
+                                <Icon :icon="'viewDetails'" />
+                            </span>
+                        </th>
                 </tr>
             </tbody>
         </table>
