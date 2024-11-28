@@ -56,7 +56,7 @@ public class DashboardController : ControllerBase
     public async Task<ActionResult<IEnumerable<DashboardApproverGetDto>>> GetDashboardApprover()
     {
         var requisition = await _context
-        .CemsApproverRequistion.Include(e => e.AprRq)
+        .CemsApproverRequistions.Include(e => e.AprRq)
             .Include(e => e.AprRq.RqPj)
             .Include(e => e.AprRq.RqRqt)
             .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept")
@@ -81,7 +81,7 @@ public class DashboardController : ControllerBase
     public async Task<ActionResult<IEnumerable<DashboardAdminGetDto>>> GetDashboardAdmin()
     {
         var requisition = await _context
-            .CemsApproverRequistion.Include(e => e.AprRq)
+            .CemsApproverRequistions.Include(e => e.AprRq)
             .Include(e => e.AprRq.RqUsr)
             .Include(e => e.AprRq.RqPj)
             .Include(e => e.AprRq.RqRqt)
@@ -106,7 +106,7 @@ public class DashboardController : ControllerBase
     public async Task<ActionResult<IEnumerable<DashboardAccountantGetDto>>> GetDashboardAccountant()
     {
         var requisition = await _context
-            .CemsApproverRequistion.Include(e => e.AprRq)
+            .CemsApproverRequistions.Include(e => e.AprRq)
             .Include(e => e.AprRq.RqPj)
             .Include(e => e.AprRq.RqRqt)
             .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม

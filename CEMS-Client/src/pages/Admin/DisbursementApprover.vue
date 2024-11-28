@@ -7,20 +7,17 @@
  * ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
  * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
  */
-import { ref, onMounted, computed } from "vue";
-import { useRouter, useRoute } from "vue-router";
+import { ref, onMounted } from "vue";
+import { useRoute } from "vue-router";
 import Icon from "../../components/template/CIcon.vue";
 import Button from "../../components/template/Button.vue";
-import { useDisbursement } from "../../store/disbursement";
-import { defineProps } from 'vue';
+import { useApprovalStore } from "../../store/approval";
+import { useUserStore } from "../../store/user";
+import { User } from "../../types";
 
-const props = defineProps<{
-    icon: String
-    size?: 80; // เพิ่ม props สำหรับขนาด
-}>();
+const approvalStore = useApprovalStore();
+const userStore = useUserStore();
 
-// ใช้ DisbursementStore
-const disbursement = useDisbursement();
 
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isEditPage = ref(false);
@@ -29,9 +26,10 @@ const isPopupEditOpen = ref(false); // สำหรับเปิด/ปิด 
 const newApproverName = ref(""); // เก็บค่าชื่อที่เพิ่มใหม่
 const isAddAlertOpen = ref(false); // ควบคุมการแสดง Alert Add
 const isEditAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
+let userNotRepeatWithApprovers = ref<User[]>();
+const selectUserId = ref<string>("");
 
 // ใช้ Vue Router
-const router = useRouter();
 const route = useRoute();
 
 // เปิด PopupAdd ผู้อนุมัติ
@@ -55,34 +53,14 @@ const closePopupEdit = () => {
 };
 
 
-// บันทึกข้อมูลผู้มีสิทธิอนุมัติใหม่
-const saveApprover = () => {
-  if (newApproverName.value.trim()) {
-    disbursement.disbursement.push({
-      id: Date.now(),
-      name: newApproverName.value,
-    }); // เพิ่มข้อมูลใหม่
-    closePopupAdd();
-  } else {
-    alert("กรุณากรอกชื่อผู้มีสิทธิอนุมัติ");
-  }
-};
-
-// คำนวณค่ามากที่สุดของ index + 1
-const maxIndexPlusOne = computed(() => {
-  return disbursement.disbursement.length;
-});
-
-
-const confirmAdd = () => {
+const confirmAdd = async() => {
   // เปิด Popup Alert
+
+  await approvalStore.addApprovers(selectUserId.value);
   isAddAlertOpen.value = true;
 
-  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
-  setTimeout(() => {
-    isAddAlertOpen.value = false; // ปิด Alert
-    closePopupAdd(); // ปิด Popup แก้ไข
-  }, 1500); // 1.5 วินาที
+  isAddAlertOpen.value = false;
+  closePopupAdd();
 };
 
 const confirmEdit = () => {
@@ -97,8 +75,14 @@ const confirmEdit = () => {
 };
 
 // ตรวจสอบ path เมื่อ component โหลด
-onMounted(() => {
-  disbursement.getAllDisbursement();
+onMounted(async() => {
+  await approvalStore.getApprovers();
+  await userStore.getAllUsers();
+
+  userNotRepeatWithApprovers.value = userStore.users.filter((user:any) => {
+    return !approvalStore.approvers.map((approver) => approver.usrId).includes(user.usrId)
+  })
+  
   if (route.path === "/systemSettings/disbursementApprover/edit") {
     isEditPage.value = true;
   } else {
@@ -153,16 +137,16 @@ onMounted(() => {
         <p class="w-56 text-end pr-2">จัดการ</p>
       </div>
       <!-- แถบเนื้อหา -->
-      <div v-for="(Disbursement, index) in disbursement.disbursement" :key="Disbursement.id"
+      <div v-for="(approver, index) in approvalStore.approvers" :key="approver.usrId"
         class="h-[50px] flex items-center justify-between text-[14px] text-black border-b border-[#BBBBBB]">
         <p class="w-20 pl-6">{{ index + 1 }}</p>
-        <p class="w-4/5 pl-2">{{ Disbursement.name }}</p>
+        <p class="w-4/5 pl-2">{{ approver.usrFirstName }} {{ approver.usrLastName }}</p>
         <div class="ml-5 w-52 text-center flex items-center justify-between">
           <div class="">
             <select disabled
               class="appearance-none w-full h-[32px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-1 text-[14px]">
-              <option v-for="i in maxIndexPlusOne" :key="i" :value="i">
-                {{ "ลำดับที่ " + i }}
+              <option>
+                {{ approver.apSequence }}
               </option>
             </select>
           </div>
@@ -183,13 +167,12 @@ onMounted(() => {
         <div class="w-full my-3 flex justify-center">
           <form>
             <div class="relative">
-              <select required
+              <select required v-model="selectUserId"
                 class="appearance-none w-[350px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" value="item1">นาย ก.</option>
-                <option class="text-black" value="item2">นาย ข.</option>
+                <option class="text-black" :value="user.usrId" v-for = "user in userNotRepeatWithApprovers" >{{ user.usrFirstName }} {{ user.usrLastName }}</option>
               </select>
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
@@ -246,9 +229,9 @@ onMounted(() => {
             <option value="" disabled selected hidden>
               ลำดับผู้อนุมัติ
             </option>
-            <option v-for="i in maxIndexPlusOne" :key="i" :value="i" class="text-black">
+            <!-- <option v-for="i in maxIndexPlusOne" :key="i" :value="i" class="text-black">
               {{ "ลำดับที่ " + i }}
-            </option>
+            </option> -->
           </select>
         </div>
 

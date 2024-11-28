@@ -14,7 +14,7 @@ export const useApprovalStore = defineStore('approval', {
                 console.log(err)
             }
         },
-        async addApprovers(usrId:string) {
+        async addApprovers(usrId:any) {
             try {
                 await axios.post(`${import.meta.env.VITE_BASE_URL}/api/approval`,{apUsrId : usrId})
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approval`)
