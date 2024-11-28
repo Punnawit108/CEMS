@@ -61,7 +61,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept") // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
@@ -88,7 +88,7 @@ public class ExpenseController : ControllerBase
 
         return Ok(requisition);
     }
-    
+
     // Expense report list
     [HttpGet("report")]
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
@@ -98,6 +98,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "complete")
             .Select(u => new ExpenseReportDto
             {
                 RqId = u.RqId,
@@ -115,22 +116,24 @@ public class ExpenseController : ControllerBase
 
     // Expense report graph
     [HttpGet("graph")]
-    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
+    public async Task<ActionResult<IEnumerable<ExpenseGraphDto>>> GetExpenseGraph()
     {
         var requisition = await _context
             .CemsRequisitions
             .Include(e => e.RqRqt)
-            .Select(u => new ExpenseGraphDto
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "complete")
+            .GroupBy(e => e.RqRqt.RqtName)
+            .Select(g => new
             {
-                RqRqtId = u.RqRqt.RqtId,
-                RqRqtName = u.RqRqt.RqtName,
-                // RqSumExpenses
+                RqRqtName = g.Key,
+                RqSumExpenses = g.Sum(u => u.RqExpenses)
             })
             .ToListAsync();
 
         return Ok(requisition);
+
     }
-    
+
     //get by id
     [HttpGet("{id}")]
     public async Task<ActionResult<ExpenseGetDto>> GetExpenseById(int id)
