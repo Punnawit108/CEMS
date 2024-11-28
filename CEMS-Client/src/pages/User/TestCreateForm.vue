@@ -10,23 +10,25 @@
 import { onMounted, ref } from "vue";
 // import VueDatePicker from "@vuepic/vue-datepicker";
 import Button from "../../components/template/Button.vue";
-import { createTodo } from "../../store/createExpenseForm"; // Import createTodo function
-import { useDropdown } from "../../store/requisition";
+import { useRequisitionStore } from "../../store/requisition";
 
-const dropdownStore = useDropdown();
+const requisitionStore = useRequisitionStore();
+
+
 
 onMounted(async () => {
-  const projectData = await dropdownStore.getAllProject();
-  const requisitionTypeData = await dropdownStore.getAllRequisitionType();
-  const vehicleTypeData = await dropdownStore.getAllvehicleType();
+  const projectData = await requisitionStore.getAllProject();
+  const requisitionTypeData = await requisitionStore.getAllRequisitionType();
+  const vehicleTypeData = await requisitionStore.getAllvehicleType();
 });
+
 // import "@vuepic/vue-datepicker/dist/main.css";
 
 const date = ref();
 const expenseOptions = ref(["ค่าเดินทาง", "ค่าอาหาร"]);
-const rqRqtName = ref("ค่าเดินทาง");
+ const rqRqtName = ref("ค่าเดินทาง");
 const selectedTravelType = ref();
-const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
+ const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
 const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
 const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
@@ -147,35 +149,35 @@ const onFileChange = (event) => {
   }
 };
 
-const handleSubmit = async () => {
-  // ตรวจสอบข้อมูลก่อนส่ง
-  if (!formData.value.rqName) {
-    alert("กรุณากรอกชื่อรายการเบิก!");
-    return;
-  }
-  if (!formData.value.rqDatePay) {
-    alert("กรุณากรอกวันที่เกิดค่าใช้จ่าย!");
-    return;
-  }
-  if (rqRqtName.value !== "ค่าอาหาร" && !formData.value.rqStartLocation) {
-    alert("กรุณากรอกสถานที่เริ่มต้น!");
-    return;
-  }
+// const handleSubmit = async () => {
+//   // ตรวจสอบข้อมูลก่อนส่ง
+//   if (!formData.value.rqName) {
+//     alert("กรุณากรอกชื่อรายการเบิก!");
+//     return;
+//   }
+//   if (!formData.value.rqDatePay) {
+//     alert("กรุณากรอกวันที่เกิดค่าใช้จ่าย!");
+//     return;
+//   }
+//   if (rqRqtName.value !== "ค่าอาหาร" && !formData.value.rqStartLocation) {
+//     alert("กรุณากรอกสถานที่เริ่มต้น!");
+//     return;
+//   }
 
-  try {
-    // ส่งข้อมูลไปยัง API
-    await createTodo(formData.value);
-    alert("ส่งข้อมูลสำเร็จ!");
-    resetForm(); // รีเซ็ตฟอร์มหลังจากส่งข้อมูล
-  } catch (error: AxiosError) {
-    console.error("Error submitting data:", error.response?.data);
-    alert(
-      `เกิดข้อผิดพลาด: ${
-        error.response?.data?.message || "ไม่สามารถส่งข้อมูลได้"
-      }`
-    );
-  }
-};
+//   try {
+//     // ส่งข้อมูลไปยัง API
+//     await createExpense(formData.value);
+//     alert("ส่งข้อมูลสำเร็จ!");
+//     resetForm(); // รีเซ็ตฟอร์มหลังจากส่งข้อมูล
+//   } catch (error: AxiosError) {
+//     console.error("Error submitting data:", error.response?.data);
+//     alert(
+//       `เกิดข้อผิดพลาด: ${
+//         error.response?.data?.message || "ไม่สามารถส่งข้อมูลได้"
+//       }`
+//     );
+//   }
+// };
 
 const handleCancel = () => {
   // Reset form data or navigate away
@@ -217,9 +219,9 @@ const resetForm = () => {
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
     <!-- btn -->
     <div class="flex justify-end gap-4">
-      <Button :type="'btn-save'"></Button>
-      <Button :type="'btn-cancleBorderGray'"></Button>
-      <Button :type="'btn-summit'"></Button>
+      <Button :type="'btn-save'" @click="handleSave">บันทึก</Button>
+      <Button :type="'btn-cancel'" @click="handleCancel">ยกเลิก</Button>
+      <Button :type="'btn-submit'" @click="handleSubmit">ส่ง</Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
@@ -286,7 +288,7 @@ const resetForm = () => {
               >
                 <option disabled selected>เลือกโครงการ</option>
                 <option
-                  v-for="project in dropdownStore.projects"
+                  v-for="project in requisitionStore.projects"
                   :key="project.pjId"
                   :value="project.pjId"
                 >
@@ -322,13 +324,13 @@ const resetForm = () => {
             <div class="relative">
               <select
                 id="selectExpenseType"
-                v-model="rqtName"
+                v-model="rqRqtName"
                 @change="handleSelectChange"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
                 <option disabled selected>เลือกประเภทค่าใช้จ่าย</option>
                 <option
-                  v-for="requisitionTypeData in dropdownStore.requisitionType"
+                  v-for="requisitionTypeData in requisitionStore.requisitionType" 
                   :key="requisitionTypeData.rqtId"
                   :value="requisitionTypeData.rqtId"
                 >
@@ -361,7 +363,7 @@ const resetForm = () => {
               <select
                 id="travelType"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                v-model="dropdownStore.selectedTravelType"
+                v-model="requisitionStore.selectedTravelType"
               >
                 <option value="">เลือกประเภทการเดินทาง</option>
                 <option value="private">ประเภทส่วนตัว</option>
@@ -388,7 +390,7 @@ const resetForm = () => {
               >
                 <option value="">เลือกประเภทรถ</option>
                 <option
-                  v-for="vehicle in dropdownStore.filteredVehicleType"
+                  v-for="vehicle in requisitionStore.filteredVehicleType"
                   :key="vehicle.vehicleType"
                   :value="vehicle.vehicleType"
                 >
