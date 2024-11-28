@@ -17,6 +17,49 @@ import { onMounted } from 'vue';
 
 const expense = useExpense();
 const router = useRouter();
+// const toDetails = (id: number) => {
+//   router.push(`/approval/history/detail/${id}`);
+// };
+import { ref, computed, onMounted } from "vue";
+import { useTodoStore } from "../../store/approvalList";
+
+const store = useTodoStore();
+const currentPage = ref(1);
+const itemsPerPage = ref(15);
+const table = ref("Table1-footer");
+
+const totalPages = computed(() => {
+  return Math.ceil(store.todos.length / itemsPerPage.value);
+});
+
+const paginatedTodos = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return store.todos.slice(start, end);
+});
+
+// Calculate remaining rows to fill the table
+const remainingRows = computed(() => {
+  const totalRows = itemsPerPage.value;
+  const rowsOnPage = paginatedTodos.value.length;
+  return totalRows - rowsOnPage;
+});
+const loadTodos = async () => {
+  await store.loadTodos();
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
 onMounted(() => {
     expense.getAllApprovalList()
 })
