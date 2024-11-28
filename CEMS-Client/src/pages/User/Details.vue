@@ -28,10 +28,14 @@ onMounted(async () => {
   expenseData.value = await detailStore.getRequisition(id);  
 })
 
-
+console.log(progressData)
 // FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่
 const isApprovalPath = computed(() => {
-  return route.path.includes('approver') && route.path.includes('list');
+  return route.path.includes('approval') && route.path.includes('list');
+});
+
+const isEditPath = computed(() => {
+  
 });
 
 const colorStatus: { [key: string]: string } = {
@@ -40,37 +44,11 @@ const colorStatus: { [key: string]: string } = {
   accept: "#12B669",
   waiting: "#1976D2",
   sketch: "#B6B7BA",
+  paying: "#1976D2",
+  complete: "#12B669",
 };
 
 // แนบตรง disbursement เพิ่ม
-const progressInfo = {
-  disbursement: {
-    status: "accept",  
-    datetime: "10/02/67 10:52",
-  },
-  acceptor: [
-    {
-      name: "นายพรชัย เพิ่มพูลกิจ",
-      status: "accept",
-      datetime: "10/02/67 10:52",
-    },
-    {
-      name: "นายจักรวาล ร่วมนิคม",
-      status: "waiting",
-      datetime: null,
-    },
-    {
-      name: "นายพงศธร บุญญามา",
-      status: "edit",
-      datetime: "10/02/67 10:52",
-    },
-    {
-      name: "นายจักวรรดิ หงวนเจริญ",
-      status: "reject",
-      datetime: "10/02/67 10:52",
-    },
-  ],
-};
 
 
 </script>
@@ -85,7 +63,7 @@ const progressInfo = {
   <!-- content -->
   <div v-if="expenseData" class="ml-[16px] ">
 
-    <div class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]">
+    <div v-if="expenseData.rqReason === 'edit'" class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]">
       <div class="flex justify-between">
         <p class="!text-[#ED0000] font-bold">เหตุผลส่งกลับ :</p>
         <p class="!text-[#FF0000]">วันที่ส่งกลับ : 11/09/2567</p>
@@ -111,8 +89,8 @@ const progressInfo = {
     <div class="flex justify-between">
       <div class="left w-[80%]">
         <h3 class="text-base font-bold text-black">
-          เบิกค่าใช้จ่าย<span :class="`bg-[${colorStatus[statusDetail]}]`"
-            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">แก้ไข</span>
+          เบิกค่าใช้จ่าย<span :class="`bg-[${colorStatus[expenseData.rqStatus]}]`"
+            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{expenseData.rqStatus}}</span>
         </h3>
         <div  class="row flex justify-around">
           <div class="col">
