@@ -17,8 +17,8 @@ import { useExpenseReimbursementList } from '../../store/expenseReimbursementLis
 const router = useRouter();
 const ExpenseReimbursementList = useExpenseReimbursementList();
 
-onMounted(() => {
-    ExpenseReimbursementList.getAllExpenseReimbursementList();
+onMounted(async () => {
+    await ExpenseReimbursementList.getAllExpenseReimbursementList();
 });
 
 // ไปหน้า detail
@@ -68,30 +68,25 @@ const confirmDelete = async () => {
             <Ctable :table="'Table9-head-New'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr 
-                        v-for="(ExpenseReimbursementList, index) in ExpenseReimbursementList.expenseReimbursementList" 
-                        :key="ExpenseReimbursementList.id" 
-                        class="text-[14px] border-b-2 border-[#BBBBBB]"
-                    >
-                        <th class="py-[12px] px-2 w-14">{{ index }}</th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden" 
-                            :title="ExpenseReimbursementList.name"
-                        >
-                            {{ ExpenseReimbursementList.name }}
+                    <tr v-for="(ExpenseReimbursementList, index) in ExpenseReimbursementList.expenseReimbursementList"
+                        :key="ExpenseReimbursementList.rqId" class="text-[14px] border-b-2 border-[#BBBBBB]">
+                        <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
+                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                            :title="ExpenseReimbursementList.rqUsrName">
+                            {{ ExpenseReimbursementList.rqUsrName }}
                         </th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden" 
-                            :title="ExpenseReimbursementList.project"
-                        >
-                            {{ ExpenseReimbursementList.project }}
+                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                            :title="ExpenseReimbursementList.rqName">
+                            {{ ExpenseReimbursementList.rqName }}
                         </th>
                         <th class="py-[12px] px-5 w-32 text-start font-[100]">
-                            {{ ExpenseReimbursementList.expenseType }}
+                            {{ ExpenseReimbursementList.rqPjName }}
                         </th>
                         <th class="py-[12px] px-2 w-20 text-end">
-                            {{ ExpenseReimbursementList.date }}
+                            {{ ExpenseReimbursementList.rqDatePay }}
                         </th>
                         <th class="py-[12px] px-2 w-40 text-end">
-                            {{ ExpenseReimbursementList.amount }}
+                            {{ ExpenseReimbursementList.rqExpenses }}
                         </th>
                         <th class="py-[12px] px-2 w-32 text-center">
                             <span>
@@ -101,7 +96,7 @@ const confirmDelete = async () => {
                         <th class="py-[10px] px-2 w-24 text-center">
                             <span class="flex justify-center">
                                 <Icon :icon="'viewDetails'" v-on:click="toDetails" />
-                                <Icon :icon="'bin'" @click="openConfirmationModal(ExpenseReimbursementList.id)" />
+                                <Icon :icon="'bin'" @click="openConfirmationModal(ExpenseReimbursementList.rqId)" />
                             </span>
                         </th>
                     </tr>
@@ -124,7 +119,8 @@ const confirmDelete = async () => {
                     </svg>
                 </div>
                 <p class="text-2xl font-bold text-black mt-1 flex justify-center">ยืนยันการลบคำขอเบิกค่าใช้จ่าย</p>
-                <p class="text-lg font-bold text-[#B6B7BA] mt-1 flex justify-center">คุณยืนยันการลบคำขอเบิกค่าใช้จ่ายหรือไม่?</p>
+                <p class="text-lg font-bold text-[#B6B7BA] mt-1 flex justify-center">
+                    คุณยืนยันการลบคำขอเบิกค่าใช้จ่ายหรือไม่?</p>
                 <div class="modal-action flex justify-center">
                     <form method="dialog">
                         <!-- if there is a button in form, it will close the modal -->
@@ -136,7 +132,7 @@ const confirmDelete = async () => {
                     </form>
                 </div>
             </div>
-        </div>     
+        </div>
     </div>
 </template>
 

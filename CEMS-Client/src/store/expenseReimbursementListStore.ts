@@ -2,13 +2,13 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 interface ExpenseReimbursementList{
-    id:number;
-    name:string;
-    expenseType:string;
-    date:string;
-    amount:string;
-    status:number;
-    project:string;
+    rqId:number;
+    rqUsrName:string;
+    rqName:string;
+    rqDatePay:string;
+    rqExpenses:string;
+    rqStatus:number;
+    rqPjName:string;
 
 }
 export const useExpenseReimbursementList = defineStore('expenseReimbursementList', {
@@ -18,7 +18,7 @@ export const useExpenseReimbursementList = defineStore('expenseReimbursementList
     actions:{
         async getAllExpenseReimbursementList(){
             try{
-                const result = await axios.get(`https://66a40b0044aa6370458338c7.mockapi.io/api/UserSetting`)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list`)
                 this.expenseReimbursementList = result.data;
             }catch (error){
                 console.error("Failed to fetch ExpenseReimbursementList data:", error)
@@ -37,7 +37,7 @@ export const useExpenseReimbursementList = defineStore('expenseReimbursementList
             try {
               await axios.delete(`https://66a40b0044aa6370458338c7.mockapi.io/api/UserSetting/${id}`);
               
-              this.expenseReimbursementList = this.expenseReimbursementList.filter(item => item.id !== id);
+              this.expenseReimbursementList = this.expenseReimbursementList.filter(item => item.rqId !== id);
             } catch (error) {
               console.error(`Failed to delete item with id ${id}:`, error);
             }

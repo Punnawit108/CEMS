@@ -2,13 +2,13 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 interface ExpenseReimbursementHistory{
-    id:number;
-    name:string;
-    expenseType:string;
-    date:string;
-    amount:string;
-    status:number;
-    project:string;
+    rqId:number;
+    rqUsrName:string;
+    rqName:string;
+    rqDatePay:string;
+    rqExpenses:string;
+    rqStatus:number;
+    rqPjName:string;
 
 }
 export let useExpenseReimbursementHistory = defineStore('expenseReimbursementHistory', {
@@ -18,7 +18,7 @@ export let useExpenseReimbursementHistory = defineStore('expenseReimbursementHis
     actions:{
         async getAllExpenseReimbursementHistory(){
             try{
-                const result = await axios.get(`https://66a40b0044aa6370458338c7.mockapi.io/api/UserSetting`)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/History`)
                 this.expenseReimbursementHistory = result.data;
             }catch (error){
                 console.error("Failed to fetch ExpenseReimbursementHistory data:", error)
