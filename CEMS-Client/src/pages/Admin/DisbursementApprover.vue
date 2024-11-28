@@ -12,6 +12,12 @@ import { useRouter, useRoute } from "vue-router";
 import Icon from "../../components/template/CIcon.vue";
 import Button from "../../components/template/Button.vue";
 import { useDisbursement } from "../../store/disbursement";
+import { defineProps } from 'vue';
+
+const props = defineProps<{
+    icon: String
+    size?: 80; // เพิ่ม props สำหรับขนาด
+}>();
 
 // ใช้ DisbursementStore
 const disbursement = useDisbursement();
@@ -21,27 +27,12 @@ const isEditPage = ref(false);
 const isPopupAddOpen = ref(false); // สำหรับเปิด/ปิด Popup
 const isPopupEditOpen = ref(false); // สำหรับเปิด/ปิด Popup
 const newApproverName = ref(""); // เก็บค่าชื่อที่เพิ่มใหม่
+const isAddAlertOpen = ref(false); // ควบคุมการแสดง Alert Add
+const isEditAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
 
 // ใช้ Vue Router
 const router = useRouter();
 const route = useRoute();
-
-
-
-// ฟังก์ชันสำหรับไปหน้าแก้ไข
-const goToEdit = () => {
-  isEditPage.value = false;
-  router.push("/systemSettings/disbursementApprover/edit").then(() => {
-    window.location.reload(); // รีเฟรชหน้าเมื่อเปลี่ยนเส้นทางสำเร็จ
-  });
-};
-
-// ฟังก์ชันสำหรับกลับไปหน้ารายการ
-const goToList = () => {
-  isEditPage.value = false;
-  router.push("/systemSettings/disbursementApprover");
-};
-
 
 // เปิด PopupAdd ผู้อนุมัติ
 const openPopupAdd = () => {
@@ -81,6 +72,29 @@ const saveApprover = () => {
 const maxIndexPlusOne = computed(() => {
   return disbursement.disbursement.length;
 });
+
+
+const confirmAdd = () => {
+  // เปิด Popup Alert
+  isAddAlertOpen.value = true;
+
+  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
+  setTimeout(() => {
+    isAddAlertOpen.value = false; // ปิด Alert
+    closePopupAdd(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
+const confirmEdit = () => {
+  // เปิด Popup Alert
+  isEditAlertOpen.value = true;
+
+  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
+  setTimeout(() => {
+    isEditAlertOpen.value = false; // ปิด Alert
+    closePopupEdit(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
 
 // ตรวจสอบ path เมื่อ component โหลด
 onMounted(() => {
@@ -145,16 +159,14 @@ onMounted(() => {
         <p class="w-4/5 pl-2">{{ Disbursement.name }}</p>
         <div class="ml-5 w-52 text-center flex items-center justify-between">
           <div class="">
-            <select
-              disabled
-              class="appearance-none w-full h-[32px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-1 text-[14px]"
-            >
+            <select disabled
+              class="appearance-none w-full h-[32px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-1 text-[14px]">
               <option v-for="i in maxIndexPlusOne" :key="i" :value="i">
                 {{ "ลำดับที่ " + i }}
               </option>
             </select>
           </div>
-          
+
           <Icon :icon="'bin'" class="mx-3" />
         </div>
       </div>
@@ -172,7 +184,7 @@ onMounted(() => {
           <form>
             <div class="relative">
               <select required
-                class="appearance-none w-[350px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-[#bfbfbf] focus:outline-none">
+                class="appearance-none w-[350px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
@@ -193,7 +205,7 @@ onMounted(() => {
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button @click="saveApprover"
+          <button @click="confirmAdd"
             class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
@@ -211,7 +223,7 @@ onMounted(() => {
           <form>
             <div class="relative">
               <select required
-                class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-[#bfbfbf] focus:outline-none">
+                class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
@@ -230,7 +242,7 @@ onMounted(() => {
 
         <div class="w-full my-3 flex justify-center">
           <select
-            class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-[#bfbfbf] focus:outline-none">
+            class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
             <option value="" disabled selected hidden>
               ลำดับผู้อนุมัติ
             </option>
@@ -245,13 +257,30 @@ onMounted(() => {
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button @click="confirmEdit"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
         </div>
       </div>
     </div>
 
+  </div>
+
+
+  <!-- Alert -->
+  <div v-if="isAddAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <Icon :icon="'checkCircle'" />
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+    </div>
+    
+  </div>
+  <div v-if="isEditAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <Icon :icon="'checkCircle'" />
+      <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+    </div>
   </div>
 </template>
 
