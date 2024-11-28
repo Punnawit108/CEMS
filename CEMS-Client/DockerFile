@@ -1,18 +1,23 @@
-# ใช้ SDK image สำหรับการ build application
-FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build-env
-WORKDIR /app
+FROM node:18-alpine
 
-# คัดลอกไฟล์ทั้งหมดใน directory ไปยัง container
-COPY . ./
+FROM node:18-alpine
 
-# Restore packages และ build application
-RUN dotnet restore
-RUN dotnet publish -c Release -o out
+WORKDIR /usr/src/app
 
-# สร้าง runtime image โดยใช้ ASP.NET runtime
-FROM mcr.microsoft.com/dotnet/aspnet:8.0
-WORKDIR /app
-COPY --from=build-env /app/out .
+RUN apk add --no-cache tzdata
 
-# กำหนดจุดเริ่มต้นของ application
-ENTRYPOINT ["dotnet", "YourApp.dll"]
+ENV TZ Asia/Bangkok
+
+COPY package*.json ./
+
+# Install dependencies
+RUN npm install
+
+# Copy the rest of the application code
+COPY . .
+
+# Expose the port Vite is running on
+EXPOSE 8024
+
+# Run Vite in development mode
+CMD ["npm", "run", "dev"]

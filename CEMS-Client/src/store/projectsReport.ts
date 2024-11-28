@@ -7,7 +7,7 @@
 
 import axios from "axios";
 import { defineStore } from "pinia";
-import ProjectReport from "../types/index";
+import {ProjectReport} from "../types/index";
 
 
 export const useProjectsStore = defineStore("projects", {
@@ -17,7 +17,7 @@ export const useProjectsStore = defineStore("projects", {
     actions: {
         async getAllProjects() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/project`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/project`);
                 this.projects = result.data;
             } catch (error) {
                 console.error("Failed to fetch projects:", error);
