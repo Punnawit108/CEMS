@@ -11,8 +11,8 @@ import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from '../../components/template/Ctable.vue';
-import { useExpensesListStore } from '../../store/expensesReport';
-import ExpenseReportList from '../../types/index';
+import { useExpensesListStore, useExpensesGraphStore } from '../../store/expensesReport';
+import { ExpenseReportGraph } from '../../types/index';
 import {
     Chart,
     BarController,
@@ -47,28 +47,32 @@ Chart.register(
 );
 
 const expensesListStore = useExpensesListStore();
+const expensesGraphStore = useExpensesGraphStore();
 
 // Bar chart setup
 // ประเภทค่าใช้จ่าย
-const expense: string[] = [];    
+const expense: string[] = [];
 
 // จำนวนเงินของแต่ละประเภทค่าใช้จ่าย
 const amountMoney: number[] = [];
 
 onMounted(async () => {
-    await expensesListStore.getAllExpenses();
-    const expenses = expensesListStore.expenses;
+    try {
+        await expensesListStore.getAllExpenses();
+        await expensesGraphStore.getExpensesGraph();
 
-    expenses.forEach((item: ExpenseReportList) => {
-        const existingIndex = expense.indexOf(item.rqRqtName);
+        console.log(expensesGraphStore.expensegraph);
 
-        if (existingIndex !== -1) {
-            amountMoney[existingIndex] += item.rqExpenses;
-        } else {
+        expensesGraphStore.expensegraph.forEach((item: ExpenseReportGraph) => {
             expense.push(item.rqRqtName);
-            amountMoney.push(item.rqExpenses);
-        }
-    });
+            amountMoney.push(item.rqSumExpenses);
+        });
+
+        console.log(expense);
+        console.log(amountMoney);
+    } catch (error) {
+        console.error("Error fetching expenses:", error);
+    }
 
     const barchart = document.getElementById("barChart") as HTMLCanvasElement;
     if (barchart) {
