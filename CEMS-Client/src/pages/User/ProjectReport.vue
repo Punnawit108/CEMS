@@ -57,9 +57,8 @@ const amountMoney: number[] = [];
 
 onMounted(async () => {
     await projectsStore.getAllProjects();
-    const projects = projectsStore.projects;
 
-    projects.forEach((item: ProjectReport) => {
+    projectsStore.projects.forEach((item: ProjectReport) => {
         project.push(item.pjName);
         amountMoney.push(item.pjSumAmountExpenses);
     });
