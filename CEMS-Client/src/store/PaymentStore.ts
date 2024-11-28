@@ -3,12 +3,12 @@
 * คำอธิบาย: จัดการ state
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+* แก้ไข: 26 พฤศจิกายน 2567
+* คำอธิบาย: แก้ path api 
 */
 import axios from "axios";
 import { defineStore } from "pinia";
 import { Expense } from "../types";
-
-
 export const usePayment = defineStore('expense', {
     state: () => ({
         expense: [] as Expense[]
