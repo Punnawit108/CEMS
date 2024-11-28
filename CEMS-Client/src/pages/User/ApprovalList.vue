@@ -13,14 +13,13 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/Ctable.vue';
 import { useExpense } from '../../store/ExpenseStore';
-import { onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 
 const expense = useExpense();
 const router = useRouter();
 // const toDetails = (id: number) => {
 //   router.push(`/approval/history/detail/${id}`);
 // };
-import { ref, computed, onMounted } from "vue";
 import { useTodoStore } from "../../store/approvalList";
 
 const store = useTodoStore();
