@@ -7,58 +7,120 @@
  * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
  * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
  */
-import { onMounted, ref } from "vue";
+import axios from "axios";
+import { onMounted, ref, watch } from "vue";
 import Button from "../../components/template/Button.vue";
-import { useDropdown, createExpense } from "../../store/requisition";
+import { useRequisitionStore } from "../../store/requisition";
 
-const dropdownStore = useDropdown();
+const requisitionStore = useRequisitionStore();
 
 onMounted(async () => {
-  const projectData = await dropdownStore.getAllProject();
-  const requisitionTypeData = await dropdownStore.getAllRequisitionType();
-  const vehicleTypeData = await dropdownStore.getAllvehicleType();
+  const projectData = await requisitionStore.getAllProject();
+  const requisitionTypeData = await requisitionStore.getAllRequisitionType();
+  const vehicleTypeData = await requisitionStore.getAllvehicleType();
+  console.log(requisitionStore.filteredVehicleType);
 });
 
 const date = ref();
 const expenseOptions = ref(["ค่าเดินทาง", "ค่าอาหาร"]);
-const rqRqtName = ref("ค่าเดินทาง");
+const rqRqtName = ref(2);
 const selectedTravelType = ref();
 const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
 const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
 const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
 
-const formData = ref({
-  rqId: "",
+watch(rqRqtName, () => {
+  console.log(rqRqtName);
+});
+
+const formData: any = ref({
   rqName: "",
-  rqUsrName: "",
-  rqPjName: "1",
-  rqRqtName: "",
-  rqVhName: "",
+  rqUsrId: "9999",
+  rqPjId: "1",
+  rqRqtId: rqRqtName.value.toString(),
+  rqVhId: "",
   rqDatePay: "",
   rqDateWithdraw: "",
   rqCode: "",
   rqInsteadEmail: "",
   rqExpenses: "",
-  rqLocation: "",
+  // rqLocation: "",
   rqStartLocation: "",
   rqEndLocation: "",
   rqDistance: "",
   rqPurpose: "",
   rqReason: "",
   rqProof: "",
-  rqStatus: "",
-  rqProgress: "",
+  rqStatus:  "accept",
+  rqProgress: "accepting",
   preview: null,
 });
 
-// ฟังก์ชันการจัดการไฟล์
+// ตัวแปร ref สำหรับเก็บค่าต่างๆ
 const fileInput = ref<HTMLInputElement | null>(null); // อ้างอิงถึง input element ที่ใช้เลือกไฟล์
 const selectedFile = ref<File | null>(null); // เก็บไฟล์ที่ผู้ใช้เลือก
 const previewUrl = ref<string | null>(null); // URL สำหรับแสดงตัวอย่างรูปภาพ
 
+// ค่าคงที่สำหรับกำหนดขนาดสูงสุดของรูปภาพ
 const MAX_WIDTH = 800; // ความกว้างสูงสุดที่ยอมรับ (พิกเซล)
 const MAX_HEIGHT = 800; // ความสูงสูงสุดที่ยอมรับ (พิกเซล)
+
+// ฟังก์ชันสำหรับเปิด file input dialog
+const triggerFileInput = () => {
+  fileInput.value?.click(); // จำลองการคลิกที่ input file เมื่อผู้ใช้คลิกที่พื้นที่ drop zone
+};
+
+// ฟังก์ชันจัดการเมื่อมีการเลือกไฟล์ผ่าน file input
+const handleFileChange = (event: Event) => {
+  const target = event.target as HTMLInputElement;
+  if (target.files && target.files.length > 0) {
+    const file = target.files[0]; // เลือกไฟล์แรกที่ผู้ใช้เลือก
+    uploadFile(file); // ส่งไฟล์ไปประมวลผล
+  }
+};
+
+// ฟังก์ชันจัดการเมื่อมีการลากไฟล์มาวาง (drag & drop)
+const handleDrop = (event: DragEvent) => {
+  if (event.dataTransfer?.files.length) {
+    uploadFile(event.dataTransfer.files[0]); // ส่งไฟล์แรกที่ถูกลากมาวางไปประมวลผล
+  }
+};
+
+// ฟังก์ชันตรวจสอบขนาดของรูปภาพ
+const checkImageDimensions = (file: File): Promise<boolean> => {
+  return new Promise((resolve) => {
+    const img = new Image();
+    img.onload = () => {
+      URL.revokeObjectURL(img.src); // คืน URL object เพื่อเป็นการจัดการหน่วยความจำ
+      resolve(img.width <= MAX_WIDTH && img.height <= MAX_HEIGHT); // ตรวจสอบว่าขนาดไม่เกินที่กำหนด
+    };
+    img.src = URL.createObjectURL(file); // สร้าง URL สำหรับรูปภาพเพื่อตรวจสอบขนาด
+  });
+};
+
+// ฟังก์ชันหลักในการจัดการไฟล์ที่อัปโหลด
+const uploadFile = async (file: File) => {
+  // ตรวจสอบประเภทไฟล์ว่าเป็น SVG, PNG หรือ JPG
+  if (!["image/svg+xml", "image/png", "image/jpeg"].includes(file.type)) {
+    alert("กรุณาอัปโหลดไฟล์ SVG, PNG หรือ JPG เท่านั้น");
+    return;
+  }
+
+  // ตรวจสอบขนาดรูปภาพ
+  const isValidSize = await checkImageDimensions(file);
+  if (isValidSize) {
+    selectedFile.value = file; // เก็บไฟล์ที่ผ่านการตรวจสอบ
+    previewUrl.value = URL.createObjectURL(file); // สร้าง URL สำหรับแสดงตัวอย่าง
+  } else {
+    alert(
+      `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${MAX_WIDTH} x ${MAX_HEIGHT} พิกเซล`
+    );
+    // รีเซ็ตค่าเมื่อไฟล์ไม่ถูกต้อง
+    selectedFile.value = null;
+    previewUrl.value = null;
+  }
+};
 
 const handleSelectChange = () => {
   if (rqtName.value === "อื่นๆ") {
@@ -68,57 +130,51 @@ const handleSelectChange = () => {
   }
 };
 
-import axios from 'axios';
-
 const handleSubmit = async () => {
-    try {
-        const response = await axios.post(
-            `${import.meta.env.VITE_BASE_URL}/api/expense`,  // URL ของ API บน Server
-            formData.value  // ข้อมูลจากฟอร์มใน Vue
-        );
-        console.log("Data saved:", response.data);
-    } catch (error) {
-        console.error("Error sending data:", error);
-    }
+  await requisitionStore.createExpense(formData.value);
+};
+
+const handleSave = async () => {
+  // await requisitionStore.createExpense
+  console.log(formData.value);
 };
 
 const handleCancel = () => {
   // Reset form data or navigate away
   alert("ยกเลิกการส่งข้อมูล");
-  resetForm();
 };
 
-const resetForm = () => {
-  formData.value = {
-    rqId: "",
-    rqName: "",
-    rqUsrName: "",
-    rqPjName: "1",
-    rqRqtName: rqRqtName.value,
-    rqVhName: "",
-    rqDatePay: "",
-    rqDateWithdraw: "",
-    rqCode: "",
-    rqInsteadEmail: "",
-    rqExpenses: "",
-    rqLocation: "",
-    rqStartLocation: "",
-    rqEndLocation: "",
-    rqDistance: "",
-    rqPurpose: "",
-    rqReason: "",
-    rqProof: "",
-    rqStatus: "",
-    rqProgress: "",
-  };
-};
+// const resetForm = () => {
+//   formData.value = {
+
+//     rqName: "",
+//     rqUsrId: "",
+//     rqPjId: "",
+//     rqRqtId: "",
+//     rqVhId: "",
+//     rqDatePay: "",
+//     rqDateWithdraw: "",
+//     rqCode: "",
+//     rqInsteadEmail: "",
+//     rqExpenses: "",
+//     // rqLocation: "",
+//     rqStartLocation: "",
+//     rqEndLocation: "",
+//     rqDistance: "",
+//     rqPurpose: "",
+//     rqReason: "",
+//     rqProof: "",
+//     rqStatus: "",
+//     rqProgress: "",
+//   };
+// };
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
     <!-- btn -->
     <div class="flex justify-end gap-4">
-      <Button :type="'btn-save'"></Button>
-      <Button :type="'btn-cancleBorderGray'"></Button>
+      <Button :type="'btn-save'" @click="handleSave"></Button>
+      <Button :type="'btn-cancleBorderGray'" @click="handleCancel"></Button>
       <Button :type="'btn-summit'"></Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
@@ -161,7 +217,7 @@ const resetForm = () => {
               type="text"
               id="rqDatePay"
               v-model="formData.rqDatePay"
-              placeholder="11/11/1111"
+              placeholder="2024-11-11"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
@@ -186,7 +242,7 @@ const resetForm = () => {
               >
                 <option disabled selected>เลือกโครงการ</option>
                 <option
-                  v-for="project in dropdownStore.projects"
+                  v-for="project in requisitionStore.projects"
                   :key="project.pjId"
                   :value="project.pjId"
                 >
@@ -222,13 +278,13 @@ const resetForm = () => {
             <div class="relative">
               <select
                 id="selectExpenseType"
-                v-model="rqtName"
+                v-model="rqRqtName"
                 @change="handleSelectChange"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
                 <option disabled selected>เลือกประเภทค่าใช้จ่าย</option>
                 <option
-                  v-for="requisitionTypeData in dropdownStore.requisitionType"
+                  v-for="requisitionTypeData in requisitionStore.requisitionType"
                   :key="requisitionTypeData.rqtId"
                   :value="requisitionTypeData.rqtId"
                 >
@@ -253,7 +309,7 @@ const resetForm = () => {
             </div>
           </div>
           <!-- ช่อง "ประเภทการเดินทาง" -->
-          <div class="m-4" v-show="rqRqtName === 'ค่าเดินทาง'">
+          <div class="m-4" v-if="rqRqtName === 2">
             <label for="travelType" class="block text-sm font-medium py-1">
               ประเภทการเดินทาง
             </label>
@@ -261,7 +317,7 @@ const resetForm = () => {
               <select
                 id="travelType"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                v-model="dropdownStore.selectedTravelType"
+                v-model="requisitionStore.selectedTravelType"
               >
                 <option value="">เลือกประเภทการเดินทาง</option>
                 <option value="private">ประเภทส่วนตัว</option>
@@ -277,20 +333,20 @@ const resetForm = () => {
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-          <div class="m-4" v-show="rqRqtName === 'ค่าเดินทาง'">
+          <div class="m-4" v-show="rqRqtName === 2">
             <label for="vehicleType" class="block text-sm font-medium py-1">
               ประเภทรถ
             </label>
             <div class="text-xs">
               <select
-                id="vehicleType"
+                v-model="formData.rqVhId"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
                 <option value="">เลือกประเภทรถ</option>
                 <option
-                  v-for="vehicle in dropdownStore.filteredVehicleType"
+                  v-for="vehicle in requisitionStore.filteredVehicleType"
                   :key="vehicle.vehicleType"
-                  :value="vehicle.vehicleType"
+                  :value="vehicle.vhId.toString()"
                 >
                   {{ vehicle.vhVehicle }}
                 </option>
@@ -304,7 +360,7 @@ const resetForm = () => {
             </div>
           </div>
           <!-- ช่อง "สถานที่เริ่มต้น" -->
-          <div v-show="rqRqtName === 'ค่าเดินทาง'" class="m-4">
+          <div v-show="rqRqtName === 2" class="m-4">
             <label for="rqStartLocation" class="block text-sm font-medium py-1"
               >สถานที่เริ่มต้น</label
             >
@@ -317,7 +373,7 @@ const resetForm = () => {
           </div>
 
           <!-- ช่อง "สถานที่สิ้นสุด" -->
-          <div v-show="rqRqtName === 'ค่าเดินทาง'" class="m-4">
+          <div v-show="rqRqtName === 2" class="m-4">
             <label for="rqEndLocation" class="block text-sm font-medium py-1"
               >สถานที่สิ้นสุด</label
             >
@@ -329,8 +385,21 @@ const resetForm = () => {
             />
           </div>
 
+          <!-- ช่อง "ระยะทาง" -->
+          <div v-show="rqRqtName === 2" class="m-4">
+            <label for="rqEndLocation" class="block text-sm font-medium py-1"
+              >ระยะทาง</label
+            >
+            <input
+              type="text"
+              id="rqEndLocation"
+              v-model="formData.rqDistance"
+              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+            />
+          </div>
+
           <!-- ช่อง "สถาน *" -->
-          <div v-show="rqRqtName !== 'ค่าเดินทาง'" class="m-4">
+          <!-- <div v-if="rqRqtName !== 'ค่าเดินทาง'" class="m-4">
             <label for="rqLocation" class="block text-sm font-medium py-1"
               >สถาน *</label
             >
@@ -340,7 +409,7 @@ const resetForm = () => {
               v-model="formData.rqLocation"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
-          </div>
+          </div> -->
 
           <div class="m-4">
             <!-- ช่อง "จำนวนเงิน (บาท)" -->
@@ -369,6 +438,7 @@ const resetForm = () => {
         ></textarea>
       </div>
     </div>
+
     <!-- upload -->
     <div class="upload-container w-2/6 m-5">
       <label class="z-0 max-md:max-w-full"> อัปโหลดไฟล์ </label>

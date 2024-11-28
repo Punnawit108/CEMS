@@ -1,12 +1,11 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
-import { Project } from "../types";
-import { ExpenseManage } from "../types";
-import { TravelManage } from "../types";
-import { Expense } from "../types";
+import { Project, ExpenseManage, TravelManage, Expense } from "../types";
 
-export const useDropdown = defineStore('dropdown', {
+
+
+export const useRequisitionStore = defineStore('dropdown', {
     state: () => ({
         projects: [] as Project[],
         requisitionType: [] as ExpenseManage[],
@@ -61,26 +60,44 @@ export const useDropdown = defineStore('dropdown', {
             }
         },
 
+
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
-        async createExpense(CreateExpense: Expense) {
+        async createExpense(CreateExpense: any) {
+            //  CreateExpense.rqStatus = "accept";
+            // console.log(CreateExpense)
             try {
                 const result = await axios.post(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense`,
-                    CreateExpense
-                );
-                this.Expense.push(result.data); // เพิ่มข้อมูลที่ได้รับจาก API เข้าไปใน state
+                    `${import.meta.env.VITE_BASE_URL}/api/expense`, {CreateExpense});
                 return result.data;
+
             } catch (error) {
-                if (axios.isAxiosError(error)) {
-                    console.error("Error posting expense:", error.message);
-                } else {
-                    console.error("Unexpected error:", error);
-                }
-                return { error: "Failed to create expense. Please try again later." };
+                console.log(error)
             }
         },
+        // ฟังก์ชันสำหรับการputต์ค่าใช้จ่ายใหม่
+        async updateExpense(id: string,CreateExpense: any) {
+            //  CreateExpense.rqStatus = "accept";
+            // console.log(CreateExpense)
+            try {
+                const result = await axios.put(
+                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`, { CreateExpense });
+                return result.data;
+
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
 
 
     }
 });
 
+// export const createExpense = async (data: any): Promise<any> => {
+//     try {
+//         const response = await axios.post( `${import.meta.env.VITE_BASE_URL}/api/expense`, data);
+//         return response.data;
+//     } catch (error) {
+//         throw new Error("Error creating expense");
+//     }
+// };
