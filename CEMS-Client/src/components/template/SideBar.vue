@@ -7,14 +7,13 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { ref } from 'vue';
+import { ref,defineProps } from 'vue';
 import Icon from './CIcon.vue';
-import { defineProps } from 'vue';
 
 const props = defineProps<{
   role: string; // กำหนด type ของ role
 }>();
-const role = props.role;
+const role = localStorage.getItem('updateRole')
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
 
@@ -152,7 +151,7 @@ const toggleSettingTypeWithdraw = () => {
 </script>
 
 <template>
-    <nav class="flex flex-col bg-white max-w-[256px] pb-[564px] relative drop-shadow-md ">
+    <nav class="flex flex-col bg-white max-w-[256px]  relative drop-shadow-md ">
         <header class="flex  flex-col justify-center py-6 w-full ">
             <div class="flex flex-col px-5 w-full ">
                 <img loading="lazy"

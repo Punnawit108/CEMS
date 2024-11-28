@@ -4,8 +4,8 @@
 * คำอธิบาย: ไฟล์นี้เป็น Component Code table
 * Input: -
 * Output: -
-* ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง, นายธีรวัฒน์ นิระมล
+* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 
 import { defineProps } from 'vue';
@@ -180,34 +180,22 @@ const props = defineProps<{
     <!-- Table4-หัวข้อ -->
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table4-head'" class="bg-[#F2F4F8]">
-            <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อโครงการ</th>
-                <th class="py-[11px] px-2 text-end w-28 font-bold">งบประมาณ</th>
-                <th class="py-[11px] px-2 text-end w-28 font-bold">ยอดเบิกจ่าย</th>
-                <th class="py-[11px] px-5 text-end w-36 font-bold">วันที่จัดโครงการ</th>
-                <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่สิ้นสุด</th>
-                <th class="py-[11px] px-2 text-center w-16 font-bold">รายละเอียด</th>
+            <tr class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
+                <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 w-auto text-start  font-bold">โครงการ</th>
+                <th class="py-3 px-2 w-60 text-end font-bold">ยอดค่าใช้จ่าย(บาท)</th>
             </tr>
         </thead>
         <!-- Table4-ข้อมูล -->
         <tbody v-if="table === 'Table4-data'">
-            <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[12px] w-14 px-2 h-[46px]">1</th>
-                <th class="py-[12px] w-52 px-2 text-start truncate overflow-hidden"
+            <tr class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
+                <th class="py-3 px-2 w-14">1</th>
+                <th class="py-3 px-2 w-auto text-start truncate overflow-hidden"
                     style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
-                <th class="py-[12px] w-28 px-2 text-end font-[100]">1,000,000.00</th>
-                <th class="py-[12px] w-28 px-2 text-end ">600,000.00</th>
-                <th class="py-[12px] w-36 px-5 text-end ">08/09/2567</th>
-                <th class="py-[12px] w-24 px-2 text-end ">08/10/2567</th>
-                <th class="py-[10px] w-16 px-2 text-center ">
-                    <span class="flex justify-center">
-                        <Icon :icon="'viewDetails'" />
-                    </span>
-                </th>
+                <th class="py-3 px-2 w-60 text-end font-[100]">1,000,000.00</th>
             </tr>
         </tbody>
         <!-- Table4-footer -->
@@ -459,6 +447,20 @@ const props = defineProps<{
                 <th class="py-[11px] px-2 text-center w-20 font-bold">รายละเอียด</th>
             </tr>
         </thead>
+        <!-- Header ExpenseReimbursementHistory and ExpenseReimbursementList New -->
+        <thead v-if="table === 'Table9-head-New'" class="bg-[#F2F4F8]">
+            <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
+                <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
+                <th class="py-[11px] px-2 text-start w-48 font-bold">รายการเบิก</th>
+                <th class="py-[11px] px-2 text-start w-48 font-bold">โครงการ</th>
+                <th class="py-[11px] px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-[11px] px-2 text-end w-20 font-bold">วันที่ขอเบิก</th>
+                <th class="py-[11px] px-5 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
+                <th class="py-[11px] px-2 text-center w-28 font-bold">สถานะ</th>
+                <th class="py-[11px] px-2 text-center w-20 font-bold">จัดการ</th>
+            </tr>
+        </thead>
+        
         <!-- Table9-ข้อมูล -->
         <tbody v-if="table === 'Table9-data'">
             <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
