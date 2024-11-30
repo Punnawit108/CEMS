@@ -25,13 +25,13 @@ public class NotificationController : ControllerBase
             .Include(e => e.NtApr.AprRq)
             .Include(e => e.NtApr.AprRq.RqPj)
             .Include(e => e.NtApr.AprRq.RqUsr)
-            .Select(e => new {
-            e.NtId,                     //รหัสแจ้งเตือน
-            e.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
-            e.NtApr.AprRq.RqId,         //รหัสใบคำขอเบิก
-            e.NtApr.AprStatus,          //สถานะคำขอเบิก
-            e.NtApr.AprDate,            //วันที่เบิก
-            e.NtApr.AprRq.RqUsrId,      //ไอดีผู้สร้างใบเบิก
+            .Select(u => new NotificationGetDto {
+            NtId = u.NtId,                              //รหัสแจ้งเตือน
+            NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
+            NtAprRqId = u.NtApr.AprRq.RqId,             //รหัสใบคำขอเบิก
+            NtAprStatus = u.NtApr.AprStatus,            //สถานะคำขอเบิก
+            NtAprDate = u.NtApr.AprDate,                //วันที่เบิก
+            NtAprRqUsrId = u.NtApr.AprRq.RqUsrId,       //ไอดีผู้สร้างใบเบิก
             })
             .ToListAsync();
 
