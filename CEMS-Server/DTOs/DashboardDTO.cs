@@ -1,100 +1,92 @@
+/*
+* ชื่อไฟล์: DashboardDTO.cs
+* คำอธิบาย: ไฟล์นี้คือไฟล์ที่สร้างตัวแปรที่ใช้กับ Dashboard 
+* Input: -
+* Output: -
+* ชื่อผู้เขียน/ผู้แก้ไข: นางสาวอลิสา ปะกังพลัง
+* วันที่จัดทำ/แก้ไข: 24 พฤศจิกายน 2567
+*/
+
 namespace CEMS_Server.DTOs
 {
     //ของ User
     public class DashboardUserGetDto
     {
-        public int RqId { get; }
+        public int RqId { get; set; }
 
-        public int RqPjId { get; }
+        public string PjName { get; set; } = null!;
 
-        public string PjName { get; }
+        public double RqExpenses { get; set; }
 
-        public double RqExpenses { get; }
+        public double PjAmountExpenses { get; set; }
 
-        public double PjAmountExpenses { get; }
+        public string RqStatus { get; set; } = null!;
 
-        public enum RqStatus { get; } = null!; 
+        public string RqtName { get; set; } = null!;
 
-        public int RqRqtId { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
-        public string RqtName { get; }
+    }
 
-        public RqDateWithdraw { get; }
+    //ของ Approver
+    public class DashboardApproverGetDto
+    {
+        public int AprRqId { get; set; }
 
-}
+        public int AprId { get; set; }
 
-//ของ Approver
-public class DashboardApproverGetDto
-{
-    public int AprRqId { get; }
+        public string PjName { get; set; } = null!;
 
-    public int AprId { get; }
+        public double RqExpenses { get; set; }
 
-    public int RqPjId { get; }
+        public double PjAmountExpenses { get; set; }
 
-    public string PjName { get; }
+        public string RqStatus { get; set; } = null!;
 
-    public double RqExpenses { get; }
+        public string RqtName { get; set; } = null!;
 
-    public double PjAmountExpenses { get; }
-
-    public enum RqStatus { get; } = null!; 
-
-    public int RqRqtId { get; }
-
-    public string RqtName { get; }
-
-    public RqDateWithdraw { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
     }
 
     //ของ Admin
     public class DashboardAdminGetDto
-{
-    public int UsrId { get; }
+    {
+        public int UsrId { get; set; }
 
-    public int RqPjId { get; }
+        public string PjName { get; set; } = null!;
 
-    public string PjName { get; }
+        public double RqExpenses { get; set; }
 
-    public double RqExpenses { get; }
+        public double PjAmountExpenses { get; set; }
 
-    public double PjAmountExpenses { get; }
+        public string RqStatus { get; set; } = null!;
 
-    public enum RqStatus { get; } = null!; 
+        public string RqtName { get; set; } = null!;
 
-    public int RqRqtId { get; }
-
-    public string RqtName { get; }
-
-    public RqDateWithdraw { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
     }
 
     //ของ Accountant
     public class DashboardAccountantGetDto
-{
-    public int AprRqId { get; }
+    {
+        public int AprRqId { get; set; }
 
-    public int AprId { get; }
+        public int AprId { get; set; }
 
-    public int RqPjId { get; }
+        public string PjName { get; set; } = null!;
 
-    public string PjName { get; }
+        public double RqExpenses { get; set; }
 
-    public double RqExpenses { get; }
+        public double PjAmountExpenses { get; set; }
 
-    public double PjAmountExpenses { get; }
+        public string RqStatus { get; set; } = null!;
 
-    public enum RqStatus { get; } = null!; 
+        public string RqtName { get; set; } = null!;
 
-    public int RqRqtId { get; }
-
-    public string RqtName { get; }
-
-    public RqDateWithdraw { get; }
+        public DateOnly RqDateWithdraw { get; set; }
 
     }
 }
 
-    

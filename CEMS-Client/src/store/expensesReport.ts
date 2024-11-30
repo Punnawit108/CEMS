@@ -7,8 +7,7 @@
 
 import axios from "axios"
 import { defineStore } from "pinia";
-import ExpenseReportList from "../types/index";
-import ExpenseReportGraph from "../types/index";
+import {ExpenseReportList,ExpenseReportGraph} from "../types/index";
 
 
 export const useExpensesListStore = defineStore("expenses", {

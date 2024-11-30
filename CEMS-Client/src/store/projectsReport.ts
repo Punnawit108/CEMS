@@ -7,7 +7,7 @@
 
 import axios from "axios";
 import { defineStore } from "pinia";
-import ProjectReport from "../types/index";
+import {ProjectReport} from "../types/index";
 
 
 export const useProjectsStore = defineStore("projects", {

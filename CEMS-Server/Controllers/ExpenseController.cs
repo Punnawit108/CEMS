@@ -25,7 +25,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "waiting") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "sketch") // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
@@ -61,7 +61,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept") // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
@@ -88,7 +88,7 @@ public class ExpenseController : ControllerBase
 
         return Ok(requisition);
     }
-    
+
     // Expense report list
     [HttpGet("report")]
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
@@ -130,7 +130,7 @@ public class ExpenseController : ControllerBase
 
         return Ok(requisition);
     }
-    
+
     //get by id
     [HttpGet("{id}")]
     public async Task<ActionResult<ExpenseGetDto>> GetExpenseById(int id)
