@@ -1,5 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/**
+* ชื่อไฟล์: CemsSection.cs
+* คำอธิบาย: ใช้สำหรับ mapping model ไปยัง table 
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 19 พฤศจิกายน 2567
+*/
 
 namespace CEMS_Server.Models;
 
