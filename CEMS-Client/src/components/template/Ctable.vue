@@ -81,11 +81,12 @@ const props = defineProps<{
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
                 <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
                 <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อโครงการ</th>
+                <th class="py-[11px] px-2 text-start w-56 font-bold">รายการเบิก</th>
+                <th class="py-[11px] px-2 text-start w-56 font-bold">โครงการ</th>
                 <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่เบิก</th>
+                <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่ขอเบิก</th>
                 <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-32 font-bold">รายละเอียด</th>
+                <th class="py-[11px] px-2 text-center w-32 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table2-ข้อมูล -->
@@ -96,6 +97,11 @@ const props = defineProps<{
                     style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                     title="นายเทียนชัย คูเมือง">
                     นายเทียนชัย คูเมือง
+                </th>
+                <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                    title="เบิกค่าใช้จ่าย">
+                    เบิกค่าใช้จ่าย
                 </th>
                 <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                     style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
@@ -214,7 +220,7 @@ const props = defineProps<{
     </table>
 
 
-    <!-- Table5ดูแลระบบ-จัดการผู้ใช้งาน-->
+    <!-- Table5 ตั้งค่าผู้ใช้งาน-->
     <!-- Table5-หัวข้อ -->
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table5-head'" class="bg-[#F2F4F8]">
@@ -322,14 +328,15 @@ const props = defineProps<{
     </table>
 
 
-    <!-- Table7 = 7.1 and 7.2 -->
+    <!-- Table7 รายการรอนำจ่าบ และ รายงานเบิกค่าใช้จ่าย -->
     <!-- Table7-หัวข้อ -->
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table7-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
                 <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
                 <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อโครงการ</th>
+                <th class="py-[11px] px-2 text-start w-56 font-bold">รายการเบิก</th>
+                <th class="py-[11px] px-2 text-start w-56 font-bold">โครงการ</th>
                 <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
                 <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่เบิก</th>
                 <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
@@ -344,6 +351,11 @@ const props = defineProps<{
                     style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                     title="นายเทียนชัย คูเมือง">
                     นายเทียนชัย คูเมือง
+                </th>
+                <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                    title="เบิกค่าใช้จ่าย">
+                    เบิกค่าใช้จ่าย
                 </th>
                 <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                     style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
@@ -376,19 +388,19 @@ const props = defineProps<{
     </table>
 
 
-    <!-- Table 8 ผู้มีสิทธิอนุมัติ-ประวัติอนุมัติคำขอเบิก -->
+    <!-- Table 8 ประวัติการนำจ่าย -->
     <!-- Table8-หัวข้อ -->
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table8-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
                 <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
                 <th class="py-[11px] px-2 text-start w-48 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-48 font-bold">ชื่อโครงการ</th>
+                <th class="py-[11px] px-2 text-start w-48 font-bold">รายการเบิก</th>
+                <th class="py-[11px] px-2 text-start w-48 font-bold">โครงการ</th>
                 <th class="py-[11px] px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-20 font-bold">วันที่เบิก</th>
                 <th class="py-[11px] px-5 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
                 <th class="py-[11px] px-2 text-center w-28 font-bold">สถานะ</th>
-                <th class="py-[11px] px-2 text-center w-20 font-bold">รายละเอียด</th>
+                <th class="py-[11px] px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table8-ข้อมูล -->
@@ -402,11 +414,15 @@ const props = defineProps<{
                 </th>
                 <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                     style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                    title="เบิกค่าใช้จ่าย">
+                    เบิกค่าใช้จ่าย
+                </th>
+                <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                    style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
                 <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
-                <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
                 <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
                 <th class="py-[12px] px-2 w-28 text-center text-green-500">อนุมัติแล้ว</th>
                 <th class="py-[10px] px-2 w-20 text-center ">
@@ -432,22 +448,22 @@ const props = defineProps<{
     </table>
 
 
-    <!-- Table 9 ประวัติเบิกจ่าย -->
+    <!-- Table 9 ประวัติการนำจ่าย -->
     <!-- Table9-หัวข้อ -->
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table9-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
                 <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
                 <th class="py-[11px] px-2 text-start w-48 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-48 font-bold">ชื่อโครงการ</th>
+                <th class="py-[11px] px-2 text-start w-48 font-bold">รายการเบิก</th>
+                <th class="py-[11px] px-2 text-start w-48 font-bold">โครงการ</th>
                 <th class="py-[11px] px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
                 <th class="py-[11px] px-2 text-end w-20 font-bold">วันที่เบิก</th>
                 <th class="py-[11px] px-5 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-28 font-bold">สถานะ</th>
-                <th class="py-[11px] px-2 text-center w-20 font-bold">รายละเอียด</th>
+                <th class="py-[11px] px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
-        <!-- Header ExpenseReimbursementHistory and ExpenseReimbursementList New -->
+        <!-- Table 9 new รายการเบิก และ ประวัติการเบิก -->
         <thead v-if="table === 'Table9-head-New'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
                 <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
@@ -472,13 +488,17 @@ const props = defineProps<{
                 </th>
                 <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                     style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                    title="เบิกค่าใช้จ่าย">
+                    เบิกค่าใช้จ่าย
+                </th>
+                <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                    style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
                 <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
                 <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
                 <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
-                <th class="py-[12px] px-2 w-28 text-center text-green-500">นำจ่ายแล้ว</th>
                 <th class="py-[10px] px-2 w-20 text-center ">
                     <span class="flex justify-center">
                         <Icon :icon="'viewDetails'" />
