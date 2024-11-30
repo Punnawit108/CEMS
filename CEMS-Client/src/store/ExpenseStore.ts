@@ -1,7 +1,6 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import { Expense } from "../types";
-
 export const useExpense = defineStore('expense', {
     state: () => ({
         expense: [] as Expense[]

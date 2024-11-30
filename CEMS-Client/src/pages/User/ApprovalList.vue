@@ -7,12 +7,13 @@
 * Output: -
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* วันที่แก้ไข: 30 พฤศจิกายน 2567 คำอธิบาย: แก้ไข Footer pagination ให้ถูกต้อง
 */
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/Ctable.vue';
-import { useExpense } from '../../store/ExpenseStore';
+import { useExpense } from '../../store/expenseStore';
 import { ref, computed, onMounted } from 'vue';
 
 const expense = useExpense();
@@ -20,43 +21,38 @@ const router = useRouter();
 // const toDetails = (id: number) => {
 //   router.push(`/approval/history/detail/${id}`);
 // };
-import { useTodoStore } from "../../store/approvalList";
 
-const store = useTodoStore();
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
 const table = ref("Table1-footer");
 
 const totalPages = computed(() => {
-  return Math.ceil(store.todos.length / itemsPerPage.value);
+    return Math.ceil(expense.expense.length / itemsPerPage.value);
 });
 
-const paginatedTodos = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return store.todos.slice(start, end);
+const paginated = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return expense.expense.slice(start, end);
 });
 
 // Calculate remaining rows to fill the table
 const remainingRows = computed(() => {
-  const totalRows = itemsPerPage.value;
-  const rowsOnPage = paginatedTodos.value.length;
-  return totalRows - rowsOnPage;
+    const totalRows = itemsPerPage.value;
+    const rowsOnPage = paginated.value.length;
+    return totalRows - rowsOnPage;
 });
-const loadTodos = async () => {
-  await store.loadTodos();
-};
 
 const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
 };
 
 const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
+    if (currentPage.value > 1) {
+        currentPage.value--;
+    }
 };
 
 onMounted(() => {
@@ -178,8 +174,8 @@ const toDetails = (id: string) => {
             </div>
             <table class="w-full">
                 <tbody>
-                    <tr v-for="(expense, index) in expense.expense" :key="expense.rqId"
-                        class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                    <tr v-for="(expense, index) in paginated" :key="expense.rqId" class="border-t"
+                        :class="{ 'border-b border-gray': index === paginated.length - 1, }">
                         <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
@@ -200,11 +196,49 @@ const toDetails = (id: string) => {
                             </span>
                         </th>
                     </tr>
+                    <!-- Show empty rows if there are less than 15 items -->
+                    <tr v-if="paginated.length < itemsPerPage">
+                        <td v-for="index in 7" :key="'empty' + index" class="px-4 py-2">
+                            &nbsp;
+                            <!-- Empty cell for spacing -->
+                        </td>
+                    </tr>
+                    <!-- Fill remaining rows with empty cells for consistent row height -->
+                    <tr v-for="index in remainingRows" :key="'empty-row' + index">
+                        <td v-for="i in 7" :key="'empty-cell' + i" class="px-4 py-2">
+                            &nbsp;
+                            <!-- Empty cell for spacing -->
+                        </td>
+                    </tr>
                 </tbody>
+                <!-- Table2-footer -->
+                <tfoot class="border-t" v-if="table === 'Table1-footer'">
+                    <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+                        <th></th>
+
+                        <th class="py-[12px] text-end">
+                            {{ currentPage }} of {{ totalPages }}
+                        </th>
+                        <th class="py-[12px] flex justify-evenly text-[14px] font-bold">
+                            <span class="ml-6 text-[#A0A0A0]">
+                                <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded">
+                                    <span class="text-sm">&lt;</span>
+                                </button>
+                            </span>
+                            <span class="mr-6">
+                                <button @click="nextPage" :disabled="currentPage === totalPages"
+                                    class="px-3 py-1 rounded">
+                                    <span class="text-sm">&gt;</span>
+                                </button>
+                            </span>
+                        </th>
+                    </tr>
+                </tfoot>
             </table>
-            <div>
-                <Ctable :table="'Table2-footer'" />
-            </div>
         </div>
     </div>
     <!-- content -->
