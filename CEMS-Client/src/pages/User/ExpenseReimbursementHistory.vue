@@ -18,8 +18,9 @@ import { onMounted } from 'vue';
 const router = useRouter();
 const ExpenseReimbursementHistory = useExpenseReimbursementHistory();
 
-onMounted(() => {
-    ExpenseReimbursementHistory.getAllExpenseReimbursementHistory();
+onMounted(async() => {
+    await ExpenseReimbursementHistory.getAllExpenseReimbursementHistory();
+    console.log(ExpenseReimbursementHistory.expenseReimbursementHistory)
 })
 
 const toDetails = (id: string) => {
@@ -128,7 +129,7 @@ const toDetails = (id: string) => {
                         <th class="py-[12px] px-2 w-20 text-end ">{{ ExpenseReimbursementHistory.rqDatePay }}</th>
                         <th class="py-[12px] px-2 w-40 text-end ">{{ ExpenseReimbursementHistory.rqExpenses }}</th>
                         <th class="py-[12px] px-2 w-32 text-center "><span>
-                                <StatusBudge :status="'sts-approve'"></StatusBudge>
+                                <StatusBudge :status="'sts-'+ExpenseReimbursementHistory.rqStatus"></StatusBudge>
                             </span>
                         </th>
                         <th class="py-[10px] px-2 w-24 text-center ">
