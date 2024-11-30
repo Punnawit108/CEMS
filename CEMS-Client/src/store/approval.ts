@@ -34,9 +34,10 @@ export const useApprovalStore = defineStore('approval', {
         * ชื่อผู้เขียน/แก้ไข: นายพรช้ย เพิ่มพูลกิจ
         * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
         */
-        async addApprovers() {
+        async addApprovers(usrId : any) {
             try {
-                const result = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/approval`)
+                await axios.post(`${import.meta.env.VITE_BASE_URL}/api/approval`,{apUsrId : usrId})
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approval`)
                 this.approvers = result.data;
             } catch (err) {
                 console.log(err)

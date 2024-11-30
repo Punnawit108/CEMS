@@ -48,7 +48,18 @@ public class ApprovalController : ControllerBase
     [HttpGet("progress/{requisitionId:int}")]
     public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId)
     {
-        var approveProgress = await _context.CemsApproverRequistions
+        var disbursement = await _context.CemsRequisitions
+        .Where(e => e.RqId == requisitionId)
+        .Select(e => new
+        {
+            e.RqId,
+            e.RqStatus,
+            e.RqProgress,
+            e.RqDatePay,
+            e.RqDateWithdraw
+        }).ToListAsync();
+
+        var acceptor = await _context.CemsApproverRequistions
         .Where(e => e.AprRqId == requisitionId)
         .Include(e => e.AprRq)
         .Include(e => e.AprAp)
@@ -64,14 +75,23 @@ public class ApprovalController : ControllerBase
         .OrderBy(e => e.AprId)
         .ToListAsync();
 
-        return Ok(approveProgress);
+        var progress = new
+        {
+            disbursement,
+            acceptor
+        };
+
+
+
+        return Ok(progress);
     }
 
-    /// <summary>ใช้สำหรับดำเนินการคำขอเบิก</summary>
-    /// <returns>คำขอเบิกได้รับการดำเนินการ </returns>
+
+    ///     /// <summary>เพิ่มผู้อนุมัติ</summary>
+    /// <returns>ผู้อนุมัติมีการเพิ่ม</returns>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
-    [HttpPost("approve")]
-    public async Task<ActionResult> ApproveRequisition([FromBody] CemsApprover approver)
+    [HttpPost]
+    public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
     {
         _context.CemsApprovers.Add(approver);
         await _context.SaveChangesAsync();
@@ -83,11 +103,12 @@ public class ApprovalController : ControllerBase
             approver
         );
     }
-    /// <summary>เพิ่มผู้อนุมัติ</summary>
-    /// <returns>ผู้อนุมัติมีการเพิ่ม</returns>
+
+    /// <summary>ใช้สำหรับดำเนินการคำขอเบิก</summary>
+    /// <returns>คำขอเบิกได้รับการดำเนินการ </returns>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
-    [HttpPost]
-    public async Task<ActionResult> AddApprover([FromBody] CemsApproverRequistion approverRequistion)
+    [HttpPost("approve")]
+    public async Task<ActionResult> ApproveRequisition([FromBody] CemsApproverRequistion approverRequistion)
     {
         _context.CemsApproverRequistions.Add(approverRequistion);
         await _context.SaveChangesAsync();
