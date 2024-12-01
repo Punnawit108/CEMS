@@ -46,7 +46,7 @@ namespace CEMS_Server.DTOs
         public int RqUsrId { get; set; }
         public int RqPjId { get; set; }
         public int RqRqtId { get; set; }
-        public int RqVhId { get; set; }
+        public int? RqVhId { get; set; }
         public string RqName { get; set; } = null!;
         public DateOnly RqDatePay { get; set; }
 
