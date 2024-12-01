@@ -1,11 +1,9 @@
 <script setup lang="ts">
 /**
- * ชื่อไฟล์ : ExpenseReimbursementHistory.vue
+ * ชื่อไฟล์ : expenseReimbursementHistory.vue
  * คำอธิบาย : ไฟล์นี้แสดงประวัติการเบิกค่าใช้จ่าย
- * Input : -
- * Output : ประวัติเบิกค่าใช้จ่าย
  * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
- * วันที่จัดทำ / วันที่แก้ไข : 30 พฤศจิกายน 2567
+ * วันที่จัดทำ / วันที่แก้ไข : 1 ธันวาคม 2567
  */
 
 import { useRouter } from 'vue-router';
@@ -14,18 +12,20 @@ import StatusBudge from '../../components/template/StatusBudge.vue';
 import Ctable from '../../components/template/Ctable.vue';
 
 import { onMounted } from 'vue';
-import { useExpense } from '../../store/ExpenseStore';
+//import { useExpense } from '../../store/ExpenseStore';
+import { useExpenseReimbursementHistory } from '../../store/expenseReimbursementHistoryStore';
 
 
-const expense = useExpense();
+
+const expenseReimbursementHistory = useExpenseReimbursementHistory();
 const router = useRouter();
 
 onMounted(() => {
-    ExpenseReimbursementHistory.getAllExpenseReimbursementHistory();
+    expenseReimbursementHistory.getAllExpenseReimbursementHistory();
 })
 
-const toDetails = (id: string) => {
-    router.push(`/payment/history/detail/${id}`);
+const toDetails = (id: number) => {
+    router.push(`/disbursement/historyWithdraw/detail/${id}`);
 }
 
 
@@ -112,29 +112,29 @@ const toDetails = (id: string) => {
             </div>
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(ExpenseReimbursementHistory, index) in ExpenseReimbursementHistory.expenseReimbursementHistory"
-                        :key="ExpenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
+                    <tr v-for="(expenseReimbursementHistory, index) in expenseReimbursementHistory.expenseReimbursementHistory"
+                        :key="expenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="นายเทียนชัย คูเมือง">
-                            {{ ExpenseReimbursementHistory.rqUsrName }}
+                            {{ expenseReimbursementHistory.rqUsrName }}
                         </th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            {{ ExpenseReimbursementHistory.rqPjName }}
+                            {{ expenseReimbursementHistory.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ ExpenseReimbursementHistory.rqName }}
+                        <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expenseReimbursementHistory.rqName }}
                         </th>
-                        <th class="py-[12px] px-2 w-20 text-end ">{{ ExpenseReimbursementHistory.rqDatePay }}</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">{{ ExpenseReimbursementHistory.rqExpenses }}</th>
+                        <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqDatePay }}</th>
+                        <th class="py-[12px] px-2 w-40 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
                         <th class="py-[12px] px-2 w-32 text-center "><span>
                                 <StatusBudge :status="'sts-approve'"></StatusBudge>
                             </span>
                         </th>
                         <th class="py-[10px] px-2 w-24 text-center ">
-                            <span v-on:click="toDetails" class="flex justify-center ">
+                            <span v-on:click="toDetails(expenseReimbursementHistory.rqId)" class="flex justify-center ">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>

@@ -1,3 +1,11 @@
+/**
+* คำอธิบาย : ไฟล์นี้ใช้สำหรับแสดงความก้าวหน้าของประวัติคำขอเบิกค่าใช้จ่าย
+* Input : -
+* Output : แสดงความก้าวหน้าของประวัติคำขอเบิกค่าใช้จ่าย
+* ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
+* วันที่จัดทำ / วันที่แก้ไข : 1 ธันวาคม 2567
+*/
+
 import axios from "axios";
 import { defineStore } from "pinia";
 
@@ -16,7 +24,7 @@ export let useExpenseReimbursementHistory = defineStore('expenseReimbursementHis
         expenseReimbursementHistory: [] as ExpenseReimbursementHistory[]
     }),
     actions:{
-        async getAllExpenseReimbursementHistory(){
+        async getAllExpenseReimbursementHistory(){ //ดึงข้อมูลประวัติการเบิกค่าใช้จ่ายทั้งหมดจาก API
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/History`)
                 this.expenseReimbursementHistory = result.data;
@@ -24,7 +32,7 @@ export let useExpenseReimbursementHistory = defineStore('expenseReimbursementHis
                 console.error("Failed to fetch ExpenseReimbursementHistory data:", error)
             }
         },
-        async getExpenseReimbursementHistoryById (id: string) {
+        async getExpenseReimbursementHistoryById (id: string) { //ดึงข้อมูลประวัติการเบิกค่าใช้จ่ายตาม ID
             try {
                 const result = await axios.get(`http://localhost:5247/api/ExpenseReimbursementHistory/${id}`)
                 return result.data; 

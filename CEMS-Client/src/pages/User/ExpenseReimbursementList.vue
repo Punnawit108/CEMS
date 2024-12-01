@@ -2,10 +2,8 @@
 /**
  * ชื่อไฟล์ : ExpenseReimbursementList.vue
  * คำอธิบาย : ไฟล์นี้แสดงรายการเบิกค่าใช้จ่าย
- * Input : -
- * Output : รายการเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 26 พฤศจิกายน 2567
+ * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
+ * วันที่จัดทำ / วันที่แก้ไข : 1 ธันวาคม 2567
  */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
@@ -15,15 +13,15 @@ import { onMounted, ref } from 'vue';
 import { useExpenseReimbursementList } from '../../store/expenseReimbursementListStore';
 
 const router = useRouter();
-const ExpenseReimbursementList = useExpenseReimbursementList();
+const expenseReimbursementList = useExpenseReimbursementList();
 
 onMounted(async () => {
-    await ExpenseReimbursementList.getAllExpenseReimbursementList();
+    await expenseReimbursementList.getAllExpenseReimbursementList();
 });
 
 // ไปหน้า detail
-const toDetails = (id: string) => {
-    router.push(`/payment/list/detail/${id}`);
+const toDetails = (id: number) => {
+    router.push(`/disbursement/listWithdraw/detail/${id}`);
 };
 
 const showModal = ref(false); // ควบคุมการแสดง Modal
@@ -45,7 +43,7 @@ const closeModal = () => {
 const confirmDelete = async () => {
     if (selectedItemId.value !== null) {
         try {
-            await ExpenseReimbursementList.deleteExpenseReimbursementItem(selectedItemId.value); // ลบรายการ
+            await expenseReimbursementList.deleteExpenseReimbursementItem(selectedItemId.value); // ลบรายการ
         } catch (error) {
             console.error("Failed to delete item:", error);
         } finally {
@@ -68,25 +66,25 @@ const confirmDelete = async () => {
             <Ctable :table="'Table9-head-New'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(ExpenseReimbursementList, index) in ExpenseReimbursementList.expenseReimbursementList"
-                        :key="ExpenseReimbursementList.rqId" class="text-[14px] border-b-2 border-[#BBBBBB]">
+                    <tr v-for="(expenseReimbursementList, index) in expenseReimbursementList.expenseReimbursementList"
+                        :key="expenseReimbursementList.rqId" class="text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
-                            :title="ExpenseReimbursementList.rqUsrName">
-                            {{ ExpenseReimbursementList.rqUsrName }}
+                            :title="expenseReimbursementList.rqUsrName">
+                            {{ expenseReimbursementList.rqUsrName }}
                         </th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
-                            :title="ExpenseReimbursementList.rqName">
-                            {{ ExpenseReimbursementList.rqName }}
+                            :title="expenseReimbursementList.rqName">
+                            {{ expenseReimbursementList.rqName }}
                         </th>
                         <th class="py-[12px] px-5 w-32 text-start font-[100]">
-                            {{ ExpenseReimbursementList.rqPjName }}
+                            {{ expenseReimbursementList.rqPjName }}
                         </th>
                         <th class="py-[12px] px-2 w-20 text-end">
-                            {{ ExpenseReimbursementList.rqDatePay }}
+                            {{ expenseReimbursementList.rqDatePay }}
                         </th>
                         <th class="py-[12px] px-2 w-40 text-end">
-                            {{ ExpenseReimbursementList.rqExpenses }}
+                            {{ expenseReimbursementList.rqExpenses }}
                         </th>
                         <th class="py-[12px] px-2 w-32 text-center">
                             <span>
@@ -95,8 +93,8 @@ const confirmDelete = async () => {
                         </th>
                         <th class="py-[10px] px-2 w-24 text-center">
                             <span class="flex justify-center">
-                                <Icon :icon="'viewDetails'" v-on:click="toDetails" />
-                                <Icon :icon="'bin'" @click="openConfirmationModal(ExpenseReimbursementList.rqId)" />
+                                <Icon :icon="'viewDetails'" v-on:click="toDetails(expenseReimbursementList.rqId)"  />
+                                <Icon :icon="'bin'" @click="openConfirmationModal(expenseReimbursementList.rqId)" />
                             </span>
                         </th>
                     </tr>
