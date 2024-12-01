@@ -1,3 +1,9 @@
+/**
+* ชื่อไฟล์: NotificationController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับติดต่อข้อมูลจากฐานข้อมูล
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
+*/
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -16,7 +22,7 @@ public class NotificationController : ControllerBase
     {
         _context = context;
     }
-
+    
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<NotificationGetDto>>> GetNotificationList()
     {

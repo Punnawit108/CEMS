@@ -1,7 +1,13 @@
 <script setup lang="ts">
+/**
+ชื่อไฟล์: CemsNotification.cs
+คำอธิบาย: ใช้สำหรับติดต่อกับฐานข้อมูล Cems
+ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
+*/
 import { useNotification } from '../../store/notification';
 import { Notification } from '../../types/index';
-import { defineProps, defineEmits } from 'vue';
+import { defineProps} from 'vue';
 const notificationStore = useNotification();
 const props = defineProps<Notification>();
 

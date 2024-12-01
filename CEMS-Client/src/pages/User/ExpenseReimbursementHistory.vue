@@ -2,8 +2,8 @@
 /**
  * ชื่อไฟล์ : expenseReimbursementHistory.vue
  * คำอธิบาย : ไฟล์นี้แสดงประวัติการเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
- * วันที่จัดทำ / วันที่แก้ไข : 1 ธันวาคม 2567
+ * ชื่อผู้เขียน / แก้ไข : พรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำ / วันที่แก้ไข : 30 พฤศจิกายน 2567
  */
 
 import { useRouter } from 'vue-router';
@@ -20,8 +20,9 @@ import { useExpenseReimbursementHistory } from '../../store/expenseReimbursement
 const expenseReimbursementHistory = useExpenseReimbursementHistory();
 const router = useRouter();
 
-onMounted(() => {
-    expenseReimbursementHistory.getAllExpenseReimbursementHistory();
+onMounted(async() => {
+    await expenseReimbursementHistory.getAllExpenseReimbursementHistory();
+    console.log(expenseReimbursementHistory.expenseReimbursementHistory)
 })
 
 const toDetails = (id: number) => {
@@ -130,7 +131,7 @@ const toDetails = (id: number) => {
                         <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqDatePay }}</th>
                         <th class="py-[12px] px-2 w-40 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
                         <th class="py-[12px] px-2 w-32 text-center "><span>
-                                <StatusBudge :status="'sts-approve'"></StatusBudge>
+                                <StatusBudge :status="'sts-'+expenseReimbursementHistory.rqStatus"></StatusBudge>
                             </span>
                         </th>
                         <th class="py-[10px] px-2 w-24 text-center ">

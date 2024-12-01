@@ -1,3 +1,10 @@
+/**
+ * ชื่อไฟล์ : ApprovalController.cs
+ * คำอธิบาย : ไฟล์นี้ใช้สำหรับกำหนด logic API ของการอนุมัติและผู้อนุมัติ
+ * ชื่อผู้เขียน/แก้ไข : นายพรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำแก้ไข : 28 พฤศจิกายน 2567
+ */
+
 using CEMS_Server.AppContext;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -18,6 +25,9 @@ public class ApprovalController : ControllerBase
         _context = context;
     }
 
+    /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
+    /// <returns>ข้อมูลผู้อนุมัติทั้งหมด </returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<object>>> ApproverList()
     {
@@ -32,12 +42,16 @@ public class ApprovalController : ControllerBase
         }).ToListAsync();
         return Ok(acceptorList);
     }
-
+    /// <summary>แสดงช้อมูลการอนุมัติ</summary>
+    /// <returns>ช้อมูลการอนุมัติ </returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpGet("progress/{requisitionId:int}")]
-    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId){
+    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId)
+    {
         var disbursement = await _context.CemsRequisitions
         .Where(e => e.RqId == requisitionId)
-        .Select(e => new {
+        .Select(e => new
+        {
             e.RqId,
             e.RqStatus,
             e.RqProgress,
@@ -48,9 +62,10 @@ public class ApprovalController : ControllerBase
         var acceptor = await _context.CemsApproverRequistions
         .Where(e => e.AprRqId == requisitionId)
         .Include(e => e.AprRq)
-        .Include(e => e.AprAp) 
+        .Include(e => e.AprAp)
         .Include(e => e.AprAp.ApUsr)
-        .Select(e => new {
+        .Select(e => new
+        {
             e.AprId,
             e.AprAp.ApUsr.UsrFirstName,
             e.AprAp.ApUsr.UsrLastName,
@@ -60,7 +75,8 @@ public class ApprovalController : ControllerBase
         .OrderBy(e => e.AprId)
         .ToListAsync();
 
-        var progress = new {
+        var progress = new
+        {
             disbursement,
             acceptor
         };
@@ -70,7 +86,10 @@ public class ApprovalController : ControllerBase
         return Ok(progress);
     }
 
-        // Req => usrFirstName, usrLastName
+
+    ///     /// <summary>เพิ่มผู้อนุมัติ</summary>
+    /// <returns>ผู้อนุมัติมีการเพิ่ม</returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpPost]
     public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
     {
@@ -85,6 +104,9 @@ public class ApprovalController : ControllerBase
         );
     }
 
+    /// <summary>ใช้สำหรับดำเนินการคำขอเบิก</summary>
+    /// <returns>คำขอเบิกได้รับการดำเนินการ </returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpPost("approve")]
     public async Task<ActionResult> ApproveRequisition([FromBody] CemsApproverRequistion approverRequistion)
     {
@@ -98,6 +120,6 @@ public class ApprovalController : ControllerBase
         );
     }
 
-    
+
 
 }
