@@ -1,11 +1,11 @@
 <script setup lang="ts">
 /*
 * ชื่อไฟล์: ForUseStatus.vue
-* คำอธิบาย: ไฟล์นี้แสดงการใช้สถานะ
-* ชื่อผู้เขียน/แก้ไข: 
-* วันที่จัดทำ/แก้ไข: 
+* คำอธิบาย: ไฟล์นี้แสดงตัวอย่างการใช้งานคอมโพเนนต์ StatusBudge
+* ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import StatusBudge from './StatusBudge.vue';
+import StatusBudge from './StatusBudge.vue'; // นำเข้าคอมโพเนนต์สำหรับแสดงสถานะ
 </script>
 
 <template>
@@ -31,8 +31,4 @@ import StatusBudge from './StatusBudge.vue';
             <StatusBudge :status="'sts-draft'"></StatusBudge>
         </div>
     </div>
-
-
-
-
 </template>

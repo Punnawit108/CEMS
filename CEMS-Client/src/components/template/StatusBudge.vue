@@ -1,15 +1,16 @@
 <script setup lang="ts">
 /*
 * ชื่อไฟล์: StatusBudge.vue
-* คำอธิบาย: ไฟล์นี้เป็น Component Status
+* คำอธิบาย: ไฟล์นี้เป็นคอมโพเนนต์สำหรับแสดงตราสถานะ (Status Badge)
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
-import { defineProps } from 'vue';
+import { defineProps } from 'vue'; // นำเข้า defineProps เพื่อจัดการพร็อพของคอมโพเนนต์
 
+// กำหนดพร็อพที่คอมโพเนนต์นี้รับเข้ามา
 const props = defineProps<{
-    status: String
+    status: String // รับค่า status ซึ่งใช้กำหนดสถานะที่จะถูกแสดง
 }>();
 
 </script>
