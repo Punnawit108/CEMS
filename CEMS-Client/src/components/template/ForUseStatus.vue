@@ -1,14 +1,11 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : ForUseStatus.vue
- * คำอธิบาย : ไฟล์นี้แสดงการใช้สถานะ
- * Input : -
- * Output : 
- * ชื่อผู้เขียน / แก้ไข : 
- * วันที่จัดทำ / วัยที่แก้ไข : 
- */
+/*
+* ชื่อไฟล์: ForUseStatus.vue
+* คำอธิบาย: ไฟล์นี้แสดงการใช้สถานะ
+* ชื่อผู้เขียน/แก้ไข: 
+* วันที่จัดทำ/แก้ไข: 
+*/
 import StatusBudge from './StatusBudge.vue';
-
 </script>
 
 <template>

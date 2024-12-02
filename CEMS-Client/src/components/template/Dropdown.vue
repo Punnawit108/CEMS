@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: Dropdown.vue
 * คำอธิบาย: ไฟล์นี้เป็นComponentDropdown
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ

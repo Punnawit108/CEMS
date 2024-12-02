@@ -1,11 +1,10 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : Progress.vue
- * คำอธิบาย : ไฟล์นี้ใช้สำหรับแสดงความก้าวหน้าของการอนุมัติ
- * ชื่อผู้เขียน/แก้ไข : นายพรชัย เพิ่มพูลกิจ
- * วันที่จัดทำแก้ไข : 8 ตุลาคม 2567
- */
-
+/*
+* ชื่อไฟล์: Progress.vue
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับแสดงความก้าวหน้าของการอนุมัติ
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 8 ตุลาคม 2567
+*/
 const props = defineProps(["progressInfo", "colorStatus"]);
 console.log(props)
 console.log(props.progressInfo.disbursement[0]?.rqProgress);
