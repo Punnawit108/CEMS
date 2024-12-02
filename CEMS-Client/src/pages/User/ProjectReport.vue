@@ -10,7 +10,7 @@
 // import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { useProjectsStore } from '../../store/projectsReport';
 import ProjectReport from '../../types/index';
 import {

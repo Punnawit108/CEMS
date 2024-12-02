@@ -9,7 +9,7 @@
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 
 import { onMounted } from 'vue';
 //import { useExpense } from '../../store/ExpenseStore';

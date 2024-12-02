@@ -8,7 +8,7 @@
 * คำอธิบาย: แก้ไขข้อมูลให้ตรงหัวตราราง
 */
 import { useRouter } from 'vue-router';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import Icon from '../../components/template/CIcon.vue';
 import { usePayment } from '../../store/paymentStore';
 import { onMounted } from 'vue';

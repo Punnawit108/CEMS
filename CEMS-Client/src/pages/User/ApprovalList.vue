@@ -11,7 +11,7 @@
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { useExpense } from '../../store/ExpenseStore';
 import { ref, computed, onMounted } from 'vue';
 

@@ -9,7 +9,7 @@
 */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { usePayment } from '../../store/paymentStore';
 import { onMounted } from 'vue';
 const paymentlist = usePayment();

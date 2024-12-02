@@ -9,7 +9,7 @@
 import Icon from '../../components/template/CIcon.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, computed } from 'vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
 
