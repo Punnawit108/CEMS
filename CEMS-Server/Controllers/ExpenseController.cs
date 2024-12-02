@@ -1,8 +1,8 @@
-/**
+/*
 * ชื่อไฟล์: ExpenseController.cs
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API หน้ารายการเบิก และรายละเอียด
-* ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
-* วันที่จัดทำ/แก้ไข: 25 พฤศจิกายน 2567
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
 using CEMS_Server.AppContext;
@@ -25,7 +25,7 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลรายการคำขอเบิก</summary>
-    /// <returns>แสดงข้อมูลใบคำขอเบิกทั้งหมด </returns>
+    /// <returns>แสดงข้อมูลใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("list")]
@@ -65,7 +65,7 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลประวัติคำขอเบิก</summary>
-    /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกทั้งหมด </returns>
+    /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("History")]
@@ -104,7 +104,13 @@ public class ExpenseController : ControllerBase
         return Ok(requisition);
     }
 
-    // Expense report list
+    /// <summary>
+    /// ดึงช้อมูลใบเบิก
+    /// </summary>
+    /// <returns> แสดงข้อมูลใบเบิกทั้งหมด </returns>
+    /// <remarks>
+    /// แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล
+    /// </remark>
     [HttpGet("report")]
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
     {
@@ -128,7 +134,13 @@ public class ExpenseController : ControllerBase
         return Ok(requisition);
     }
 
-    // Expense report graph
+    /// <summary>
+    /// ดึงช้อมูลประเภทค่าใช้จ่าย
+    /// </summary>
+    /// <returns> แสดงข้อมูลประเภทค่าใช้จ่าย </returns>
+    /// <remarks>
+    /// แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล
+    /// </remark>
     [HttpGet("graph")]
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
     {
@@ -147,8 +159,8 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>แสดงข้อมูลรายละเอียดคำขอเบิก</summary>
-    /// <param name="id"> id รายการคำขอเบิก </param>
-    /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกตาม id ที่รับ </returns>
+    /// <param name="id"> id รายการคำขอเบิก</param>
+    /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกตาม id ที่รับ</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("{id}")]
@@ -193,8 +205,8 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>สร้างข้อมูลคำขอเบิก</summary>
-    /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก </param>
-    /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก </returns>
+    /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก /param>
+    /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก /returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
@@ -241,7 +253,7 @@ public class ExpenseController : ControllerBase
     /// <summary>เปลี่ยนแปลงข้อมูลคำขอเบิก</summary>
     /// <param name="id"> id ของรายการคำขอเบิก </param>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก </param>
-    /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก </returns>
+    /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPut("{id}")]

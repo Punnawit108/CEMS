@@ -1,4 +1,4 @@
-/**
+/*
 * ชื่อไฟล์: PaymentController.cs
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของรายการรอนำจ่าย และประวัติการรำจ่าย
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
@@ -23,7 +23,7 @@ public class PaymentController : ControllerBase
         _context = context;
     }
     /// <summary>แสดงช้อมูลรายการรอนำจ่าย</summary>
-    /// <returns>ข้อมูลรายการรอนำจ่ายทั้งหมด </returns>
+    /// <returns>ข้อมูลรายการรอนำจ่ายทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentList()
@@ -61,7 +61,7 @@ public class PaymentController : ControllerBase
         return Ok(requisition);
     }
     /// <summary>แสดงช้อมูลรายการประวัติการนำจ่าย</summary>
-    /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด </returns>
+    /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpGet("History")]
     public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory()
@@ -143,8 +143,8 @@ public class PaymentController : ControllerBase
         return Ok(requisition);
     }
     /// <summary>นำจ่ายคำขอเบิก</summary>
-    /// <param name="id"> id ของรายการคำขอเบิก</param>
-    /// <param name="expenseDto"> ข้อมูลคำขอเบิก</param>
+    /// <param name="id">id ของรายการคำขอเบิก</param>
+    /// <param name="expenseDto">ข้อมูลคำขอเบิก</param>
     /// <returns>อัพเดตสถานะคำขอเบิก</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpPut("{id}")]

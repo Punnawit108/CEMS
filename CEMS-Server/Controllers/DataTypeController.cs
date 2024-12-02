@@ -1,4 +1,4 @@
-/**
+/*
 * ชื่อไฟล์: DataTypeController.cs
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของรายการแบบเลือก (Dropdown)
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
@@ -25,7 +25,7 @@ public class DataTypeController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลรายการโครงการ</summary>
-    /// <returns>แสดงข้อมูลโครงการทั้งหมด </returns>
+    /// <returns>แสดงข้อมูลโครงการทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("project")]
@@ -43,7 +43,7 @@ public class DataTypeController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลประเภทค่าใช้จ่าย</summary>
-    /// <returns>แสดงข้อมูลประเภทค่าใช้จ่ายทั้งหมด </returns>
+    /// <returns>แสดงข้อมูลประเภทค่าใช้จ่ายทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("requisition")]
@@ -56,7 +56,7 @@ public class DataTypeController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลประเภทการเดินทาง</summary>
-    /// <returns>แสดงข้อมูลประเภทการเดินทางทั้งหมด </returns>
+    /// <returns>แสดงข้อมูลประเภทการเดินทางทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("vehicle")]
