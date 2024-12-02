@@ -2,13 +2,13 @@
 /*
 * ชื่อไฟล์: TravelManage.vue
 * คำอธิบาย: ไฟล์นี้สามารถตั้งค่าประเภทการเดินทางต่างๆ ที่มีอยู่ในระบบ เพิ่ม แก้ไข หรือปิดการใช้งานได้
-* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 import { ref, onMounted, computed, toRaw } from "vue";
 import axios from "axios";
 import Button from "../../components/template/Button.vue";
-import { useExpenseManageStore } from "../../store/ExpenseManageStore";
+import { useExpenseManageStore } from "../../store/expenseManageStore";
 
 const filteredVehicles = computed(() =>
   vehicle.vehicleRows.filter((item) => item.vehicleType === "private")
