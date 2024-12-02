@@ -1,4 +1,4 @@
-/**
+/*
 * ชื่อไฟล์: index.ts
 * คำอธิบาย: สำหรับเก็บ Route ที่สร้างไว้ทั้งหมด
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล , นายพงศธร บุญญามา
@@ -35,10 +35,6 @@ import Popup from '../components/template/Popup.vue';
 import UploadPicture from '../components/template/UploadPicture.vue';
 import ForUseButton from '../components/template/ForUseButton.vue';
 import ForUseStatus from '../components/template/ForUseStatus.vue';
-
-
-
-
 
 const router = createRouter({
   history: createWebHistory(),
@@ -89,14 +85,12 @@ const router = createRouter({
       name: 'btn',
       component: ForUseButton
     },
-    //
     //StatusBudge
     {
       path: '/temp/Status',
       name: 'ForUseStatus',
       component: ForUseStatus
     },
-    //
     // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
     {
       path: '/dashboard',
