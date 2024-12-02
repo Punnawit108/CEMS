@@ -14,6 +14,13 @@ export const usePayment = defineStore('expense', {
         expense: [] as Expense[]
     }),
     actions:{
+        /**
+        * คำอธิบาย : เรียกข้อมูลรายการรอนำจ่าย
+        * Input : -
+        * Output : ข้อมูลรายการรอนำจ่าย
+        * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+        * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+        */
         async getAllPaymentList(){
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/payment/list`)
@@ -21,14 +28,30 @@ export const usePayment = defineStore('expense', {
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
             }
-        },async getPaymentById(id:string){
+        },
+        /**
+        * คำอธิบาย : เรียกข้อมูลรายการรอนำจ่าย
+        * Input : -
+        * Output : ข้อมูลรายการรอนำจ่าย
+        * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+        * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+        */
+        async getPaymentById(id:string){
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/payment/${id}`)
                 return result.data;
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
             }
-        },async getAllPaymentHistory(){
+        },
+        /**
+        * คำอธิบาย : เรียกข้อมูลรายการประวัติการนำจ่าย
+        * Input : -
+        * Output : ข้อมูลรายการประวัติการนำจ่าย
+        * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+        * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+        */
+        async getAllPaymentHistory(){
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/payment/History`)
                 this.expense = result.data;
