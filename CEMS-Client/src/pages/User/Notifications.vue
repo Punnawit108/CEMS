@@ -27,7 +27,7 @@ const filteredNotifications = computed(() => {
         return notificationStore.notifications.filter(n => n.statusNoti); // กรองเฉพาะที่อ่านแล้ว
         
     } else if (filterNotification.value === "NotRead") {
-        return notificationStore.notifications.filter(n => !n.statusNoti); // กรองเฉพาะที่ยังไม่ได้อ่าน
+        return notificationStore.notifications.filter(n => n.statusNoti); // กรองเฉพาะที่ยังไม่ได้อ่าน
     }
     return notificationStore.notifications; // แสดงทั้งหมด
 });
