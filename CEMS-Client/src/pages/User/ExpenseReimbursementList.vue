@@ -1,10 +1,10 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : ExpenseReimbursementList.vue
- * คำอธิบาย : ไฟล์นี้แสดงรายการเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
- * วันที่จัดทำ / วันที่แก้ไข : 1 ธันวาคม 2567
- */
+/*
+* ชื่อไฟล์: ExpenseReimbursementList.vue
+* คำอธิบาย: ไฟล์นี้แสดงรายการเบิกค่าใช้จ่าย
+* ชื่อผู้เขียน/แก้ไข: นครียา วัฒนศรี
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+*/
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';

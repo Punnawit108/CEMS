@@ -1,10 +1,10 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : expenseReimbursementHistory.vue
- * คำอธิบาย : ไฟล์นี้แสดงประวัติการเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน / แก้ไข : พรชัย เพิ่มพูลกิจ
- * วันที่จัดทำ / วันที่แก้ไข : 30 พฤศจิกายน 2567
- */
+/*
+* ชื่อไฟล์: expenseReimbursementHistory.vue
+* คำอธิบาย: ไฟล์นี้แสดงประวัติการเบิกค่าใช้จ่าย
+* ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
+*/
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';

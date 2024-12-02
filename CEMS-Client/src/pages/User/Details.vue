@@ -1,10 +1,10 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : Details.vue
- * คำอธิบาย : ไฟล์นี้ใช้สำหรับแสดงรายละเอียดคำขอเบิก
- * ชื่อผู้เขียน/แก้ไข : นายพรชัย เพิ่มพูลกิจ, นายพงศธร บุญญามา
- * วันที่จัดทำแก้ไข : 22 ตุลาคม 2567
- */
+/*
+* ชื่อไฟล์: Details.vue
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับแสดงรายละเอียดคำขอเบิก
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ, นายพงศธร บุญญามา
+* วันที่จัดทำ/แก้ไข: 22 ตุลาคม 2567
+*/
 import { ref , computed , onMounted} from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
