@@ -28,6 +28,16 @@ export interface Expense{
     rqStatus: string;
     rqProgress: string;
 }
+
+export interface Approval {
+    aprId: number;           
+    usrFirstName: string;    
+    usrLastName: string;     
+    aprName: string | null;  
+    aprDate: string;         
+}
+
+
 //ตัวแปรประเภทค่าใช้จ่าย
 export interface ExpenseManage{
     rqtId?: number;

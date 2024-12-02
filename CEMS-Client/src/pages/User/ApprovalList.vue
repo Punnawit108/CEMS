@@ -63,8 +63,8 @@ onMounted(() => {
     expense.getAllApprovalList()
 })
 
-const toDetails = (id: string) => {
-    router.push(`/approval/list/detail/${id}`);
+const toDetails =  (data: Expense) => {
+    router.push(`/approval/list/detail/${data.rqId}`);
 }
 </script>
 <!-- path for test = /approval/list -->
@@ -195,7 +195,7 @@ const toDetails = (id: string) => {
                         <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDateWithdraw }}</th>
                         <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
                         <th class="py-[10px] px-2 w-32 text-center">
-                            <span class="flex justify-center" v-on:click="toDetails">
+                            <span class="flex justify-center" v-on:click="toDetails(expense)">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>
