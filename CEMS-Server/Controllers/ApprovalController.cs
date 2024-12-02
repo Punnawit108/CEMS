@@ -43,6 +43,7 @@ public class ApprovalController : ControllerBase
     }
     /// <summary>แสดงช้อมูลการอนุมัติ</summary>
     /// <returns>ช้อมูลการอนุมัติ</returns>
+    /// <param name="requisitionId">เลขใบคำขอเบิก</param>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpGet("progress/{requisitionId:int}")]
     public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId)
@@ -94,7 +95,10 @@ public class ApprovalController : ControllerBase
         return Ok(progress);
     }
 
-    // Req => usrFirstName, usrLastName
+    /// <summary>ใช้เพิ่มผู้อนุมัติ</summary>
+    /// <returns>ข้อมูลผู้อนุมัติ</returns>
+    /// <param name="approver">ข้อมูลผู้อนุมัติ</param>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpPost]
     public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
     {
