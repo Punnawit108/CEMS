@@ -1,12 +1,9 @@
-
-/**
- * ชื่อไฟล์ : ApprovalListStore.ts
- * คำอธิบาย : FileTest Api จาก MockAPI
- * Input : -
- * Output : MockAPI
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 25 พฤศจิกายน 2567
- */
+/*
+* ชื่อไฟล์: ApprovalListStore.ts
+* คำอธิบาย: FileTest Api จาก MockAPI
+* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+* วันที่จัดทำ/แก้ไข: 25 พฤศจิกายน 2567
+*/
 import axios from "axios";
 import { defineStore } from "pinia";
 import { ref } from "vue";

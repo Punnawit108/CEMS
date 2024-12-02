@@ -1,9 +1,8 @@
-/**
-* คำอธิบาย : createExpenseForm.ts
-* Input :  ข้อมูล ExpenseForm
-* Output : ข้อมูล ExpenseForm
-* ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
-* วันที่จัดทำ / วัยที่แก้ไข : 20 พฤศจิกายน 2567
+/*
+* ชื่อไฟล์: createExpenseForm.ts
+* คำอธิบาย: createExpenseForm.ts
+* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+* วันที่จัดทำ/แก้ไข: 20 พฤศจิกายน 2567
 */
 import axios from "axios";
 

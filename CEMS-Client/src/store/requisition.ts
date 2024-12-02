@@ -1,9 +1,9 @@
-/**
- * ชื่อไฟล์ : requisition.ts
- * คำอธิบาย : ไฟล์ store API ของประเภทค่าเดินทางและประเภทรถ
- * ชื่อผู้เขียน / แก้ไข : นายปุณณะวิชญื เชียนพลแสน
- * วันที่จัดทำ / วันที่แก้ไข : 27 พฤศจิกายน 2567
- */
+/*
+* ชื่อไฟล์: requisition.ts
+* คำอธิบาย: ไฟล์ store API ของประเภทค่าเดินทางและประเภทรถ
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญื เชียนพลแสน
+* วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
+*/
 
 import axios from "axios";
 import { defineStore } from "pinia";
@@ -26,12 +26,12 @@ export const useRequisitionStore = defineStore('dropdown', {
             return state.vehicleType.filter(vehicle => vehicle.vhType === state.selectedTravelType);
         }
     },
-    /**
-    * คำอธิบาย : requisition.ts
-    * Input : 
-    * Output : ดึงข้อมูลโปรเจ็ค
-    * ชื่อผู้เขียน / แก้ไข : พงศธร บุญญามา
-    * วันที่จัดทำ / วัยที่แก้ไข : 26 พฤศจิกายน 2567
+    /*
+    * คำอธิบาย: requisition.ts
+    * Input: -
+    * Output: ดึงข้อมูลโปรเจ็ค
+    * ชื่อผู้เขียน/แก้ไข: พงศธร บุญญามา
+    * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
     */
     actions: {
         async getAllProject() {
@@ -47,12 +47,12 @@ export const useRequisitionStore = defineStore('dropdown', {
                 }
             }
         },
-        /**
-        * คำอธิบาย : requisition.ts
-        * Input : 
-        * Output : ดึงข้อมูลประเภทค่าใช้จ่าย
-        * ชื่อผู้เขียน / แก้ไข : พงศธร บุญญามา
-        * วันที่จัดทำ / วัยที่แก้ไข : 26 พฤศจิกายน 2567
+        /*
+        * คำอธิบาย: requisition.ts
+        * Input: -
+        * Output: ดึงข้อมูลประเภทค่าใช้จ่าย
+        * ชื่อผู้เขียน/แก้ไข: พงศธร บุญญามา
+        * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
         */
         async getAllRequisitionType() {
             try {
@@ -67,12 +67,12 @@ export const useRequisitionStore = defineStore('dropdown', {
                 }
             }
         },
-        /**
-        * คำอธิบาย : requisition.ts
-        * Input : 
-        * Output : ดึงข้อมูลประเภทรถ
-        * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
-        * วันที่จัดทำ / วัยที่แก้ไข : 27 พฤศจิกายน 2567
+        /*
+        * คำอธิบาย: requisition.ts
+        * Input: -
+        * Output: ดึงข้อมูลประเภทรถ
+        * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+        * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
         */
         async getAllvehicleType() {
             try {
@@ -87,13 +87,12 @@ export const useRequisitionStore = defineStore('dropdown', {
                 }
             }
         },
-
-        /**
-        * คำอธิบาย : requisition.ts
-        * Input : เพิ่มข้อมูลค่าใช้จ่าย ข้อมูลExpense
-        * Output : -
-        * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
-        * วันที่จัดทำ / วัยที่แก้ไข : 27 พฤศจิกายน 2567
+        /*
+        * คำอธิบาย: requisition.ts
+        * Input: เพิ่มข้อมูลค่าใช้จ่าย ข้อมูลExpense
+        * Output: -
+        * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+        * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
         */
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
         async createExpense(CreateExpense: any) {
@@ -108,12 +107,12 @@ export const useRequisitionStore = defineStore('dropdown', {
                 console.log(error)
             }
         },
-        /**
-        * คำอธิบาย : requisition.ts
-        * Input : อัปเดตข้อมูลExpense
-        * Output : แสดงข้อมูลExpense
-        * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
-        * วันที่จัดทำ / วัยที่แก้ไข : 27 พฤศจิกายน 2567
+        /*
+        * คำอธิบาย: requisition.ts
+        * Input: อัปเดตข้อมูลExpense
+        * Output: แสดงข้อมูลExpense
+        * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+        * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
         */
         // ฟังก์ชันสำหรับกการputต์ค่าใช้จ่ายใหม่
         async updateExpense(id: string, CreateExpense: any) {
@@ -128,10 +127,5 @@ export const useRequisitionStore = defineStore('dropdown', {
                 console.log(error)
             }
         },
-
-
-
     }
 });
-
-
