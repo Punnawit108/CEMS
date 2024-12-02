@@ -22,6 +22,9 @@ public class NotificationController : ControllerBase
     {
         _context = context;
     }
+    /// <summary>แสดงช้อมูลการแจ้งเตือน</summary>
+    /// <returns>ข้อมูลการแจ้งเตือนของระบบ</returns>
+    /// <remarks>แก้ไขล่าสุด: 2 ธันวาคม 2567 โดย นายศตวรรษ ไตรธิเลน</remark>
     
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<NotificationGetDto>>> GetNotificationList()
@@ -43,6 +46,4 @@ public class NotificationController : ControllerBase
 
         return Ok(notification);
     }
-
-    
 }
