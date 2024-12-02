@@ -1,5 +1,12 @@
+/**
+* ชื่อไฟล์: PaymentDTO.cs
+* คำอธิบาย: ใช้สำหรับจัดเรียงตัวแปรของเส้น api หน้ารายการ และรายละเอียด
+* ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+* วันที่จัดทำ/แก้ไข: 25 พฤศจิกายน 2567
+*/
 namespace CEMS_Server.DTOs
 {
+    //ตัวแปรเส้น get
     public class PaymentGetDto
     {
         public int RqId { get; set; }
@@ -40,7 +47,7 @@ namespace CEMS_Server.DTOs
 
         public string RqProgress { get; set; } = null!;
     }
-
+    //ตัวแปรเส้น push
     public class PaymentManageDto
     {
         public int RqUsrId { get; set; }

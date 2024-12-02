@@ -1,3 +1,10 @@
+/**
+ * ชื่อไฟล์ : ApprovalController.cs
+ * คำอธิบาย : ไฟล์นี้ใช้สำหรับกำหนด logic API ของการอนุมัติและผู้อนุมัติ
+ * ชื่อผู้เขียน/แก้ไข : นายพรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำแก้ไข : 28 พฤศจิกายน 2567
+ */
+
 using CEMS_Server.AppContext;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -16,6 +23,9 @@ public class ApprovalController : ControllerBase
         _context = context;
     }
 
+    /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
+    /// <returns>ข้อมูลผู้อนุมัติทั้งหมด </returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<object>>> ApproverList()
     {
@@ -31,7 +41,9 @@ public class ApprovalController : ControllerBase
             .ToListAsync();
         return Ok(acceptorList);
     }
-
+    /// <summary>แสดงช้อมูลการอนุมัติ</summary>
+    /// <returns>ช้อมูลการอนุมัติ </returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpGet("progress/{requisitionId:int}")]
     public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId)
     {
@@ -92,6 +104,9 @@ public class ApprovalController : ControllerBase
         return CreatedAtAction(nameof(ApproverList), new { id = approver.ApId }, approver);
     }
 
+    /// <summary>ใช้สำหรับดำเนินการคำขอเบิก</summary>
+    /// <returns>คำขอเบิกได้รับการดำเนินการ </returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpPost("approve")]
     public async Task<ActionResult> ApproveRequisition(
         [FromBody] CemsApproverRequistion approverRequistion

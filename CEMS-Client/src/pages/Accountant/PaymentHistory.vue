@@ -2,8 +2,6 @@
 /**
 * ชื่อไฟล์: PaymentHistory.vue
 * คำอธิบาย: ไฟล์นี้แสดงรายการประวัติการนำจ่าย
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 * วันที่แก้ไข: 26 พฤศจิกายน 2567
@@ -16,11 +14,11 @@ import { usePayment } from '../../store/paymentStore';
 import { onMounted } from 'vue';
 const paymentHistory = usePayment();
 const router = useRouter();
+
 onMounted(() => {
     paymentHistory.getAllPaymentHistory();
 }
 )
-
 const toDetails = (id: string) => {
     router.push(`/payment/history/detail/${id}`);
 }

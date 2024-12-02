@@ -1,3 +1,12 @@
+/*
+* ชื่อไฟล์: DashboardDTO.cs
+* คำอธิบาย: ไฟล์นี้คือไฟล์ที่สร้างตัวแปรที่ใช้กับ Dashboard 
+* Input: -
+* Output: -
+* ชื่อผู้เขียน/ผู้แก้ไข: นางสาวอลิสา ปะกังพลัง
+* วันที่จัดทำ/แก้ไข: 24 พฤศจิกายน 2567
+*/
+
 namespace CEMS_Server.DTOs
 {
     //ของ User
@@ -13,8 +22,6 @@ namespace CEMS_Server.DTOs
 
         public string RqStatus { get; set; } = null!;
 
-        public int RqRqtId { get; set; }
-
         public string RqtName { get; set; } = null!;
 
         public DateOnly RqDateWithdraw { get; set; }
@@ -28,8 +35,6 @@ namespace CEMS_Server.DTOs
 
         public int AprId { get; set; }
 
-        public int RqPjId { get; set; }
-
         public string PjName { get; set; } = null!;
 
         public double RqExpenses { get; set; }
@@ -37,8 +42,6 @@ namespace CEMS_Server.DTOs
         public double PjAmountExpenses { get; set; }
 
         public string RqStatus { get; set; } = null!;
-
-        public int RqRqtId { get; set; }
 
         public string RqtName { get; set; } = null!;
 
@@ -51,8 +54,6 @@ namespace CEMS_Server.DTOs
     {
         public int UsrId { get; set; }
 
-        public int RqPjId { get; set; }
-
         public string PjName { get; set; } = null!;
 
         public double RqExpenses { get; set; }
@@ -60,8 +61,6 @@ namespace CEMS_Server.DTOs
         public double PjAmountExpenses { get; set; }
 
         public string RqStatus { get; set; } = null!;
-
-        public int RqRqtId { get; set; }
 
         public string RqtName { get; set; } = null!;
 
@@ -76,8 +75,6 @@ namespace CEMS_Server.DTOs
 
         public int AprId { get; set; }
 
-        public int RqPjId { get; set; }
-
         public string PjName { get; set; } = null!;
 
         public double RqExpenses { get; set; }
@@ -85,8 +82,6 @@ namespace CEMS_Server.DTOs
         public double PjAmountExpenses { get; set; }
 
         public string RqStatus { get; set; } = null!;
-
-        public int RqRqtId { get; set; }
 
         public string RqtName { get; set; } = null!;
 

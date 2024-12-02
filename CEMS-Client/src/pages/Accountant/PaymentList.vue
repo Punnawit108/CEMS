@@ -2,15 +2,22 @@
 /**
 * ชื่อไฟล์: PaymentList.vue
 * คำอธิบาย: ไฟล์นี้แสดงรายการรอนำจ่าย
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* แก้ไข: 27 พฤศจิกายน 2567
+* คำอธิบาย: ดึงapiมาแสดง
 */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/Ctable.vue';
+import { usePayment } from '../../store/paymentStore';
+import { onMounted } from 'vue';
+const paymentlist = usePayment();
 const router = useRouter();
+
+onMounted(()=>{
+    paymentlist.getAllPaymentList()
+})
 
 const toDetails = (id: string) => {
     router.push(`/payment/list/detail/${id}`);
@@ -129,21 +136,22 @@ const toDetails = (id: string) => {
             <div>
                 <table class="w-full">
                     <tbody>
-                        <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">1</th>
+                        <tr v-for="(paymentlist, index) in paymentlist.expense" :key="paymentlist.rqId"
+                         class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                            <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1}}</th>
                             <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                                 style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="นายเทียนชัย คูเมือง">
-                                นายเทียนชัย คูเมือง
+                                title="paymentlist.rqUsrName">
+                                {{paymentlist.rqUsrName}}
                             </th>
                             <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                                 style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                                กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                                title="paymentlist.rqPjName">
+                                {{paymentlist.rqPjName}}
                             </th>
-                            <th class="py-[12px] px-5 w-44 text-start ">ค่าเดินทาง</th>
-                            <th class="py-[12px] px-2 w-24 text-end ">08/10/2567</th>
-                            <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
+                            <th class="py-[12px] px-5 w-44 text-start ">{{ paymentlist.rqRqtName }}</th>
+                            <th class="py-[12px] px-2 w-24 text-end ">{{ paymentlist.rqDateWithdraw }}</th>
+                            <th class="py-[12px] px-2 w-40 text-end ">{{ paymentlist.rqExpenses }}</th>
                             <th class="py-[10px] px-2 w-32 text-center ">
                                 <span class="flex justify-center" v-on:click="toDetails">
                                     <Icon :icon="'viewDetails'" />

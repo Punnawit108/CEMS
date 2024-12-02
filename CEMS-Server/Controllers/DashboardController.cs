@@ -1,3 +1,12 @@
+/*
+* ชื่อไฟล์: DashboardController.cs
+* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ Api ของ Dashboard ซึ่งสามารถ ดึงข้อมูลได้อย่างเดียว
+* Input: -
+* Output: ภาพรวมของระบบๆ
+* ชื่อผู้เขียน/ผู้แก้ไข: นางสาวอลิสา ปะกังพลัง
+* วันที่จัดทำ/แก้ไข: 24 พฤศจิกายน 2567
+*/
+
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -18,15 +27,15 @@ public class DashboardController : ControllerBase
         _context = context;
     }
 
-// DashboardUser
+    // DashboardUser
     [HttpGet("user")]
-    public async Task<ActionResult<IEnumerable<DashboardUserGetDto>>> GetDashboardUser() //ติดไว้ก่อน
+    public async Task<ActionResult<IEnumerable<DashboardUserGetDto>>> GetDashboardUser()
     {
         var requisition = await _context
             .CemsRequisitions
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
-            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
             .Select(u => new DashboardUserGetDto
             {
                 RqId = u.RqId,
@@ -34,63 +43,56 @@ public class DashboardController : ControllerBase
                 RqExpenses = u.RqExpenses,
                 PjAmountExpenses = u.RqPj.PjAmountExpenses,
                 RqStatus = u.RqStatus,
-                RqRqtId = u.RqRqtId,
                 RqtName = u.RqRqt.RqtName,
                 RqDateWithdraw = u.RqDateWithdraw,
             })
             .ToListAsync();
-
         return Ok(requisition);
     }
 
-//Approver
+
+    //Approver
     [HttpGet("approver")]
     public async Task<ActionResult<IEnumerable<DashboardApproverGetDto>>> GetDashboardApprover()
     {
         var requisition = await _context
-            .CemsApproverRequistion.Include(e => e.AprRq)
-            .CemsRequisitions.Include(e => e.RqUsr)
-            .Include(e => e.RqPj)
-            .Include(e => e.RqRqt)
-            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
-            .Select(u => new DashboardApproverGetDto
-            {
-                AprRqId = u.AprRqId,
-                RqStatus = u.AprRq.RqStatus,
-                AprId = u.AprId,
-                RqExpenses = u.AprRq.RqExpenses,
-                RqPjId = u.AprRq.RqPjId,
-                PjName = u.AprRq.RqPj.PjName,
-                PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
-                RqRqtId = u.AprRq.RqRqtId,
-                RqtName = u.AprRq.RqRqt.RqtName,
-                RqDateWithdraw = u.AprRq.RqDateWithdraw,
-            })
+        .CemsApproverRequistions.Include(e => e.AprRq)
+            .Include(e => e.AprRq.RqPj)
+            .Include(e => e.AprRq.RqRqt)
+            .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept")
+        .Select(u => new DashboardApproverGetDto
+        {
+            AprRqId = u.AprRqId,
+            RqStatus = u.AprStatus,
+            AprId = u.AprId,
+            RqExpenses = u.AprRq.RqExpenses,
+            PjName = u.AprRq.RqPj.PjName,
+            PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
+            RqtName = u.AprRq.RqRqt.RqtName,
+            RqDateWithdraw = u.AprRq.RqDateWithdraw,
+        })
             .ToListAsync();
 
         return Ok(requisition);
     }
 
-//Admin
+    //Admin
     [HttpGet("admin")]
     public async Task<ActionResult<IEnumerable<DashboardAdminGetDto>>> GetDashboardAdmin()
     {
         var requisition = await _context
             .CemsApproverRequistions.Include(e => e.AprRq)
-            .Include(e => e.RqUsr)
-            .Include(e => e.RqPj)
-            .Include(e => e.RqRqt)
-            .Where(u => u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
+            .Include(e => e.AprRq.RqUsr)
+            .Include(e => e.AprRq.RqPj)
+            .Include(e => e.AprRq.RqRqt)
+            .Where(u => u.AprRq.RqStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
             .Select(u => new DashboardAdminGetDto
             {
                 UsrId = u.AprRq.RqUsr.UsrId,
-                AprRqId = u.AprRqId,
                 RqStatus = u.AprRq.RqStatus,
                 RqExpenses = u.AprRq.RqExpenses,
-                RqPjId = u.AprRq.RqPjId,
                 PjName = u.AprRq.RqPj.PjName,
                 PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
-                RqRqtId = u.AprRq.RqRqtId,
                 RqtName = u.AprRq.RqRqt.RqtName,
                 RqDateWithdraw = u.AprRq.RqDateWithdraw,
             })
@@ -99,26 +101,23 @@ public class DashboardController : ControllerBase
         return Ok(requisition);
     }
 
-//Accountant
+    //Accountant
     [HttpGet("accountant")]
     public async Task<ActionResult<IEnumerable<DashboardAccountantGetDto>>> GetDashboardAccountant()
     {
         var requisition = await _context
-            .CemsApproverRequistion.Include(e => e.AprRq)
-            .CemsRequisitions.Include(e => e.RqUsr)
-            .Include(e => e.RqPj)
-            .Include(e => e.RqRqt)
-            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
+            .CemsApproverRequistions.Include(e => e.AprRq)
+            .Include(e => e.AprRq.RqPj)
+            .Include(e => e.AprRq.RqRqt)
+            .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
             .Select(u => new DashboardAccountantGetDto
             {
                 AprRqId = u.AprRqId,
-                RqStatus = u.AprRq.RqStatus,
+                RqStatus = u.AprStatus,
                 AprId = u.AprId,
                 RqExpenses = u.AprRq.RqExpenses,
-                RqPjId = u.AprRq.RqPjId,
                 PjName = u.AprRq.RqPj.PjName,
                 PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
-                RqRqtId = u.AprRq.RqRqtId,
                 RqtName = u.AprRq.RqRqt.RqtName,
                 RqDateWithdraw = u.AprRq.RqDateWithdraw,
             })
