@@ -1,12 +1,11 @@
 <script setup lang="ts">
 /**
- * ชื่อไฟล์ : CreateExpenseForm.vue
- * คำอธิบาย : ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
- * Input : ข้อมูลฟอร์มเบิกค่าใช้จ่าย
- * Output : -
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
- */
+* ชื่อไฟล์ : CreateExpenseForm.vue
+* คำอธิบาย : ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
+* ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
+* วันที่จัดทำ / วัยที่แก้ไข : 28 พฤศจิกายน 2567
+*/
+
 import axios from "axios";
 import { onMounted, ref, watch } from "vue";
 import Button from "../../components/template/Button.vue";
