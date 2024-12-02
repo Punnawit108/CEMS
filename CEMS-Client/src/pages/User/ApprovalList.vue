@@ -9,7 +9,7 @@
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
-import { useExpense } from '../../store/ExpenseStore';
+import { useExpense } from '../../store/expenseStore';
 import { ref, computed, onMounted } from 'vue';
 import { useTodoStore } from "../../store/approvalList";
 

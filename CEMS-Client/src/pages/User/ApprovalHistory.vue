@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
-import { useExpense } from '../../store/ExpenseStore';
+import { useExpense } from '../../store/expenseStore';
 import { onMounted } from 'vue';
 import { Expense } from '../../types';
 import { useDetailStore } from '../../store/detail';
