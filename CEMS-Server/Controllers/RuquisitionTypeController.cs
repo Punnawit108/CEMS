@@ -1,42 +1,47 @@
 /*
 * ชื่อไฟล์: RuquisitionTypeController.cs
-* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการapiของRuquisitionType ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้ 
+* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ RequisitionType ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้ 
 * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
-using CEMS_Server.AppContext;
-using CEMS_Server.DTOs;
-using CEMS_Server.Models;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+
+using CEMS_Server.AppContext; // อ้างอิงถึงบริบทของฐานข้อมูล
+using CEMS_Server.DTOs; // อ้างอิงถึง Data Transfer Objects (DTO)
+using CEMS_Server.Models; // อ้างอิงถึงโมเดลของฐานข้อมูล
+using Microsoft.AspNetCore.Mvc; // ใช้สำหรับการจัดการ API
+using Microsoft.EntityFrameworkCore; // ใช้สำหรับการดำเนินการเกี่ยวกับฐานข้อมูล
 
 namespace CEMS_Server.Controllers;
 
+// ระบุว่าคลาสนี้เป็น Controller สำหรับ API
 [ApiController]
 [Route("api/requisitiontype")]
 public class RequisitionTypeController : ControllerBase
 {
-    private readonly CemsContext _context;
+    private readonly CemsContext _context; // ตัวแปรบริบทของฐานข้อมูล
 
+    // Constructor สำหรับตั้งค่าบริบทของฐานข้อมูล
     public RequisitionTypeController(CemsContext context)
     {
         _context = context;
     }
 
+    // ดึงข้อมูลทั้งหมดในรูปแบบ List ของ CemsRequisitionType
     // GET: api/requisitiontype
     [HttpGet]
     public ActionResult<IEnumerable<CemsRequisitionType>> GetAll()
     {
-       
-        return _context.CemsRequisitionTypes.ToList();
+        return _context.CemsRequisitionTypes.ToList(); // คืนค่าข้อมูลทั้งหมดในตาราง
     }
 
+    // ดึงข้อมูลทั้งหมดในรูปแบบ DTO
     // GET: api/requisitiontype/list
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<RequisitionTypeDTO>>> GetAllAsDto()
     {
+        // แปลงข้อมูลในฐานข้อมูลเป็นรูปแบบ DTO และคืนค่ากลับ
         var requisitionTypes = await _context
-            .CemsRequisitionTypes 
+            .CemsRequisitionTypes
             .Select(u => new RequisitionTypeDTO
             {
                 RqtId = u.RqtId,
@@ -44,55 +49,61 @@ public class RequisitionTypeController : ControllerBase
             })
             .ToListAsync();
 
-        return Ok(requisitionTypes);
+        return Ok(requisitionTypes); // ส่งข้อมูลกลับในรูปแบบ JSON
     }
 
+    // เพิ่มข้อมูลใหม่
     // POST: api/requisitiontype
     [HttpPost]
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
+        // สร้างออบเจ็กต์ใหม่จาก DTO
         var newRequisitionType = new CemsRequisitionType
         {
             RqtName = requisitionTypeDto.RqtName
         };
 
-        _context.CemsRequisitionTypes.Add(newRequisitionType); 
-        await _context.SaveChangesAsync();
+        _context.CemsRequisitionTypes.Add(newRequisitionType); // เพิ่มข้อมูลลงในบริบท
+        await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
 
-        return CreatedAtAction(nameof(GetAll), new { id = newRequisitionType.RqtId }, requisitionTypeDto);
+        return CreatedAtAction(nameof(GetAll), new { id = newRequisitionType.RqtId }, requisitionTypeDto); // ส่งสถานะ 201 พร้อมข้อมูลที่เพิ่ม
     }
 
+    // แก้ไขข้อมูลที่มีอยู่
     // PUT: api/requisitiontype/{id}
     [HttpPut("{id}")]
     public async Task<ActionResult> Update(int id, RequisitionTypeDTO requisitionTypeDto)
     {
+        // ค้นหาข้อมูลที่ต้องการแก้ไข
         var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id); 
         if (existingRequisitionType == null)
         {
-            return NotFound();
+            return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
         }
 
-        existingRequisitionType.RqtName = requisitionTypeDto.RqtName;
+        existingRequisitionType.RqtName = requisitionTypeDto.RqtName; // อัปเดตข้อมูลในออบเจ็กต์
 
-        _context.CemsRequisitionTypes.Update(existingRequisitionType); 
-        await _context.SaveChangesAsync();
+        _context.CemsRequisitionTypes.Update(existingRequisitionType); // อัปเดตข้อมูลในบริบท
+        await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
 
-        return NoContent();
+        return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
     }
 
+    // ลบข้อมูล
     // DELETE: api/requisitiontype/{id}
     [HttpDelete("{id}")]
     public async Task<ActionResult> Delete(int id)
     {
+        // ค้นหาข้อมูลที่ต้องการลบ
         var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id); 
         if (existingRequisitionType == null)
         {
-            return NotFound();
+            return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
         }
 
-        _context.CemsRequisitionTypes.Remove(existingRequisitionType); 
-        await _context.SaveChangesAsync();
+        _context.CemsRequisitionTypes.Remove(existingRequisitionType); // ลบข้อมูลออกจากบริบท
+        await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
 
-        return NoContent();
+        return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
     }
 }
