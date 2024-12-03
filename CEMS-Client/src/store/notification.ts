@@ -25,7 +25,7 @@ export const useNotification = defineStore('notifications', {
         async updateStatusNoti(id: number) {
             try {
                 // อัปเดต statusNoti เป็น true
-                await axios.put(${import.meta.env.VITE_BASE_URL}/api/${id}, { statusNoti: true });
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/${id}`, { statusNoti: true });
 
                 // อัปเดตข้อมูลใน state
                 const notification = this.notifications.find((noti) => noti.id === id);
@@ -44,7 +44,7 @@ export const useNotification = defineStore('notifications', {
         * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
         */
         async getAllNotifications() {
-            const result = await axios.get(${import.meta.env.VITE_BASE_URL}/api)
+            const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api`)
             this.notifications = result.data
         },
         
