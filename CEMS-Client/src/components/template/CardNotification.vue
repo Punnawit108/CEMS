@@ -5,23 +5,23 @@ import { defineProps, defineEmits } from 'vue';
 const notificationStore = useNotification();
 const props = defineProps<Notification>();
 
-const updateStatus = (id: number) => {
-    notificationStore.updateStatusNoti(id);
+const updateStatus = (NtId: number) => {
+    notificationStore.updateStatusNoti(NtId);
 
 };
 
 </script>
 
 <template>
-    <section @click="updateStatus(props.id)" class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400 ">
+    <section @click="updateStatus(props.NtId)" class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400 ">
         <div
             class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
             <h2 class="text-sm text-gray-800">
                 <span>คำขอเบิกค่าใช้จ่าย </span>
-                <strong>{{ props.nameProject }}</strong>
+                <strong>{{ props.NtAprRqPjName }}</strong>
             </h2>
             <p class="text-xs text-gray-500 max-md:max-w-full">
-                รหัส : {{ props.idWithdraw }} {{ props.description }}
+                รหัส : {{ props.NtAprRqId }} {{ props.NtAprDate }}
                 และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง
             </p>
         </div>

@@ -27,7 +27,7 @@ public class NotificationController : ControllerBase
             .Include(e => e.NtApr.AprRq.RqUsr)
             .Select(u => new NotificationGetDto {
             NtId = u.NtId,                              //รหัสแจ้งเตือน
-            NtStatus = u.NtStatus                       //สถานะการแจ้งเตือน
+            NtStatus = u.NtStatus,                       //สถานะการแจ้งเตือน
             NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
             NtAprRqId = u.NtApr.AprRq.RqId,             //รหัสใบคำขอเบิก
             NtAprStatus = u.NtApr.AprStatus,            //สถานะคำขอเบิก

@@ -10,22 +10,21 @@ export const useNotification = defineStore('notifications', {
     }),
 
     actions: {
-        
-
         async updateStatusNoti(NtId: number) {
             try {
                 // อัปเดต statusNoti เป็น true
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/${NtId}`, { statusNoti: true });
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/${NtId}`, { NtStatus: "read" });
 
                 // อัปเดตข้อมูลใน state
                 const notification = this.notifications.find((noti) => noti.NtId === NtId);
                 if (notification) {
-                    notification.statusNoti = true;
+                    notification.NtStatus = "read";
                 }
             } catch (error) {
-                console.error("Failed to update statusNoti:", error);
+                console.error("Failed to update NtStatus:", error);
             }
         },
+
         async getAllNotifications() {
             const result = await axios.get(`${import.meta.env.VITE_BASE_URL}`)
             this.notifications = result.data

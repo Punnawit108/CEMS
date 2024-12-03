@@ -129,11 +129,12 @@ export interface Notification{
     nameProject:string,
     statusNoti:boolean,
     description:string,
+
     NtId:number,
-    NtStatus:string,
+    NtStatus:"read" | "unread",
     NtAprRqPjName:string,
     NtAprRqId:number,
-    NtAprStatus:string,
+    NtAprStatus:"waiting"|"accept"|"edit"|"reject",
     NtAprDate:string,
     NtAprRqUsrId:number,
 }
