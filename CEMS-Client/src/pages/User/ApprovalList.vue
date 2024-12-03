@@ -1,21 +1,67 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: ApprovalList
 * คำอธิบาย: ไฟล์นี้แสดงหน้า รายการอนุมัติ
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
+import { useExpense } from '../../store/ExpenseStore';
+import { ref, computed, onMounted } from 'vue';
 
-
+const expense = useExpense();
 const router = useRouter();
-const toDetails = (id: string) => {
-    router.push(`/payment/history/detail/${id}`);
+// const toDetails = (id: number) => {
+//   router.push(`/approval/history/detail/${id}`);
+// };
+import { useTodoStore } from "../../store/approvalList";
+
+const store = useTodoStore();
+const currentPage = ref(1);
+const itemsPerPage = ref(15);
+const table = ref("Table1-footer");
+
+const totalPages = computed(() => {
+  return Math.ceil(store.todos.length / itemsPerPage.value);
+});
+
+const paginatedTodos = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return store.todos.slice(start, end);
+});
+
+// Calculate remaining rows to fill the table
+const remainingRows = computed(() => {
+  const totalRows = itemsPerPage.value;
+  const rowsOnPage = paginatedTodos.value.length;
+  return totalRows - rowsOnPage;
+});
+const loadTodos = async () => {
+  await store.loadTodos();
+};
+
+const nextPage = () => {
+  if (currentPage.value < totalPages.value) {
+    currentPage.value++;
+  }
+};
+
+const prevPage = () => {
+  if (currentPage.value > 1) {
+    currentPage.value--;
+  }
+};
+
+onMounted(() => {
+    expense.getAllApprovalList()
+})
+
+const toDetails =  (data: Expense) => {
+    router.push(`/approval/list/detail/${data.rqId}`);
 }
 </script>
 <!-- path for test = /approval/list -->
@@ -129,23 +175,24 @@ const toDetails = (id: string) => {
             </div>
             <table class="w-full">
                 <tbody>
-                    <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 w-14 h-[46px]">1</th>
+                    <tr v-for="(expense, index) in expense.expense" :key="expense.rqId"
+                        class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="นายเทียนชัย คูเมือง">
-                            นายเทียนชัย คูเมือง
+                            title="{{expense.rqName}}">
+                            {{ expense.rqName }}
                         </th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                            title="{{expense.rqPjName}}">
+                            {{ expense.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-44 text-start ">ค่าเดินทาง</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">08/10/2567</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
+                        <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
+                        <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDateWithdraw }}</th>
+                        <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
                         <th class="py-[10px] px-2 w-32 text-center">
-                            <span class="flex justify-center">
+                            <span class="flex justify-center" v-on:click="toDetails(expense)">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>

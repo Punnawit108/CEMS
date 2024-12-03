@@ -1,15 +1,12 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: Table.vue
 * คำอธิบาย: ไฟล์นี้เป็น Component Table
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-
 import { defineProps } from 'vue';
-import Ctable from './Ctable.vue';
+import Ctable from './CTable.vue';
 </script>
 <!-- ### -->
 <!-- วิธีเรียกใช้ตาราง -->
@@ -21,7 +18,7 @@ import Ctable from './Ctable.vue';
 <!-- ส่วนข้อมูล <Ctable :table="'Table3-data'" /> -->
 <!-- ส่วน footer <Ctable :table="'Table3-footer'" /> -->
 <!-- ###หมายเหตุ -->
- <!-- footerโค้ดเหมือนกันทุกอัน เรียกใช้อันไหนก็ได้ -->
+<!-- footerโค้ดเหมือนกันทุกอัน เรียกใช้อันไหนก็ได้ -->
 <template>
     <!-- Table1-รายการอัปเดตสถานะคำขอเบิก -->
     <h1 class="text-center text-[25px] text-rose-500"># table1-รายการอัปเดตสถานะคำขอเบิก</h1>

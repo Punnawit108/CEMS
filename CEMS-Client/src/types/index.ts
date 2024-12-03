@@ -1,13 +1,11 @@
-/**
+/*
 * ชื่อไฟล์: index.ts
 * คำอธิบาย: ไฟล์นี้ประกาศ type ของข้อมูล API ทั้งระบบ
-* Input: -
-* Output: Type ทั้งหมดที่มีการประกาศ เช่น Expense , ExpenseManage , TravelManage เป็นต้น
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 21 พฤศจิกายน 2567
 */
 
-//หน้ารายการต่างๆ สามารถใช้ Expense ได้เลย
+//ตัวแปรคำขอเบิก
 export interface Expense{
     rqId: number;
     rqName: number;
@@ -31,18 +29,29 @@ export interface Expense{
     rqProgress: string;
 }
 
-export interface ExpenseManage{
-    rqtId: number;
-    rqtName: string;
+export interface Approval {
+    aprId: number;           
+    usrFirstName: string;    
+    usrLastName: string;     
+    aprName: string | null;  
+    aprDate: string;         
 }
 
+
+//ตัวแปรประเภทค่าใช้จ่าย
+export interface ExpenseManage{
+    rqtId?: number;
+    rqtName: string;
+    
+}
+//ตัวแปรประเภทการเดินทาง
 export interface TravelManage {
     vhId: number;
     vhType: string;
     vhVehicle: string;
-    vhPayrate: number | null;
+    vhPayrate?: number | null;
 }
-
+//ตัวแปรผู้ใช้
 export interface User {
     usrId: number;
     usrEmployeeId: string;
@@ -61,13 +70,13 @@ export interface User {
 
 //ข้อมูลแสดงผลของกราฟ และตาราง project 
 export interface ProjectReport{
-    PjId: number;
-    PjName: string;
+    pjId: number;
+    pjName: string;
     pjSumAmountExpenses: string;
 }
 //ข้อมูลแสดงผลของกราฟ expense
 export interface ExpenseReportGraph {
-    rqRqtId:number;
+    rqRqtId: number;
     rqRqtName: string;
     rqSumExpenses: number;
 }
@@ -80,7 +89,7 @@ export interface ExpenseReportList {
     rqRqtName: string;
     rqDatePay: Date;
     rqExpenses: number;
-    rqSumExpenses: number;
+    // rqSumExpenses: number;
 }
 
 export interface Dashboard {
@@ -90,7 +99,7 @@ export interface Dashboard {
     pjSumAmountExpenses: string;
 
     //กราฟ ประเภทค่าใช้จ่ายของรายการเบิก
-    rqRqtId:number;
+    rqRqtId: number;
     rqRqtName: string;
     rqSumExpenses: number;
 
@@ -101,10 +110,10 @@ export interface Dashboard {
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ User
 export interface DashboardForUser {
-    rqSumOfWaiting: number ;
-    rqSumOfApprove: number ;
-    rqSumOfExpense: number ;
-    rqSumExpense: number ;
+    rqSumOfWaiting: number;
+    rqSumOfApprove: number;
+    rqSumOfExpense: number;
+    rqSumExpense: number;
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Accountant
@@ -122,6 +131,13 @@ export interface DashboardForAdmin {
     pjAll: number ;
     rqSumExpense: number ;
 }
+
+export interface Project {
+    pjId : number ;
+    pjName : string ;
+    pjAmountExpenses : number ;
+}
+
 //ข้อมูล notification
 export interface Notification{
     id:number,

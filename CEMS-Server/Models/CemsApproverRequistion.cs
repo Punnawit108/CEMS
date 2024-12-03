@@ -1,5 +1,9 @@
-﻿using System;
-using System.Collections.Generic;
+﻿/*
+* ชื่อไฟล์: CemsApproverRequistion.cs
+* คำอธิบาย: ใช้สำหรับ mapping model ไปยัง table 
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 19 พฤศจิกายน 2567
+*/
 
 namespace CEMS_Server.Models;
 
@@ -19,7 +23,7 @@ public partial class CemsApproverRequistion
 
     public virtual CemsApprover? AprAp { get; set; }
 
-    public virtual CemsRequisition AprRq { get; set; } = null!;
+    public virtual CemsRequisition? AprRq { get; set; }
 
     public virtual ICollection<CemsNotification> CemsNotifications { get; set; } = new List<CemsNotification>();
 }

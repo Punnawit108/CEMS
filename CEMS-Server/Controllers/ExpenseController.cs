@@ -1,3 +1,10 @@
+/*
+* ชื่อไฟล์: ExpenseController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API หน้ารายการเบิก และรายละเอียด
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+*/
+
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -17,6 +24,10 @@ public class ExpenseController : ControllerBase
         _context = context;
     }
 
+    /// <summary>แสดงช้อมูลรายการคำขอเบิก</summary>
+    /// <returns>แสดงข้อมูลใบคำขอเบิกทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList()
     {
@@ -25,7 +36,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "waiting") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "sketch") // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
@@ -52,6 +63,10 @@ public class ExpenseController : ControllerBase
 
         return Ok(requisition);
     }
+
+    /// <summary>แสดงช้อมูลประวัติคำขอเบิก</summary>
+    /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("History")]
     public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory()
@@ -61,7 +76,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept" ) // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept") // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
@@ -89,7 +104,65 @@ public class ExpenseController : ControllerBase
         return Ok(requisition);
     }
 
-    //get by id
+    /// <summary>
+    /// ดึงช้อมูลใบเบิก
+    /// </summary>
+    /// <returns> แสดงข้อมูลใบเบิกทั้งหมด </returns>
+    /// <remarks>
+    /// แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล
+    /// </remark>
+    [HttpGet("report")]
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Select(u => new ExpenseReportDto
+            {
+                RqId = u.RqId,
+                RqName = u.RqName,
+                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqPjName = u.RqPj.PjName,
+                RqRqtName = u.RqRqt.RqtName,
+                RqDatePay = u.RqDatePay,
+                RqExpenses = u.RqExpenses,
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+    /// <summary>
+    /// ดึงช้อมูลประเภทค่าใช้จ่าย
+    /// </summary>
+    /// <returns> แสดงข้อมูลประเภทค่าใช้จ่าย </returns>
+    /// <remarks>
+    /// แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล
+    /// </remark>
+    [HttpGet("graph")]
+    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Include(e => e.RqRqt)
+            .Select(u => new ExpenseGraphDto
+            {
+                RqRqtId = u.RqRqt.RqtId,
+                RqRqtName = u.RqRqt.RqtName,
+                // RqSumExpenses
+            })
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
+
+    /// <summary>แสดงข้อมูลรายละเอียดคำขอเบิก</summary>
+    /// <param name="id"> id รายการคำขอเบิก</param>
+    /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกตาม id ที่รับ</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+
     [HttpGet("{id}")]
     public async Task<ActionResult<ExpenseGetDto>> GetExpenseById(int id)
     {
@@ -130,6 +203,11 @@ public class ExpenseController : ControllerBase
         // ส่งข้อมูลที่พบกลับไป
         return Ok(requisition);
     }
+
+    /// <summary>สร้างข้อมูลคำขอเบิก</summary>
+    /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก /param>
+    /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก /returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
     public async Task<ActionResult> CreateExpense([FromBody] ExpenseManageDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
@@ -172,6 +250,12 @@ public class ExpenseController : ControllerBase
         return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
     }
 
+    /// <summary>เปลี่ยนแปลงข้อมูลคำขอเบิก</summary>
+    /// <param name="id"> id ของรายการคำขอเบิก </param>
+    /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก </param>
+    /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseManageDto expenseDto)
     {
@@ -213,7 +297,11 @@ public class ExpenseController : ControllerBase
         return NoContent();
     }
 
-    //ลบข้อมูล
+    /// <summary>ลบข้อมูลคำขอเบิก</summary>
+    /// <param name="id"> id ของรายการคำขอเบิก </param>
+    /// <returns>สถานะการลบข้อมูลคำขอเบิก </returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)
     {

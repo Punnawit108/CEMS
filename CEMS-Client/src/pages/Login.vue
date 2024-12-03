@@ -1,12 +1,10 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : Login.vue
- * คำอธิบาย : ไฟล์นี้แสดงหน้าเข้าสู่ระบบ
- * Input : -
- * Output : เข้าสู่ระบบ
- * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี
- * วันที่จัดทำ / วันแก้ไข : 13 พฤศจิกายน 2567
- */
+/*
+* ชื่อไฟล์: Login.vue
+* คำอธิบาย: ไฟล์นี้แสดงหน้าเข้าสู่ระบบ
+* ชื่อผู้เขียน/แก้ไข: นครียา วัฒนศรี
+* วันที่จัดทำ/แก้ไข: 13 พฤศจิกายน 2567
+*/
 import { defineProps } from 'vue';
 import {  defineEmits } from 'vue';
 import { useRouter } from 'vue-router';
@@ -15,7 +13,7 @@ const router = useRouter();
 const emit = defineEmits(['updateRole']);
 
 const selectRole = (role: string) => {
-    emit('updateRole', role); // Emit ค่า role
+    localStorage.setItem('updateRole', role); 
     console.log(role)
     router.push({ path: '/dashboard' }); // เปลี่ยนเส้นทางไปที่ dashboard
 };

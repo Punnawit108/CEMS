@@ -1,11 +1,9 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: Notifications.vue
 * คำอธิบาย: ไฟล์นี้แสดงการแจ้งเตือนที่เข้ามาในระบบ
-* Input: ข้อมูลคำขอเบิก และสถานะคำขอเบิก
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
 */
 import { ref,computed } from 'vue';
 import { useNotification } from '../../store/notification';
@@ -16,7 +14,12 @@ import CardNotification from '../../components/template/CardNotification.vue';
 
 const notificationStore = useNotification();
 let filterNotification = ref("All")
-
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือน
+* Output: ข้อมูลแจ้งเตือน
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 onMounted(() =>{
     notificationStore.getAllNotifications();
     console.log(notificationStore.notifications)
@@ -38,26 +41,45 @@ const filteredNotifications = computed(() => {
 const clickAllNotification = ref(true);
 const clickReadedNotification = ref(false);
 const clickNotReadNotification = ref(false);
-
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนทั้งหมด
+* Output: ข้อมูลแจ้งเตือนทุกสถานะทั้งหมด
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const toggleAllNotification = () => {
     resetAllToggles();
     filterNotification.value = "All"
     clickAllNotification.value = true;
 };
-
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะอ่านแล้ว
+* Output: ข้อมูลแจ้งเตือนสถานะอ่านแล้ว
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const toggleReadedNotification = () => {
     resetAllToggles();
     filterNotification.value = "Readed"
     
     clickReadedNotification.value = true;
 };
-
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะยังไม่อ่าน
+* Output: ข้อมูลแจ้งเตือนสถานะยังไม่อ่าน
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const toggleNotReadNotification = () => {
     resetAllToggles();
     filterNotification.value = "NotRead"
     clickNotReadNotification.value = true;
 };
-
+/*
+* คำอธิบาย: เปลี่ยนสถานะของตัวแปรเพื่อแสดงสถานะที่ต้องการ
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const resetAllToggles = () => {
     clickAllNotification.value = false;
     clickReadedNotification.value = false;
@@ -171,5 +193,3 @@ const resetAllToggles = () => {
         </article>
     </div>
 </template>
-
-

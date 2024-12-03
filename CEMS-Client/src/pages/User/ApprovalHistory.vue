@@ -1,23 +1,34 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: ApprovalHistory
 * คำอธิบาย: ไฟล์นี้แสดงหน้า ประวัติการอนุมัติ
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
+import { useExpense } from '../../store/ExpenseStore';
+import { onMounted } from 'vue';
+import { Expense } from '../../types';
+import { useDetailStore } from '../../store/detail';
+import CryptoJS from 'crypto-js';
 
+const expense = useExpense();
 const router = useRouter();
 
-const toDetails = (id: string) => {
-    router.push(`/payment/history/detail/${id}`);
-}
+onMounted(()=>{
+    expense.getAllApprovalHistory()
+})
+
+const detailStore = useDetailStore();
+
+const toDetails = async (data: Expense) => {
+    router.push(`/approval/history/detail/${data.rqId}`);
+};
+
 </script>
 <!-- path for test = /approval/history -->
 <template>
@@ -92,29 +103,31 @@ const toDetails = (id: string) => {
     </div>
     <div class="w-full border-l-[2px] border-t-[2px] border-r-[2px] border-[#b6b7ba] mt-12">
         <!-- ตาราง -->
-        <div>
+                <div>
             <Ctable :table="'Table8-head'" />
         </div>
         <table class="w-full">
             <tbody>
-                <tr class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                    <th class="py-[12px] px-2 w-14 h-[46px]">1</th>
+                <tr v-for="(expense, index) in expense.expense":key="expense.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+
+                    <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1}}</th>
                     <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                         style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                        title="นายเทียนชัย คูเมือง">
-                        นายเทียนชัย คูเมือง
+                        title="{{expense.name}}">
+                        {{expense.rqUsrName}}
                     </th>
                     <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                         style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                        title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                        กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
+                        title="{{expense.projectDetail}}">
+                        {{expense.rqPjName}}
                     </th>
-                    <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
-                    <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
-                    <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
-                    <th class="py-[12px] px-2 w-28 text-center text-green-500"><StatusBudge :status="'sts-approve'"></StatusBudge></th>
+                    <th class="py-[12px] px-5 w-32 text-start font-[100]">{{expense.rqRqtName}}</th>
+                    <th class="py-[12px] px-2 w-20 text-end ">{{expense.rqDateWithdraw}}</th>
+                    <th class="py-[12px] px-5 w-32 text-end ">{{expense.rqExpenses}}</th>
+
+                    <th class="py-[12px] px-2 w-28 text-center text-green-500"><StatusBudge :status="'sts-'+ expense.rqStatus"></StatusBudge></th>
                     <th class="py-[10px] px-2 w-20 text-center ">
-                        <span class="flex justify-center" v-on:click="toDetails">
+                        <span class="flex justify-center" @click="toDetails(expense)">
                             <Icon :icon="'viewDetails'" />
                         </span>
                     </th>
