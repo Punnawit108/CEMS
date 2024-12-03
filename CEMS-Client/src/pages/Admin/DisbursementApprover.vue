@@ -1,5 +1,5 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: DisbursementApprover.vue
 * คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
 * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ

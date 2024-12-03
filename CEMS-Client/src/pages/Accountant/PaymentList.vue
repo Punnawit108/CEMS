@@ -1,17 +1,13 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: PaymentList.vue
 * คำอธิบาย: ไฟล์นี้แสดงรายการรอนำจ่าย
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
-* แก้ไข: 27 พฤศจิกายน 2567
-* คำอธิบาย: ดึงapiมาแสดง
+* วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
 */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { usePayment } from '../../store/paymentStore';
 import { onMounted } from 'vue';
 const paymentlist = usePayment();

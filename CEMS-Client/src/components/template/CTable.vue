@@ -1,20 +1,16 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: Ctable.vue
 * คำอธิบาย: ไฟล์นี้เป็น Component Code table
-* Input: -
-* Output: -
-* ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง, นายธีรวัฒน์ นิระมล
-* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+* ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
-
 import { defineProps } from 'vue';
 import Icon from './CIcon.vue';
 
 const props = defineProps<{
     table: String;
 }>();
-
 </script>
 
 <template>

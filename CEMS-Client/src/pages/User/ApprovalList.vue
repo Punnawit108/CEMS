@@ -1,17 +1,14 @@
 <script setup lang="ts">
-
-/**
+/*
 * ชื่อไฟล์: ApprovalList
 * คำอธิบาย: ไฟล์นี้แสดงหน้า รายการอนุมัติ
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { useExpense } from '../../store/ExpenseStore';
 import { ref, computed, onMounted } from 'vue';
 
@@ -63,8 +60,8 @@ onMounted(() => {
     expense.getAllApprovalList()
 })
 
-const toDetails = (id: string) => {
-    router.push(`/approval/list/detail/${id}`);
+const toDetails =  (data: Expense) => {
+    router.push(`/approval/list/detail/${data.rqId}`);
 }
 </script>
 <!-- path for test = /approval/list -->
@@ -195,7 +192,7 @@ const toDetails = (id: string) => {
                         <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDateWithdraw }}</th>
                         <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
                         <th class="py-[10px] px-2 w-32 text-center">
-                            <span class="flex justify-center" v-on:click="toDetails">
+                            <span class="flex justify-center" v-on:click="toDetails(expense)">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>

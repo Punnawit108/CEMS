@@ -1,5 +1,12 @@
+/*
+* ชื่อไฟล์: ExpenseDTO.cs
+* คำอธิบาย: ใช้สำหรับจัดเรียงตัวแปรของเส้น api หน้ารายการ และรายละเอียด
+* ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
+* วันที่จัดทำ/แก้ไข: 25 พฤศจิกายน 2567
+*/
 namespace CEMS_Server.DTOs
 {
+    //ตัวแปรของเส้น Get
     public class ExpenseGetDto
     {
         public int RqId { get; set; }
@@ -41,6 +48,7 @@ namespace CEMS_Server.DTOs
         public string RqProgress { get; set; } = null!;
     }
 
+    //ตัวแปรของเส้น Post และ push
     public class ExpenseManageDto
     {
         public int RqUsrId { get; set; }
