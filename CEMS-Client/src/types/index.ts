@@ -46,7 +46,7 @@ export interface ExpenseManage{
 }
 //ตัวแปรประเภทการเดินทาง
 export interface TravelManage {
-    vhId?: number;
+    vhId: number;
     vhType: string;
     vhVehicle: string;
     vhPayrate?: number | null;

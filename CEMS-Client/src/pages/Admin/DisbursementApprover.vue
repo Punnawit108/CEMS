@@ -5,12 +5,13 @@
 * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
-import { ref, onMounted, watch } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Button from '../../components/template/Button.vue';
 import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
+import { User } from '../../types';
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();

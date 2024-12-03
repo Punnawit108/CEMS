@@ -17,8 +17,8 @@ export const useRequisitionStore = defineStore('dropdown', {
         projects: [] as Project[],
         requisitionType: [] as ExpenseManage[],
         vehicleType: [] as TravelManage[],
-        Expense: [] as Expense[],
-        selectedTravelType: "" as string, // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
+        expense: [] as Expense[],
+        selectedTravelType: null as any, // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
     }),
     getters: {
         // Getter สำหรับกรอง vehicleType
@@ -96,11 +96,11 @@ export const useRequisitionStore = defineStore('dropdown', {
         */
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
         async createExpense(CreateExpense: any) {
-            //  CreateExpense.rqStatus = "accept";
-            // console.log(CreateExpense)
+            console.log(CreateExpense)
+
             try {
                 const result = await axios.post(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense`, { CreateExpense });
+                    `${import.meta.env.VITE_BASE_URL}/api/expense`, CreateExpense);
                 return result.data;
 
             } catch (error) {
