@@ -6,6 +6,7 @@
 */
 
 using CEMS_Server.AppContext;
+using CEMS_Server.DTOs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,7 @@ public class ApprovalController : ControllerBase
             .Select(e => new
             {
                 e.ApUsr.UsrId,
+                e.ApId,
                 e.ApUsr.UsrFirstName,
                 e.ApUsr.UsrLastName,
                 e.ApSequence,
@@ -87,10 +89,11 @@ public class ApprovalController : ControllerBase
             e.AprStatus,
         });
 
-        var progress = new { 
-            disbursement, 
+        var progress = new
+        {
+            disbursement,
             acceptor = formattedAcceptor,
-            };
+        };
 
         return Ok(progress);
     }
@@ -124,5 +127,36 @@ public class ApprovalController : ControllerBase
             new { id = approverRequistion.AprId },
             approverRequistion
         );
+    }
+
+    [HttpPut("swapSequence")]
+    public async Task<ActionResult> SwapRequisitionSequence([FromBody] ApprovalSequence approvalSequence)
+    {
+        // Delete Old Sequence
+        var approvalBySequence = await _context.CemsApprovers
+            .FirstOrDefaultAsync(e => e.ApSequence == approvalSequence.ApSequence);
+
+        if (approvalBySequence == null)
+        {
+            return NotFound($"Approval sequence {approvalSequence.ApSequence} not found.");
+        }
+
+        approvalBySequence.ApSequence = null;
+
+        // Update New Sequence
+        var approval = await _context.CemsApprovers
+            .FirstOrDefaultAsync(e => e.ApId == approvalSequence.ApId);
+
+        if (approval == null)
+        {
+            return NotFound($"Approval with ID {approvalSequence.ApId} not found.");
+        }
+
+        approval.ApSequence = approvalSequence.ApSequence;
+
+        // Save changes to the database
+        await _context.SaveChangesAsync();
+
+        return Ok("Sequence swapped successfully.");
     }
 }

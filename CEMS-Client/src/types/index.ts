@@ -146,3 +146,8 @@ export interface Notification{
     statusNoti:boolean,
     description:string,
 }
+
+export interface ApproverSequence{
+    apId:number,
+    apSequence:number
+}

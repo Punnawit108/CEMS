@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, reactive, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Button from '../../components/template/Button.vue';
@@ -16,7 +16,6 @@ import { User } from '../../types';
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
 
-
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isEditPage = ref(false);
 const isPopupAddOpen = ref(false); // สำหรับเปิด/ปิด Popup
@@ -26,6 +25,13 @@ const isAddAlertOpen = ref(false); // ควบคุมการแสดง Al
 const isEditAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
 let userNotRepeatWithApprovers = ref<User[]>();
 const selectUserId = ref<string>("");
+const approverSequence = reactive({
+  apId : 0,
+  apSequence : 0
+})
+
+
+
 
 // ใช้ Vue Router
 const route = useRoute();
@@ -61,7 +67,8 @@ const confirmAdd = async() => {
   closePopupAdd();
 };
 
-const confirmEdit = () => {
+const confirmEdit = async() => {
+  await approvalStore.changeSequence(approverSequence);
   // เปิด Popup Alert
   isEditAlertOpen.value = true;
 
@@ -203,13 +210,12 @@ onMounted(async() => {
         <div class="w-full my-3 flex justify-center">
           <form>
             <div class="relative">
-              <select required
+              <select required v-model="approverSequence.apId"
                 class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
-                <option value="" disabled selected hidden>
+                <option value=0 disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" value="item1">นาย ก.</option>
-                <option class="text-black" value="item2">นาย ข.</option>
+                <option class="text-black" :value="approver.apId" v-for="approver in approvalStore.approvers">{{ approver.usrFirstName }} {{ approver.usrLastName }}</option>
               </select>
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
@@ -222,14 +228,14 @@ onMounted(async() => {
         </div>
 
         <div class="w-full my-3 flex justify-center">
-          <select
+          <select v-model="approverSequence.apSequence"
             class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
-            <option value="" disabled selected hidden>
+            <option value=0 disabled selected hidden>
               ลำดับผู้อนุมัติ
             </option>
-            <!-- <option v-for="i in maxIndexPlusOne" :key="i" :value="i" class="text-black">
+            <option v-for="i in approvalStore.approvers.length" :key="i" :value="i" class="text-black">
               {{ "ลำดับที่ " + i }}
-            </option> -->
+            </option>
           </select>
         </div>
 
