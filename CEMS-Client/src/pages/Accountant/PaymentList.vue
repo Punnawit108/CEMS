@@ -9,11 +9,43 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import { usePayment } from '../../store/paymentStore';
-import { onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 const paymentlist = usePayment();
 const router = useRouter();
+const currentPage = ref(1);
+const itemsPerPage = ref(15);
+const table = ref("Table1-footer");
 
-onMounted(()=>{
+const totalPages = computed(() => {
+    return Math.ceil(paymentlist.expense.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return paymentlist.expense.slice(start, end);
+});
+
+// Calculate remaining rows to fill the table
+const remainingRows = computed(() => {
+    const totalRows = itemsPerPage.value;
+    const rowsOnPage = paginated.value.length;
+    return totalRows - rowsOnPage;
+});
+
+const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
+};
+
+const prevPage = () => {
+    if (currentPage.value > 1) {
+        currentPage.value--;
+    }
+};
+
+onMounted(() => {
     paymentlist.getAllPaymentList()
 })
 
@@ -134,33 +166,78 @@ const toDetails = (id: string) => {
             <div>
                 <table class="w-full">
                     <tbody>
-                        <tr v-for="(paymentlist, index) in paymentlist.expense" :key="paymentlist.rqId"
-                         class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1}}</th>
+                        <tr v-for="(paymentlist, index) in paginated" :key="paymentlist.rqId" class="border-t" :class="{
+                            'border-b border-gray': index === paginated.length - 1,
+                        }">
+                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
+                            </th>
                             <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="paymentlist.rqUsrName">
-                                {{paymentlist.rqUsrName}}
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                {{ paymentlist.rqUsrName }}
+                            </th>
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                {{ paymentlist.rqName }}
                             </th>
                             <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                                 style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="paymentlist.rqPjName">
-                                {{paymentlist.rqPjName}}
+                                title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                                {{ paymentlist.rqPjName }}
                             </th>
                             <th class="py-[12px] px-5 w-44 text-start ">{{ paymentlist.rqRqtName }}</th>
                             <th class="py-[12px] px-2 w-24 text-end ">{{ paymentlist.rqDateWithdraw }}</th>
-                            <th class="py-[12px] px-2 w-40 text-end ">{{ paymentlist.rqExpenses }}</th>
-                            <th class="py-[10px] px-2 w-32 text-center ">
-                                <span class="flex justify-center" v-on:click="toDetails">
+                            <th class="py-[12px] px-2 w-32 text-center ">{{ paymentlist.rqExpenses }}</th>
+                            <th class="py-[10px] px-2 w-[120px] text-center ">
+                                <span class="flex justify-center" @click="() => toDetails(paymentlist.rqId.toString())">
                                     <Icon :icon="'viewDetails'" />
                                 </span>
                             </th>
                         </tr>
+                        <!-- Show empty rows if there are less than 15 items -->
+                        <tr v-if="paginated.length < itemsPerPage">
+                            <td v-for="index in 7" :key="'empty' + index" class="px-4 py-2">
+                                &nbsp;
+                                <!-- Empty cell for spacing -->
+                            </td>
+                        </tr>
+                        <!-- Fill remaining rows with empty cells for consistent row height -->
+                        <tr v-for="index in remainingRows" :key="'empty-row' + index">
+                            <td v-for="i in 7" :key="'empty-cell' + i" class="px-4 py-2">
+                                &nbsp;
+                                <!-- Empty cell for spacing -->
+                            </td>
+                        </tr>
+
                     </tbody>
+                    <!--footer -->
+                    <tfoot class="border-t" v-if="table === 'Table1-footer'">
+                        <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+                            <th></th>
+
+                            <th class="py-[12px] text-end">
+                                {{ currentPage }} of {{ totalPages }}
+                            </th>
+                            <th class="py-[12px] flex justify-evenly text-[14px] font-bold">
+                                <span class="ml-6 text-[#A0A0A0]">
+                                    <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded">
+                                        <span class="text-sm">&lt;</span>
+                                    </button>
+                                </span>
+                                <span class="mr-6">
+                                    <button @click="nextPage" :disabled="currentPage === totalPages"
+                                        class="px-3 py-1 rounded">
+                                        <span class="text-sm">&gt;</span>
+                                    </button>
+                                </span>
+                            </th>
+                        </tr>
+                    </tfoot>
+
                 </table>
-            </div>
-            <div>
-                <Ctable :table="'Table7-footer'" />
             </div>
         </div>
     </div>
