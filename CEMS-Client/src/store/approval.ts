@@ -6,6 +6,7 @@
 */
 import axios from "axios";
 import { defineStore } from "pinia";
+import { ApproverSequence } from "../types";
 
 export const useApprovalStore = defineStore('approval', {
     state: () => ({
@@ -43,6 +44,18 @@ export const useApprovalStore = defineStore('approval', {
                 console.log(err)
             }
         },
+
+        async changeSequence(approverSequence : ApproverSequence) {
+
+
+            try{
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/swapSequence`,approverSequence)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approval`)
+                this.approvers = result.data;
+            }catch(err){
+                console.log(err);
+            }
+        }
 
     }
 })

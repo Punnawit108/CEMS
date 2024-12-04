@@ -80,4 +80,9 @@ namespace CEMS_Server.DTOs
 
         public string RqProgress { get; set; } = null!;
     }
+
+    public class ApprovalSequence{
+        public int ApId { get; set; }
+        public int ApSequence { get; set; }
+    }
 }

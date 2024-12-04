@@ -158,7 +158,7 @@ const confirmDelete = async () => {
                         </th>
                         <th class="py-[12px] px-2 w-32 text-center">
                             <span>
-                                <StatusBudge :status="'sts-waiting'" />
+                                <StatusBudge :status="'sts-'+expenseReimbursementList.rqStatus" />
                             </span>
                         </th>
                         <th class="py-[10px] px-2 w-24 text-center">
