@@ -6,7 +6,7 @@
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 import { useRouter } from 'vue-router';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import Icon from '../../components/template/CIcon.vue';
 import { usePayment } from '../../store/paymentStore';
 import { ref, computed, onMounted } from 'vue';
@@ -175,23 +175,27 @@ const toDetails = (id: string) => {
                     :class="{
                       'border-b border-gray': index === paginated.length - 1,
                     }">
-                        <th class="py-[12px] px-2 w-14"> {{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
-                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="history.rqName">
-                            {{ history.rqUsrName }}
+                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            >
+                            {{history.rqUsrName}}
                         </th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
-                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            >
+                            {{history.rqName}}
+                        </th>
+                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                             {{ history.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-32 text-start font-[100]"></th>
-                        <th class="py-[12px] px-2 w-20 text-end "></th>
-                        <th class="py-[12px] px-5 w-32 text-end "></th>
-                        <th class="py-[12px] px-2 w-28 text-center text-green-500"></th>
-                        <th class="py-[10px] px-2 w-20 text-center ">
-                            <span class="flex justify-center" v-on:click="toDetails">
+                        <th class="py-[12px] px-5 w-32 text-start ">{{history.rqRqtName}}</th>
+                        <th class="py-[12px] px-2 w-24 text-end ">{{history.rqDateWithdraw}}</th>
+                        <th class="py-[12px] px-2 w-32 text-center ">{{history.rqExpenses}}</th>
+                        <th class="py-[10px] px-2 w-[90px] text-center ">
+                            <span class="flex justify-center" @click="() => toDetails(history.rqId.toString())">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>
