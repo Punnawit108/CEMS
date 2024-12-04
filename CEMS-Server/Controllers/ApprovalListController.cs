@@ -1,3 +1,10 @@
+/*
+* ชื่อไฟล์: ApprovalController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของการอนุมัติและผู้อนุมัติ
+* ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
+* วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
+*/
+
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -17,6 +24,9 @@ public class ApprovalList : ControllerBase
         _context = context;
     }
 
+    /// <summary>แสดงข้อมูลรายการคำขออนุมัติที่อยู่ในสถานะ "waiting"</summary>
+    /// <returns>รายการคำขออนุมัติในรูปแบบของ DTO</returns>
+    /// <remarks>แก้ไขล่าสุด: 27 พฤศจิกายน 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalList()
     {
@@ -53,6 +63,9 @@ public class ApprovalList : ControllerBase
         return Ok(requisition);
     }
 
+    /// <summary>แสดงประวัติคำขออนุมัติที่ถูกอนุมัติหรือปฏิเสธ</summary>
+    /// <returns>ประวัติคำขออนุมัติในรูปแบบของ DTO</returns>
+    /// <remarks>แก้ไขล่าสุด: 27 พฤศจิกายน 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpGet("History")]
     public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalHistory()
     {
@@ -89,7 +102,10 @@ public class ApprovalList : ControllerBase
         return Ok(requisition);
     }
 
-    //get by id
+    /// <summary>ค้นหาคำขออนุมัติโดยใช้รหัสคำขอ (ID)</summary>
+    /// <param name="id">รหัสคำขอ</param>
+    /// <returns>คำขออนุมัติที่ตรงกับรหัสในรูปแบบของ DTO</returns>
+    /// <remarks>แก้ไขล่าสุด: 27 พฤศจิกายน 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpGet("{id}")]
     public async Task<ActionResult<ApprovalGetDto>> GetApprovalById(int id)
     {
@@ -131,6 +147,10 @@ public class ApprovalList : ControllerBase
         return Ok(requisition);
     }
 
+    /// <summary>สร้างคำขออนุมัติใหม่</summary>
+    /// <param name="approvalDto">ข้อมูลคำขออนุมัติที่รับจากผู้ใช้</param>
+    /// <returns>ผลลัพธ์การสร้างคำขออนุมัติ</returns>
+    /// <remarks>แก้ไขล่าสุด: 27 พฤศจิกายน 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpPost]
     public async Task<ActionResult> CreateApproval([FromBody] ApprovalManageDto approvalDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
     {
@@ -172,6 +192,11 @@ public class ApprovalList : ControllerBase
         return CreatedAtAction(nameof(GetApprovalList), new { id = approval.RqId }, approvalDto);
     }
 
+    /// <summary>อัปเดตข้อมูลคำขออนุมัติ</summary>
+    /// <param name="id">รหัสคำขอที่ต้องการอัปเดต</param>
+    /// <param name="approvalDto">ข้อมูลที่อัปเดตใหม่</param>
+    /// <returns>ผลลัพธ์การอัปเดต</returns>
+    /// <remarks>แก้ไขล่าสุด: 27 พฤศจิกายน 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateApproval(int id, [FromBody] ApprovalManageDto approvalDto)
     {
@@ -213,7 +238,10 @@ public class ApprovalList : ControllerBase
         return NoContent();
     }
 
-    //ลบข้อมูล
+    /// <summary>ลบคำขออนุมัติ</summary>
+    /// <param name="id">รหัสคำขอที่ต้องการลบ</param>
+    /// <returns>ผลลัพธ์การลบ</returns>
+    /// <remarks>แก้ไขล่าสุด: 27 พฤศจิกายน 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)
     {

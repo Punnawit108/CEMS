@@ -1,17 +1,15 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: UserSetting.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าจอจัดการผู้ใช้ ซึ่งแสดงตารางผู้ใช้ภายในระบบ พร้อมฟังก์ชั่นค้นหาและกรองข้อมูล
-* Input: -
-* Output: รายการผู้ใช้ภายในระบบ
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567  
 */
 
 import Icon from '../../components/template/CIcon.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, computed } from 'vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
 

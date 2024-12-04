@@ -1,12 +1,10 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : icon.vue
- * คำอธิบาย : ไฟล์นี้แสดง icon
- * Input : -
- * Output : แสดง icon
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
- */
+/*
+* ชื่อไฟล์: icon.vue
+* คำอธิบาย: ไฟล์นี้แสดง icon
+* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
 import { defineProps } from 'vue';
 import Icon from './CIcon.vue';
 // import Dashboard from '../../pages/User/Dashboard.vue';

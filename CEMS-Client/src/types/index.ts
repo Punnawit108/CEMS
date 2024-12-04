@@ -1,13 +1,11 @@
-/**
+/*
 * ชื่อไฟล์: index.ts
 * คำอธิบาย: ไฟล์นี้ประกาศ type ของข้อมูล API ทั้งระบบ
-* Input: -
-* Output: Type ทั้งหมดที่มีการประกาศ เช่น Expense , ExpenseManage , TravelManage เป็นต้น
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 21 พฤศจิกายน 2567
 */
 
-//หน้ารายการต่างๆ สามารถใช้ Expense ได้เลย
+//ตัวแปรคำขอเบิก
 export interface Expense{
     rqId: number;
     rqName: number;
@@ -31,19 +29,29 @@ export interface Expense{
     rqProgress: string;
 }
 
+export interface Approval {
+    aprId: number;           
+    usrFirstName: string;    
+    usrLastName: string;     
+    aprName: string | null;  
+    aprDate: string;         
+}
+
+
+//ตัวแปรประเภทค่าใช้จ่าย
 export interface ExpenseManage{
     rqtId?: number;
     rqtName: string;
     
 }
-
+//ตัวแปรประเภทการเดินทาง
 export interface TravelManage {
-    vhId?: number;
+    vhId: number;
     vhType: string;
     vhVehicle: string;
     vhPayrate?: number | null;
 }
-
+//ตัวแปรผู้ใช้
 export interface User {
     usrId: number;
     usrEmployeeId: string;

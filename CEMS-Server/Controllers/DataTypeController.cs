@@ -1,3 +1,10 @@
+/*
+* ชื่อไฟล์: DataTypeController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของรายการแบบเลือก (Dropdown)
+* ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
+* วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+*/
+
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -17,6 +24,10 @@ public class DataTypeController : ControllerBase
         _context = context;
     }
 
+    /// <summary>แสดงช้อมูลรายการโครงการ</summary>
+    /// <returns>แสดงข้อมูลโครงการทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+
     [HttpGet("project")]
     public ActionResult<IEnumerable<object>> GetProjects()
     {
@@ -31,6 +42,10 @@ public class DataTypeController : ControllerBase
         return Ok(projects);
     }
 
+    /// <summary>แสดงช้อมูลประเภทค่าใช้จ่าย</summary>
+    /// <returns>แสดงข้อมูลประเภทค่าใช้จ่ายทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+
     [HttpGet("requisition")]
     public ActionResult<IEnumerable<object>> GetRequisitionTypes()
     {
@@ -39,6 +54,10 @@ public class DataTypeController : ControllerBase
             .ToList();
         return Ok(requisitionTypes);
     }
+
+    /// <summary>แสดงช้อมูลประเภทการเดินทาง</summary>
+    /// <returns>แสดงข้อมูลประเภทการเดินทางทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("vehicle")]
     public ActionResult<IEnumerable<object>> GetVehicles()

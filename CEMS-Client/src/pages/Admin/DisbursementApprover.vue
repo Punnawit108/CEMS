@@ -1,19 +1,17 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์: DisbursementApprover.vue
- * คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
- * Input: -
- * Output: -
- * ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
- * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
- */
-import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
-import Icon from "../../components/template/CIcon.vue";
-import Button from "../../components/template/Button.vue";
-import { useApprovalStore } from "../../store/approval";
-import { useUserStore } from "../../store/user";
-import { User } from "../../types";
+/*
+* ชื่อไฟล์: DisbursementApprover.vue
+* คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+*/
+import { ref, onMounted } from 'vue';
+import { useRoute } from 'vue-router';
+import Icon from '../../components/template/CIcon.vue';
+import Button from '../../components/template/Button.vue';
+import { useApprovalStore } from '../../store/approval';
+import { useUserStore } from '../../store/user';
+import { User } from '../../types';
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();

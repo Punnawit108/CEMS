@@ -1,16 +1,14 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: ExpenseReport.vue
 * คำอธิบาย: ไฟล์นี้แสดงรายงานของคำขอเบิกค่าใช้จ่ายทั้งหมดในระบบ
-* Input: -
-* Output: รายงานของคำขอเบิกค่าใช้จ่าย
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
-* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import { useExpensesListStore } from '../../store/expensesReport';
 import ExpenseReportList from '../../types/index';
 import {

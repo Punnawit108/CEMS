@@ -1,3 +1,9 @@
+/*
+* ชื่อไฟล์: PaymentController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของรายการรอนำจ่าย และประวัติการรำจ่าย
+* ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
+* วันที่จัดทำ/แก้ไข: 25 พฤศจิกายน 2567
+*/
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -16,7 +22,9 @@ public class PaymentController : ControllerBase
     {
         _context = context;
     }
-
+    /// <summary>แสดงช้อมูลรายการรอนำจ่าย</summary>
+    /// <returns>ข้อมูลรายการรอนำจ่ายทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentList()
     {
@@ -52,7 +60,9 @@ public class PaymentController : ControllerBase
 
         return Ok(requisition);
     }
-
+    /// <summary>แสดงช้อมูลรายการประวัติการนำจ่าย</summary>
+    /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpGet("History")]
     public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory()
     {
@@ -89,7 +99,9 @@ public class PaymentController : ControllerBase
         return Ok(requisition);
     }
 
-    //get by id
+    /// <summary>แสดงช้อมูลรายการรอนำจ่าย</summary>
+    /// <returns>ข้อมูลรายการรอนำจ่าย</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpGet("{id}")]
     public async Task<ActionResult<PaymentGetDto>> GetPaymentById(int id)
     {
@@ -130,7 +142,11 @@ public class PaymentController : ControllerBase
         // ส่งข้อมูลที่พบกลับไป
         return Ok(requisition);
     }
-
+    /// <summary>นำจ่ายคำขอเบิก</summary>
+    /// <param name="id">id ของรายการคำขอเบิก</param>
+    /// <param name="expenseDto">ข้อมูลคำขอเบิก</param>
+    /// <returns>อัพเดตสถานะคำขอเบิก</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdatePayment(int id, [FromBody] PaymentManageDto expenseDto)
     {

@@ -1,58 +1,50 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : CreateExpenseForm.vue
- * คำอธิบาย : ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
- * Input : ข้อมูลฟอร์มเบิกค่าใช้จ่าย
- * Output : -
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
- */
-import axios from "axios";
-import { onMounted, ref, watch } from "vue";
+/*
+* ชื่อไฟล์: CreateExpenseForm.vue
+* คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
+* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+* วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+*/
+
+import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
+import router from "../../router";
 
 const requisitionStore = useRequisitionStore();
 
 onMounted(async () => {
-  const projectData = await requisitionStore.getAllProject();
-  const requisitionTypeData = await requisitionStore.getAllRequisitionType();
-  const vehicleTypeData = await requisitionStore.getAllvehicleType();
-  console.log(requisitionStore.filteredVehicleType);
+  await requisitionStore.getAllProject();
+  await requisitionStore.getAllRequisitionType();
+  await requisitionStore.getAllvehicleType();
 });
 
-const date = ref();
-const expenseOptions = ref(["ค่าเดินทาง", "ค่าอาหาร"]);
+
 const rqRqtName = ref(2);
-const selectedTravelType = ref();
+
 const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
 const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
 const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
 
-watch(rqRqtName, () => {
-  console.log(rqRqtName);
-});
-
-const formData: any = ref({
+let formData: any = ref({
   rqName: "",
   rqUsrId: "9999",
   rqPjId: "1",
   rqRqtId: rqRqtName.value.toString(),
-  rqVhId: "",
+  rqVhId: null,
   rqDatePay: "",
   rqDateWithdraw: "",
   rqCode: "",
   rqInsteadEmail: "",
   rqExpenses: "",
-  // rqLocation: "",
   rqStartLocation: "",
   rqEndLocation: "",
   rqDistance: "",
   rqPurpose: "",
   rqReason: "",
   rqProof: "",
-  rqStatus:  "accept",
+  rqStatus:  "",
   rqProgress: "accepting",
   preview: null,
 });
@@ -63,8 +55,8 @@ const selectedFile = ref<File | null>(null); // เก็บไฟล์ที�
 const previewUrl = ref<string | null>(null); // URL สำหรับแสดงตัวอย่างรูปภาพ
 
 // ค่าคงที่สำหรับกำหนดขนาดสูงสุดของรูปภาพ
-const MAX_WIDTH = 800; // ความกว้างสูงสุดที่ยอมรับ (พิกเซล)
-const MAX_HEIGHT = 800; // ความสูงสูงสุดที่ยอมรับ (พิกเซล)
+const maxWidth = 800; // ความกว้างสูงสุดที่ยอมรับ (พิกเซล)
+const maxHeight = 800; // ความสูงสูงสุดที่ยอมรับ (พิกเซล)
 
 // ฟังก์ชันสำหรับเปิด file input dialog
 const triggerFileInput = () => {
@@ -93,7 +85,7 @@ const checkImageDimensions = (file: File): Promise<boolean> => {
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src); // คืน URL object เพื่อเป็นการจัดการหน่วยความจำ
-      resolve(img.width <= MAX_WIDTH && img.height <= MAX_HEIGHT); // ตรวจสอบว่าขนาดไม่เกินที่กำหนด
+      resolve(img.width <= maxWidth && img.height <= maxHeight); // ตรวจสอบว่าขนาดไม่เกินที่กำหนด
     };
     img.src = URL.createObjectURL(file); // สร้าง URL สำหรับรูปภาพเพื่อตรวจสอบขนาด
   });
@@ -114,7 +106,7 @@ const uploadFile = async (file: File) => {
     previewUrl.value = URL.createObjectURL(file); // สร้าง URL สำหรับแสดงตัวอย่าง
   } else {
     alert(
-      `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${MAX_WIDTH} x ${MAX_HEIGHT} พิกเซล`
+      `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
     );
     // รีเซ็ตค่าเมื่อไฟล์ไม่ถูกต้อง
     selectedFile.value = null;
@@ -131,12 +123,23 @@ const handleSelectChange = () => {
 };
 
 const handleSubmit = async () => {
-  await requisitionStore.createExpense(formData.value);
+  formData.value.rqStatus = "accept";
+  const data = await requisitionStore.createExpense(formData.value);
+  if(data){
+    router.push("/disbursement/listWithdraw")
+  }else{
+    alert("Something went wrong")
+  }
 };
 
 const handleSave = async () => {
-  // await requisitionStore.createExpense
-  console.log(formData.value);
+  formData.value.rqStatus = "sketch";
+  const data = await requisitionStore.createExpense(formData.value);
+  if(data){
+    router.push("/disbursement/listWithdraw")
+  }else{
+    alert("Something went wrong")
+  }
 };
 
 const handleCancel = () => {
@@ -144,30 +147,7 @@ const handleCancel = () => {
   alert("ยกเลิกการส่งข้อมูล");
 };
 
-// const resetForm = () => {
-//   formData.value = {
 
-//     rqName: "",
-//     rqUsrId: "",
-//     rqPjId: "",
-//     rqRqtId: "",
-//     rqVhId: "",
-//     rqDatePay: "",
-//     rqDateWithdraw: "",
-//     rqCode: "",
-//     rqInsteadEmail: "",
-//     rqExpenses: "",
-//     // rqLocation: "",
-//     rqStartLocation: "",
-//     rqEndLocation: "",
-//     rqDistance: "",
-//     rqPurpose: "",
-//     rqReason: "",
-//     rqProof: "",
-//     rqStatus: "",
-//     rqProgress: "",
-//   };
-// };
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
@@ -217,7 +197,7 @@ const handleCancel = () => {
               type="text"
               id="rqDatePay"
               v-model="formData.rqDatePay"
-              placeholder="2024-11-11"
+              placeholder="YYYY-MM-DD"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
@@ -229,6 +209,7 @@ const handleCancel = () => {
             <input
               type="text"
               id="rqDateWithdraw"
+              placeholder="YYYY-MM-DD"
               v-model="formData.rqDateWithdraw"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
@@ -301,7 +282,6 @@ const handleCancel = () => {
               <input
                 v-if="isOtherSelected"
                 v-model="customExpenseType"
-                @keyup.enter="addCustomExpense"
                 placeholder="กรุณาระบุประเภทค่าใช้จ่าย"
                 class="absolute top-0 left-1 mt-[1.5px] px-3 py-3 border-1 border-grayDark bg-white rounded-md sm:text-sm text-sm focus:border-gray-400 focus:ring-0 focus:outline-none"
                 style="width: calc(50% - 16px)"
@@ -319,7 +299,7 @@ const handleCancel = () => {
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
                 v-model="requisitionStore.selectedTravelType"
               >
-                <option value="">เลือกประเภทการเดินทาง</option>
+                <option value=null disabled selected>เลือกประเภทการเดินทาง</option>
                 <option value="private">ประเภทส่วนตัว</option>
                 <option value="public">ประเภทสาธารณะ</option>
               </select>
@@ -342,10 +322,9 @@ const handleCancel = () => {
                 v-model="formData.rqVhId"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
-                <option value="">เลือกประเภทรถ</option>
+                <option value=null selected disabled>เลือกประเภทรถ</option>
                 <option
                   v-for="vehicle in requisitionStore.filteredVehicleType"
-                  :key="vehicle.vehicleType"
                   :value="vehicle.vhId.toString()"
                 >
                   {{ vehicle.vhVehicle }}
