@@ -4,7 +4,6 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
 */
-import axios from "axios";
 import { defineStore } from "pinia";
 import { Notification } from '../types/index';
 
