@@ -49,6 +49,7 @@ const colorStatus: { [key: string]: string } = {
   sketch: "#B6B7BA",
   paying: "#1976D2",
   complete: "#12B669",
+  accepting: "#B6B7BA"
 };
 
 // แนบตรง disbursement เพิ่ม
