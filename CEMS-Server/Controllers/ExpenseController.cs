@@ -48,7 +48,7 @@ public class ExpenseController : ControllerBase
                 RqDatePay = u.RqDatePay,
                 RqDateWithdraw = u.RqDateWithdraw,
                 RqCode = u.RqCode,
-                RqInsteadEmail = u.RqInsteadEmail,
+                RqInsteadName = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
@@ -88,7 +88,7 @@ public class ExpenseController : ControllerBase
                 RqDatePay = u.RqDatePay,
                 RqDateWithdraw = u.RqDateWithdraw,
                 RqCode = u.RqCode,
-                RqInsteadEmail = u.RqInsteadEmail,
+                //RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
@@ -115,8 +115,7 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
     {
         var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqUsr)
+            .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Select(u => new ExpenseReportDto
@@ -145,8 +144,7 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
     {
         var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqRqt)
+            .CemsRequisitions.Include(e => e.RqRqt)
             .Select(u => new ExpenseGraphDto
             {
                 RqRqtId = u.RqRqt.RqtId,
@@ -179,11 +177,18 @@ public class ExpenseController : ControllerBase
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
                 RqVhName = u.RqVh.VhVehicle,
+                RqVhType = u.RqVh.VhType,
+                RqVhPayrate = u.RqVh.VhPayrate,
                 RqName = u.RqName,
                 RqDatePay = u.RqDatePay,
                 RqDateWithdraw = u.RqDateWithdraw,
                 RqCode = u.RqCode,
-                RqInsteadEmail = u.RqInsteadEmail,
+                //RqInsteadName = u.RqInsteadEmail,
+                RqInsteadName = _context
+                    .CemsUsers.Where(user => user.UsrEmail == u.RqInsteadEmail)
+                    .Select(user => user.UsrFirstName + " " + user.UsrLastName)
+                    .FirstOrDefault(),
+
                 RqExpenses = u.RqExpenses,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
@@ -301,7 +306,7 @@ public class ExpenseController : ControllerBase
     /// <param name="id"> id ของรายการคำขอเบิก </param>
     /// <returns>สถานะการลบข้อมูลคำขอเบิก </returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
-    
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)
     {

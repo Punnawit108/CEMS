@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ, นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 22 ตุลาคม 2567
 */
-import { ref , computed , onMounted} from "vue";
+import { ref, computed, onMounted } from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
 import { useRoute } from "vue-router";
@@ -23,7 +23,7 @@ const progressData = ref<any>(null);
 
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
-  expenseData.value = await detailStore.getRequisition(id);  
+  expenseData.value = await detailStore.getRequisition(id);
 })
 
 console.log(progressData)
@@ -32,8 +32,13 @@ const isApprovalPath = computed(() => {
   return route.path.includes('approval') && route.path.includes('list');
 });
 
+// FN ตรวจสอบว่ามีคำว่า 'payment' และ list ใน path หรือไม่
+const isPaymentPath = computed(() => {
+  return route.path.includes('payment') && route.path.includes('list');
+});
+
 const isEditPath = computed(() => {
-  
+
 });
 
 const colorStatus: { [key: string]: string } = {
@@ -48,6 +53,11 @@ const colorStatus: { [key: string]: string } = {
 
 // แนบตรง disbursement เพิ่ม
 
+/**
+ * Fn ที่คาดการ
+ * 1.ตรวจสอบผู้ใช้ที่เข้ามาหน้า details 
+ * 2.detect ผู้อนุมัติของรายการเบิก กับ ผู้ใช้ระบบ 
+ */
 
 </script>
 
@@ -61,7 +71,8 @@ const colorStatus: { [key: string]: string } = {
   <!-- content -->
   <div v-if="expenseData" class="ml-[16px] ">
 
-    <div v-if="expenseData.rqReason === 'edit'" class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]">
+    <div v-if="expenseData.rqReason === 'edit'"
+      class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[5px]">
       <div class="flex justify-between">
         <p class="!text-[#ED0000] font-bold">เหตุผลส่งกลับ :</p>
         <p class="!text-[#FF0000]">วันที่ส่งกลับ : 11/09/2567</p>
@@ -69,46 +80,47 @@ const colorStatus: { [key: string]: string } = {
       <p class="!text-[#FF0000]">รูปหลักฐานไม่ชัดเจน</p>
     </div>
 
-    <div v-if="expenseData.rqStatus === 'reject'" class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
+    <div v-if="expenseData.rqStatus === 'reject'"
+      class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
       <p class="!text-[#ED0000] font-bold">เหตุผลการไม่อนุมัติ :</p>
-      <p class="!text-[#FF0000]">{{expenseData.rqReason}}</p>
+      <p class="!text-[#FF0000]">{{ expenseData.rqReason }}</p>
     </div>
 
     <div v-if="isApprovalPath" class="flex justify-end">
       <div class="flex mb-[22px]">
-          <Button type="btn-unapprove" />
-          <span class="mx-[12px]"></span>
-          <Button type="btn-editSend" class="mx-[24px]" />
-          <span class="mx-[12px]"></span>
-          <Button type="btn-approve" />
-        </div>
+        <Button type="btn-unapprove" />
+        <span class="mx-[12px]"></span>
+        <Button type="btn-editSend" class="mx-[24px]" />
+        <span class="mx-[12px]"></span>
+        <Button type="btn-approve" />
+      </div>
     </div>
 
     <div class="flex justify-between">
       <div class="left w-[80%]">
         <h3 class="text-base font-bold text-black">
           เบิกค่าใช้จ่าย<span :class="`bg-[${colorStatus[expenseData.rqStatus]}]`"
-            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{expenseData.rqStatus}}</span>
+            class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{ expenseData.rqStatus }}</span>
         </h3>
-        <div  class="row flex justify-around">
+        <div class="row flex justify-around">
           <div class="col">
             <p class="head">รหัสรายการเบิก</p>
-            <p class="item">{{expenseData.rqCode}}</p>
+            <p class="item">{{ expenseData.rqCode }}</p>
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
-            <p class="item">{{expenseData?.rqPjName}}</p>
+            <p class="item">{{ expenseData?.rqPjName }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">{{expenseData?.rqDatePay}}</p>
+            <p class="item">{{ expenseData?.rqDatePay }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">{{expenseData?.rqDateWithdraw}}</p>
+            <p class="item">{{ expenseData?.rqDateWithdraw }}</p>
           </div>
         </div>
-        
+
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">ชื่อผู้เบิก</p>
@@ -116,17 +128,16 @@ const colorStatus: { [key: string]: string } = {
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
-            <!-- ต้องปรับแก้ให้แสดงข้อมูลเป็น ชื่อแทน getuser -->
-            <p class="item">{{ expenseData?.rqInsteadEmail }}</p> 
+            <p class="item">{{ expenseData?.rqInsteadName }}</p>
           </div>
         </div>
 
-        <div class="row flex justify-around">
+        <div class="flex flex-row">
           <div class="col">
             <p class="head">ประเภทค่าใช้จ่าย</p>
-            <p class="item">{{expenseData?.rqRqtName}}</p>
+            <p class="item">{{ expenseData?.rqRqtName }}</p>
           </div>
-          <div class="col">
+          <div v-if="isPaymentPath" class="col">
             <p class="head">วันที่อนุมัติ</p>
             <p class="item">13/09/2567</p>
           </div>
@@ -134,20 +145,18 @@ const colorStatus: { [key: string]: string } = {
             <p class="head">จำนวนเงิน(บาท)</p>
             <p class="item">{{ expenseData?.rqExpenses }}</p>
           </div>
-          <div class="col">
-
-          </div>
+          <div class="col"></div>
+          <div v-if="!isPaymentPath" class="col"></div>
         </div>
 
         <div class="travel row flex">
           <div class="col">
             <p class="head">ประเภทการเดินทาง</p>
-            <!-- แก้ข้อมูลหลังบ้าน เพิ่ม rqVhType -->
-            <p class="item">{{expenseData?.rqVhName}}</p>
+            <p class="item">{{ expenseData?.rqVhType }}</p>
           </div>
           <div class="col">
             <p class="head">ประเภทรถ</p>
-            <p class="item">{{expenseData?.rqVhName}}</p>
+            <p class="item">{{ expenseData?.rqVhName }}</p>
           </div>
           <div class="col">
             <p class="head">ระยะทาง</p>
@@ -155,26 +164,25 @@ const colorStatus: { [key: string]: string } = {
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
-            <!-- แก้ข้อมูลหลังบ้าน เพิ่ม rqVhPayrate -->
-            <p class="item">{{expenseData?.rqVhName}}</p>
+            <p class="item">{{ expenseData?.rqVhPayrate }}</p>
           </div>
-          
+
         </div>
 
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">สถานที่เริ่มต้น</p>
-            <p class="item">{{expenseData?.rqStartLocation}}</p>
+            <p class="item">{{ expenseData?.rqStartLocation }}</p>
           </div>
           <div class="col">
             <p class="head">สถานที่สิ้นสุด</p>
-            <p class="item">{{expenseData?.rqEndLocation}}</p>
+            <p class="item">{{ expenseData?.rqEndLocation }}</p>
           </div>
         </div>
 
         <div class="row">
           <p class="head">รายละเอียด</p>
-          <p class="item">{{expenseData?.rqPurpose}}</p>
+          <p class="item">{{ expenseData?.rqPurpose }}</p>
         </div>
 
         <div class="row flex">
@@ -195,7 +203,8 @@ const colorStatus: { [key: string]: string } = {
           <Button type="btn-approve" />
         </div> -->
         <div class="flex justify-end">
-          <Progress v-if="progressData !== null" :progressInfo="progressData" :colorStatus="colorStatus" class="w-[100%]" />
+          <Progress v-if="progressData !== null" :progressInfo="progressData" :colorStatus="colorStatus"
+            class="w-[100%]" />
         </div>
       </div>
     </div>
@@ -214,15 +223,20 @@ p {
 
 .head {
   font-weight: 600;
-  color: gray; 
+  color: gray;
 }
 
 .item {
-  font-weight: bold; 
-  color: black; 
+  font-weight: bold;
+  color: black;
 }
 
 .col {
   flex: 1;
 }
+
+.cols {
+  width: 207.8px;
+}
+
 </style>

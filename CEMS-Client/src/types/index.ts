@@ -13,10 +13,12 @@ export interface Expense{
     rqPjName: string;
     rqRqtName: string;
     rqVhName: string;
+    rqVhType: string;
+    rqVhPayrate: string;
     rqDatePay: Date;
     rqDateWithdraw: Date;
     rqCode: string | null;
-    rqInsteadEmail: string | null;
+    rqInsteadName: string | null;
     rqExpenses: number;
     rqLocation: string | null;
     rqStartLocation: string | null;
