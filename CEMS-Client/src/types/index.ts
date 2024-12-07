@@ -140,12 +140,6 @@ export interface Project {
 
 //ข้อมูล notification
 export interface Notification{
-    id:number,
-    idWithdraw:number,
-    nameProject:string,
-    statusNoti:boolean,
-    description:string,
-
     NtId:number,
     NtStatus:"read" | "unread",
     NtAprRqPjName:string,
@@ -153,4 +147,5 @@ export interface Notification{
     NtAprStatus:"waiting"|"accept"|"edit"|"reject",
     NtAprDate:string,
     NtAprRqUsrId:number,
+    NtAprRqProgress: "accepting"|"paying "|"complete",
 }

@@ -16,5 +16,6 @@ namespace CEMS_Server.DTOs
         public string NtAprStatus { get; set; }
         public DateTime? NtAprDate { get; set; }
         public int NtAprRqUsrId { get; set; } 
+        public string NtAprRqProgress { get; set; }
     }
 }

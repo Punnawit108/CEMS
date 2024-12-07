@@ -1,3 +1,4 @@
+
 import axios from "axios";
 import { defineStore } from "pinia";
 import { Notification } from '../types/index';
@@ -19,7 +20,7 @@ export const useNotification = defineStore('notifications', {
         async updateStatusNoti(NtId: number) {
             try {
                 // อัปเดต statusNoti เป็น true
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/${NtId}`, { NtStatus: "read" });
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/api/notification/list/${NtId}`, { NtStatus: "read" });
 
                 // อัปเดตข้อมูลใน state
                 const notification = this.notifications.find((noti) => noti.NtId === NtId);
@@ -38,8 +39,8 @@ export const useNotification = defineStore('notifications', {
         * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
         */
         async getAllNotifications() {
-            const result = await axios.get(`${import.meta.env.VITE_BASE_URL}`)
-            this.notifications = result.data
+            const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/notification/list`)
+            return this.notifications = result.data
         },
        
 
