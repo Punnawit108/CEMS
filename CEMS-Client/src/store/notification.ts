@@ -20,7 +20,7 @@ export const useNotification = defineStore('notifications', {
         async updateStatusNoti(NtId: number) {
             try {
                 // อัปเดต statusNoti เป็น true
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/api/notification/list/${NtId}`, { NtStatus: "read" });
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/api/notification/${NtId}`, { NtStatus: "read" });
 
                 // อัปเดตข้อมูลใน state
                 const notification = this.notifications.find((noti) => noti.NtId === NtId);

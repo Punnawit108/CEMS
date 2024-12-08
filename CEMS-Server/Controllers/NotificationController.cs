@@ -22,7 +22,7 @@ public class NotificationController : ControllerBase
     {
         _context = context;
     }
-    /// <summary>แสดงช้อมูลการแจ้งเตือน</summary>
+    /// <summary>แสดงข้อมูลการแจ้งเตือน</summary>
     /// <returns>ข้อมูลการแจ้งเตือนของระบบ</returns>
     /// <remarks>แก้ไขล่าสุด: 2 ธันวาคม 2567 โดย นายศตวรรษ ไตรธิเลน</remark>
     
@@ -47,4 +47,33 @@ public class NotificationController : ControllerBase
 
         return Ok(notification);
     }
+    /// <summary>อัปเดตสถานะการแจ้งเตือน</summary>
+    /// <param name="id">รหัสแจ้งเตือน (NtId)</param>
+    /// <returns>ผลลัพธ์การอัปเดตสถานะ</returns>
+    /// <remarks>แก้ไขล่าสุด: 8 ธันวาคม 2567 โดย นายศตวรรษ ไตรธิเลน</remarks>
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateNotificationStatus(int id)
+    {
+        // ค้นหา Notification โดยใช้ NtId
+        var notification = await _context.CemsNotifications.FirstOrDefaultAsync(n => n.NtId == id);
+        if (notification == null)
+        {
+            return NotFound(new { message = "Notification not found." });
+        }
+
+        // อัปเดตสถานะเป็น "read" หากสถานะเดิมคือ "unread"
+        if (notification.NtStatus == "unread")
+        {
+            notification.NtStatus = "read";
+
+            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Notification status updated to 'read'." });
+        }
+
+        return BadRequest(new { message = "Notification is already 'read' or status is invalid." });
+}
+
+    
 }
