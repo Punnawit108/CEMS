@@ -1,35 +1,34 @@
 /*
-* ชื่อไฟล์: project.ts
+* ชื่อไฟล์: requisitionTypeStore.ts
 * คำอธิบาย: ไฟล์ store API ของข้อมูลประเภทค่าใช้จ่าย
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 8 ธันวาคม 2567
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
 import { defineStore } from 'pinia';
 import axios from 'axios';
-import type { Project } from '../types/index';
+import type { ExpenseManage } from '../types/index';
 
-// นำเข้า Base URL จาก environment variable
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-export const useProjectStore = defineStore('project', {
+export const useRequisitionTypeStore = defineStore('requisitiontype', {
   state: () => ({
-    projects: [] as Project[]
+    requisitionTypes: [] as ExpenseManage[]
   }),
   actions: {
     /*
-    * คำอธิบาย: เรียกข้อมูลประเภทค่าใช้จ่ายทั้งหมดในระบบ
+    * คำอธิบาย: เรียกข้อมูลของประเภทค่าใช้จ่ายทั้งหมดในระบบ
     * Input: -
     * Output: ข้อมูลประเภทค่าใช้จ่ายภายในระบบ
     * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
     * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
     */
-    async getAllProjects() {
+    async getAllRequisitionTypes() {
       try {
-        const result = await axios.get(`${BASE_URL}/api/project`);
-        this.projects = result.data;
+        const result = await axios.get(`${BASE_URL}/api/requisitiontype`);
+        this.requisitionTypes = result.data;
       } catch (error) {
-        console.error('Failed to fetch projects:', error);
+        console.error('Failed to fetch requisition types:', error);
         throw error;
       }
     }
