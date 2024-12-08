@@ -8,13 +8,11 @@
 import { ref, computed, onMounted, reactive, watchEffect } from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
-import { useRoute } from "vue-router";
-import { Approval, Expense } from '../../types';
+import { useRoute , useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
 
-const statusDetail = ref("edit"); // 'reject' is the initial value
 const route = useRoute();
-
+const router = useRouter() ;
 const detailStore = useDetailStore();
 const id = Number(route.params.id);
 
@@ -64,7 +62,7 @@ const colorStatus: { [key: string]: string } = {
 const currentUser = {
   usr_id: 10002,
   usr_first_name: "Khunpaen",
-  usr_last_name: "Chaiyoet",
+  usr_last_name: "Khunpaen",
 };
 
 function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any[] }, user: { usr_first_name: string }) {
@@ -107,6 +105,7 @@ const handleSummit = (status : string ) => {
     console.log(data)
     detailStore.updateApprove(data)
     handleHideApproverPopup()
+    router.push(`/approval/list/`)
   }
 };
 
