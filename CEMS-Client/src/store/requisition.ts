@@ -25,9 +25,6 @@ export const useRequisitionStore = defineStore('dropdown', {
         filteredVehicleType: (state) => {
             return state.vehicleType.filter(vehicle => vehicle.vhType === state.selectedTravelType);
         },
-        filteredProjectType: (state) => {
-            return state.projects.filter(vehicle => vehicle.vhType === state.selectedTravelType);
-        }
     },
     /*
     * คำอธิบาย: requisition.ts

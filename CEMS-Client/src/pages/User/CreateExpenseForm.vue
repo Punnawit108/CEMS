@@ -144,7 +144,7 @@ const handleSave = async () => {
 
 const handleCancel = () => {
   // Reset form data or navigate away
-  alert("ยกเลิกการส่งข้อมูล");
+  router.push("/disbursement/listWithdraw")
 };
 
 
