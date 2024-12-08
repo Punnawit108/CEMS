@@ -325,51 +325,5 @@ public class ExpenseController : ControllerBase
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
-    [HttpPost("upload-picture")]
-    public async Task<IActionResult> UploadPicture([FromForm] IFormFile file, [FromForm] string description)
-    {
-        if (file == null || file.Length == 0)
-        {
-            return BadRequest("No file uploaded.");
-        }
-
-        try
-        {
-            // สร้างชื่อไฟล์
-            var fileName = Path.GetFileName(file.FileName);
-            var filePath = Path.Combine(_environment.WebRootPath, "uploads", fileName);
-
-            // สร้างโฟลเดอร์ถ้ายังไม่มี
-            var directory = Path.GetDirectoryName(filePath);
-            if (!Directory.Exists(directory))
-            {
-                Directory.CreateDirectory(directory);
-            }
-
-            // เขียนไฟล์ลงในที่เก็บ
-            using (var fileStream = new FileStream(filePath, FileMode.Create))
-            {
-                await file.CopyToAsync(fileStream);
-            }
-
-            // บันทึกข้อมูลไฟล์ในฐานข้อมูล
-            var expense = new CemsRequisition
-            {
-                RqProof = fileName,  // เก็บแค่ชื่อไฟล์ในฐานข้อมูล
-            };
-            // บันทึกข้อมูลลงในฐานข้อมูล
-            _context.CemsRequisitions.Add(expense);
-            await _context.SaveChangesAsync();
-
-            return Ok(new { FilePath = "/uploads/" + fileName, Expense = expense });
-        }
-        catch (Exception ex)
-        {
-            return StatusCode(500, new { Message = "An error occurred while uploading the file.", Error = ex.Message });
-        }
-    }
-
-
-
 
 }
