@@ -51,8 +51,7 @@ const navbarTitle = computed(() => {
                 </RouterLink>
             </div>
             <div class=" mr-6 items-end " v-if="route.name === 'listWithdrawDetail'">
-                <RouterLink to="/disbursement/listWithdraw/detail/:id">
-                    <Button :type="'btn-editRequest'"></Button>
+          <RouterLink :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">                    <Button :type="'btn-editRequest'"></Button>
                 </RouterLink>
             </div>
             <div class="inline-flex justify-center items-center">
