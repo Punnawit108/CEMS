@@ -10,6 +10,7 @@ import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
+import Icon from '../../components/template/CIcon.vue';
 
 const requisitionStore = useRequisitionStore();
 
@@ -26,6 +27,14 @@ const rqtName = ref(""); // ค่าเริ่มต้นสำหรับ�
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
 const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
 const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
+const isPopupSaveOpen = ref(false); // สำหรับเปิด/ปิด Popup  บันทึก
+const isPopupCancleOpen = ref(false); // สำหรับเปิด/ปิด Popup  ยกเลิก
+const isPopupSubmitOpen = ref(false); // สำหรับเปิด/ปิด Popup  ยืนยัน
+const isAlertSaveOpen = ref(false); // ควบคุมการแสดง Alert บันทึก
+const isAlertCancleOpen = ref(false); // ควบคุมการแสดง Alert ยกเลิก
+const isAlertSubmitOpen = ref(false); // ควบคุมการแสดง Alert ยืนยัน
+
+
 
 let formData: any = ref({
   rqName: "",
@@ -148,14 +157,70 @@ const handleCancel = () => {
 };
 
 
+// เปิด/ปิด Popup บันทึก ผู้อนุมัติ
+const openPopupSave = () => {
+  isPopupSaveOpen.value = true;
+};
+const closePopupSave = () => {
+  isPopupSaveOpen.value = false;
+};
+
+// เปิด/ปิด Popup ยกเลิก ผู้อนุมัติ
+const openPopupCancle = () => {
+  isPopupCancleOpen.value = true;
+};
+const closePopupCancle = () => {
+  isPopupCancleOpen.value = false;
+};
+
+// เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
+const openPopupSubmit = () => {
+  isPopupSubmitOpen.value = true;
+};
+const closePopupSubmit = () => {
+  isPopupSubmitOpen.value = false;
+};
+
+
+// เปิด/ปิด Alert บันทึก
+const confirmSave = async() => {
+  // เปิด Popup Alert
+  isAlertSaveOpen.value = true;
+  setTimeout(() => {
+    isAlertSaveOpen.value = false; // ปิด Alert
+    closePopupSave(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
+// เปิด/ปิด Alert ยกเลิก
+const confirmCancle = async() => {
+  // เปิด Popup Alert
+  isAlertCancleOpen.value = true;
+  setTimeout(() => {
+    isAlertCancleOpen.value = false; // ปิด Alert
+    closePopupCancle(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
+// เปิด/ปิด Alert ยืนยัน
+const confirmSubmit = async() => {
+  // เปิด Popup Alert
+  isAlertSubmitOpen.value = true;
+  setTimeout(() => {
+    isAlertSubmitOpen.value = false; // ปิด Alert
+    closePopupSubmit(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
+
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
     <!-- btn -->
     <div class="flex justify-end gap-4">
-      <Button :type="'btn-save'" @click="handleSave"></Button>
-      <Button :type="'btn-cancleBorderGray'" @click="handleCancel"></Button>
-      <Button :type="'btn-summit'"></Button>
+      <Button :type="'btn-save'" @click="openPopupSave"></Button>
+      <Button :type="'btn-cancleBorderGray'" @click="openPopupCancle"></Button>
+      <Button :type="'btn-summit'" @click="openPopupSubmit"></Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
@@ -455,5 +520,141 @@ const handleCancel = () => {
         />
       </div>
     </div>
+
+
+    <!-- Popup บันทึก -->
+    <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                        clip-rule="evenodd" />
+                </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยืนยันการบันทึกคำขอเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="closePopupSave"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+          <button @click="confirmSave"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup ยกเลิก -->
+    <div v-if="isPopupCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                        clip-rule="evenodd" />
+                </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยกเลิกการทำรายการเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยกเลิกการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="closePopupCancle"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+          <button @click="confirmCancle"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup ยืนยัน -->
+    <div v-if="isPopupSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                        clip-rule="evenodd" />
+                </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยืนยันการทำรายการเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยืนยันการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="closePopupSubmit"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+          <button @click="confirmSubmit"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+  
+    <!-- Alert -->
+  <div v-if="isAlertSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <div class="mb-4">
+        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                        clip-rule="evenodd" />
+                </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
+    </div>
+  </div>
+
+  <div v-if="isAlertCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <div class="mb-4">
+        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                        clip-rule="evenodd" />
+                </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mb-3">ยกเลิกการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
+    </div>
+  </div>
+
+  <div v-if="isAlertSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <div class="mb-4">
+        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                        clip-rule="evenodd" />
+                </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
+    </div>
+  </div>
+
   </form>
 </template>
