@@ -36,7 +36,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "sketch") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "sketch" || u.RqStatus == "edit") // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,

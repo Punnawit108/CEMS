@@ -36,9 +36,18 @@ export interface Approval {
     usrFirstName: string;    
     usrLastName: string;     
     aprName: string | null;  
-    aprDate: string;         
+    aprDate: Date;
+    aprStatus: string;         
 }
 
+export interface ApproverRequisition {
+    aprId: number;
+    aprApId: number ;
+    aprName: string ;
+    aprDate: Date;
+    aprStatus: string;
+    rqReason : string ;
+}
 
 //ตัวแปรประเภทค่าใช้จ่าย
 export interface ExpenseManage{
