@@ -6,7 +6,7 @@
  * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
  */
 
-import { onMounted, ref } from "vue";
+import { onMounted, ref , computed} from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
@@ -127,6 +127,17 @@ const handleCancel = () => {
   // Reset form data or navigate away
   router.push("/disbursement/listWithdraw");
 };
+
+const filteredVehicleType = computed(() => {
+  if (formData.value.rqVht === 'private') {
+    return requisitionStore.vehicleType.filter(vehicle => vehicle.vhType === 'private');
+  } else if (formData.value.rqVht === 'public') {
+    return requisitionStore.vehicleType.filter(vehicle => vehicle.vhType === 'public');
+  }
+  return [];
+});
+
+
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
@@ -302,7 +313,7 @@ const handleCancel = () => {
   >
     <option value="null" selected disabled>เลือกประเภทรถ</option>
     <option
-      v-for="vehicle in requisitionStore.vehicleType"
+      v-for="vehicle in filteredVehicleType"
       :key="vehicle.vhId"
       :value="vehicle.vhId"  
     >
