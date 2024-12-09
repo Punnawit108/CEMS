@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /*
-* ชื่อไฟล์: CreateExpenseForm.vue
-* คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
-* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
-* วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
-*/
+ * ชื่อไฟล์: CreateExpenseForm.vue
+ * คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
+ * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+ * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+ */
 
 import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
@@ -28,9 +28,7 @@ onMounted(async () => {
   await requisitionStore.getAllRequisitionType();
   await requisitionStore.getAllvehicleType();
   formData.value = await requisitionStore.getExpenseById(id);
-
 });
-
 
 // ตัวแปร ref สำหรับเก็บค่าต่างๆ
 const fileInput = ref<HTMLInputElement | null>(null); // อ้างอิงถึง input element ที่ใช้เลือกไฟล์
@@ -108,29 +106,27 @@ const handleSelectChange = () => {
 const handleSubmit = async () => {
   formData.value.rqStatus = "accept";
   const data = await requisitionStore.createExpense(formData.value);
-  if(data){
-    router.push("/disbursement/listWithdraw")
-  }else{
-    alert("Something went wrong")
+  if (data) {
+    router.push("/disbursement/listWithdraw");
+  } else {
+    alert("Something went wrong");
   }
 };
 
 const handleSave = async () => {
   formData.value.rqStatus = "sketch";
   const data = await requisitionStore.createExpense(formData.value);
-  if(data){
-    router.push("/disbursement/listWithdraw")
-  }else{
-    alert("Something went wrong")
+  if (data) {
+    router.push("/disbursement/listWithdraw");
+  } else {
+    alert("Something went wrong");
   }
 };
 
 const handleCancel = () => {
   // Reset form data or navigate away
-  router.push("/disbursement/listWithdraw")
+  router.push("/disbursement/listWithdraw");
 };
-
-
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
@@ -202,7 +198,7 @@ const handleCancel = () => {
             <div class="text-xs">
               <select
                 id="projectName"
-                v-model = "formData.rqPjId"
+                v-model="formData.rqPjId"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
                 <option disabled selected>เลือกโครงการ</option>
@@ -281,9 +277,11 @@ const handleCancel = () => {
               <select
                 id="travelType"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                v-model="requisitionStore.selectedTravelType"
+                v-model="formData.rqVht"
               >
-                <option value=null disabled selected>เลือกประเภทการเดินทาง</option>
+                <option value="null" disabled selected>
+                  เลือกประเภทการเดินทาง
+                </option>
                 <option value="private">ประเภทส่วนตัว</option>
                 <option value="public">ประเภทสาธารณะ</option>
               </select>
@@ -297,31 +295,28 @@ const handleCancel = () => {
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-          <div class="m-4" v-show="formData.rqRqtId === 2">
-            <label for="vehicleType" class="block text-sm font-medium py-1">
-              ประเภทรถ
-            </label>
-            <div class="text-xs">
-              <select
-                v-model="formData.rqVhId"
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-              >
-                <option value=null selected disabled>เลือกประเภทรถ</option>
-                <option
-                  v-for="vehicle in requisitionStore.filteredVehicleType"
-                  :value="vehicle.vhId.toString()"
-                >
-                  {{ vehicle.vhVehicle }}
-                </option>
-              </select>
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-                alt=""
-                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
-              />
-            </div>
-          </div>
+        <div class="text-xs">
+  <select
+    v-model="formData.rqVhId"
+    class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+  >
+    <option value="null" selected disabled>เลือกประเภทรถ</option>
+    <option
+      v-for="vehicle in requisitionStore.vehicleType"
+      :key="vehicle.vhId"
+      :value="vehicle.vhId"  
+    >
+      {{ vehicle.vhVehicle }}  
+    </option>
+  </select>
+  <img
+    loading="lazy"
+    src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
+    alt=""
+    class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
+  />
+</div>
+
           <!-- ช่อง "สถานที่เริ่มต้น" -->
           <div v-show="formData.rqRqtId === 2" class="m-4">
             <label for="rqStartLocation" class="block text-sm font-medium py-1"

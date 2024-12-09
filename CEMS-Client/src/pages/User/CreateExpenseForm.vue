@@ -325,6 +325,7 @@ const handleCancel = () => {
                 <option value=null selected disabled>เลือกประเภทรถ</option>
                 <option
                   v-for="vehicle in requisitionStore.filteredVehicleType"
+                  :key="vehicle.vhId.toString()"
                   :value="vehicle.vhId.toString()"
                 >
                   {{ vehicle.vhVehicle }}
