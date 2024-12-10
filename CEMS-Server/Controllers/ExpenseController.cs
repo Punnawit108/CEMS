@@ -18,10 +18,12 @@ namespace CEMS_Server.Controllers;
 public class ExpenseController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public ExpenseController(CemsContext context)
+    public ExpenseController(CemsContext context, IWebHostEnvironment environment)
     {
         _context = context;
+        _environment = environment;
     }
 
     /// <summary>แสดงช้อมูลรายการคำขอเบิก</summary>
@@ -162,7 +164,7 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ExpenseGetDto>> GetExpenseById(int id)
+    public async Task<ActionResult<ExpenseManageDto>> GetExpenseById(int id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -170,15 +172,15 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
             .Where(u => u.RqId == id) // ค้นหา RqId ด้วย id (parameter ที่รับค่าด้านบน)
-            .Select(u => new ExpenseGetDto
+            .Select(u => new ExpenseManageDto
             {
                 RqId = u.RqId,
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
-                RqPjName = u.RqPj.PjName,
-                RqRqtName = u.RqRqt.RqtName,
-                RqVhName = u.RqVh.VhVehicle,
-                RqVhType = u.RqVh.VhType,
-                RqVhPayrate = u.RqVh.VhPayrate,
+                RqUsrId = u.RqUsr.UsrId,
+                RqPjId = u.RqPj.PjId,
+                RqVhId = u.RqVh.VhId,
+                RqVht = u.RqVh.VhType,
+                RqRqtId =  u.RqRqt.RqtId,
                 RqName = u.RqName,
                 RqDatePay = u.RqDatePay,
                 RqDateWithdraw = u.RqDateWithdraw,
@@ -328,4 +330,5 @@ public class ExpenseController : ControllerBase
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
+
 }

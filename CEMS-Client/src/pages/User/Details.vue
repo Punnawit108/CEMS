@@ -251,7 +251,9 @@ const handleSummit = (status : string ) => {
         <div class="row flex">
           <div class="flex-1">
             <h3 class="mb-[16px] text-base font-bold text-black">รูปหลักฐาน</h3>
-            <img src="/evidence.jpg" alt="" class="w-[50%] h-auto cursor-pointer" />
+            <div>
+            </div>
+            <img :src="(expenseData?.rqProof)" alt="" class="w-[50%] h-auto cursor-pointer" />
           </div>
           <div class="flex-1"></div>
         </div>
