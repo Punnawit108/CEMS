@@ -25,112 +25,99 @@ public class DashboardController : ControllerBase
     }
 
     /// <summary>แสดงภาพรวมข้อมูลต่างๆของ User</summary>
+    /// <param name="id"> id ของ User </param>
     /// <returns>แสดงภาพรวมข้อมูลของ User</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     [HttpGet("user")]
-    public async Task<ActionResult<IEnumerable<DashboardUserGetDto>>> GetDashboardUser()
+    public async Task<ActionResult<IEnumerable<UserDashboardSummaryDto>>> GetUserDashboard(int usr_id)
     {
-        var requisition = await _context
-            .CemsRequisitions.Include(e => e.RqPj)
-            .Include(e => e.RqRqt)
-            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
-            .Select(u => new DashboardUserGetDto
+        // หาค่าคำขอเบิกที่รออนุมัติ
+        var rqTotalUserWaiting = await _context.CemsRequisitions
+        .Where(r => r.RqStatus == "waiting" && r.RqUsrId == usr_id)
+        .CountAsync();
+
+        // หาค่าคำขอเบิกที่อนุมัติ
+        var rqTotalUserComplete = await _context.CemsRequisitions
+        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id)
+        .CountAsync();
+
+        // หาค่าโครงการที่ผู้ใช้ทำการเบิก
+        var rqTotalUserProject = await _context.CemsRequisitions
+        .Where(r => r.RqUsrId == usr_id)
+        .Select(r => r.RqPjId)
+        .Distinct()
+        .CountAsync();
+
+        // หาค่ายอดการเบิกจ่ายทั้งหมด
+        var rqTotalExpense = await _context.CemsRequisitions
+        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id)
+        .SumAsync(r => r.RqExpenses);
+
+        var result = new UserDashboardSummaryDto
+        {
+            RqTotalUserWaiting = rqTotalUserWaiting,
+            RqTotalUserComplete = rqTotalUserComplete,
+            RqTotalUserProject = rqTotalUserProject,
+            RqTotalExpense = rqTotalExpense,
+        };
+        return Ok(result);
+    }
+
+    /// <summary>แสดงภาพรวมข้อมูลโครงการลำดับการเบิกสูงสุด</summary>
+    /// <param name="id"> id ของ User </param>
+    /// <returns>แสดงภาพรวมข้อมูลโครงการลำดับการเบิกสูงสุด</returns>
+    /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
+     [HttpGet("project/{usr_id}")]
+    public async Task<IActionResult> GetDashboardProject(int usr_id)
+    {
+        var result = await _context
+            .CemsProjects.Select(project => new
             {
-                RqId = u.RqId,
-                PjName = u.RqPj.PjName,
-                RqExpenses = u.RqExpenses,
-                PjAmountExpenses = u.RqPj.PjAmountExpenses,
-                RqStatus = u.RqStatus,
-                RqtName = u.RqRqt.RqtName,
-                RqDateWithdraw = u.RqDateWithdraw,
-            })
+                pjId = project.PjId,
+                pjName = project.PjName,
+                totalPjExpense = _context
+                    .CemsRequisitions.Where(r =>
+                        r.RqPjId == project.PjId
+                        && r.RqStatus == "accept"
+                        && r.RqProgress == "complete"
+                        && r.RqUsrId == usr_id
+                    )
+                    .Sum(r => r.RqExpenses),
+            }).Where(item => item.totalPjExpense > 0)
             .ToListAsync();
-        return Ok(requisition);
+        return Ok(result);
+    }
+
+    /// <summary>แสดงภาพรวมข้อมูลประเภทการเบิกจ่ายที่มีการเบิก</summary>
+    /// <param name="id"> id ของ User </param>
+    /// <returns>แสดงภาพรวมข้อมูลประเภทการเบิกจ่ายที่มีการเบิก</returns>
+    /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
+  [HttpGet("requisitionType/{usr_id}")]
+    public async Task<IActionResult> GetDashboardGetRequisitionType(int usr_id)
+    {
+        var result = await _context
+            .CemsRequisitionTypes.Select(requisitionType => new
+            {
+                rqtId = requisitionType.RqtId,
+                rqtName = requisitionType.RqtName,
+                totalRqt = _context
+                    .CemsRequisitions.Where(r =>
+                        r.RqRqtId == requisitionType.RqtId
+                        && r.RqStatus == "accept"
+                        && r.RqProgress == "complete"
+                        && r.RqUsrId == usr_id
+                    )
+                    .Sum(r => r.RqExpenses),
+            })
+            .Where(item => item.totalRqt > 0)
+            .ToListAsync();
+        return Ok(result);
     }
 
     /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Approver</summary>
     /// <returns>แสดงภาพรวมข้อมูลของ Approver</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-
     [HttpGet("approver")]
-    public async Task<ActionResult<IEnumerable<DashboardAppGetDto>>> GetDashboardApprover()
-    {
-        var requisition = await _context
-            .CemsApproverRequistions.Include(e => e.AprRq)
-            .Include(e => e.AprRq.RqPj)
-            .Include(e => e.AprRq.RqRqt)
-            .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept")
-            .Select(u => new DashboardAppGetDto
-            {
-                AprRqId = u.AprRqId,
-                RqStatus = u.AprStatus,
-                AprId = u.AprId,
-                RqExpenses = u.AprRq.RqExpenses,
-                PjName = u.AprRq.RqPj.PjName,
-                PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
-                RqtName = u.AprRq.RqRqt.RqtName,
-                RqDateWithdraw = u.AprRq.RqDateWithdraw,
-            })
-            .ToListAsync();
-
-        return Ok(requisition);
-    }
-
-    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Admin</summary>
-    /// <returns>แสดงภาพรวมข้อมูลของ Admin</returns>
-    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-
-    [HttpGet("admin")]
-    public async Task<ActionResult<IEnumerable<DashboardAdminGetDto>>> GetDashboardAdmin()
-    {
-        var requisition = await _context
-            .CemsApproverRequistions.Include(e => e.AprRq)
-            .Include(e => e.AprRq.RqUsr)
-            .Include(e => e.AprRq.RqPj)
-            .Include(e => e.AprRq.RqRqt)
-            .Where(u => u.AprRq.RqStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
-            .Select(u => new DashboardAdminGetDto
-            {
-                UsrId = u.AprRq.RqUsr.UsrId,
-                RqStatus = u.AprRq.RqStatus,
-                RqExpenses = u.AprRq.RqExpenses,
-                PjName = u.AprRq.RqPj.PjName,
-                PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
-                RqtName = u.AprRq.RqRqt.RqtName,
-                RqDateWithdraw = u.AprRq.RqDateWithdraw,
-            })
-            .ToListAsync();
-
-        return Ok(requisition);
-    }
-
-    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Accountant</summary>
-    /// <returns>แสดงภาพรวมข้อมูลของ Accountant</returns>
-    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-    [HttpGet("accountant")]
-    public async Task<ActionResult<IEnumerable<DashboardAccountantGetDto>>> GetDashboardAccountant()
-    {
-        var requisition = await _context
-            .CemsApproverRequistions.Include(e => e.AprRq)
-            .Include(e => e.AprRq.RqPj)
-            .Include(e => e.AprRq.RqRqt)
-            .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
-            .Select(u => new DashboardAccountantGetDto
-            {
-                AprRqId = u.AprRqId,
-                RqStatus = u.AprStatus,
-                AprId = u.AprId,
-                RqExpenses = u.AprRq.RqExpenses,
-                PjName = u.AprRq.RqPj.PjName,
-                PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
-                RqtName = u.AprRq.RqRqt.RqtName,
-                RqDateWithdraw = u.AprRq.RqDateWithdraw,
-            })
-            .ToListAsync();
-        return Ok(requisition);
-    }
-
-    [HttpGet("approver/v2")]
     public async Task<ActionResult<ApproverDashboardSummaryDto>> GetApproverDashboard(int usr_id)
     {
         //หาชื่อ user จาก usr_id
@@ -183,6 +170,130 @@ public class DashboardController : ControllerBase
         return Ok(result);
     }
 
+
+    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Admin</summary>
+    /// <returns>แสดงภาพรวมข้อมูลของ Admin</returns>
+    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
+//DashboardAdmin
+    [HttpGet("admin")]
+    public async Task<ActionResult<AdminDashboardSummaryDto>> GetAdminDashboard()
+    {
+        //หาผู้ใช้งานที่ active ทั้งหมด
+        var totalActiveUsers = await _context.CemsUsers.CountAsync(u => u.UsrIsActive == (sbyte)1);
+
+        // หาค่าคำขอเบิกที่ถูกอนุมัติแล้ว
+        var totalRqAccept = await _context.CemsRequisitions.CountAsync(r =>
+            r.RqStatus == "accept"
+        );
+
+        // หาโครงการที่มีอยู่ในระบบทั้งหมด
+        var totalProject = await _context.CemsProjects.CountAsync();
+
+        // หายอดรวมของแต่ละรายการที่มีการอนุมัติ
+        var totalRqAcceptExpense = await _context.CemsRequisitions
+        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
+        .SumAsync(r => r.RqExpenses);
+
+        var result = new AdminDashboardSummaryDto
+        {
+            TotalUser = totalActiveUsers,
+            TotalRqAccept = totalRqAccept,
+            TotalProject = totalProject,
+            TotalRqAcceptExpense = totalRqAcceptExpense,
+        };
+        return Ok(result);
+    }
+
+
+    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Accountant</summary>
+    /// <returns>แสดงภาพรวมข้อมูลของ Accountant</returns>
+    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
+    //DashboardAccountant
+    [HttpGet("accountant")]
+    public async Task<ActionResult<AccountantDashboardSummaryDto>> GetAccountantDashboard()
+    {
+        //หาค่าคำขอที่รอนำจ่าย
+        var totalRqPay = await _context.CemsRequisitions.CountAsync(r =>
+            r.RqStatus == "accept" && r.RqProgress == "paying"
+        );
+
+        // หาค่าคำขอเบิกที่ถูกนำจ่ายแล้ว
+        var totalRqComplete = await _context.CemsRequisitions.CountAsync(r =>
+            r.RqStatus == "accept" && r.RqProgress == "complete"
+        );
+
+        // หาค่าคำขอทั้งหมดที่อยู่ในสถานะรอนำจ่ายและนำจ่ายแล้ว
+        var totalRequisition = await _context.CemsRequisitions.CountAsync(r =>
+            r.RqStatus == "accept" && r.RqProgress == "complete" || r.RqProgress == "paying"
+        );
+
+        // หายอดรวมของการนำจ่ายสำเร็จ
+        var totalRqExpense = await _context.CemsRequisitions
+        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
+        .SumAsync(r => r.RqExpenses);
+
+        var result = new AccountantDashboardSummaryDto
+        {
+            TotalRqPay = totalRqPay,
+            TotalRqComplete = totalRqComplete,
+            TotalRequisition = totalRequisition,
+            TotalRqExpense = totalRqExpense,
+        };
+        return Ok(result);
+    }
+
+    /// <summary>แสดงภาพรวมข้อมูลโครงการลำดับการเบิกสูงสุด</summary>
+    /// <returns>แสดงภาพรวมข้อมูลโครงการลำดับการเบิกสูงสุด</returns>
+    /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     //DashboardGetProject
+    [HttpGet("project")]
+    public async Task<IActionResult> GetDashboardProject()
+    {
+        var result = await _context
+            .CemsProjects.Select(project => new
+            {
+                pjId = project.PjId,
+                pjName = project.PjName,
+                totalPjExpense = _context
+                    .CemsRequisitions.Where(r =>
+                        r.RqPjId == project.PjId
+                        && r.RqStatus == "accept"
+                        && r.RqProgress == "complete"
+                    )
+                    .Sum(r => r.RqExpenses),
+            }).Where(item => item.totalPjExpense > 0)
+            .ToListAsync();
+        return Ok(result);
+    }
+
+    /// <summary>แสดงภาพรวมข้อมูลประเภทการเบิกจ่ายที่มีการเบิก</summary>
+    /// <returns>แสดงภาพรวมข้อมูลประเภทการเบิกจ่ายที่มีการเบิก</returns>
+    /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     //DashboardGetRequisitionType
+    [HttpGet("requisitionType")]
+    public async Task<IActionResult> GetDashboardGetRequisitionType()
+    {
+        var result = await _context
+            .CemsRequisitionTypes.Select(requisitionType => new
+            {
+                rqtId = requisitionType.RqtId,
+                rqtName = requisitionType.RqtName,
+                totalRqt = _context
+                    .CemsRequisitions.Where(r =>
+                        r.RqRqtId == requisitionType.RqtId
+                        && r.RqStatus == "accept"
+                        && r.RqProgress == "complete"
+                    )
+                    .Sum(r => r.RqExpenses),
+            })
+            .Where(item => item.totalRqt > 0)
+            .ToListAsync();
+        return Ok(result);
+    }
+
+    /// <summary>แสดงภาพรวมข้อมูลยอดเบิกจ่ายแต่ละเดือน</summary>
+    /// <returns>แสดงภาพรวมข้อมูลยอดเบิกจ่ายแต่ละเดือน</returns>
+    /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
+    //DashboardGetDateExpenses
+
 }

@@ -7,79 +7,13 @@
 namespace CEMS_Server.DTOs
 {
     //ของ User
-    public class DashboardUserGetDto
+    public class UserDashboardSummaryDto
     {
-        public int RqId { get; set; }
+        public int RqTotalUserWaiting { get; set; }
+        public int RqTotalUserComplete { get; set; }
+        public int RqTotalUserProject { get; set; }
+        public double RqTotalExpense { get; set; }
 
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqDateWithdraw { get; set; }
-    }
-
-    //ของ Approver
-    public class DashboardAppGetDto
-    {
-        public int AprRqId { get; set; }
-
-        public int AprId { get; set; }
-
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqDateWithdraw { get; set; }
-    }
-
-    //ของ Admin
-    public class DashboardAdminGetDto
-    {
-        public int UsrId { get; set; }
-
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqDateWithdraw { get; set; }
-    }
-
-    //ของ Accountant
-    public class DashboardAccountantGetDto
-    {
-        public int AprRqId { get; set; }
-
-        public int AprId { get; set; }
-
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqDateWithdraw { get; set; }
     }
 
     public class ApproverDashboardSummaryDto
@@ -89,4 +23,20 @@ namespace CEMS_Server.DTOs
         public int TotalRequisitions { get; set; }
         public double TotalRequisitionExpenses { get; set; }
     }
+
+    public class AdminDashboardSummaryDto{
+        public int TotalUser { get; set; }
+        public int TotalRqAccept { get; set; }
+        public int TotalProject { get; set; }
+        public double TotalRqAcceptExpense { get; set; }
+    }
+
+    public class AccountantDashboardSummaryDto{
+        public int TotalRqPay { get; set; }
+        public int TotalRqComplete { get; set; }
+        public int TotalRequisition { get; set; }
+        public double TotalRqExpense { get; set; }
+
+    }
+
 }
