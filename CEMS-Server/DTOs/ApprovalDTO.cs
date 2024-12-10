@@ -54,7 +54,7 @@ namespace CEMS_Server.DTOs
         public int RqPjId { get; set; }
         public int RqRqtId { get; set; }
         public int RqVhId { get; set; }
-        public string RqName { get; set; } = null! ;
+        public string RqName { get; set; } = null!;
         public DateOnly RqDatePay { get; set; }
 
         public DateOnly RqDateWithdraw { get; set; }
@@ -79,5 +79,26 @@ namespace CEMS_Server.DTOs
         public string RqStatus { get; set; } = null!;
 
         public string RqProgress { get; set; } = null!;
+    }
+
+    public class ApprovalSequence
+    {
+        public int ApId { get; set; }
+        public int ApSequence { get; set; }
+    }
+
+    public class ApproverUpdateDto
+    {
+        public int AprId { get; set; }
+
+        public int? AprApId { get; set; }
+
+        public string? AprName { get; set; }
+
+        public DateTime? AprDate { get; set; }
+
+        public string? AprStatus { get; set; }
+
+        public string? RqReason { get; set; }
     }
 }

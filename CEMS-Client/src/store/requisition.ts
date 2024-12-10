@@ -24,7 +24,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         // Getter สำหรับกรอง vehicleType
         filteredVehicleType: (state) => {
             return state.vehicleType.filter(vehicle => vehicle.vhType === state.selectedTravelType);
-        }
+        },
     },
     /*
     * คำอธิบาย: requisition.ts
@@ -47,6 +47,7 @@ export const useRequisitionStore = defineStore('dropdown', {
                 }
             }
         },
+
         /*
         * คำอธิบาย: requisition.ts
         * Input: -
@@ -127,5 +128,18 @@ export const useRequisitionStore = defineStore('dropdown', {
                 console.log(error)
             }
         },
+        async getExpenseById(id: string) {
+            //  CreateExpense.rqStatus = "accept";
+            // console.log(CreateExpense)
+            try {
+                const result = await axios.get(
+                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`);
+                return result.data;
+
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
     }
 });

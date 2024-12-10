@@ -7,13 +7,14 @@
 
 import axios from "axios";
 import { defineStore } from 'pinia';
-import { Expense } from '../types';
+import { ApproverRequisition, Expense } from '../types';
 import { Approval } from '../types'; 
 
 export const useDetailStore = defineStore('detailExpense', {
     state: () => ({
         requisition: [] as Expense[] , // array ของ Approval
         approvals: [] as Approval[] , // array ของ Approval
+        approvalRequisitions: [] as ApproverRequisition[] ,
         selectedExpense: null as Expense | null,
     }),
     actions: {
@@ -50,6 +51,18 @@ export const useDetailStore = defineStore('detailExpense', {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/${rqId}`);
                 this.requisition = result.data;
                 return this.requisition ;
+
+            } catch (error) {
+                console.error("Error fetching approver data:", error);
+            }
+        },
+
+        async updateApprove(data : any) {
+            try {
+                const result = await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/approve` , data);
+                this.approvalRequisitions = result.data;
+                
+                return this.approvalRequisitions ;
 
             } catch (error) {
                 console.error("Error fetching approver data:", error);

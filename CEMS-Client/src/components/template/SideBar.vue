@@ -162,7 +162,7 @@ const toggleSettingTypeWithdraw = () => {
             <!-- ปุ่มแดชบอร์ด -->
             <li
                 class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap ">
-                <RouterLink to="/">
+                <RouterLink to="/dashboard">
 
                     <button @click="toggleDashboard" :class="{ 'bg-red-100 rounded-xl': clickDashboard }"
                         

@@ -10,23 +10,28 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
-import { useExpense } from '../../store/ExpenseStore';
+import { useExpense } from '../../store/expenseStore';
 import { onMounted } from 'vue';
 import { Expense } from '../../types';
 import { useDetailStore } from '../../store/detail';
-import CryptoJS from 'crypto-js';
 
+// เรียกใช้ ExpenseStore สำหรับจัดการรายการอนุมัติ
 const expense = useExpense();
+
+// เรียกใช้ Router
 const router = useRouter();
 
+// เมื่อ Component ถูก Mounted ให้ดึงข้อมูลประวัติการอนุมัติทั้งหมด
 onMounted(()=>{
-    expense.getAllApprovalHistory()
+    expense.getAllApprovalHistory() // ดึงข้อมูลประวัติการอนุมัติจาก Store
 })
 
+// เรียกใช้ Store สำหรับจัดการรายละเอียด
 const detailStore = useDetailStore();
 
+// ฟังก์ชันสำหรับเปลี่ยนเส้นทางไปยังหน้ารายละเอียดของรายการที่เลือก
 const toDetails = async (data: Expense) => {
-    router.push(`/approval/history/detail/${data.rqId}`);
+    router.push(`/approval/history/detail/${data.rqId}`); // นำไปที่ URL: /approval/history/detail/:rqId
 };
 
 </script>

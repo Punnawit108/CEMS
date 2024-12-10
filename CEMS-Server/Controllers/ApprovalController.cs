@@ -6,6 +6,7 @@
 */
 
 using CEMS_Server.AppContext;
+using CEMS_Server.DTOs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -34,6 +35,7 @@ public class ApprovalController : ControllerBase
             .Select(e => new
             {
                 e.ApUsr.UsrId,
+                e.ApId,
                 e.ApUsr.UsrFirstName,
                 e.ApUsr.UsrLastName,
                 e.ApSequence,
@@ -41,6 +43,7 @@ public class ApprovalController : ControllerBase
             .ToListAsync();
         return Ok(acceptorList);
     }
+
     /// <summary>แสดงช้อมูลการอนุมัติ</summary>
     /// <returns>ช้อมูลการอนุมัติ</returns>
     /// <param name="requisitionId">เลขใบคำขอเบิก</param>
@@ -68,6 +71,7 @@ public class ApprovalController : ControllerBase
             .Select(e => new
             {
                 e.AprId,
+                e.AprApId,
                 e.AprAp.ApUsr.UsrFirstName,
                 e.AprAp.ApUsr.UsrLastName,
                 e.AprName,
@@ -80,6 +84,7 @@ public class ApprovalController : ControllerBase
         var formattedAcceptor = acceptor.Select(e => new
         {
             e.AprId,
+            e.AprApId,
             e.UsrFirstName,
             e.UsrLastName,
             e.AprName,
@@ -87,10 +92,7 @@ public class ApprovalController : ControllerBase
             e.AprStatus,
         });
 
-        var progress = new { 
-            disbursement, 
-            acceptor = formattedAcceptor,
-            };
+        var progress = new { disbursement, acceptor = formattedAcceptor };
 
         return Ok(progress);
     }
@@ -124,5 +126,102 @@ public class ApprovalController : ControllerBase
             new { id = approverRequistion.AprId },
             approverRequistion
         );
+    }
+
+    [HttpPut("swapSequence")]
+    public async Task<ActionResult> SwapRequisitionSequence(
+        [FromBody] ApprovalSequence approvalSequence
+    )
+    {
+        // Delete Old Sequence
+        var approvalBySequence = await _context.CemsApprovers.FirstOrDefaultAsync(e =>
+            e.ApSequence == approvalSequence.ApSequence
+        );
+
+        if (approvalBySequence == null)
+        {
+            return NotFound($"Approval sequence {approvalSequence.ApSequence} not found.");
+        }
+
+        approvalBySequence.ApSequence = null;
+
+        // Update New Sequence
+        var approval = await _context.CemsApprovers.FirstOrDefaultAsync(e =>
+            e.ApId == approvalSequence.ApId
+        );
+
+        if (approval == null)
+        {
+            return NotFound($"Approval with ID {approvalSequence.ApId} not found.");
+        }
+
+        approval.ApSequence = approvalSequence.ApSequence;
+
+        // Save changes to the database
+        await _context.SaveChangesAsync();
+
+        return Ok("Sequence swapped successfully.");
+    }
+
+    [HttpPut("approve")]
+    public async Task<ActionResult> updateApprove([FromBody] ApproverUpdateDto approverUpdate)
+    {
+        if (approverUpdate == null)
+        {
+            return BadRequest("Expense data is null.");
+        }
+        var approver = await _context.CemsApproverRequistions.FindAsync(approverUpdate.AprId);
+        if (approver == null)
+        {
+            return NotFound($"ไม่มีข้อมูลของ id {approverUpdate.AprId} ในระบบ");
+        }
+        approver.AprApId = approverUpdate.AprApId;
+        approver.AprName = approverUpdate.AprName;
+        approver.AprDate = approverUpdate.AprDate;
+        approver.AprStatus = approverUpdate.AprStatus;
+
+        _context.CemsApproverRequistions.Update(approver);
+        await _context.SaveChangesAsync();
+        
+        if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept")
+        {
+            var updateSuccess = await UpdateRequisitionsStatus(approver.AprRqId , "accept" , "paying" , null);
+            if (!updateSuccess)
+            {
+                return NotFound();
+            }
+        }
+        if (approverUpdate.AprStatus == "edit")
+        {
+            var updateEdit = await UpdateRequisitionsStatus(approver.AprRqId , "edit" , "accepting" , approverUpdate.RqReason);
+            if (!updateEdit)
+            {
+                return NotFound();
+            }
+        }
+        if (approverUpdate.AprStatus == "reject")
+        {
+            var updateReject = await UpdateRequisitionsStatus(approver.AprRqId , "reject" , "complete" , approverUpdate.RqReason);
+            if (!updateReject)
+            {
+                return NotFound();
+            }
+        }
+        return NoContent();
+    }
+
+    private async Task<bool> UpdateRequisitionsStatus(int rqId , string rqStatus , string rqProgress ,string rqReason)
+    {
+        var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r => r.RqId == rqId);
+        if (requisition == null)
+        {
+            return false; 
+        }
+        requisition.RqStatus = rqStatus;
+        requisition.RqProgress = rqProgress;
+        requisition.RqReason = rqReason;
+        _context.CemsRequisitions.Update(requisition);
+        await _context.SaveChangesAsync();
+        return true;
     }
 }

@@ -1,4 +1,9 @@
-
+/*
+* ชื่อไฟล์: notification.ts
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับติดต่อข้อมูลหลังบ้าน
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
+*/
 import axios from "axios";
 import { defineStore } from "pinia";
 import { Notification } from '../types/index';

@@ -44,7 +44,7 @@ let formData: any = ref({
   rqPurpose: "",
   rqReason: "",
   rqProof: "",
-  rqStatus:  "",
+  rqStatus: "",
   rqProgress: "accepting",
   preview: null,
 });
@@ -104,6 +104,7 @@ const uploadFile = async (file: File) => {
   if (isValidSize) {
     selectedFile.value = file; // เก็บไฟล์ที่ผ่านการตรวจสอบ
     previewUrl.value = URL.createObjectURL(file); // สร้าง URL สำหรับแสดงตัวอย่าง
+    formData.value.rqProof = await convertToBase64(file)
   } else {
     alert(
       `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
@@ -112,6 +113,15 @@ const uploadFile = async (file: File) => {
     selectedFile.value = null;
     previewUrl.value = null;
   }
+};
+
+const convertToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 };
 
 const handleSelectChange = () => {
@@ -123,11 +133,13 @@ const handleSelectChange = () => {
 };
 
 const handleSubmit = async () => {
-  formData.value.rqStatus = "accept";
+  formData.value.rqStatus = "waiting";
+  console.log(formData)
   const data = await requisitionStore.createExpense(formData.value);
-  if(data){
+
+  if (data) {
     router.push("/disbursement/listWithdraw")
-  }else{
+  } else {
     alert("Something went wrong")
   }
 };
@@ -135,16 +147,16 @@ const handleSubmit = async () => {
 const handleSave = async () => {
   formData.value.rqStatus = "sketch";
   const data = await requisitionStore.createExpense(formData.value);
-  if(data){
+  if (data) {
     router.push("/disbursement/listWithdraw")
-  }else{
+  } else {
     alert("Something went wrong")
   }
 };
 
 const handleCancel = () => {
   // Reset form data or navigate away
-  alert("ยกเลิกการส่งข้อมูล");
+  router.push("/disbursement/listWithdraw")
 };
 
 
