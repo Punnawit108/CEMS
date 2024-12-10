@@ -121,26 +121,45 @@ export interface Dashboard {
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ User
 export interface DashboardForUser {
-    rqSumOfWaiting: number;
-    rqSumOfApprove: number;
-    rqSumOfExpense: number;
-    rqSumExpense: number;
+    rqTotalUserWaiting: number;
+    rqTotalUserComplete: number;
+    rqTotalUserProject: number;
+    rqTotalExpense: number;
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Accountant
 export interface DashboardForAccountant {
-    rqSumOfWaiting: number ;
-    rqSumOfComplate: number ;
-    rqSumOfExpense: number ;
-    rqSumExpense: number ;
+    totalRqPay: number ;
+    totalRqComplete: number ;
+    totalRequisition: number ;
+    totalRqExpense: number ;
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Admin
 export interface DashboardForAdmin {
-    usrAll: number ;
-    rqSumOfExpense: number ;
-    pjAll: number ;
-    rqSumExpense: number ;
+    totalUser: number ;
+    totalRqAccept: number ;
+    totalProject: number ;
+    totalRqAcceptExpense: number ;
+}
+
+export interface DashboardProject {
+    //ตารางการเบิกสูงสุดของโครงการ
+    PjId: number;
+    PjName: string;
+    totalPjExpense: string;
+}
+
+export interface DashboardRequisitionType {
+    //กราฟ ประเภทค่าใช้จ่ายของรายการเบิก
+    rqtId: number;
+    rqtName: string;
+    totalRqt: number;
+}
+
+export interface DashboardPayment {
+    rqMonth: number;
+    rqSumExpensesInMonth: number;
 }
 
 export interface Project {
