@@ -18,10 +18,12 @@ namespace CEMS_Server.Controllers;
 public class ExpenseController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IWebHostEnvironment _environment;
 
-    public ExpenseController(CemsContext context)
+    public ExpenseController(CemsContext context, IWebHostEnvironment environment)
     {
         _context = context;
+        _environment = environment;
     }
 
     /// <summary>แสดงช้อมูลรายการคำขอเบิก</summary>
@@ -303,7 +305,7 @@ public class ExpenseController : ControllerBase
     /// <param name="id"> id ของรายการคำขอเบิก </param>
     /// <returns>สถานะการลบข้อมูลคำขอเบิก </returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
-    
+
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(int id)
     {
@@ -325,4 +327,5 @@ public class ExpenseController : ControllerBase
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
+
 }
