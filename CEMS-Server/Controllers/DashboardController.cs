@@ -13,7 +13,6 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
 
-
 [ApiController]
 [Route("api/user/dashboard")]
 public class DashboardController : ControllerBase
@@ -25,7 +24,6 @@ public class DashboardController : ControllerBase
         _context = context;
     }
 
-    
     /// <summary>แสดงภาพรวมข้อมูลต่างๆของ User</summary>
     /// <returns>แสดงภาพรวมข้อมูลของ User</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
@@ -33,8 +31,7 @@ public class DashboardController : ControllerBase
     public async Task<ActionResult<IEnumerable<DashboardUserGetDto>>> GetDashboardUser()
     {
         var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqPj)
+            .CemsRequisitions.Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Where(u => u.RqStatus == "waiting" || u.RqStatus == "accept") // เพิ่มเงื่อนไข Where //ไม่มั่นใจว่าสถานะเสร็จสิ้นของคำขอเบิกค่าเดินทางคือ "accept" ไหม
             .Select(u => new DashboardUserGetDto
@@ -51,30 +48,29 @@ public class DashboardController : ControllerBase
         return Ok(requisition);
     }
 
-
     /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Approver</summary>
     /// <returns>แสดงภาพรวมข้อมูลของ Approver</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
- 
+
     [HttpGet("approver")]
     public async Task<ActionResult<IEnumerable<DashboardApproverGetDto>>> GetDashboardApprover()
     {
         var requisition = await _context
-        .CemsApproverRequistions.Include(e => e.AprRq)
+            .CemsApproverRequistions.Include(e => e.AprRq)
             .Include(e => e.AprRq.RqPj)
             .Include(e => e.AprRq.RqRqt)
             .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept")
-        .Select(u => new DashboardApproverGetDto
-        {
-            AprRqId = u.AprRqId,
-            RqStatus = u.AprStatus,
-            AprId = u.AprId,
-            RqExpenses = u.AprRq.RqExpenses,
-            PjName = u.AprRq.RqPj.PjName,
-            PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
-            RqtName = u.AprRq.RqRqt.RqtName,
-            RqDateWithdraw = u.AprRq.RqDateWithdraw,
-        })
+            .Select(u => new DashboardApproverGetDto
+            {
+                AprRqId = u.AprRqId,
+                RqStatus = u.AprStatus,
+                AprId = u.AprId,
+                RqExpenses = u.AprRq.RqExpenses,
+                PjName = u.AprRq.RqPj.PjName,
+                PjAmountExpenses = u.AprRq.RqPj.PjAmountExpenses,
+                RqtName = u.AprRq.RqRqt.RqtName,
+                RqDateWithdraw = u.AprRq.RqDateWithdraw,
+            })
             .ToListAsync();
 
         return Ok(requisition);
@@ -134,5 +130,4 @@ public class DashboardController : ControllerBase
 
         return Ok(requisition);
     }
-
 }
