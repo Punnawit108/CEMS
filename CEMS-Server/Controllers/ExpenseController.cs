@@ -186,7 +186,7 @@ public class ExpenseController : ControllerBase
                 RqDateWithdraw = u.RqDateWithdraw,
                 RqCode = u.RqCode,
                 //RqInsteadName = u.RqInsteadEmail,
-                RqInsteadName = _context
+                RqInsteadEmail = _context
                     .CemsUsers.Where(user => user.UsrEmail == u.RqInsteadEmail)
                     .Select(user => user.UsrFirstName + " " + user.UsrLastName)
                     .FirstOrDefault(),
