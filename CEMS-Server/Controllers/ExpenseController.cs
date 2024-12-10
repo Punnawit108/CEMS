@@ -38,7 +38,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "sketch") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "sketch" || u.RqStatus == "edit") // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
@@ -50,7 +50,7 @@ public class ExpenseController : ControllerBase
                 RqDatePay = u.RqDatePay,
                 RqDateWithdraw = u.RqDateWithdraw,
                 RqCode = u.RqCode,
-                RqInsteadEmail = u.RqInsteadEmail,
+                RqInsteadName = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
@@ -90,7 +90,7 @@ public class ExpenseController : ControllerBase
                 RqDatePay = u.RqDatePay,
                 RqDateWithdraw = u.RqDateWithdraw,
                 RqCode = u.RqCode,
-                RqInsteadEmail = u.RqInsteadEmail,
+                //RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
@@ -117,8 +117,7 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseReport()
     {
         var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqUsr)
+            .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Select(u => new ExpenseReportDto
@@ -147,8 +146,7 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
     {
         var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqRqt)
+            .CemsRequisitions.Include(e => e.RqRqt)
             .Select(u => new ExpenseGraphDto
             {
                 RqRqtId = u.RqRqt.RqtId,
@@ -187,7 +185,12 @@ public class ExpenseController : ControllerBase
                 RqDatePay = u.RqDatePay,
                 RqDateWithdraw = u.RqDateWithdraw,
                 RqCode = u.RqCode,
-                RqInsteadEmail = u.RqInsteadEmail,
+                //RqInsteadName = u.RqInsteadEmail,
+                RqInsteadName = _context
+                    .CemsUsers.Where(user => user.UsrEmail == u.RqInsteadEmail)
+                    .Select(user => user.UsrFirstName + " " + user.UsrLastName)
+                    .FirstOrDefault(),
+
                 RqExpenses = u.RqExpenses,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,

@@ -18,6 +18,8 @@ namespace CEMS_Server.DTOs
         public string RqRqtName { get; set; } = null!;
 
         public string RqVhName { get; set; } = null!;
+        public string RqVhType { get; set; } = null!;
+        public double? RqVhPayrate { get; set; } = null!;
 
         public string RqName { get; set; } = null!;
 
@@ -27,7 +29,7 @@ namespace CEMS_Server.DTOs
 
         public string? RqCode { get; set; }
 
-        public string? RqInsteadEmail { get; set; }
+        public string? RqInsteadName { get; set; }
 
         public double RqExpenses { get; set; }
 
