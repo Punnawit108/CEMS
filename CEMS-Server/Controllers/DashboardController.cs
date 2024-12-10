@@ -29,29 +29,35 @@ public class DashboardController : ControllerBase
     /// <returns>แสดงภาพรวมข้อมูลของ User</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     [HttpGet("user")]
-    public async Task<ActionResult<IEnumerable<UserDashboardSummaryDto>>> GetUserDashboard(int usr_id)
+    public async Task<ActionResult<IEnumerable<UserDashboardSummaryDto>>> GetUserDashboard(
+        int usr_id
+    )
     {
         // หาค่าคำขอเบิกที่รออนุมัติ
-        var rqTotalUserWaiting = await _context.CemsRequisitions
-        .Where(r => r.RqStatus == "waiting" && r.RqUsrId == usr_id)
-        .CountAsync();
+        var rqTotalUserWaiting = await _context
+            .CemsRequisitions.Where(r => r.RqStatus == "waiting" && r.RqUsrId == usr_id)
+            .CountAsync();
 
         // หาค่าคำขอเบิกที่อนุมัติ
-        var rqTotalUserComplete = await _context.CemsRequisitions
-        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id)
-        .CountAsync();
+        var rqTotalUserComplete = await _context
+            .CemsRequisitions.Where(r =>
+                r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id
+            )
+            .CountAsync();
 
         // หาค่าโครงการที่ผู้ใช้ทำการเบิก
-        var rqTotalUserProject = await _context.CemsRequisitions
-        .Where(r => r.RqUsrId == usr_id)
-        .Select(r => r.RqPjId)
-        .Distinct()
-        .CountAsync();
+        var rqTotalUserProject = await _context
+            .CemsRequisitions.Where(r => r.RqUsrId == usr_id)
+            .Select(r => r.RqPjId)
+            .Distinct()
+            .CountAsync();
 
         // หาค่ายอดการเบิกจ่ายทั้งหมด
-        var rqTotalExpense = await _context.CemsRequisitions
-        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id)
-        .SumAsync(r => r.RqExpenses);
+        var rqTotalExpense = await _context
+            .CemsRequisitions.Where(r =>
+                r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id
+            )
+            .SumAsync(r => r.RqExpenses);
 
         var result = new UserDashboardSummaryDto
         {
@@ -67,7 +73,7 @@ public class DashboardController : ControllerBase
     /// <param name="id"> id ของ User </param>
     /// <returns>แสดงภาพรวมข้อมูลโครงการลำดับการเบิกสูงสุด</returns>
     /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-     [HttpGet("project/{usr_id}")]
+    [HttpGet("project/{usr_id}")]
     public async Task<IActionResult> GetDashboardProject(int usr_id)
     {
         var result = await _context
@@ -83,7 +89,8 @@ public class DashboardController : ControllerBase
                         && r.RqUsrId == usr_id
                     )
                     .Sum(r => r.RqExpenses),
-            }).Where(item => item.totalPjExpense > 0)
+            })
+            .Where(item => item.totalPjExpense > 0)
             .ToListAsync();
         return Ok(result);
     }
@@ -92,7 +99,7 @@ public class DashboardController : ControllerBase
     /// <param name="id"> id ของ User </param>
     /// <returns>แสดงภาพรวมข้อมูลประเภทการเบิกจ่ายที่มีการเบิก</returns>
     /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-  [HttpGet("requisitionType/{usr_id}")]
+    [HttpGet("requisitionType/{usr_id}")]
     public async Task<IActionResult> GetDashboardGetRequisitionType(int usr_id)
     {
         var result = await _context
@@ -170,11 +177,10 @@ public class DashboardController : ControllerBase
         return Ok(result);
     }
 
-
     /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Admin</summary>
     /// <returns>แสดงภาพรวมข้อมูลของ Admin</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-//DashboardAdmin
+    //DashboardAdmin
     [HttpGet("admin")]
     public async Task<ActionResult<AdminDashboardSummaryDto>> GetAdminDashboard()
     {
@@ -182,17 +188,15 @@ public class DashboardController : ControllerBase
         var totalActiveUsers = await _context.CemsUsers.CountAsync(u => u.UsrIsActive == (sbyte)1);
 
         // หาค่าคำขอเบิกที่ถูกอนุมัติแล้ว
-        var totalRqAccept = await _context.CemsRequisitions.CountAsync(r =>
-            r.RqStatus == "accept"
-        );
+        var totalRqAccept = await _context.CemsRequisitions.CountAsync(r => r.RqStatus == "accept");
 
         // หาโครงการที่มีอยู่ในระบบทั้งหมด
         var totalProject = await _context.CemsProjects.CountAsync();
 
         // หายอดรวมของแต่ละรายการที่มีการอนุมัติ
-        var totalRqAcceptExpense = await _context.CemsRequisitions
-        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
-        .SumAsync(r => r.RqExpenses);
+        var totalRqAcceptExpense = await _context
+            .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
+            .SumAsync(r => r.RqExpenses);
 
         var result = new AdminDashboardSummaryDto
         {
@@ -203,7 +207,6 @@ public class DashboardController : ControllerBase
         };
         return Ok(result);
     }
-
 
     /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Accountant</summary>
     /// <returns>แสดงภาพรวมข้อมูลของ Accountant</returns>
@@ -228,9 +231,9 @@ public class DashboardController : ControllerBase
         );
 
         // หายอดรวมของการนำจ่ายสำเร็จ
-        var totalRqExpense = await _context.CemsRequisitions
-        .Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
-        .SumAsync(r => r.RqExpenses);
+        var totalRqExpense = await _context
+            .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
+            .SumAsync(r => r.RqExpenses);
 
         var result = new AccountantDashboardSummaryDto
         {
@@ -261,7 +264,8 @@ public class DashboardController : ControllerBase
                         && r.RqProgress == "complete"
                     )
                     .Sum(r => r.RqExpenses),
-            }).Where(item => item.totalPjExpense > 0)
+            })
+            .Where(item => item.totalPjExpense > 0)
             .ToListAsync();
         return Ok(result);
     }
@@ -295,5 +299,4 @@ public class DashboardController : ControllerBase
     /// <returns>แสดงภาพรวมข้อมูลยอดเบิกจ่ายแต่ละเดือน</returns>
     /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     //DashboardGetDateExpenses
-
 }

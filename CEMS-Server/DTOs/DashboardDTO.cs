@@ -13,7 +13,6 @@ namespace CEMS_Server.DTOs
         public int RqTotalUserComplete { get; set; }
         public int RqTotalUserProject { get; set; }
         public double RqTotalExpense { get; set; }
-
     }
 
     public class ApproverDashboardSummaryDto
@@ -24,19 +23,19 @@ namespace CEMS_Server.DTOs
         public double TotalRequisitionExpenses { get; set; }
     }
 
-    public class AdminDashboardSummaryDto{
+    public class AdminDashboardSummaryDto
+    {
         public int TotalUser { get; set; }
         public int TotalRqAccept { get; set; }
         public int TotalProject { get; set; }
         public double TotalRqAcceptExpense { get; set; }
     }
 
-    public class AccountantDashboardSummaryDto{
+    public class AccountantDashboardSummaryDto
+    {
         public int TotalRqPay { get; set; }
         public int TotalRqComplete { get; set; }
         public int TotalRequisition { get; set; }
         public double TotalRqExpense { get; set; }
-
     }
-
 }
