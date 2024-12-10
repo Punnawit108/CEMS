@@ -3,7 +3,7 @@
  * Input: -
  * Output: ภาพรวมข้อมูลต่างๆ
  * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
- * วันที่จัดทำ/แก้ไข: 6 ธันวาคม 2567
+ * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
  */
 
 import axios from "axios";
@@ -18,17 +18,17 @@ import {
 //ดึงข้อมูล Api Dashboard ของ Role User
 export const useDashboardForUser = defineStore("dashboard", {
   state: () => ({
-    expenses: [] as DashboardForUser[],
+    dashboard: [] as DashboardForUser[],
   }),
   actions: {
-    async getAllExpenses() {
+    async getDashboardUser() {
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/dashboard/user`
         );
-        this.expenses = result.data;
+        this.dashboard = result.data;
       } catch (error) {
-        console.error("Failed to fetch expenses:", error);
+        console.error("Failed to fetch dashboard:", error);
       }
     },
   },
@@ -37,17 +37,17 @@ export const useDashboardForUser = defineStore("dashboard", {
 //ดึงข้อมูล Api Dashboard ของ Role Admin
 export const useDashboardForAdmin = defineStore("dashboard", {
   state: () => ({
-    expenses: [] as DashboardForAdmin[],
+    dashboard: [] as DashboardForAdmin[],
   }),
   actions: {
-    async getAllExpenses() {
+    async getDasboardAdmin() {
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/dashboard/admin`
         );
-        this.expenses = result.data;
+        this.dashboard = result.data;
       } catch (error) {
-        console.error("Failed to fetch expenses:", error);
+        console.error("Failed to fetch dashboard:", error);
       }
     },
   },
@@ -56,17 +56,17 @@ export const useDashboardForAdmin = defineStore("dashboard", {
 //ดึงข้อมูล Api Dashboard ของ Role Accountant
 export const useDashboardForAccountant = defineStore("dashboard", {
   state: () => ({
-    expenses: [] as DashboardForAccountant[],
+    dashboard: [] as DashboardForAccountant[],
   }),
   actions: {
-    async getAllExpenses() {
+    async getDasboardAccoutant() {
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/dashboard/accountant`
         );
-        this.expenses = result.data;
+        this.dashboard = result.data;
       } catch (error) {
-        console.error("Failed to fetch expenses:", error);
+        console.error("Failed to fetch dashboard:", error);
       }
     },
   },
