@@ -53,14 +53,14 @@ public class DashboardController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
 
     [HttpGet("approver")]
-    public async Task<ActionResult<IEnumerable<DashboardApproverGetDto>>> GetDashboardApprover()
+    public async Task<ActionResult<IEnumerable<DashboardAppGetDto>>> GetDashboardApprover()
     {
         var requisition = await _context
             .CemsApproverRequistions.Include(e => e.AprRq)
             .Include(e => e.AprRq.RqPj)
             .Include(e => e.AprRq.RqRqt)
             .Where(u => u.AprStatus == "waiting" || u.AprStatus == "accept")
-            .Select(u => new DashboardApproverGetDto
+            .Select(u => new DashboardAppGetDto
             {
                 AprRqId = u.AprRqId,
                 RqStatus = u.AprStatus,
@@ -127,7 +127,62 @@ public class DashboardController : ControllerBase
                 RqDateWithdraw = u.AprRq.RqDateWithdraw,
             })
             .ToListAsync();
-
         return Ok(requisition);
     }
+
+    [HttpGet("approver/v2")]
+    public async Task<ActionResult<ApproverDashboardSummaryDto>> GetApproverDashboard(int usr_id)
+    {
+        //หาชื่อ user จาก usr_id
+        var user = await _context
+            .CemsUsers.Where(u => u.UsrId == usr_id)
+            .Select(u => new { FullName = u.UsrFirstName + " " + u.UsrLastName })
+            .FirstOrDefaultAsync();
+
+        if (user == null)
+        {
+            return NotFound("User not found.");
+        }
+
+        var fullName = user.FullName;
+
+        // หาค่าคำขอที่รอการอนุมัติ
+        var totalWaiting = await _context.CemsApproverRequistions.CountAsync(a =>
+            a.AprName == fullName && a.AprStatus == "waiting"
+        );
+
+        // หาค่าคำขอที่ถูกอนุมัติหรือปฏิเสธการอนุมัติ
+        var totalAcceptedOrRejected = await _context.CemsApproverRequistions.CountAsync(a =>
+            a.AprName == fullName && (a.AprStatus == "accept" || a.AprStatus == "reject")
+        );
+
+        // หาคำขอที่ต้องอนุมัติทั้งหมด
+        var totalRequisitions = await _context.CemsApproverRequistions.CountAsync(a =>
+            a.AprName == fullName
+        );
+
+        // หายอดรวมของแต่ละรายการที่มีการอนุมัติ
+        var totalExpenses = await _context
+            .CemsApproverRequistions.Where(a => a.AprName == fullName)
+            .Join(
+                _context.CemsRequisitions,
+                apr => apr.AprRqId,
+                rq => rq.RqId,
+                (apr, rq) => new { apr, rq }
+            )
+            .Where(e => e.rq.RqStatus == "accept") //อาจต้องเพิ่มเงื่อนไข rqProgress == "Complete"
+            .SumAsync(e => e.rq.RqExpenses);
+
+        var result = new ApproverDashboardSummaryDto
+        {
+            TotalRequisitionsWaiting = totalWaiting,
+            TotalRequisitionsAcceptedOrRejected = totalAcceptedOrRejected,
+            TotalRequisitions = totalRequisitions,
+            TotalRequisitionExpenses = totalExpenses,
+        };
+        return Ok(result);
+    }
+
+    //DashboardGetProject
+    //DashboardGetRequisitionType
 }

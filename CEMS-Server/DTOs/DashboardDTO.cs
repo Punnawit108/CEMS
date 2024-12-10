@@ -22,11 +22,10 @@ namespace CEMS_Server.DTOs
         public string RqtName { get; set; } = null!;
 
         public DateOnly RqDateWithdraw { get; set; }
-
     }
 
     //ของ Approver
-    public class DashboardApproverGetDto
+    public class DashboardAppGetDto
     {
         public int AprRqId { get; set; }
 
@@ -43,7 +42,6 @@ namespace CEMS_Server.DTOs
         public string RqtName { get; set; } = null!;
 
         public DateOnly RqDateWithdraw { get; set; }
-
     }
 
     //ของ Admin
@@ -62,7 +60,6 @@ namespace CEMS_Server.DTOs
         public string RqtName { get; set; } = null!;
 
         public DateOnly RqDateWithdraw { get; set; }
-
     }
 
     //ของ Accountant
@@ -83,7 +80,13 @@ namespace CEMS_Server.DTOs
         public string RqtName { get; set; } = null!;
 
         public DateOnly RqDateWithdraw { get; set; }
+    }
 
+    public class ApproverDashboardSummaryDto
+    {
+        public int TotalRequisitionsWaiting { get; set; }
+        public int TotalRequisitionsAcceptedOrRejected { get; set; }
+        public int TotalRequisitions { get; set; }
+        public double TotalRequisitionExpenses { get; set; }
     }
 }
-
