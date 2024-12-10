@@ -261,7 +261,7 @@ onMounted(() => {
         </div>
         <div class="columnDashboard shadowBox">
           <p class="font16">ยอดเบิกจ่าย(บาท)</p>
-          <p class="font35">2</p>
+          <p class="font35" >2</p>
         </div>
       </div>
 
