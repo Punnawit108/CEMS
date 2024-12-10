@@ -151,11 +151,14 @@ export interface Project {
 
 //ข้อมูล notification
 export interface Notification{
-    id:number,
-    idWithdraw:number,
-    nameProject:string,
-    statusNoti:boolean,
-    description:string,
+    NtId:number,
+    NtStatus:"read" | "unread",
+    NtAprRqPjName:string,
+    NtAprRqId:number,
+    NtAprStatus:"waiting"|"accept"|"edit"|"reject",
+    NtAprDate:string,
+    NtAprRqUsrId:number,
+    NtAprRqProgress: "accepting"|"paying "|"complete",
 }
 
 export interface ApproverSequence{

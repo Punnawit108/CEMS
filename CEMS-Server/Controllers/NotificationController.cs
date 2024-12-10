@@ -22,7 +22,7 @@ public class NotificationController : ControllerBase
     {
         _context = context;
     }
-    /// <summary>แสดงช้อมูลการแจ้งเตือน</summary>
+    /// <summary>แสดงข้อมูลการแจ้งเตือน</summary>
     /// <returns>ข้อมูลการแจ้งเตือนของระบบ</returns>
     /// <remarks>แก้ไขล่าสุด: 2 ธันวาคม 2567 โดย นายศตวรรษ ไตรธิเลน</remark>
     
@@ -30,20 +30,50 @@ public class NotificationController : ControllerBase
     public async Task<ActionResult<IEnumerable<NotificationGetDto>>> GetNotificationList()
     {
         var notification = await _context.CemsNotifications
-            .Include(e => e.NtApr)
-            .Include(e => e.NtApr.AprRq)
-            .Include(e => e.NtApr.AprRq.RqPj)
-            .Include(e => e.NtApr.AprRq.RqUsr)
-            .Select(e => new {
-            e.NtId,                     //รหัสแจ้งเตือน
-            e.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
-            e.NtApr.AprRq.RqId,         //รหัสใบคำขอเบิก
-            e.NtApr.AprStatus,          //สถานะคำขอเบิก
-            e.NtApr.AprDate,            //วันที่เบิก
-            e.NtApr.AprRq.RqUsrId,      //ไอดีผู้สร้างใบเบิก
+            .Include(e => e.NtApr)                      //เชื่อมตาราง Noti
+            .Include(e => e.NtApr.AprRq)                //เชื่อมตาราง approver_requisition
+            .Include(e => e.NtApr.AprRq.RqPj)           //เชื่อมตาราง requisition
+            .Select(u => new NotificationGetDto {
+            NtId = u.NtId,                              //รหัสแจ้งเตือน
+            NtStatus = u.NtStatus,                       //สถานะการแจ้งเตือน
+            NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
+            NtAprRqId = u.NtApr.AprRq.RqId,             //รหัสใบคำขอเบิก
+            NtAprStatus = u.NtApr.AprStatus,            //สถานะคำขอเบิก
+            NtAprDate = u.NtApr.AprDate,                //วันที่เบิก
+            NtAprRqUsrId = u.NtApr.AprRq.RqUsrId,       //ไอดีผู้สร้างใบเบิก
+            NtAprRqProgress = u.NtApr.AprRq.RqProgress, 
             })
             .ToListAsync();
 
         return Ok(notification);
     }
+    /// <summary>อัปเดตสถานะการแจ้งเตือน</summary>
+    /// <param name="id">รหัสแจ้งเตือน (NtId)</param>
+    /// <returns>ผลลัพธ์การอัปเดตสถานะ</returns>
+    /// <remarks>แก้ไขล่าสุด: 8 ธันวาคม 2567 โดย นายศตวรรษ ไตรธิเลน</remarks>
+    [HttpPut("{id}")]
+    public async Task<IActionResult> UpdateNotificationStatus(int id)
+    {
+        // ค้นหา Notification โดยใช้ NtId
+        var notification = await _context.CemsNotifications.FirstOrDefaultAsync(n => n.NtId == id);
+        if (notification == null)
+        {
+            return NotFound(new { message = "Notification not found." });
+        }
+
+        // อัปเดตสถานะเป็น "read" หากสถานะเดิมคือ "unread"
+        if (notification.NtStatus == "unread")
+        {
+            notification.NtStatus = "read";
+
+            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+            await _context.SaveChangesAsync();
+
+            return Ok(new { message = "Notification status updated to 'read'." });
+        }
+
+        return BadRequest(new { message = "Notification is already 'read' or status is invalid." });
+}
+
+    
 }
