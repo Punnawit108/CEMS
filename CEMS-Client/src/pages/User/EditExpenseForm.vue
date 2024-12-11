@@ -6,7 +6,7 @@
  * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
  */
 
-import { onMounted, ref , computed} from "vue";
+import { onMounted, ref, computed } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
@@ -34,8 +34,7 @@ onMounted(async () => {
   formData.value = await requisitionStore.getExpenseById(id);
 });
 
-// ตัวแปร ref สำหรับเก็บค่าต่างๆ
-const fileInput = ref<HTMLInputElement | null>(null); // อ้างอิงถึง input element ที่ใช้เลือกไฟล์
+const fileInput = ref<HTMLInputElement | null>(null); // อ้างอิงถึง input element
 const selectedFile = ref<File | null>(null); // เก็บไฟล์ที่ผู้ใช้เลือก
 const previewUrl = ref<string | null>(null); // URL สำหรับแสดงตัวอย่างรูปภาพ
 
@@ -45,22 +44,23 @@ const maxHeight = 800; // ความสูงสูงสุดที่ยอ
 
 // ฟังก์ชันสำหรับเปิด file input dialog
 const triggerFileInput = () => {
-  fileInput.value?.click(); // จำลองการคลิกที่ input file เมื่อผู้ใช้คลิกที่พื้นที่ drop zone
+  fileInput.value?.click();
 };
 
 // ฟังก์ชันจัดการเมื่อมีการเลือกไฟล์ผ่าน file input
-const handleFileChange = (event: Event) => {
+const handleFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement;
   if (target.files && target.files.length > 0) {
-    const file = target.files[0]; // เลือกไฟล์แรกที่ผู้ใช้เลือก
-    uploadFile(file); // ส่งไฟล์ไปประมวลผล
+    const file = target.files[0]; // เลือกไฟล์แรก
+    await uploadFile(file); // ส่งไฟล์ไปประมวลผล
   }
 };
 
 // ฟังก์ชันจัดการเมื่อมีการลากไฟล์มาวาง (drag & drop)
-const handleDrop = (event: DragEvent) => {
+const handleDrop = async (event: DragEvent) => {
   if (event.dataTransfer?.files.length) {
-    uploadFile(event.dataTransfer.files[0]); // ส่งไฟล์แรกที่ถูกลากมาวางไปประมวลผล
+    const file = event.dataTransfer.files[0];
+    await uploadFile(file);
   }
 };
 
@@ -69,36 +69,45 @@ const checkImageDimensions = (file: File): Promise<boolean> => {
   return new Promise((resolve) => {
     const img = new Image();
     img.onload = () => {
-      URL.revokeObjectURL(img.src); // คืน URL object เพื่อเป็นการจัดการหน่วยความจำ
-      resolve(img.width <= maxWidth && img.height <= maxHeight); // ตรวจสอบว่าขนาดไม่เกินที่กำหนด
+      URL.revokeObjectURL(img.src); // จัดการหน่วยความจำ
+      resolve(img.width <= maxWidth && img.height <= maxHeight);
     };
-    img.src = URL.createObjectURL(file); // สร้าง URL สำหรับรูปภาพเพื่อตรวจสอบขนาด
+    img.src = URL.createObjectURL(file); // สร้าง URL สำหรับตรวจสอบขนาด
   });
+};
+
+const resetFile = () => {
+  if (formData.rqProof) {
+    URL.revokeObjectURL(formData.rqProof.value); // ลบ URL เก่า
+  }
+  formData.rqProof = null; // รีเซ็ตตัวแปรเป็นค่าว่าง
 };
 
 // ฟังก์ชันหลักในการจัดการไฟล์ที่อัปโหลด
 const uploadFile = async (file: File) => {
-  // ตรวจสอบประเภทไฟล์ว่าเป็น SVG, PNG หรือ JPG
+  // ตรวจสอบประเภทไฟล์
   if (!["image/svg+xml", "image/png", "image/jpeg"].includes(file.type)) {
     alert("กรุณาอัปโหลดไฟล์ SVG, PNG หรือ JPG เท่านั้น");
     return;
   }
 
-  // ตรวจสอบขนาดรูปภาพ
   const isValidSize = await checkImageDimensions(file);
-  if (isValidSize) {
-    selectedFile.value = file; // เก็บไฟล์ที่ผ่านการตรวจสอบ
-    previewUrl.value = URL.createObjectURL(file); // สร้าง URL สำหรับแสดงตัวอย่าง
-  } else {
+  if (!isValidSize) {
     alert(
       `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
     );
-    // รีเซ็ตค่าเมื่อไฟล์ไม่ถูกต้อง
-    selectedFile.value = null;
-    previewUrl.value = null;
+    resetFile(); // ล้างข้อมูลเก่า
+    return;
   }
-};
 
+  // รีเซ็ต URL เก่าหากมี
+  if (formData.rqProof) {
+    URL.revokeObjectURL(formData.rqProof.value); // ปลดปล่อย URL เดิม
+  }
+
+  // อัปเดต URL ใหม่
+  formData.rqProof = URL.createObjectURL(file); // สร้าง URL ใหม่สำหรับรูปภาพ
+};
 const handleSelectChange = () => {
   if (rqtName.value === "อื่นๆ") {
     isOtherSelected.value = true; // แสดงช่องกรอกข้อมูลเมื่อเลือก "อื่นๆ"
@@ -133,14 +142,17 @@ const handleCancel = () => {
 };
 
 const filteredVehicleType = computed(() => {
-  if (formData.value.rqVht === 'private') {
-    return requisitionStore.vehicleType.filter(vehicle => vehicle.vhType === 'private');
-  } else if (formData.value.rqVht === 'public') {
-    return requisitionStore.vehicleType.filter(vehicle => vehicle.vhType === 'public');
+  if (formData.value.rqVht === "private") {
+    return requisitionStore.vehicleType.filter(
+      (vehicle) => vehicle.vhType === "private"
+    );
+  } else if (formData.value.rqVht === "public") {
+    return requisitionStore.vehicleType.filter(
+      (vehicle) => vehicle.vhType === "public"
+    );
   }
   return [];
 });
-
 
 // เปิด/ปิด Popup บันทึก ผู้อนุมัติ
 const openPopupSave = () => {
@@ -347,27 +359,32 @@ const confirmSubmit = async() => {
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-        <div class="text-xs">
-  <select
-    v-model="formData.rqVhId"
-    class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-  >
-    <option value="null" selected disabled>เลือกประเภทรถ</option>
-    <option
-      v-for="vehicle in filteredVehicleType"
-      :key="vehicle.vhId"
-      :value="vehicle.vhId"  
-    >
-      {{ vehicle.vhVehicle }}  
-    </option>
-  </select>
-  <img
-    loading="lazy"
-    src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-    alt=""
-    class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
-  />
-</div>
+          <div class="m-4" v-if="formData.rqRqtId === 2">
+            <label for="travelType" class="block text-sm font-medium py-1">
+              ประเภทรถ
+            </label>
+            <div class="text-xs">
+              <select
+                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
+                v-model="formData.rqVhId"
+              >
+                <option value="null" selected disabled>เลือกประเภทรถ</option>
+                <option
+                  v-for="vehicle in filteredVehicleType"
+                  :key="vehicle.vhId"
+                  :value="vehicle.vhId"
+                >
+                  {{ vehicle.vhVehicle }}
+                </option>
+              </select>
+              <img
+                loading="lazy"
+                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
+                alt=""
+                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
+              />
+            </div>
+          </div>
 
           <!-- ช่อง "สถานที่เริ่มต้น" -->
           <div v-show="formData.rqRqtId === 2" class="m-4">
@@ -407,19 +424,6 @@ const confirmSubmit = async() => {
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
-
-          <!-- ช่อง "สถาน *" -->
-          <!-- <div v-if="formData.rqRqtId !== 'ค่าเดินทาง'" class="m-4">
-            <label for="rqLocation" class="block text-sm font-medium py-1"
-              >สถาน *</label
-            >
-            <input
-              type="text"
-              id="rqLocation"
-              v-model="formData.rqLocation"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
-          </div> -->
 
           <div class="m-4">
             <!-- ช่อง "จำนวนเงิน (บาท)" -->
@@ -465,25 +469,34 @@ const confirmSubmit = async() => {
           accept="image/"
           style="display: none"
         />
+        <img
+          :src="formData.rqProof"
+          alt=""
+          class="w-[100%] h-auto cursor-pointer"
+        />
         <div
           v-if="!selectedFile"
           class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[color:var(--,#B8B8B8)]"
         >
           <img
+            v-if="formData.rqProof === null"
             loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
             alt="Upload icon"
             class="object-contain w-16 aspect-[1.1]"
           />
-          <p class="mt-3">อัปโหลดไฟล์ที่นี่</p>
-          <p class="mt-3">SVG, PNG หรือ JPG (MAX 800 800 px)</p>
+          <p class="mt-3" v-if="formData.rqProof === null">อัปโหลดไฟล์ที่นี่</p>
+          <p class="mt-3" v-if="formData.rqProof === null">
+            SVG, PNG หรือ JPG (MAX 800 800 px)
+          </p>
         </div>
-        <img
+
+        <!-- <img
           v-else
           :src="previewUrl!"
           alt="Preview"
           class="max-w-full max-h-full object-contain absolute inset-0 m-auto"
-        />
+        /> -->
       </div>
     </div>
 
