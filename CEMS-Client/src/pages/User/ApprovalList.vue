@@ -10,15 +10,12 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import { useExpense } from '../../store/expenseStore';
-import { ref, computed, onMounted } from 'vue';
-import { useTodoStore } from "../../store/approvalList";
+import { onMounted } from 'vue';
 import { Expense } from '../../types';
 
 const expense = useExpense(); // ใช้งาน Expense Store เพื่อดึงข้อมูลค่าใช้จ่าย
 const router = useRouter(); // ใช้งาน Router สำหรับการเปลี่ยนหน้า
-const store = useTodoStore(); // ใช้งาน TodoStore สำหรับรายการที่ต้องอนุมัติ
-const currentPage = ref(1); // เก็บค่าหน้าปัจจุบัน
-const itemsPerPage = ref(15); // เก็บค่าจำนวนรายการต่อหน้า
+
 
 // เรียกใช้เมื่อ Component ถูก Mount เพื่อโหลดข้อมูลรายการอนุมัติทั้งหมด
 onMounted(() => {
@@ -29,6 +26,7 @@ onMounted(() => {
 const toDetails =  (data: Expense) => {
     router.push(`/approval/list/detail/${data.rqId}`);
 }
+
 </script>
 <!-- path for test = /approval/list -->
 <template>
