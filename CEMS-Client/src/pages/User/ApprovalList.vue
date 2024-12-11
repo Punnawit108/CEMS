@@ -10,7 +10,8 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import { useExpense } from '../../store/expenseStore';
-import { onMounted } from 'vue';
+import { ref, computed, onMounted } from 'vue';
+import { useApprovalStore } from "../../store/approvalList";
 import { Expense } from '../../types';
 
 const expense = useExpense(); // ใช้งาน Expense Store เพื่อดึงข้อมูลค่าใช้จ่าย
