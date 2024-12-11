@@ -1,70 +1,33 @@
 <script setup lang="ts">
-
-/**
+/*
 * ชื่อไฟล์: ApprovalList
 * คำอธิบาย: ไฟล์นี้แสดงหน้า รายการอนุมัติ
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
-import { useExpense } from '../../store/ExpenseStore';
+import Ctable from '../../components/template/CTable.vue';
+import { useExpense } from '../../store/expenseStore';
 import { ref, computed, onMounted } from 'vue';
-
-const expense = useExpense();
-const router = useRouter();
-// const toDetails = (id: number) => {
-//   router.push(`/approval/history/detail/${id}`);
-// };
 import { useTodoStore } from "../../store/approvalList";
+import { Expense } from '../../types';
 
-const store = useTodoStore();
-const currentPage = ref(1);
-const itemsPerPage = ref(15);
-const table = ref("Table1-footer");
+const expense = useExpense(); // ใช้งาน Expense Store เพื่อดึงข้อมูลค่าใช้จ่าย
+const router = useRouter(); // ใช้งาน Router สำหรับการเปลี่ยนหน้า
+const store = useTodoStore(); // ใช้งาน TodoStore สำหรับรายการที่ต้องอนุมัติ
+const currentPage = ref(1); // เก็บค่าหน้าปัจจุบัน
+const itemsPerPage = ref(15); // เก็บค่าจำนวนรายการต่อหน้า
 
-const totalPages = computed(() => {
-  return Math.ceil(store.todos.length / itemsPerPage.value);
-});
-
-const paginatedTodos = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return store.todos.slice(start, end);
-});
-
-// Calculate remaining rows to fill the table
-const remainingRows = computed(() => {
-  const totalRows = itemsPerPage.value;
-  const rowsOnPage = paginatedTodos.value.length;
-  return totalRows - rowsOnPage;
-});
-const loadTodos = async () => {
-  await store.loadTodos();
-};
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
+// เรียกใช้เมื่อ Component ถูก Mount เพื่อโหลดข้อมูลรายการอนุมัติทั้งหมด
 onMounted(() => {
     expense.getAllApprovalList()
 })
 
-const toDetails = (id: string) => {
-    router.push(`/approval/list/detail/${id}`);
+// ฟังก์ชันเปลี่ยนหน้าไปยังหน้ารายละเอียดของรายการ
+const toDetails =  (data: Expense) => {
+    router.push(`/approval/list/detail/${data.rqId}`);
 }
 </script>
 <!-- path for test = /approval/list -->
@@ -195,7 +158,7 @@ const toDetails = (id: string) => {
                         <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDateWithdraw }}</th>
                         <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
                         <th class="py-[10px] px-2 w-32 text-center">
-                            <span class="flex justify-center" v-on:click="toDetails">
+                            <span class="flex justify-center" v-on:click="toDetails(expense)">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>

@@ -1,11 +1,8 @@
-/**
+/*
 * ชื่อไฟล์: index.ts
 * คำอธิบาย: สำหรับเก็บ Route ที่สร้างไว้ทั้งหมด
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล , นายพงศธร บุญญามา
-* วันที่จัดทำ/แก้ไข: 10 พฤศจิกายน 2567 
-* 
-* วันที่แก้ไข: 27 พฤศจิกายน 2567
-* คำอธิบาย เพิ่มเส้นทางของรายละเอียดการอนุมัติ
+* วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
 */
 
 import { createWebHistory, createRouter } from 'vue-router'
@@ -38,10 +35,6 @@ import Popup from '../components/template/Popup.vue';
 import UploadPicture from '../components/template/UploadPicture.vue';
 import ForUseButton from '../components/template/ForUseButton.vue';
 import ForUseStatus from '../components/template/ForUseStatus.vue';
-
-
-
-
 
 const router = createRouter({
   history: createWebHistory(),
@@ -92,14 +85,12 @@ const router = createRouter({
       name: 'btn',
       component: ForUseButton
     },
-    //
     //StatusBudge
     {
       path: '/temp/Status',
       name: 'ForUseStatus',
       component: ForUseStatus
     },
-    //
     // ผู้ใช้งานทั่วไป + ผู้มีสิทธิอนุมัติ
     {
       path: '/dashboard',

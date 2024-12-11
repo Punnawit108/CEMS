@@ -1,8 +1,8 @@
-/**
+/*
 * ชื่อไฟล์: expensesReport.ts
-* คำอธิบาย: จัดการ state
+* คำอธิบาย: จัดการ state ของ expenses
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
-* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
 import axios from "axios"
@@ -15,6 +15,13 @@ export const useExpensesListStore = defineStore("expenses", {
         expenses: [] as ExpenseReportList[],
     }),
     actions: {
+        /*
+        * คำอธิบาย: ดึงข้อมูลของใบเบิกทั้งหมด
+        * Input: -
+        * Output: ข้อมูลของใบเบิกทั้งหมด
+        * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+        * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+        */
         async getAllExpenses() {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/report`);
@@ -31,7 +38,14 @@ export const useExpensesGraphStore = defineStore("expensegraph", {
         expensegraph: [] as ExpenseReportGraph[],
     }),
     actions: {
-        async getExpensesGraph() {
+        /*
+        * คำอธิบาย: ดึงข้อมูลของประเภทเบิกจ่ายมาแสดงในรูปแบบกราฟ
+        * Input: -
+        * Output: ข้อมูลประเภทเบิกจ่าย
+        * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+        * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+        */
+        async getAllExpenses() {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/graph`);
                 this.expensegraph = result.data;

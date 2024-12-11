@@ -1,13 +1,11 @@
-/**
+/*
 * ชื่อไฟล์: index.ts
 * คำอธิบาย: ไฟล์นี้ประกาศ type ของข้อมูล API ทั้งระบบ
-* Input: -
-* Output: Type ทั้งหมดที่มีการประกาศ เช่น Expense , ExpenseManage , TravelManage เป็นต้น
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 21 พฤศจิกายน 2567
 */
 
-//หน้ารายการต่างๆ สามารถใช้ Expense ได้เลย
+//ตัวแปรคำขอเบิก
 export interface Expense{
     rqId: number;
     rqName: number;
@@ -15,10 +13,12 @@ export interface Expense{
     rqPjName: string;
     rqRqtName: string;
     rqVhName: string;
+    rqVhType: string;
+    rqVhPayrate: string;
     rqDatePay: Date;
     rqDateWithdraw: Date;
     rqCode: string | null;
-    rqInsteadEmail: string | null;
+    rqInsteadName: string | null;
     rqExpenses: number;
     rqLocation: string | null;
     rqStartLocation: string | null;
@@ -31,19 +31,38 @@ export interface Expense{
     rqProgress: string;
 }
 
+export interface Approval {
+    aprId: number;           
+    usrFirstName: string;    
+    usrLastName: string;     
+    aprName: string | null;  
+    aprDate: Date;
+    aprStatus: string;         
+}
+
+export interface ApproverRequisition {
+    aprId: number;
+    aprApId: number ;
+    aprName: string ;
+    aprDate: Date;
+    aprStatus: string;
+    rqReason : string ;
+}
+
+//ตัวแปรประเภทค่าใช้จ่าย
 export interface ExpenseManage{
     rqtId?: number;
     rqtName: string;
     
 }
-
+//ตัวแปรประเภทการเดินทาง
 export interface TravelManage {
-    vhId?: number;
+    vhId: number;
     vhType: string;
     vhVehicle: string;
     vhPayrate?: number | null;
 }
-
+//ตัวแปรผู้ใช้
 export interface User {
     usrId: number;
     usrEmployeeId: string;
@@ -132,9 +151,17 @@ export interface Project {
 
 //ข้อมูล notification
 export interface Notification{
-    id:number,
-    idWithdraw:number,
-    nameProject:string,
-    statusNoti:boolean,
-    description:string,
+    NtId:number,
+    NtStatus:"read" | "unread",
+    NtAprRqPjName:string,
+    NtAprRqId:number,
+    NtAprStatus:"waiting"|"accept"|"edit"|"reject",
+    NtAprDate:string,
+    NtAprRqUsrId:number,
+    NtAprRqProgress: "accepting"|"paying "|"complete",
+}
+
+export interface ApproverSequence{
+    apId:number,
+    apSequence:number
 }

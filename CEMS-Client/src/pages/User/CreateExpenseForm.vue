@@ -1,58 +1,59 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : CreateExpenseForm.vue
- * คำอธิบาย : ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
- * Input : ข้อมูลฟอร์มเบิกค่าใช้จ่าย
- * Output : -
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
- */
-import axios from "axios";
-import { onMounted, ref, watch } from "vue";
+/*
+* ชื่อไฟล์: CreateExpenseForm.vue
+* คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
+* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+* วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+*/
+
+import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
+import router from "../../router";
+import Icon from '../../components/template/CIcon.vue';
 
 const requisitionStore = useRequisitionStore();
 
 onMounted(async () => {
-  const projectData = await requisitionStore.getAllProject();
-  const requisitionTypeData = await requisitionStore.getAllRequisitionType();
-  const vehicleTypeData = await requisitionStore.getAllvehicleType();
-  console.log(requisitionStore.filteredVehicleType);
+  await requisitionStore.getAllProject();
+  await requisitionStore.getAllRequisitionType();
+  await requisitionStore.getAllvehicleType();
 });
 
-const date = ref();
-const expenseOptions = ref(["ค่าเดินทาง", "ค่าอาหาร"]);
+
 const rqRqtName = ref(2);
-const selectedTravelType = ref();
+
 const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
 const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
 const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
+const isPopupSaveOpen = ref(false); // สำหรับเปิด/ปิด Popup  บันทึก
+const isPopupCancleOpen = ref(false); // สำหรับเปิด/ปิด Popup  ยกเลิก
+const isPopupSubmitOpen = ref(false); // สำหรับเปิด/ปิด Popup  ยืนยัน
+const isAlertSaveOpen = ref(false); // ควบคุมการแสดง Alert บันทึก
+const isAlertCancleOpen = ref(false); // ควบคุมการแสดง Alert ยกเลิก
+const isAlertSubmitOpen = ref(false); // ควบคุมการแสดง Alert ยืนยัน
 
-watch(rqRqtName, () => {
-  console.log(rqRqtName);
-});
 
-const formData: any = ref({
+
+let formData: any = ref({
   rqName: "",
   rqUsrId: "9999",
   rqPjId: "1",
   rqRqtId: rqRqtName.value.toString(),
-  rqVhId: "",
+  rqVhId: null,
   rqDatePay: "",
   rqDateWithdraw: "",
   rqCode: "",
   rqInsteadEmail: "",
   rqExpenses: "",
-  // rqLocation: "",
   rqStartLocation: "",
   rqEndLocation: "",
   rqDistance: "",
   rqPurpose: "",
   rqReason: "",
   rqProof: "",
-  rqStatus:  "accept",
+  rqStatus: "",
   rqProgress: "accepting",
   preview: null,
 });
@@ -63,8 +64,8 @@ const selectedFile = ref<File | null>(null); // เก็บไฟล์ที�
 const previewUrl = ref<string | null>(null); // URL สำหรับแสดงตัวอย่างรูปภาพ
 
 // ค่าคงที่สำหรับกำหนดขนาดสูงสุดของรูปภาพ
-const MAX_WIDTH = 800; // ความกว้างสูงสุดที่ยอมรับ (พิกเซล)
-const MAX_HEIGHT = 800; // ความสูงสูงสุดที่ยอมรับ (พิกเซล)
+const maxWidth = 800; // ความกว้างสูงสุดที่ยอมรับ (พิกเซล)
+const maxHeight = 800; // ความสูงสูงสุดที่ยอมรับ (พิกเซล)
 
 // ฟังก์ชันสำหรับเปิด file input dialog
 const triggerFileInput = () => {
@@ -93,7 +94,7 @@ const checkImageDimensions = (file: File): Promise<boolean> => {
     const img = new Image();
     img.onload = () => {
       URL.revokeObjectURL(img.src); // คืน URL object เพื่อเป็นการจัดการหน่วยความจำ
-      resolve(img.width <= MAX_WIDTH && img.height <= MAX_HEIGHT); // ตรวจสอบว่าขนาดไม่เกินที่กำหนด
+      resolve(img.width <= maxWidth && img.height <= maxHeight); // ตรวจสอบว่าขนาดไม่เกินที่กำหนด
     };
     img.src = URL.createObjectURL(file); // สร้าง URL สำหรับรูปภาพเพื่อตรวจสอบขนาด
   });
@@ -112,14 +113,24 @@ const uploadFile = async (file: File) => {
   if (isValidSize) {
     selectedFile.value = file; // เก็บไฟล์ที่ผ่านการตรวจสอบ
     previewUrl.value = URL.createObjectURL(file); // สร้าง URL สำหรับแสดงตัวอย่าง
+    formData.value.rqProof = await convertToBase64(file)
   } else {
     alert(
-      `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${MAX_WIDTH} x ${MAX_HEIGHT} พิกเซล`
+      `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
     );
     // รีเซ็ตค่าเมื่อไฟล์ไม่ถูกต้อง
     selectedFile.value = null;
     previewUrl.value = null;
   }
+};
+
+const convertToBase64 = (file: File): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result as string);
+    reader.onerror = (error) => reject(error);
+  });
 };
 
 const handleSelectChange = () => {
@@ -131,51 +142,97 @@ const handleSelectChange = () => {
 };
 
 const handleSubmit = async () => {
-  await requisitionStore.createExpense(formData.value);
+  formData.value.rqStatus = "waiting";
+  console.log(formData)
+  const data = await requisitionStore.createExpense(formData.value);
+
+  if (data) {
+    router.push("/disbursement/listWithdraw")
+  } else {
+    alert("Something went wrong")
+  }
 };
 
 const handleSave = async () => {
-  // await requisitionStore.createExpense
-  console.log(formData.value);
+  formData.value.rqStatus = "sketch";
+  const data = await requisitionStore.createExpense(formData.value);
+  if (data) {
+    router.push("/disbursement/listWithdraw")
+  } else {
+    alert("Something went wrong")
+  }
 };
 
 const handleCancel = () => {
   // Reset form data or navigate away
-  alert("ยกเลิกการส่งข้อมูล");
+  router.push("/disbursement/listWithdraw")
 };
 
-// const resetForm = () => {
-//   formData.value = {
 
-//     rqName: "",
-//     rqUsrId: "",
-//     rqPjId: "",
-//     rqRqtId: "",
-//     rqVhId: "",
-//     rqDatePay: "",
-//     rqDateWithdraw: "",
-//     rqCode: "",
-//     rqInsteadEmail: "",
-//     rqExpenses: "",
-//     // rqLocation: "",
-//     rqStartLocation: "",
-//     rqEndLocation: "",
-//     rqDistance: "",
-//     rqPurpose: "",
-//     rqReason: "",
-//     rqProof: "",
-//     rqStatus: "",
-//     rqProgress: "",
-//   };
-// };
+// เปิด/ปิด Popup บันทึก ผู้อนุมัติ
+const openPopupSave = () => {
+  isPopupSaveOpen.value = true;
+};
+const closePopupSave = () => {
+  isPopupSaveOpen.value = false;
+};
+
+// เปิด/ปิด Popup ยกเลิก ผู้อนุมัติ
+const openPopupCancle = () => {
+  isPopupCancleOpen.value = true;
+};
+const closePopupCancle = () => {
+  isPopupCancleOpen.value = false;
+};
+
+// เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
+const openPopupSubmit = () => {
+  isPopupSubmitOpen.value = true;
+};
+const closePopupSubmit = () => {
+  isPopupSubmitOpen.value = false;
+};
+
+
+// เปิด/ปิด Alert บันทึก
+const confirmSave = async() => {
+  // เปิด Popup Alert
+  isAlertSaveOpen.value = true;
+  setTimeout(() => {
+    isAlertSaveOpen.value = false; // ปิด Alert
+    closePopupSave(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
+// เปิด/ปิด Alert ยกเลิก
+const confirmCancle = async() => {
+  // เปิด Popup Alert
+  isAlertCancleOpen.value = true;
+  setTimeout(() => {
+    isAlertCancleOpen.value = false; // ปิด Alert
+    closePopupCancle(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
+// เปิด/ปิด Alert ยืนยัน
+const confirmSubmit = async() => {
+  // เปิด Popup Alert
+  isAlertSubmitOpen.value = true;
+  setTimeout(() => {
+    isAlertSubmitOpen.value = false; // ปิด Alert
+    closePopupSubmit(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
+
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
     <!-- btn -->
     <div class="flex justify-end gap-4">
-      <Button :type="'btn-save'" @click="handleSave"></Button>
-      <Button :type="'btn-cancleBorderGray'" @click="handleCancel"></Button>
-      <Button :type="'btn-summit'"></Button>
+      <Button :type="'btn-save'" @click="openPopupSave"></Button>
+      <Button :type="'btn-cancleBorderGray'" @click="openPopupCancle"></Button>
+      <Button :type="'btn-summit'" @click="openPopupSubmit"></Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
@@ -217,7 +274,7 @@ const handleCancel = () => {
               type="text"
               id="rqDatePay"
               v-model="formData.rqDatePay"
-              placeholder="2024-11-11"
+              placeholder="YYYY-MM-DD"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
@@ -229,6 +286,7 @@ const handleCancel = () => {
             <input
               type="text"
               id="rqDateWithdraw"
+              placeholder="YYYY-MM-DD"
               v-model="formData.rqDateWithdraw"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
@@ -301,7 +359,6 @@ const handleCancel = () => {
               <input
                 v-if="isOtherSelected"
                 v-model="customExpenseType"
-                @keyup.enter="addCustomExpense"
                 placeholder="กรุณาระบุประเภทค่าใช้จ่าย"
                 class="absolute top-0 left-1 mt-[1.5px] px-3 py-3 border-1 border-grayDark bg-white rounded-md sm:text-sm text-sm focus:border-gray-400 focus:ring-0 focus:outline-none"
                 style="width: calc(50% - 16px)"
@@ -319,7 +376,7 @@ const handleCancel = () => {
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
                 v-model="requisitionStore.selectedTravelType"
               >
-                <option value="">เลือกประเภทการเดินทาง</option>
+                <option value=null disabled selected>เลือกประเภทการเดินทาง</option>
                 <option value="private">ประเภทส่วนตัว</option>
                 <option value="public">ประเภทสาธารณะ</option>
               </select>
@@ -342,10 +399,10 @@ const handleCancel = () => {
                 v-model="formData.rqVhId"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
-                <option value="">เลือกประเภทรถ</option>
+                <option value=null selected disabled>เลือกประเภทรถ</option>
                 <option
                   v-for="vehicle in requisitionStore.filteredVehicleType"
-                  :key="vehicle.vehicleType"
+                  :key="vehicle.vhId.toString()"
                   :value="vehicle.vhId.toString()"
                 >
                   {{ vehicle.vhVehicle }}
@@ -476,5 +533,141 @@ const handleCancel = () => {
         />
       </div>
     </div>
+
+
+    <!-- Popup บันทึก -->
+    <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                        clip-rule="evenodd" />
+                </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยืนยันการบันทึกคำขอเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="closePopupSave"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+          <button @click="confirmSave"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup ยกเลิก -->
+    <div v-if="isPopupCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                        clip-rule="evenodd" />
+                </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยกเลิกการทำรายการเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยกเลิกการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="closePopupCancle"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+          <button @click="confirmCancle"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup ยืนยัน -->
+    <div v-if="isPopupSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                        clip-rule="evenodd" />
+                </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยืนยันการทำรายการเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยืนยันการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="closePopupSubmit"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+          <button @click="confirmSubmit"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+  
+    <!-- Alert -->
+  <div v-if="isAlertSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <div class="mb-4">
+        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                        clip-rule="evenodd" />
+                </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
+    </div>
+  </div>
+
+  <div v-if="isAlertCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <div class="mb-4">
+        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                        clip-rule="evenodd" />
+                </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mb-3">ยกเลิกการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
+    </div>
+  </div>
+
+  <div v-if="isAlertSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <div class="mb-4">
+        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+                    <path fill-rule="evenodd"
+                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                        clip-rule="evenodd" />
+                </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
+    </div>
+  </div>
+
   </form>
 </template>

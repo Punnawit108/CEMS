@@ -1,5 +1,10 @@
-﻿using Microsoft.EntityFrameworkCore;
-
+﻿/*
+* ชื่อไฟล์: CemsContext.cs
+* คำอธิบาย: ใช้สำหรับรวม Model ที่ได้ mappingไปยัง table และเรียกการใช้งาน Model นั้นๆ
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 19 พฤศจิกายน 2567
+*/
+using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.AppContext;
 using CEMS_Server.Models;

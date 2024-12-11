@@ -1,9 +1,7 @@
 /*
 * ชื่อไฟล์: DashboardController.cs
 * คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ Api ของ Dashboard ซึ่งสามารถ ดึงข้อมูลได้อย่างเดียว
-* Input: -
-* Output: ภาพรวมของระบบๆ
-* ชื่อผู้เขียน/ผู้แก้ไข: นางสาวอลิสา ปะกังพลัง
+* ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
 * วันที่จัดทำ/แก้ไข: 24 พฤศจิกายน 2567
 */
 
@@ -27,7 +25,10 @@ public class DashboardController : ControllerBase
         _context = context;
     }
 
-    // DashboardUser
+    
+    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ User</summary>
+    /// <returns>แสดงภาพรวมข้อมูลของ User</returns>
+    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     [HttpGet("user")]
     public async Task<ActionResult<IEnumerable<DashboardUserGetDto>>> GetDashboardUser()
     {
@@ -51,7 +52,10 @@ public class DashboardController : ControllerBase
     }
 
 
-    //Approver
+    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Approver</summary>
+    /// <returns>แสดงภาพรวมข้อมูลของ Approver</returns>
+    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
+ 
     [HttpGet("approver")]
     public async Task<ActionResult<IEnumerable<DashboardApproverGetDto>>> GetDashboardApprover()
     {
@@ -76,7 +80,10 @@ public class DashboardController : ControllerBase
         return Ok(requisition);
     }
 
-    //Admin
+    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Admin</summary>
+    /// <returns>แสดงภาพรวมข้อมูลของ Admin</returns>
+    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
+
     [HttpGet("admin")]
     public async Task<ActionResult<IEnumerable<DashboardAdminGetDto>>> GetDashboardAdmin()
     {
@@ -101,7 +108,9 @@ public class DashboardController : ControllerBase
         return Ok(requisition);
     }
 
-    //Accountant
+    /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Accountant</summary>
+    /// <returns>แสดงภาพรวมข้อมูลของ Accountant</returns>
+    /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     [HttpGet("accountant")]
     public async Task<ActionResult<IEnumerable<DashboardAccountantGetDto>>> GetDashboardAccountant()
     {

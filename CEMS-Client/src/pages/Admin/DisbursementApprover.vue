@@ -1,23 +1,20 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์: DisbursementApprover.vue
- * คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
- * Input: -
- * Output: -
- * ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
- * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
- */
-import { ref, onMounted } from "vue";
-import { useRoute } from "vue-router";
-import Icon from "../../components/template/CIcon.vue";
-import Button from "../../components/template/Button.vue";
-import { useApprovalStore } from "../../store/approval";
-import { useUserStore } from "../../store/user";
-import { User } from "../../types";
+/*
+* ชื่อไฟล์: DisbursementApprover.vue
+* คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+*/
+import { ref, onMounted, reactive, watch } from 'vue';
+import { useRoute } from 'vue-router';
+import Icon from '../../components/template/CIcon.vue';
+import Button from '../../components/template/Button.vue';
+import { useApprovalStore } from '../../store/approval';
+import { useUserStore } from '../../store/user';
+import { User } from '../../types';
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
-
 
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isEditPage = ref(false);
@@ -28,6 +25,13 @@ const isAddAlertOpen = ref(false); // ควบคุมการแสดง Al
 const isEditAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
 let userNotRepeatWithApprovers = ref<User[]>();
 const selectUserId = ref<string>("");
+const approverSequence = reactive({
+  apId : 0,
+  apSequence : 0
+})
+
+
+
 
 // ใช้ Vue Router
 const route = useRoute();
@@ -63,7 +67,8 @@ const confirmAdd = async() => {
   closePopupAdd();
 };
 
-const confirmEdit = () => {
+const confirmEdit = async() => {
+  await approvalStore.changeSequence(approverSequence);
   // เปิด Popup Alert
   isEditAlertOpen.value = true;
 
@@ -205,13 +210,12 @@ onMounted(async() => {
         <div class="w-full my-3 flex justify-center">
           <form>
             <div class="relative">
-              <select required
+              <select required v-model="approverSequence.apId"
                 class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
-                <option value="" disabled selected hidden>
+                <option value=0 disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" value="item1">นาย ก.</option>
-                <option class="text-black" value="item2">นาย ข.</option>
+                <option class="text-black" :value="approver.apId" v-for="approver in approvalStore.approvers">{{ approver.usrFirstName }} {{ approver.usrLastName }}</option>
               </select>
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
@@ -224,14 +228,14 @@ onMounted(async() => {
         </div>
 
         <div class="w-full my-3 flex justify-center">
-          <select
+          <select v-model="approverSequence.apSequence"
             class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
-            <option value="" disabled selected hidden>
+            <option value=0 disabled selected hidden>
               ลำดับผู้อนุมัติ
             </option>
-            <!-- <option v-for="i in maxIndexPlusOne" :key="i" :value="i" class="text-black">
+            <option v-for="i in approvalStore.approvers.length" :key="i" :value="i" class="text-black">
               {{ "ลำดับที่ " + i }}
-            </option> -->
+            </option>
           </select>
         </div>
 
@@ -254,14 +258,28 @@ onMounted(async() => {
   <!-- Alert -->
   <div v-if="isAddAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <Icon :icon="'checkCircle'" />
+      <div class="flex justify-center mb-4">
+        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                      clip-rule="evenodd" />
+              </svg>
+      </div>
       <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
     </div>
     
   </div>
   <div v-if="isEditAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <Icon :icon="'checkCircle'" />
+      <div class="flex justify-center mb-4">
+        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                      clip-rule="evenodd" />
+              </svg>
+      </div>
       <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
     </div>
   </div>

@@ -1,18 +1,16 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: ExpenseReport.vue
 * คำอธิบาย: ไฟล์นี้แสดงรายงานของคำขอเบิกค่าใช้จ่ายทั้งหมดในระบบ
-* Input: -
-* Output: รายงานของคำขอเบิกค่าใช้จ่าย
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
-* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 import Icon from '../../components/template/CIcon.vue';
 import { onMounted } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/template/Ctable.vue';
-import { useExpensesListStore, useExpensesGraphStore } from '../../store/expensesReport';
-import { ExpenseReportGraph } from '../../types/index';
+import Ctable from '../../components/template/CTable.vue';
+import { useExpensesListStore } from '../../store/expensesReport';
+import ExpenseReportList from '../../types/index';
 import {
     Chart,
     BarController,
@@ -166,22 +164,11 @@ onMounted(async () => {
 </script>
 
 <template>
-    <!-- path for test = /report/project -->
-
-    <!-- begin::Content -->
-    <div class="flex flex-col items-center justify-center">
-
-        <!-- begin::Bar chart -->
-        <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-            <p class="font-bold text-black mb-10 text-center">ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท</p>
-            <div class=" h-full w-3/4">
-                <canvas id="barChart"></canvas>
-            </div>
-        </div>
-        <!-- end::Bar chart -->
+    <div>
+        <!-- path for test = /report/project -->
 
         <!-- begin::Filter -->
-        <div class="flex justify-between w-full mb-8">
+        <div class="flex gap-6 w-full mb-8">
             <!-- Filter ค้นหา -->
             <div class="h-fit w-[266px] ">
                 <form class="grid">
@@ -200,30 +187,6 @@ onMounted(async () => {
                         <input type="text" id="SearchBar"
                             class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-9"
                             placeholder="ชื่อ-นามสกุล" />
-                    </div>
-                </form>
-            </div>
-            <!-- Filter โครงการ -->
-            <div class="h-fit w-[266px] ">
-                <form class="grid">
-                    <label for="SelectProject" class="py-0.5 text-[14px] text-black text-start">โครงการ</label>
-                    <div class="relative h-[32px] w-[266px]  justify-center items-center">
-
-                        <select required
-                            class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4">
-                            <option value="" disabled selected hidden class="placeholder">โครงการ</option>
-                            <option value="item1">โครงการที่ 1</option>
-                            <option value="item2">โครงการที่ 2</option>
-                        </select>
-
-                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                            <svg width="13" height="8" viewBox="0 0 13 8" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M7.2071 7.2071C6.8166 7.5976 6.1834 7.5976 5.7929 7.2071L0.79289 2.20711C0.40237 1.81658 0.40237 1.18342 0.79289 0.79289C1.18342 0.40237 1.81658 0.40237 2.20711 0.79289L6.5 5.0858L10.7929 0.79289C11.1834 0.40237 11.8166 0.40237 12.2071 0.79289C12.5976 1.18342 12.5976 1.81658 12.2071 2.20711L7.2071 7.2071Z"
-                                    fill="black" />
-                            </svg>
-                        </div>
                     </div>
                 </form>
             </div>
@@ -275,45 +238,63 @@ onMounted(async () => {
         </div>
         <!-- end::Filter -->
 
-        <!-- begin::Table -->
-        <div class="w-full h-fit border-[2px] flex flex-col items-start">
-            <!-- Table Header -->
-            <Ctable :table="'Table7-head'" />
-            <!-- Table Data -->
-            <!-- <Ctable :table="'Table7-data'" />    -->
-            <table class="table-auto w-full text-center text-black">
-                <tbody>
-                    <tr v-for="(expense, index) in expensesListStore.expenses" :key="index"
-                        class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
-                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="นายเทียนชัย คูเมือง">
-                            {{ expense.rqUsrName }}
-                        </th>
-                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            {{ expense.rqPjName }}
-                        </th>
-                        <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDatePay }}</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
-                        <th class="py-[10px] px-2 w-32 text-center ">
-                            <span class="flex justify-center">
-                                <Icon :icon="'viewDetails'" />
-                            </span>
-                        </th>
-                    </tr>
-                </tbody>
-            </table>
-            <!-- Table Footer -->
-            <Ctable :table="'Table7-footer'" />
-        </div>
-        <!-- end::Table -->
+        <!-- begin::Content -->
+        <div class="flex flex-col items-center justify-center">
 
+            <!-- begin::Bar chart -->
+            <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
+                <p class="font-bold text-black mb-10 text-center">ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท</p>
+                <div class=" h-full w-3/4">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+            <!-- end::Bar chart -->
+
+            <!-- begin::Table -->
+            <div class="w-full h-fit border-[2px] flex flex-col items-start">
+                <!-- Table Header -->
+                <Ctable :table="'Table7-head'" />
+                <!-- Table Data -->
+                <!-- <Ctable :table="'Table7-data'" />    -->
+                <table class="table-auto w-full text-center text-black">
+                    <tbody>
+                        <tr v-for="(expense, index) in expensesListStore.expenses" :key="index"
+                            class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                title="นายเทียนชัย คูเมือง">
+                                {{ expense.rqUsrName }}
+                            </th>
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                                {{ expense.rqName }}
+                            </th>
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                                {{ expense.rqPjName }}
+                            </th>
+                            <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
+                            <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDatePay }}</th>
+                            <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
+                            <th class="py-[10px] px-2 w-32 text-center ">
+                                <span class="flex justify-center">
+                                    <Icon :icon="'viewDetails'" />
+                                </span>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Table Footer -->
+                <Ctable :table="'Table7-footer'" />
+            </div>
+            <!-- end::Table -->
+
+        </div>
+        <!-- end::Content -->
     </div>
-    <!-- end::Content -->
 </template>
 
 <style scoped>

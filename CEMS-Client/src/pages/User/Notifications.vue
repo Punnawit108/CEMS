@@ -1,11 +1,9 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: Notifications.vue
 * คำอธิบาย: ไฟล์นี้แสดงการแจ้งเตือนที่เข้ามาในระบบ
-* Input: ข้อมูลคำขอเบิก และสถานะคำขอเบิก
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
 */
 import { ref,computed } from 'vue';
 import { useNotification } from '../../store/notification';
@@ -16,54 +14,73 @@ import CardNotification from '../../components/template/CardNotification.vue';
 
 const notificationStore = useNotification();
 let filterNotification = ref("All")
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือน
+* Output: ข้อมูลแจ้งเตือน
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
+const notificationData = ref<any>(null);
 
-onMounted(() =>{
-    notificationStore.getAllNotifications();
-    console.log(notificationStore.notifications)
+onMounted(async ()  =>{
+    notificationData.value = await notificationStore.getAllNotifications() ; 
 })
-
-const filteredNotifications = computed(() => {
-    if (filterNotification.value === "Readed") {
-        return notificationStore.notifications.filter(n => n.statusNoti); // กรองเฉพาะที่อ่านแล้ว
-        
-    } else if (filterNotification.value === "NotRead") {
-        return notificationStore.notifications.filter(n => !n.statusNoti); // กรองเฉพาะที่ยังไม่ได้อ่าน
-    }
-    return notificationStore.notifications; // แสดงทั้งหมด
-});
-
-
-
 
 const clickAllNotification = ref(true);
 const clickReadedNotification = ref(false);
 const clickNotReadNotification = ref(false);
-
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนทั้งหมด
+* Output: ข้อมูลแจ้งเตือนทุกสถานะทั้งหมด
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const toggleAllNotification = () => {
     resetAllToggles();
     filterNotification.value = "All"
     clickAllNotification.value = true;
 };
-
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะอ่านแล้ว
+* Output: ข้อมูลแจ้งเตือนสถานะอ่านแล้ว
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const toggleReadedNotification = () => {
     resetAllToggles();
-    filterNotification.value = "Readed"
-    
+    filterNotification.value = "read"
     clickReadedNotification.value = true;
 };
-
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะยังไม่อ่าน
+* Output: ข้อมูลแจ้งเตือนสถานะยังไม่อ่าน
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const toggleNotReadNotification = () => {
     resetAllToggles();
-    filterNotification.value = "NotRead"
+    filterNotification.value = "unread"
     clickNotReadNotification.value = true;
 };
-
+/*
+* คำอธิบาย: เปลี่ยนสถานะของตัวแปรเพื่อแสดงสถานะที่ต้องการ
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
 const resetAllToggles = () => {
     clickAllNotification.value = false;
     clickReadedNotification.value = false;
     clickNotReadNotification.value = false;
 
 };
+const filteredNotifications = computed(() => {
+    if (filterNotification.value === 'read') {
+        return notificationData.value?.filter((item: any) => item.ntStatus === 'read');
+    } else if (filterNotification.value === 'unread') {
+        return notificationData.value?.filter((item: any) => item.ntStatus === 'unread');
+    }
+    return notificationData.value;
+});
 </script>
 <template>
     <div>
@@ -115,18 +132,8 @@ const resetAllToggles = () => {
                 
         </nav>
         <article class="flex flex-col border border-solid border-zinc-400">
-            <!-- ลูปข้อมูลการแจ้งเตือน -->
+            <CardNotification  v-if="filteredNotifications !== null" :notificationInfo="filteredNotifications" />
             
-            <CardNotification  class=" hover:bg-current  " 
-            v-for="notification in filteredNotifications"
-            :id="notification.id" 
-            :idWithdraw="notification.idWithdraw" 
-            :nameProject="notification.nameProject" 
-            :statusNoti="notification.statusNoti" 
-            :description="notification.description" 
-
-            :key=String(notification.id)
-            />
             <section class="h-[84.8px]"></section>
             <section class="h-[84.8px]"></section>
             <section class="h-[84.8px]"></section>
@@ -134,11 +141,6 @@ const resetAllToggles = () => {
             <section class="h-[84.8px]"></section>
             <section class="h-[84.8px]"></section>
             <section class="h-[84.8px]"></section>
-
-
-
-
-
 
             <footer
                 class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-zinc-400 min-h-[56px] max-md:max-w-full">
@@ -171,5 +173,3 @@ const resetAllToggles = () => {
         </article>
     </div>
 </template>
-
-

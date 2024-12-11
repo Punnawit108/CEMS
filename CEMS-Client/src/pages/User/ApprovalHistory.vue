@@ -1,30 +1,38 @@
 <script setup lang="ts">
-
-/**
+/*
 * ชื่อไฟล์: ApprovalHistory
 * คำอธิบาย: ไฟล์นี้แสดงหน้า ประวัติการอนุมัติ
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/Ctable.vue';
+import Ctable from '../../components/template/CTable.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
-import { useExpense } from '../../store/ExpenseStore';
+import { useExpense } from '../../store/expenseStore';
 import { onMounted } from 'vue';
+import { Expense } from '../../types';
+import { useDetailStore } from '../../store/detail';
 
+// เรียกใช้ ExpenseStore สำหรับจัดการรายการอนุมัติ
 const expense = useExpense();
+
+// เรียกใช้ Router
 const router = useRouter();
+
+// เมื่อ Component ถูก Mounted ให้ดึงข้อมูลประวัติการอนุมัติทั้งหมด
 onMounted(()=>{
-    expense.getAllApprovalHistory()
+    expense.getAllApprovalHistory() // ดึงข้อมูลประวัติการอนุมัติจาก Store
 })
 
-const toDetails = (id: string) => {
-    router.push(`/approval/history/detail/${id}`);
-}
+// เรียกใช้ Store สำหรับจัดการรายละเอียด
+const detailStore = useDetailStore();
+
+// ฟังก์ชันสำหรับเปลี่ยนเส้นทางไปยังหน้ารายละเอียดของรายการที่เลือก
+const toDetails = async (data: Expense) => {
+    router.push(`/approval/history/detail/${data.rqId}`); // นำไปที่ URL: /approval/history/detail/:rqId
+};
 
 </script>
 <!-- path for test = /approval/history -->
@@ -111,7 +119,7 @@ const toDetails = (id: string) => {
                     <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                         style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                         title="{{expense.name}}">
-                        {{expense.rqName}}
+                        {{expense.rqUsrName}}
                     </th>
                     <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                         style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
@@ -124,7 +132,7 @@ const toDetails = (id: string) => {
 
                     <th class="py-[12px] px-2 w-28 text-center text-green-500"><StatusBudge :status="'sts-'+ expense.rqStatus"></StatusBudge></th>
                     <th class="py-[10px] px-2 w-20 text-center ">
-                        <span class="flex justify-center" v-on:click="toDetails">
+                        <span class="flex justify-center" @click="toDetails(expense)">
                             <Icon :icon="'viewDetails'" />
                         </span>
                     </th>

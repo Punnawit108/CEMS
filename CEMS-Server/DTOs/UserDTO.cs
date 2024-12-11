@@ -1,5 +1,12 @@
+/*
+* ชื่อไฟล์: UserDTO.cs
+* คำอธิบาย: ใช้สำหรับจัดเรียงตัวแปรของเส้น api หน้าจัดการผู้ใช้ และแก้ไขรายละเอียดผู้ใช้
+* ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+*/
 namespace CEMS_Server.DTOs
 {
+    //ตัวแปรของเส้น Get
     public class UserDto
     {
         public int UsrId { get; set; }
@@ -29,6 +36,8 @@ namespace CEMS_Server.DTOs
         public int UsrIsActive { get; set; }
         
     }
+    
+    //ตัวแปรของเส้น Put
     public class UpdateUserRoleDto
     {
         public string UsrRolName { get; set; } = null!;
