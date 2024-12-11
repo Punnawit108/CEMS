@@ -85,5 +85,6 @@ namespace CEMS_Server.DTOs
         public string RqStatus { get; set; } = null!;
 
         public string RqProgress { get; set; } = null!;
+        public string? RqInsteadName { get; set; }
     }
 }
