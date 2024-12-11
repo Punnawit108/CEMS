@@ -36,6 +36,7 @@ public class UserController : ControllerBase
             .Include(e => e.UsrPst)
             .Include(e => e.UsrRol)
             .Include(e => e.UsrSt)
+            .OrderBy(e => e.UsrId)
             .Select(u => new UserDto
             {
                 UsrId = u.UsrId,
@@ -52,6 +53,7 @@ public class UserController : ControllerBase
                 UsrIsSeeReport = u.UsrIsSeeReport,
                 UsrIsActive = u.UsrIsActive,
             })
+            
             .ToListAsync();
 
         var acceptorIds = await _context.CemsApprovers.Select(e => e.ApUsrId).ToListAsync();
