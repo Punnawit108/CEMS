@@ -4,6 +4,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
 */
+import axios from "axios";
 import { defineStore } from "pinia";
 import { Notification } from '../types/index';
 
@@ -11,9 +12,8 @@ export const useNotification = defineStore('notifications', {
 
     state: () => ({
         notifications: [] as Notification[],
-    }),
 
-    actions: {
+    }),
         /*
         * คำอธิบาย: อัปเดตสถานะของแจ้งเตือนจาก "ยังไม่อ่าน" เป็น "อ่านแล้ว"
         * Input: id แจ้งเตือน
@@ -21,18 +21,19 @@ export const useNotification = defineStore('notifications', {
         * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
         * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
         */
-        async updateStatusNoti(id: number) {
+    actions: {
+        async updateStatusNoti(NtId: number) {
             try {
                 // อัปเดต statusNoti เป็น true
-                await axios.put(`${import.meta.env.VITE_BASE_URL}/${id}`, { statusNoti: true });
+                await axios.put(`${import.meta.env.VITE_BASE_URL}/api/notification/${NtId}`, { NtStatus: "read" });
 
                 // อัปเดตข้อมูลใน state
-                const notification = this.notifications.find((noti) => noti.id === id);
+                const notification = this.notifications.find((noti) => noti.NtId === NtId);
                 if (notification) {
-                    notification.statusNoti = true;
+                    notification.NtStatus = "read";
                 }
             } catch (error) {
-                console.error("Failed to update statusNoti:", error);
+                console.error("Failed to update NtStatus:", error);
             }
         },
         /*
@@ -43,9 +44,11 @@ export const useNotification = defineStore('notifications', {
         * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
         */
         async getAllNotifications() {
-            const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api`)
-            this.notifications = result.data
+            const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/notification/list`)
+            return this.notifications = result.data
         },
-        
+       
+
+
     }
 })

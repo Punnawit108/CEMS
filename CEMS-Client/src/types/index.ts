@@ -13,10 +13,12 @@ export interface Expense{
     rqPjName: string;
     rqRqtName: string;
     rqVhName: string;
+    rqVhType: string;
+    rqVhPayrate: string;
     rqDatePay: Date;
     rqDateWithdraw: Date;
     rqCode: string | null;
-    rqInsteadEmail: string | null;
+    rqInsteadName: string | null;
     rqExpenses: number;
     rqLocation: string | null;
     rqStartLocation: string | null;
@@ -34,9 +36,18 @@ export interface Approval {
     usrFirstName: string;    
     usrLastName: string;     
     aprName: string | null;  
-    aprDate: string;         
+    aprDate: Date;
+    aprStatus: string;         
 }
 
+export interface ApproverRequisition {
+    aprId: number;
+    aprApId: number ;
+    aprName: string ;
+    aprDate: Date;
+    aprStatus: string;
+    rqReason : string ;
+}
 
 //ตัวแปรประเภทค่าใช้จ่าย
 export interface ExpenseManage{
@@ -140,11 +151,14 @@ export interface Project {
 
 //ข้อมูล notification
 export interface Notification{
-    id:number,
-    idWithdraw:number,
-    nameProject:string,
-    statusNoti:boolean,
-    description:string,
+    NtId:number,
+    NtStatus:"read" | "unread",
+    NtAprRqPjName:string,
+    NtAprRqId:number,
+    NtAprStatus:"waiting"|"accept"|"edit"|"reject",
+    NtAprDate:string,
+    NtAprRqUsrId:number,
+    NtAprRqProgress: "accepting"|"paying "|"complete",
 }
 
 export interface ApproverSequence{

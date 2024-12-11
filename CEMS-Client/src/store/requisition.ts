@@ -19,12 +19,17 @@ export const useRequisitionStore = defineStore('dropdown', {
         vehicleType: [] as TravelManage[],
         expense: [] as Expense[],
         selectedTravelType: null as any, // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
-    }),
+        filteredVehicles: null as any,
+        selectedTravel: null as any,
+        selectedVehicleType: null as string | null, 
+        // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
+    }), 
     getters: {
         // Getter สำหรับกรอง vehicleType
+
         filteredVehicleType: (state) => {
             return state.vehicleType.filter(vehicle => vehicle.vhType === state.selectedTravelType);
-        }
+        },
     },
     /*
     * คำอธิบาย: requisition.ts
@@ -34,6 +39,9 @@ export const useRequisitionStore = defineStore('dropdown', {
     * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
     */
     actions: {
+        // setTravelType(type) {
+        //     this.selectedTravelType = type;
+        // },
         async getAllProject() {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/dataType/project`);
@@ -47,6 +55,7 @@ export const useRequisitionStore = defineStore('dropdown', {
                 }
             }
         },
+
         /*
         * คำอธิบาย: requisition.ts
         * Input: -
@@ -96,7 +105,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         */
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
         async createExpense(CreateExpense: any) {
-            console.log(CreateExpense)
+
 
             try {
                 const result = await axios.post(
@@ -127,5 +136,19 @@ export const useRequisitionStore = defineStore('dropdown', {
                 console.log(error)
             }
         },
+        async getExpenseById(id: string) {
+            //  CreateExpense.rqStatus = "accept";
+
+            try {
+                const result = await axios.get(
+                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`);
+                console.log(result.data)
+                return result.data;
+
+            } catch (error) {
+                console.log(error)
+            }
+        },
+
     }
 });

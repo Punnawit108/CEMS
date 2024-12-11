@@ -258,14 +258,28 @@ onMounted(async() => {
   <!-- Alert -->
   <div v-if="isAddAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <Icon :icon="'checkCircle'" />
+      <div class="flex justify-center mb-4">
+        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                      clip-rule="evenodd" />
+              </svg>
+      </div>
       <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
     </div>
     
   </div>
   <div v-if="isEditAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <Icon :icon="'checkCircle'" />
+      <div class="flex justify-center mb-4">
+        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                      clip-rule="evenodd" />
+              </svg>
+      </div>
       <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
     </div>
   </div>
