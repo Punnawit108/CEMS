@@ -11,12 +11,12 @@ import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import { useExpense } from '../../store/expenseStore';
 import { ref, computed, onMounted } from 'vue';
-import { useTodoStore } from "../../store/approvalList";
+import { useApprovalStore } from "../../store/approvalList";
 import { Expense } from '../../types';
 
 const expense = useExpense(); // ใช้งาน Expense Store เพื่อดึงข้อมูลค่าใช้จ่าย
 const router = useRouter(); // ใช้งาน Router สำหรับการเปลี่ยนหน้า
-const store = useTodoStore(); // ใช้งาน TodoStore สำหรับรายการที่ต้องอนุมัติ
+const store = useApprovalStore(); // ใช้งาน TodoStore สำหรับรายการที่ต้องอนุมัติ
 const currentPage = ref(1); // เก็บค่าหน้าปัจจุบัน
 const itemsPerPage = ref(15); // เก็บค่าจำนวนรายการต่อหน้า
 
