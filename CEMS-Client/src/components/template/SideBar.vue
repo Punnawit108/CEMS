@@ -13,7 +13,7 @@ let role = ref("User");
 onMounted(() => {
     const userData = localStorage.getItem('user')
     const parsedData = userData ? JSON.parse(userData) : null;
-    role.value = parsedData.usrRolName;
+    role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
 })
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
