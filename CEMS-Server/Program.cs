@@ -1,5 +1,6 @@
 using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
+using CEMS_Server.Hubs;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,6 +10,7 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// Add SignalR service
 builder.Services.AddSignalR();
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
@@ -37,10 +39,9 @@ app.UseHttpsRedirection();
 
 app.UseAuthorization();
 
-app.MapControllers();
+// Map SignalR hub
+app.MapHub<NotificationHub>("/notificationHub");
 
-app.UseSignalR(route=>{
-    route.Map<SignalServer>("signalServer");
-});
+app.MapControllers();
 
 app.Run();

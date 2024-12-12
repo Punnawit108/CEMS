@@ -7,7 +7,12 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import { Notification } from '../types/index';
+import * as signalR from "@microsoft/signalr";
 
+const connection = new signalR.HubConnectionBuilder()
+    .withUrl(`${import.meta.env.VITE_BASE_URL}/signalrServer`)
+    .withAutomaticReconnect()
+    .build();
 export const useNotification = defineStore('notifications', {
 
     state: () => ({
@@ -47,8 +52,19 @@ export const useNotification = defineStore('notifications', {
             const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/notification/list`)
             return this.notifications = result.data
         },
-       
+        async initializeSignalRConnection() {
+            try {
+                connection.on('displayNotification', async () => {
+                    await this.getAllNotifications();
+                });
 
-
+                await connection.start();
+                console.log("SignalR connected successfully.");
+            } catch (error) {
+                console.error("Failed to start SignalR connection:", error);
+            }
+        }
+    
     }
+
 })

@@ -10,6 +10,9 @@ using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
+using CEMS_Server.Hubs; // สำหรับใช้ SignalR
+using Microsoft.AspNetCore.SignalR; // สำหรับใช้ IHubContext
+
 namespace CEMS_Server.Controllers;
 
 [ApiController]
@@ -17,10 +20,12 @@ namespace CEMS_Server.Controllers;
 public class NotificationController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public NotificationController(CemsContext context)
+    public NotificationController(CemsContext context, IHubContext<NotificationHub> hubContext)
     {
         _context = context;
+        _hubContext = hubContext;
     }
     /// <summary>แสดงข้อมูลการแจ้งเตือน</summary>
     /// <returns>ข้อมูลการแจ้งเตือนของระบบ</returns>
@@ -44,7 +49,8 @@ public class NotificationController : ControllerBase
             NtAprRqProgress = u.NtApr.AprRq.RqProgress, 
             })
             .ToListAsync();
-
+            // ส่งข้อความแจ้งเตือนผ่าน SignalR
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         return Ok(notification);
     }
     /// <summary>อัปเดตสถานะการแจ้งเตือน</summary>

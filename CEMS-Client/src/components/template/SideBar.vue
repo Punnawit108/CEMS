@@ -5,8 +5,9 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { ref,defineProps } from 'vue';
+import { ref, defineProps, onMounted, onUnmounted} from 'vue';
 import Icon from './CIcon.vue';
+import * as signalR from '@microsoft/signalr'; // เพิ่ม SignalR
 
 const props = defineProps<{
   role: string; // กำหนด type ของ role
@@ -146,6 +147,35 @@ const toggleSettingTypeWithdraw = () => {
     resetAllToggles();
     clickSettingTypeWithdraw.value = true;
 };
+// ตั้งค่า SignalR
+let connection: signalR.HubConnection | null = null;
+
+onMounted(async () => {
+  connection = new signalR.HubConnectionBuilder()
+    .withUrl('https://your-signalr-server-url/notificationHub') // ใส่ URL ของ SignalR Server
+    .withAutomaticReconnect()
+    .build();
+
+  connection.on('ReceiveNotification', () => {
+    notificationCount.value += 1; // เพิ่มจำนวนการแจ้งเตือน
+  });
+
+  try {
+    await connection.start();
+    console.log('SignalR Connected');
+  } catch (err) {
+    console.error('SignalR Connection Error:', err);
+  }
+});
+
+onUnmounted(async () => {
+  if (connection) {
+    await connection.stop();
+    console.log('SignalR Disconnected');
+  }
+});
+const notificationCount = ref(0); // ตัวแปรสำหรับเก็บจำนวนการแจ้งเตือน
+
 </script>
 
 <template>
