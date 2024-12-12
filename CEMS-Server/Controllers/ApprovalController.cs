@@ -58,7 +58,7 @@ public class ApprovalController : ControllerBase
                 e.RqId,
                 e.RqStatus,
                 e.RqProgress,
-                e.RqDatePay,
+                e.RqPayDate,
                 e.RqWithdrawDate,
             })
             .ToListAsync();

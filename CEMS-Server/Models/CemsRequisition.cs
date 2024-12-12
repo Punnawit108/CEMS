@@ -54,5 +54,4 @@ public partial class CemsRequisition
     public virtual CemsUser RqUsr { get; set; } = null!;
 
     public virtual CemsVehicle? RqVh { get; set; }
-    public object RqDatePay { get; internal set; }
 }
