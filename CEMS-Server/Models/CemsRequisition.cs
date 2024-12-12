@@ -1,17 +1,13 @@
-﻿/*
-* ชื่อไฟล์: CemsRequisition.cs
-* คำอธิบาย: ใช้สำหรับ mapping model ไปยัง table 
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 19 พฤศจิกายน 2567
-*/
+﻿using System;
+using System.Collections.Generic;
 
 namespace CEMS_Server.Models;
 
 public partial class CemsRequisition
 {
-    public int RqId { get; set; }
+    public string RqId { get; set; } = null!;
 
-    public int RqUsrId { get; set; }
+    public string RqUsrId { get; set; } = null!;
 
     public int RqPjId { get; set; }
 
@@ -21,9 +17,11 @@ public partial class CemsRequisition
 
     public string RqName { get; set; } = null!;
 
-    public DateOnly RqDatePay { get; set; }
+    public DateOnly RqPayDate { get; set; }
 
-    public DateOnly RqDateWithdraw { get; set; }
+    public DateOnly RqWithdrawDate { get; set; }
+
+    public DateOnly? RqDisburseDate { get; set; }
 
     public string? RqCode { get; set; }
 
@@ -47,7 +45,7 @@ public partial class CemsRequisition
 
     public string RqProgress { get; set; } = null!;
 
-    public virtual ICollection<CemsApproverRequistion> CemsApproverRequistions { get; set; } = new List<CemsApproverRequistion>();
+    public virtual ICollection<CemsApproverRequisition> CemsApproverRequisitions { get; set; } = new List<CemsApproverRequisition>();
 
     public virtual CemsProject RqPj { get; set; } = null!;
 
@@ -57,5 +55,3 @@ public partial class CemsRequisition
 
     public virtual CemsVehicle? RqVh { get; set; }
 }
-
-

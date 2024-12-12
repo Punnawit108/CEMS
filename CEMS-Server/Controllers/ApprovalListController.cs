@@ -53,9 +53,9 @@ public class ApprovalList : ControllerBase
     /// <returns>ประวัติคำขออนุมัติในรูปแบบของ DTO</returns>
     /// <remarks>แก้ไขล่าสุด: 11 ธันวาคม 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpGet("history/{id}")]
-    public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalHistory(int id)
+    public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalHistory(string id)
     {
-        var requisition = await _context.CemsApproverRequistions
+        var requisition = await _context.CemsApproverRequisitions
             .Include(e => e.AprRq)
             .Include(e => e.AprAp)
             .Include(e => e.AprAp.ApUsr)
