@@ -155,7 +155,7 @@ let connection: signalR.HubConnection | null = null;
 
 onMounted(async () => {
   connection = new signalR.HubConnectionBuilder()
-    .withUrl('https://your-signalr-server-url/notificationHub') // ใส่ URL ของ SignalR Server
+    .withUrl('http://localhost:5247/notificationHub') // ใส่ URL ของ SignalR Server
     .withAutomaticReconnect()
     .build();
 
