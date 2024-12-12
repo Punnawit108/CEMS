@@ -31,12 +31,12 @@ public class PdfService
                                 .Italic();
                         }
 
-                        if (approver.CemsApproverRequistions.Any())
+                        if (approver.CemsApproverRequisitions.Any())
                         {
                             // Define the custom TextStyle and apply it
                             var requisitionStyle = TextStyle.Default.Size(12).Color("#808080"); // Gray color
 
-                            column.Item().Text($"Requisitions: {approver.CemsApproverRequistions.Count}")
+                            column.Item().Text($"Requisitions: {approver.CemsApproverRequisitions.Count}")
                                 .Style(requisitionStyle); // Apply the style
                         }
 

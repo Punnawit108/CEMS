@@ -1,16 +1,11 @@
-﻿/*
-* ชื่อไฟล์: CemsUser.cs
-* คำอธิบาย: ใช้สำหรับ mapping model ไปยัง table 
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 19 พฤศจิกายน 2567
-*/
-
+﻿using System;
+using System.Collections.Generic;
 
 namespace CEMS_Server.Models;
 
 public partial class CemsUser
 {
-    public int UsrId { get; set; }
+    public string UsrId { get; set; } = null!;
 
     public string UsrEmployeeId { get; set; } = null!;
 
