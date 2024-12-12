@@ -30,12 +30,13 @@ public class UserController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<UserDto>>> GetUser()
     {
-        var user = await _context
+        var users = await _context
             .CemsUsers.Include(e => e.UsrCpn)
             .Include(e => e.UsrDpt)
             .Include(e => e.UsrPst)
             .Include(e => e.UsrRol)
             .Include(e => e.UsrSt)
+            .OrderBy(e => e.UsrId)
             .Select(u => new UserDto
             {
                 UsrId = u.UsrId,
@@ -52,9 +53,20 @@ public class UserController : ControllerBase
                 UsrIsSeeReport = u.UsrIsSeeReport,
                 UsrIsActive = u.UsrIsActive,
             })
+            
             .ToListAsync();
 
-        return Ok(user);
+        var acceptorIds = await _context.CemsApprovers.Select(e => e.ApUsrId).ToListAsync();
+
+        foreach (var user in users)
+        {
+            if (acceptorIds.Contains(user.UsrId))
+            {
+                user.UsrRolName = "Approver"; // Set the desired role name
+            }
+        }
+
+        return Ok(users);
     }
     /// <summary> เปลี่ยนแปลงข้อมูลผู้ใช้ </summary>
     /// <param name="id" > id ของผู้ใช้ </param>

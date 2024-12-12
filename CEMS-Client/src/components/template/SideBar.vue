@@ -9,10 +9,13 @@ import { ref, defineProps, onMounted, onUnmounted} from 'vue';
 import Icon from './CIcon.vue';
 import * as signalR from '@microsoft/signalr'; // เพิ่ม SignalR
 
-const props = defineProps<{
-  role: string; // กำหนด type ของ role
-}>();
-const role = localStorage.getItem('updateRole')
+let role = ref("User");
+
+onMounted(() => {
+    const userData = localStorage.getItem('user')
+    const parsedData = userData ? JSON.parse(userData) : null;
+    role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
+})
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
 
@@ -34,23 +37,23 @@ const isApprovalDropdownOpen = ref(false);
 const isDeliverDropdownOpen = ref(false);
 const isSettingDropdownOpen = ref(false);
 
-const toggleWithdrawDropdown = () => { 
+const toggleWithdrawDropdown = () => {
     isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
 };
 
-const toggleReportDropdown = () => { 
+const toggleReportDropdown = () => {
     isReportDropdownOpen.value = !isReportDropdownOpen.value;
 };
 
-const toggleApprovalDropdown = () => { 
+const toggleApprovalDropdown = () => {
     isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
 };
 
-const toggleDeliverDropdown = () => { 
+const toggleDeliverDropdown = () => {
     isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
 };
 
-const toggleSettingDropdown = () => { 
+const toggleSettingDropdown = () => {
     isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
 };
 
@@ -195,16 +198,15 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
                 <RouterLink to="/dashboard">
 
                     <button @click="toggleDashboard" :class="{ 'bg-red-100 rounded-xl': clickDashboard }"
-                        
                         class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-red-100  rounded-xl"
                         tabindex="0">
                         <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                         <Icon :icon="'dashboard'" class="ml-2" />
 
                         <span class="self-stretch py-2.5 my-auto w-[174px] text-left">แดชบอร์ด</span>
-                        
+
                     </button>
-                    
+
                 </RouterLink>
             </li>
 
@@ -215,7 +217,7 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
                     class="flex relative gap-2.5 items-center w-56 max-w-full hover:bg-neutral-100 rounded-xl  "
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <Icon :icon="'disbursement'"  class="ml-2"/>
+                    <Icon :icon="'disbursement'" class="ml-2" />
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การเบิกจ่าย</span>
                     <img loading="lazy"
                         src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
@@ -233,7 +235,7 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                <Icon :icon="'listWithdraw'"  />
+                                <Icon :icon="'listWithdraw'" />
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายการเบิกค่าใช้จ่าย</span>
                             </a>
                         </RouterLink>
@@ -263,7 +265,7 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
                     class="flex relative gap-2.5 items-center w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px] hover:bg-neutral-100 rounded-xl"
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <Icon :icon="'report'"  class="ml-2" />
+                    <Icon :icon="'report'" class="ml-2" />
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">รายงาน</span>
                     <img loading="lazy"
                         src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
@@ -281,7 +283,7 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
                                     class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl">
                                 </div>
                                 <div class="flex z-0 shrink-0 self-stretch my-auto "></div>
-                                                <Icon :icon="'reportProject'" />
+                                <Icon :icon="'reportProject'" />
 
                                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายงานโครงการ</span>
                             </a>
@@ -368,7 +370,7 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
                     class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
                     tabindex="0">
                     <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
-                    <Icon :icon="'systemSettingsDisbursementTypeExpense'" class="ml-2"/>
+                    <Icon :icon="'systemSettingsDisbursementTypeExpense'" class="ml-2" />
 
                     <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การนำจ่าย</span>
                     <img loading="lazy"
@@ -507,4 +509,3 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
         </ul>
     </nav>
 </template>
-

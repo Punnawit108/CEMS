@@ -15,6 +15,8 @@ const route = useRoute();
 const router = useRouter() ;
 const detailStore = useDetailStore();
 const id = Number(route.params.id);
+const isPopupPrintOpen = ref(false); // สำหรับเปิด/ปิด Popup  ส่งออก
+const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
 
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
@@ -109,6 +111,25 @@ const handleSummit = (status : string ) => {
   }
 };
 
+// เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
+const openPopupPrint = () => {
+  isPopupPrintOpen.value = true;
+};
+const closePopupPrint = () => {
+  isPopupPrintOpen.value = false;
+};
+
+
+// เปิด/ปิด Alert บันทึก
+const confirmPrint = async() => {
+  // เปิด Popup Alert
+  isAlertPrintOpen.value = true;
+  setTimeout(() => {
+    isAlertPrintOpen.value = false; // ปิด Alert
+    closePopupPrint(); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+};
+
 </script>
 
 <!-- path for test = /disbursement/listWithdraw/detailsExpenseForm/:id -->
@@ -161,7 +182,7 @@ const handleSummit = (status : string ) => {
                 expenseData.rqStatus }}</span>
           </h3>
           <div class="pr-5">
-            <Button :type="'btn-print2'"></Button>
+            <Button :type="'btn-print2'" @click="openPopupPrint"></Button>
           </div>
         </div>
 
@@ -354,6 +375,52 @@ const handleSummit = (status : string ) => {
       </div>
     </div>
   </div>
+
+  <!-- Popup ส่งออก -->
+  <div v-if="isPopupPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+      <div class="flex justify-center mb-4">
+        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                      clip-rule="evenodd" />
+              </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mb-4">
+        ยืนยันส่งออกคำขอเบิกค่าใช้จ่าย
+      </h2>
+      <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+        คุณยืนยันส่งออกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+      </h2>
+      <div class="flex justify-center space-x-4">
+        <button @click="closePopupPrint"
+          class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          ยกเลิก
+        </button>
+        <button @click="confirmPrint"
+          class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Alert ส่งออก-->
+<div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+    <div class="mb-4">
+      <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+                  <path fill-rule="evenodd"
+                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+                      clip-rule="evenodd" />
+              </svg>
+    </div>
+    <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันส่งออกคำขอเบิกค่าใช้จ่ายสำเร็จ</h2>
+  </div>
+</div>
 
   <!-- content -->
 </template>
