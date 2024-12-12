@@ -9,26 +9,26 @@
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
-import { useExpense } from '../../store/expenseStore';
-import { ref, computed, onMounted } from 'vue';
-import { useTodoStore } from "../../store/approvalList";
+import { useApprovalStore } from '../../store/approvalList';
+import { onMounted } from 'vue';
 import { Expense } from '../../types';
 
-const expense = useExpense(); // ใช้งาน Expense Store เพื่อดึงข้อมูลค่าใช้จ่าย
-const router = useRouter(); // ใช้งาน Router สำหรับการเปลี่ยนหน้า
-const store = useTodoStore(); // ใช้งาน TodoStore สำหรับรายการที่ต้องอนุมัติ
-const currentPage = ref(1); // เก็บค่าหน้าปัจจุบัน
-const itemsPerPage = ref(15); // เก็บค่าจำนวนรายการต่อหน้า
+// เรียกใช้ ApprovalStore
+const approvalStore = useApprovalStore();
 
-// เรียกใช้เมื่อ Component ถูก Mount เพื่อโหลดข้อมูลรายการอนุมัติทั้งหมด
-onMounted(() => {
-    expense.getAllApprovalList()
-})
+// เรียกใช้ Router
+const router = useRouter();
 
-// ฟังก์ชันเปลี่ยนหน้าไปยังหน้ารายละเอียดของรายการ
-const toDetails =  (data: Expense) => {
-    router.push(`/approval/list/detail/${data.rqId}`);
-}
+// เมื่อ Component ถูก Mounted ให้ดึงข้อมูลประวัติการอนุมัติสำหรับผู้ใช้ที่ระบุ
+onMounted(async () => {
+    const userId = 9999; // ตัวอย่าง ID ผู้ใช้ (ควรดึงจาก session หรือ Store ของระบบ)
+    await approvalStore.getApprovalList(userId); // ดึงข้อมูลประวัติการอนุมัติ
+});
+
+// ฟังก์ชันสำหรับเปลี่ยนเส้นทางไปยังหน้ารายละเอียดของรายการที่เลือก
+const toDetails = async (data: Expense) => {
+    router.push(`/approval/history/detail/${data.rqId}`); // นำไปที่ URL: /approval/history/detail/:rqId
+};
 </script>
 <!-- path for test = /approval/list -->
 <template>
@@ -141,24 +141,24 @@ const toDetails =  (data: Expense) => {
             </div>
             <table class="w-full">
                 <tbody>
-                    <tr v-for="(expense, index) in expense.expense" :key="expense.rqId"
+                    <tr v-for="(item, index) in approvalStore.approvalList" :key="item.rqId"
                         class=" text-[14px] border-b-2 border-[#BBBBBB] ">
                         <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="{{expense.rqName}}">
-                            {{ expense.rqName }}
+                            {{ item.rqName }}
                         </th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="{{expense.rqPjName}}">
-                            {{ expense.rqPjName }}
+                            {{ item.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDateWithdraw }}</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
+                        <th class="py-[12px] px-5 w-44 text-start ">{{ item.rqRqtName }}</th>
+                        <th class="py-[12px] px-2 w-24 text-end ">{{ item.rqDateWithdraw }}</th>
+                        <th class="py-[12px] px-2 w-40 text-end ">{{ item.rqExpenses }}</th>
                         <th class="py-[10px] px-2 w-32 text-center">
-                            <span class="flex justify-center" v-on:click="toDetails(expense)">
+                            <span class="flex justify-center" v-on:click="toDetails(item)">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>
