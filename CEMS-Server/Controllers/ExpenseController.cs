@@ -5,6 +5,7 @@
 * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
+using System;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -175,7 +176,7 @@ public class ExpenseController : ControllerBase
             .Select(u => new ExpenseManageDto
             {
                 RqId = u.RqId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                //RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqUsrId = u.RqUsr.UsrId,
                 RqPjId = u.RqPj.PjId,
                 RqVhId = u.RqVh.VhId,
@@ -196,7 +197,6 @@ public class ExpenseController : ControllerBase
                 RqEndLocation = u.RqEndLocation,
                 RqDistance = u.RqDistance,
                 RqPurpose = u.RqPurpose,
-                RqReason = u.RqReason,
                 RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqProgress = u.RqProgress,
@@ -217,7 +217,7 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
-    public async Task<ActionResult> CreateExpense([FromBody] ExpenseManageDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
+    public async Task<ActionResult> CreateExpense([FromBody] ExpensePostDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
     {
         if (expenseDto == null)
         {
@@ -229,8 +229,11 @@ public class ExpenseController : ControllerBase
             return BadRequest(ModelState);
         }
 
+        string rqId = Guid.NewGuid().ToString("N").Substring(0, 8);
+
         var expense = new CemsRequisition
         {
+            RqId = rqId,
             RqUsrId = expenseDto.RqUsrId,
             RqPjId = expenseDto.RqPjId,
             RqRqtId = expenseDto.RqRqtId,
@@ -245,7 +248,7 @@ public class ExpenseController : ControllerBase
             RqEndLocation = expenseDto.RqEndLocation,
             RqDistance = expenseDto.RqDistance,
             RqPurpose = expenseDto.RqPurpose,
-            RqReason = expenseDto.RqReason,
+            //RqReason = expenseDto.RqReason,
             RqProof = expenseDto.RqProof,
             RqStatus = expenseDto.RqStatus,
             RqProgress = expenseDto.RqProgress,
@@ -291,7 +294,7 @@ public class ExpenseController : ControllerBase
         expense.RqEndLocation = expenseDto.RqEndLocation;
         expense.RqDistance = expenseDto.RqDistance;
         expense.RqPurpose = expenseDto.RqPurpose;
-        expense.RqReason = expenseDto.RqReason;
+        //expense.RqReason = expenseDto.RqReason;
         expense.RqProof = expenseDto.RqProof;
         expense.RqStatus = expenseDto.RqStatus;
         expense.RqProgress = expenseDto.RqProgress;

@@ -42,8 +42,8 @@ let formData: any = ref({
   rqPjId: "1",
   rqRqtId: rqRqtName.value.toString(),
   rqVhId: null,
-  rqDatePay: "",
-  rqDateWithdraw: "",
+  rqPayDate: "",
+  rqWithdrawDate: "",
   rqCode: "",
   rqInsteadEmail: "",
   rqExpenses: "",
@@ -144,7 +144,7 @@ const handleSelectChange = () => {
 const handleSubmit = async () => {
   formData.value.rqStatus = "waiting";
   console.log(formData)
-  const data = await requisitionStore.createExpense(formData.value);
+  const data = await requisitionStore.createExpense(formData);
 
   if (data) {
     router.push("/disbursement/listWithdraw")
@@ -273,7 +273,7 @@ const confirmSubmit = async() => {
             <input
               type="text"
               id="rqDatePay"
-              v-model="formData.rqDatePay"
+              v-model="formData.rqPayDate"
               placeholder="YYYY-MM-DD"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
@@ -287,7 +287,7 @@ const confirmSubmit = async() => {
               type="text"
               id="rqDateWithdraw"
               placeholder="YYYY-MM-DD"
-              v-model="formData.rqDateWithdraw"
+              v-model="formData.rqWithdrawDate"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
