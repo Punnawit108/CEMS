@@ -191,7 +191,7 @@ public class ExpenseController : ControllerBase
     /// <summary>สร้างข้อมูลคำขอเบิก</summary>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก /param>
     /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก /returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 14 ธันวาคม 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
     public async Task<ActionResult> CreateExpense([FromBody] ExpenseManageDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
@@ -233,34 +233,35 @@ public class ExpenseController : ControllerBase
         _context.CemsRequisitions.Add(expense);
         await _context.SaveChangesAsync();
 
-        /// สร้างข้อมูลในตาราง CemsApproverRequisition
-        var approverIds = new List<int> { 1, 2, 3 }; // กำหนด apr_ap_id
+        ///หาข้อมูล AprId ตัวสุดท้าย
+        var lastAprId = _context
+            .CemsApproverRequisitions.OrderByDescending(x => x.AprId)
+            .Select(x => x.AprId)
+            .FirstOrDefault();
+
+        ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
+        int newAprId = lastAprId + 1;
+
+        /// กำหนดตารางข้อมูลของ AprApId
+        var approverIds = new List<int> { 1, 2, 3 };
+
+        /// Loop สร้างข้อมูลผู้อนุมัติ
         foreach (var approverId in approverIds)
         {
             var approverRequisition = new CemsApproverRequisition
             {
-                AprId = GenerateUniqueAprId(), // ฟังก์ชันสร้าง AprId แบบไม่ซ้ำ
+                AprId = newAprId,
                 AprRqId = rqId,
                 AprApId = approverId,
                 AprName = null,
                 AprDate = null,
                 AprStatus = approverId == 1 ? "waiting" : null,
             };
-
             _context.CemsApproverRequisitions.Add(approverRequisition);
+            newAprId++;
         }
-
         await _context.SaveChangesAsync(); // บันทึกข้อมูลทั้งหมด
-
         return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
-    }
-
-    // ฟังก์ชันหา apr_id ล่าสุด (รอแก้ apr_id เป็น auto increment)
-    private int GenerateUniqueAprId()
-    {
-        var maxId = _context.CemsApproverRequisitions.Max(x => (int?)x.AprId) ?? 0;
-        maxId = maxId + 1;
-        return maxId;
     }
 
     /// <summary>เปลี่ยนแปลงข้อมูลคำขอเบิก</summary>
