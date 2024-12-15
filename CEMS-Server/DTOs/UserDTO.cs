@@ -9,7 +9,7 @@ namespace CEMS_Server.DTOs
     //ตัวแปรของเส้น Get
     public class UserDto
     {
-        public int UsrId { get; set; }
+        public required string UsrId { get; set; }
 
         public string UsrEmployeeId { get; set; } = null!;
 

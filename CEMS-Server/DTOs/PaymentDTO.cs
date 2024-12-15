@@ -9,7 +9,7 @@ namespace CEMS_Server.DTOs
     //ตัวแปรเส้น get
     public class PaymentGetDto
     {
-        public int RqId { get; set; }
+        public required string RqId { get; set; }
 
         public string RqUsrName { get; set; } = null!;
 
@@ -21,9 +21,9 @@ namespace CEMS_Server.DTOs
 
         public string RqName { get; set; } = null!;
 
-        public DateOnly RqDatePay { get; set; }
+        public DateOnly RqPayDate { get; set; }
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithdrawDate { get; set; }
 
         public string? RqCode { get; set; }
 
@@ -50,14 +50,14 @@ namespace CEMS_Server.DTOs
     //ตัวแปรเส้น push
     public class PaymentManageDto
     {
-        public int RqUsrId { get; set; }
+        public required string RqUsrId { get; set; }
         public int RqPjId { get; set; }
         public int RqRqtId { get; set; }
         public int RqVhId { get; set; }
         public string RqName { get; set; } = null! ;
-        public DateOnly RqDatePay { get; set; }
+        public DateOnly RqPayDate { get; set; }
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithdrawDate { get; set; }
         public string? RqCode { get; set; }
 
         public string? RqInsteadEmail { get; set; }

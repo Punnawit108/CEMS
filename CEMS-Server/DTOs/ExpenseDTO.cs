@@ -9,7 +9,7 @@ namespace CEMS_Server.DTOs
     //ตัวแปรของเส้น Get
     public class ExpenseGetDto
     {
-        public int RqId { get; set; }
+        public required string RqId { get; set; }
 
         public string RqUsrName { get; set; } = null!;
 
@@ -23,9 +23,9 @@ namespace CEMS_Server.DTOs
 
         public string RqName { get; set; } = null!;
 
-        public DateOnly RqDatePay { get; set; }
+        public DateOnly RqPayDate { get; set; }
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithDrawDate { get; set; }
 
         public string? RqCode { get; set; }
 
@@ -53,17 +53,17 @@ namespace CEMS_Server.DTOs
     //ตัวแปรของเส้น Post และ push
     public class ExpenseManageDto
     {
-        public int RqId { get; set; }
-        public int RqUsrId { get; set; }
+        public required string RqId { get; set; }
+        public required string RqUsrId { get; set; }
         public int RqPjId { get; set; }
         public int RqRqtId { get; set; }
         public int? RqVhId { get; set; }
         public string? RqVht { get; set; }
         public string RqName { get; set; } = null!;
         public string RqUsrName { get; set; } = null!;
-        public DateOnly RqDatePay { get; set; }
+        public DateOnly RqPayDate { get; set; }
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithDrawDate { get; set; }
         public string? RqCode { get; set; }
 
         public string? RqInsteadEmail { get; set; }
