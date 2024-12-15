@@ -6,13 +6,12 @@
 * วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
 */
 import { ref,computed } from 'vue';
-import { useNotification } from '../../store/notification';
+import { useNotificationStore  } from '../../store/notification';
 import { onMounted } from 'vue';
 import CardNotification from '../../components/template/CardNotification.vue';
 
 
 
-const notificationStore = useNotification();
 let filterNotification = ref("All")
 /*
 * คำอธิบาย: แสดงข้อมูลการแจ้งเตือน
@@ -20,10 +19,11 @@ let filterNotification = ref("All")
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
 */
-const notificationData = ref<any>(null);
+const notificationStore = useNotificationStore();
 
 onMounted(async ()  =>{
-    notificationData.value = await notificationStore.getAllNotifications() ; 
+    await notificationStore.loadNotifications() ; 
+    notificationStore.initSignalR();
 })
 
 const clickAllNotification = ref(true);
@@ -73,15 +73,17 @@ const resetAllToggles = () => {
     clickNotReadNotification.value = false;
 
 };
+
 const filteredNotifications = computed(() => {
     if (filterNotification.value === 'read') {
-        return notificationData.value?.filter((item: any) => item.ntStatus === 'read');
+        return notificationStore.notifications?.filter((item: any) => item.ntStatus === 'read');
     } else if (filterNotification.value === 'unread') {
-        return notificationData.value?.filter((item: any) => item.ntStatus === 'unread');
+        return notificationStore.notifications.filter((item: any) => item.ntStatus === 'unread');
     }
-    return notificationData.value;
+    return notificationStore.notifications;
 });
 </script>
+
 <template>
     <div>
         <nav class="flex overflow-hidden items-center whitespace-nowrap" aria-label="Filter options">

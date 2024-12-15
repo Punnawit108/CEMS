@@ -26,7 +26,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:5173") // กำหนด URL ที่อนุญาต
               .AllowAnyHeader() // อนุญาตทุก header
-              .AllowAnyMethod(); // อนุญาตทุก method (GET, POST, PUT, DELETE)
+              .AllowAnyMethod() // อนุญาตทุก method (GET, POST, PUT, DELETE)
+              .AllowCredentials();
     });
 });
 

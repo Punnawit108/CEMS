@@ -6,12 +6,11 @@
 */
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using CEMS_Server.Hubs; // สำหรับใช้ SignalR
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-
-using CEMS_Server.Hubs; // สำหรับใช้ SignalR
 using Microsoft.AspNetCore.SignalR; // สำหรับใช้ IHubContext
+using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
 
@@ -27,32 +26,35 @@ public class NotificationController : ControllerBase
         _context = context;
         _hubContext = hubContext;
     }
+
     /// <summary>แสดงข้อมูลการแจ้งเตือน</summary>
     /// <returns>ข้อมูลการแจ้งเตือนของระบบ</returns>
     /// <remarks>แก้ไขล่าสุด: 2 ธันวาคม 2567 โดย นายศตวรรษ ไตรธิเลน</remark>
-    
+
     [HttpGet("list")]
     public async Task<ActionResult<IEnumerable<NotificationGetDto>>> GetNotificationList()
     {
-        var notification = await _context.CemsNotifications
-            .Include(e => e.NtApr)                      //เชื่อมตาราง Noti
-            .Include(e => e.NtApr.AprRq)                //เชื่อมตาราง approver_requisition
-            .Include(e => e.NtApr.AprRq.RqPj)           //เชื่อมตาราง requisition
-            .Select(u => new NotificationGetDto {
-            NtId = u.NtId,                              //รหัสแจ้งเตือน
-            NtStatus = u.NtStatus,                       //สถานะการแจ้งเตือน
-            NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
-            NtAprRqId = u.NtApr.AprRq.RqId,             //รหัสใบคำขอเบิก
-            NtAprStatus = u.NtApr.AprStatus,            //สถานะคำขอเบิก
-            NtAprDate = u.NtApr.AprDate,                //วันที่เบิก
-            NtAprRqUsrId = u.NtApr.AprRq.RqUsrId,       //ไอดีผู้สร้างใบเบิก
-            NtAprRqProgress = u.NtApr.AprRq.RqProgress, 
+        var notification = await _context
+            .CemsNotifications.Include(e => e.NtApr) //เชื่อมตาราง Noti
+            .Include(e => e.NtApr.AprRq) //เชื่อมตาราง approver_requisition
+            .Include(e => e.NtApr.AprRq.RqPj) //เชื่อมตาราง requisition
+            .Select(u => new NotificationGetDto
+            {
+                NtId = u.NtId, //รหัสแจ้งเตือน
+                NtStatus = u.NtStatus, //สถานะการแจ้งเตือน
+                NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName, //ชื่อโครงการ
+                NtAprRqId = u.NtApr.AprRq.RqId, //รหัสใบคำขอเบิก
+                NtAprStatus = u.NtApr.AprStatus, //สถานะคำขอเบิก
+                NtAprDate = u.NtApr.AprDate, //วันที่เบิก
+                NtAprRqUsrId = u.NtApr.AprRq.RqUsrId, //ไอดีผู้สร้างใบเบิก
+                NtAprRqProgress = u.NtApr.AprRq.RqProgress,
             })
             .ToListAsync();
-            // ส่งข้อความแจ้งเตือนผ่าน SignalR
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        // ส่งข้อความแจ้งเตือนผ่าน SignalR
+        //await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         return Ok(notification);
     }
+
     /// <summary>อัปเดตสถานะการแจ้งเตือน</summary>
     /// <param name="id">รหัสแจ้งเตือน (NtId)</param>
     /// <returns>ผลลัพธ์การอัปเดตสถานะ</returns>
@@ -79,7 +81,20 @@ public class NotificationController : ControllerBase
         }
 
         return BadRequest(new { message = "Notification is already 'read' or status is invalid." });
-}
+    }
 
-    
+    [HttpGet("send-notification")]
+    public async Task<IActionResult> SendTestNotification()
+    {
+        var testNotification = new
+        {
+            Message = "This is a test notification",
+            Date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
+        };
+
+        // ส่งข้อความไปยังทุกคนที่เชื่อมต่อกับ Hub
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification", testNotification);
+
+        return Ok("Notification sent!");
+    }
 }
