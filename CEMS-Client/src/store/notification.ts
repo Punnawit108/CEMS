@@ -5,7 +5,7 @@
 * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
 */
 import axios from "axios";
-import { ref } from 'vue';
+import { ref , computed} from 'vue';
 import { defineStore } from "pinia";
 import { Notification } from '../types/index';
 import { startHubConnection, onNotificationReceived, fetchNotifications } from '../services/notificationService';
@@ -20,7 +20,7 @@ import { startHubConnection, onNotificationReceived, fetchNotifications } from '
 export const useNotificationStore = defineStore('notificationStore', () => {
     const notifications = ref<Array<any>>([]);
 
-    //โหลดข้อมูลการแจ้งเตือน
+    // โหลดข้อมูลการแจ้งเตือน
     const loadNotifications = async () => {
         const fetchedNotifications = await fetchNotifications();
         notifications.value = fetchedNotifications;
@@ -36,12 +36,19 @@ export const useNotificationStore = defineStore('notificationStore', () => {
         });
     };
 
+    // ตัวแปรคำนวณจำนวน unread notifications
+    const unreadCount = computed(() => {
+        return notifications.value.filter(notification => notification.ntStatus === 'unread').length
+    })
+
     return {
         notifications,
         loadNotifications,
         initSignalR,
+        unreadCount, // เพิ่ม unreadCount ที่คำนวณอัตโนมัติ
     };
 });
+
 
 export const useNotification = defineStore('notifications', {
 

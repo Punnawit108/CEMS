@@ -5,16 +5,20 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { ref, defineProps, onMounted, onUnmounted} from 'vue';
+import { ref, onMounted} from 'vue';
 import Icon from './CIcon.vue';
-import * as signalR from '@microsoft/signalr'; // เพิ่ม SignalR
+import { useNotificationStore } from '../../store/notification';
+
+const notificationStore = useNotificationStore();
 
 let role = ref("User");
 
-onMounted(() => {
+onMounted(async() => {
     const userData = localStorage.getItem('user')
     const parsedData = userData ? JSON.parse(userData) : null;
     role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
+    await notificationStore.loadNotifications() ; 
+    notificationStore.initSignalR();
 })
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
@@ -150,34 +154,6 @@ const toggleSettingTypeWithdraw = () => {
     resetAllToggles();
     clickSettingTypeWithdraw.value = true;
 };
-// ตั้งค่า SignalR
-let connection: signalR.HubConnection | null = null;
-
-onMounted(async () => {
-  connection = new signalR.HubConnectionBuilder()
-    .withUrl('http://localhost:5247/notificationHub') // ใส่ URL ของ SignalR Server
-    .withAutomaticReconnect()
-    .build();
-
-  connection.on('ReceiveNotification', () => {
-    notificationCount.value += 1; // เพิ่มจำนวนการแจ้งเตือน
-  });
-
-  try {
-    await connection.start();
-    console.log('SignalR Connected');
-  } catch (err) {
-    console.error('SignalR Connection Error:', err);
-  }
-});
-
-onUnmounted(async () => {
-  if (connection) {
-    await connection.stop();
-    console.log('SignalR Disconnected');
-  }
-});
-const notificationCount = ref(0); // ตัวแปรสำหรับเก็บจำนวนการแจ้งเตือน
 
 </script>
 
@@ -500,7 +476,8 @@ const notificationCount = ref(0); // ตัวแปรสำหรับเก�
                         tabindex="0">
                         <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                         <Icon :icon="'notification'" class="ml-2" />
-
+                        <!-- ตัวเลข -->
+                        <span>{{notificationStore.unreadCount}}</span>
                         <span class="self-stretch py-2.5 my-auto w-[174px] text-left">การแจ้งเตือน</span>
                     </button>
                 </RouterLink>
