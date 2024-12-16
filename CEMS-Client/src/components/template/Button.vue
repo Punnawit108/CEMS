@@ -160,7 +160,8 @@ const emit = defineEmits(["click"]);
     v-if="type === 'btn-expenseTypeGray'"
     class="btn-ประเภทค่าใช้จ่าย bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin"
     @click="$emit('click')"
-  ></button>
+    
+  ><slot>ประเภทค่าใช้จ่าย</slot></button>
 
   <button
     v-if="type === 'btn-payment1'"

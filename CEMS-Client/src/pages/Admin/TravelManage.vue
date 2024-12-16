@@ -227,6 +227,7 @@ function toggleGray3(index: number) {
   expenseRows.value[index].isIconChanged =
     !expenseRows.value[index].isIconChanged;
 }
+
 </script>
 
 <template>

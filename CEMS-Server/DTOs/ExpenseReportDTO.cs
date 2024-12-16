@@ -8,7 +8,7 @@ namespace CEMS_Server.DTOs
 {
     public class ExpenseReportDto
     {
-        public int RqId { get; set; }
+        public required string RqId { get; set; }
 
         public string? RqName { get; set; }
 
@@ -18,7 +18,7 @@ namespace CEMS_Server.DTOs
 
         public string RqRqtName { get; set; } = null!;
 
-        public DateOnly RqDatePay { get; set; }
+        public DateOnly RqPayDate { get; set; }
 
         public double RqExpenses { get; set; }
     }
