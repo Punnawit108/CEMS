@@ -25,21 +25,37 @@ import {
 
 
 
-const dashboardDetailStore = useDashboardDetail() ;
+const dashboardDetailStore = useDashboardDetail();
 const user = ref<any>(null);
 
-onMounted(async () => {
-  const storedUser = localStorage.getItem('user');
+const loadUser = async () => {
+  const storedUser = localStorage.getItem("user");
   if (storedUser) {
     try {
-      user.value = await JSON.parse(storedUser)
-      await dashboardDetailStore.getDashboardDetail(user)
+      user.value = JSON.parse(storedUser);
+      await dashboardDetailStore.getDashboardDetail(user);
     } catch (error) {
-      console.log(error)
+      console.log("Error loading user:", error);
     }
   }
-})
+};
 
+// ฟังก์ชันสำหรับโหลดข้อมูล Project และ Requisition
+const loadProjectAndRequisitionData = async () => {
+  if (user.value?.usrRolName === "User") {
+    projectData.value = await dashboardStore.getDashboardProjectById(user.value.usrId);
+    requisitionType.value = await dashboardStore.getDashboardRequisitionType();
+  } else {
+    projectData.value = await dashboardStore.getDashboardProject();
+    requisitionType.value = await dashboardStore.getDashboardRequisitionType();
+  }
+  // เตรียมข้อมูลสำหรับ Pie Chart
+  requisitionType.value.forEach((item: any) => {
+    rqtNames.push(item.rqtName);
+    totalRqt.push(item.totalRqt);
+  });
+  console.log(rqtNames , totalRqt)
+};
 
 Chart.register(
   PieController,
@@ -58,7 +74,7 @@ Chart.register(
 const dashboardStore = useDashboard();
 const projectData = ref<any>(null);
 
-const usr_id = 9999 ;
+//const usr_id = 9999 ;
 
 const requisitionType = ref<any>(null);
 const rqtNames: string[] = [];
@@ -73,16 +89,11 @@ const totalRqt: number[] = [];
 */
 
 // Pie chart
-onMounted(async() => {
-  
-  projectData.value = await dashboardStore.getDashboardProject()
-  requisitionType.value = await dashboardStore.getDashboardRequisitionType()
-
-  requisitionType.value.forEach((item: any) => {
-    rqtNames.push(item.rqtName);
-    totalRqt.push(item.totalRqt);
-  });
-
+onMounted(async () => {
+  await loadUser() ;
+  if(user.value){
+    await loadProjectAndRequisitionData();
+  }
 
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
   if (ctx) {
@@ -286,9 +297,9 @@ onMounted(() => {
     <div class="mainfloat clearFix">
       <!-- Summary section -->
       <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
-        <div v-for="(item  , index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox ">
-          <p class="font16">{{item.key}}</p>
-          <p class="font35">{{item.value}}</p>
+        <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox ">
+          <p class="font16">{{ item.key }}</p>
+          <p class="font35">{{ item.value }}</p>
         </div>
       </div>
 
@@ -310,7 +321,7 @@ onMounted(() => {
           <tbody>
             <!-- แถว 1 -->
             <tr v-for="(project, index) in projectData">
-              <td class="text-right">{{ index+1 }}</td>
+              <td class="text-right">{{ index + 1 }}</td>
               <td class="textOverflow">{{ project.pjName }}</td>
               <td class="text-right">{{ project.totalPjExpense }}</td>
             </tr>

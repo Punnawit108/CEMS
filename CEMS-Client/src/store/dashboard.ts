@@ -69,6 +69,16 @@ export const useDashboard = defineStore("dashboard", {
         console.error("Failed to fetch dashboard:", error);
       }
     },
+    async getDashboardProjectById(usrId : string) {
+      try {
+        const result = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/dashboard/project/${usrId}`
+        );
+        return this.project = result.data;
+      } catch (error) {
+        console.error("Failed to fetch dashboard:", error);
+      }
+    },
     async getDashboardRequisitionType() {
       try {
         const result = await axios.get(
