@@ -9,16 +9,24 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 import {
-  Dashboard,
   DashboardForUser,
   DashboardForAccountant,
   DashboardForAdmin,
+  DashboardProject,
+  DashboardRequisitionType,
+  DashboardPayment,
 } from "../types";
 
 //ดึงข้อมูล Api Dashboard ของ Role User
-export const useDashboardForUser = defineStore("dashboard", {
+export const useDashboard = defineStore("dashboard", {
   state: () => ({
-    dashboard: [] as DashboardForUser[],
+    user: [] as DashboardForUser[],
+    admin: [] as DashboardForAdmin[],
+    accountant: [] as DashboardForAccountant[],
+    project: [] as DashboardProject[],
+    requisitionType: [] as DashboardRequisitionType[],
+    payment: [] as DashboardPayment[],
+
   }),
   actions: {
     async getDashboardUser() {
@@ -26,26 +34,47 @@ export const useDashboardForUser = defineStore("dashboard", {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/dashboard/user`
         );
-        this.dashboard = result.data;
+        this.user = result.data;
       } catch (error) {
         console.error("Failed to fetch dashboard:", error);
       }
     },
-  },
-});
-
-//ดึงข้อมูล Api Dashboard ของ Role Admin
-export const useDashboardForAdmin = defineStore("dashboard", {
-  state: () => ({
-    dashboard: [] as DashboardForAdmin[],
-  }),
-  actions: {
     async getDasboardAdmin() {
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/dashboard/admin`
         );
-        this.dashboard = result.data;
+        this.admin = result.data;
+      } catch (error) {
+        console.error("Failed to fetch dashboard:", error);
+      }
+    },
+    async getDasboardAccoutant() {
+      try {
+        const result = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/dashboard/accountant`
+        );
+        this.accountant = result.data;
+      } catch (error) {
+        console.error("Failed to fetch dashboard:", error);
+      }
+    },
+    async getDashboardProject() {
+      try {
+        const result = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/dashboard/project`
+        );
+        return this.project = result.data;
+      } catch (error) {
+        console.error("Failed to fetch dashboard:", error);
+      }
+    },
+    async getDashboardRequisitionType() {
+      try {
+        const result = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/dashboard/requisitionType`
+        );
+        return this.project = result.data;
       } catch (error) {
         console.error("Failed to fetch dashboard:", error);
       }
@@ -53,21 +82,4 @@ export const useDashboardForAdmin = defineStore("dashboard", {
   },
 });
 
-//ดึงข้อมูล Api Dashboard ของ Role Accountant
-export const useDashboardForAccountant = defineStore("dashboard", {
-  state: () => ({
-    dashboard: [] as DashboardForAccountant[],
-  }),
-  actions: {
-    async getDasboardAccoutant() {
-      try {
-        const result = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/dashboard/accountant`
-        );
-        this.dashboard = result.data;
-      } catch (error) {
-        console.error("Failed to fetch dashboard:", error);
-      }
-    },
-  },
-});
+

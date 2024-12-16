@@ -5,7 +5,8 @@
 * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
+import { useDashboard } from "../../store/dashboard";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
   Chart,
@@ -35,24 +36,45 @@ Chart.register(
   ChartDataLabels
 );
 
+const dashboardStore = useDashboard();
+const projectData = ref<any>(null);
+
+const usr_id = 9999 ;
+
+const requisitionType = ref<any>(null);
+const rqtNames: string[] = [];
+const totalRqt: number[] = [];
+
+
+/*
+1. หา role ของ user ว่าเป็น role อะไร
+2. เขียน if ตรวจสอบการดึง ถ้าเป็น user ธรรมดา จะ get project และ rqt เป็น by id 
+3. ตรงกล่อง 4 อัน อาจสร้าง component ไว้ก่อน
+
+*/
+
 // Pie chart
-onMounted(() => {
+onMounted(async() => {
+  
+  projectData.value = await dashboardStore.getDashboardProject()
+  requisitionType.value = await dashboardStore.getDashboardRequisitionType()
+
+  requisitionType.value.forEach((item: any) => {
+    rqtNames.push(item.rqtName);
+    totalRqt.push(item.totalRqt);
+  });
+
+
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
   if (ctx) {
     new Chart(ctx, {
       type: "pie",
       data: {
-        labels: [
-          "ค่าที่พัก",
-          "ค่าอาหาร",
-          "ค่าเดินทาง",
-          "ค่ารักษาพยาบาล",
-          "อื่นๆ",
-        ],
+        labels: rqtNames,
         datasets: [
           {
             label: "ประเภทค่าใช้จ่ายของรายการเบิก",
-            data: [300, 250, 500, 50, 1000],
+            data: totalRqt,
             backgroundColor: [
               "#8979FF",
               "#FF928A",
@@ -282,74 +304,12 @@ onMounted(() => {
           </thead>
           <tbody>
             <!-- แถว 1 -->
-            <tr>
-              <td class="text-right">1</td>
-              <td class="textOverflow">อบรมการบริหาร</td>
-              <td class="text-right">90,000</td>
+            <tr v-for="(project, index) in projectData">
+              <td class="text-right">{{ index+1 }}</td>
+              <td class="textOverflow">{{ project.pjName }}</td>
+              <td class="text-right">{{ project.totalPjExpense }}</td>
             </tr>
 
-            <!-- แถว 2 -->
-            <tr>
-              <td class="text-right">2</td>
-              <td class="textOverflow">ระบบจัดการงานอัตโนมัติ</td>
-              <td class="text-right">60,000</td>
-            </tr>
-
-            <!-- แถว 3 -->
-            <tr>
-              <td class="text-right">3</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">50,000</td>
-            </tr>
-
-            <!-- แถว 4 -->
-            <tr>
-              <td class="text-right">4</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">17,000</td>
-            </tr>
-
-            <!-- แถว 5 -->
-            <tr>
-              <td class="text-right">5</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">15,000</td>
-            </tr>
-
-            <!-- แถว 6 -->
-            <tr>
-              <td class="text-right">6</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">10,000</td>
-            </tr>
-
-            <!-- แถว 7 -->
-            <tr>
-              <td class="text-right">7</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">8,000</td>
-            </tr>
-
-            <!-- แถว 8 -->
-            <tr>
-              <td class="text-right">8</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">6,000</td>
-            </tr>
-
-            <!-- แถว 9 -->
-            <tr>
-              <td class="text-right">9</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">4,000</td>
-            </tr>
-
-            <!-- แถว 10 -->
-            <tr>
-              <td class="text-right">10</td>
-              <td class="textOverflow">ทัศนศึกษาทางทะเล</td>
-              <td class="text-right">2,000</td>
-            </tr>
           </tbody>
         </table>
       </div>

@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CEMS_Server.Controllers;
 
 [ApiController]
-[Route("api/user/dashboard")]
+[Route("api/dashboard")]
 public class DashboardController : ControllerBase
 {
     private readonly CemsContext _context;
