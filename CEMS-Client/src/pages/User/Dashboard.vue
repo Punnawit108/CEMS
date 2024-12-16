@@ -42,19 +42,7 @@ const loadUser = async () => {
 
 // ฟังก์ชันสำหรับโหลดข้อมูล Project และ Requisition
 const loadProjectAndRequisitionData = async () => {
-  if (user.value?.usrRolName === "User") {
-    projectData.value = await dashboardStore.getDashboardProjectById(user.value.usrId);
-    requisitionType.value = await dashboardStore.getDashboardRequisitionType();
-  } else {
-    projectData.value = await dashboardStore.getDashboardProject();
-    requisitionType.value = await dashboardStore.getDashboardRequisitionType();
-  }
-  // เตรียมข้อมูลสำหรับ Pie Chart
-  requisitionType.value.forEach((item: any) => {
-    rqtNames.push(item.rqtName);
-    totalRqt.push(item.totalRqt);
-  });
-  console.log(rqtNames , totalRqt)
+
 };
 
 Chart.register(
@@ -90,9 +78,20 @@ const totalRqt: number[] = [];
 
 // Pie chart
 onMounted(async () => {
-  await loadUser() ;
-  if(user.value){
-    await loadProjectAndRequisitionData();
+  await loadUser();
+  if (user.value) {
+    if (user.value?.usrRolName === "User") {
+      projectData.value = await dashboardStore.getDashboardProjectById(user.value.usrId);
+      requisitionType.value = await dashboardStore.getDashboardRequisitionTypeById(user.value.usrId);
+      
+    } else {
+      projectData.value = await dashboardStore.getDashboardProject();
+      requisitionType.value = await dashboardStore.getDashboardRequisitionType();
+    }
+    requisitionType.value.forEach((item: any) => {
+      rqtNames.push(item.rqtName);
+      totalRqt.push(item.totalRqt);
+    });
   }
 
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
