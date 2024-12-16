@@ -26,7 +26,7 @@ const isPopupConfirmAddOpen = ref(false); // สำหรับเปิด/ป�
 const isPopupConfirmEditOpen = ref(false); // สำหรับเปิด/ปิด Popup ConfirmEdit
 const isAddAlertOpen = ref(false); // ควบคุมการแสดง Alert Add
 const isEditAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
-const isDeleteAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
+const isDeleteAlertOpen = ref(false); // ควบคุมการแสดง Alert delete
 let userNotRepeatWithApprovers = ref<User[]>();
 const selectUserId = ref<string>("");
 const approverSequence = reactive({
@@ -49,7 +49,7 @@ const closePopupAdd = () => {
   isPopupAddOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
-// เปิด PopupAdd ผู้อนุมัติ
+// เปิด Popup edit ผู้อนุมัติ
 const openPopupEdit = () => {
   isPopupEditOpen.value = true;
 };
