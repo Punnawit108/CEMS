@@ -13,7 +13,7 @@ export const useApprovalStore = defineStore('approvalList', {
         * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
         * วันที่จัดทำ/แก้ไข: 11 ธันวาคม 2567
         */
-        async getApprovalList(id: number) {
+        async getApprovalList(id: string) {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approvalList/list/${id}`);
                 return this.approvalList = result.data;
@@ -29,7 +29,7 @@ export const useApprovalStore = defineStore('approvalList', {
         * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
         * วันที่จัดทำ/แก้ไข: 11 ธันวาคม 2567
         */
-        async getApprovalHistory(id: number) {
+        async getApprovalHistory(id: string) {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approvalList/history/${id}`);
                 this.approvalList = result.data;

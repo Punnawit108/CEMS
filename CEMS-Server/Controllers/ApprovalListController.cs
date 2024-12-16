@@ -28,9 +28,9 @@ public class ApprovalList : ControllerBase
     /// <returns>รายการคำขออนุมัติในรูปแบบของ DTO</returns>
     /// <remarks>แก้ไขล่าสุด: 11 ธันวาคม 2567 โดย นายจักรวรรดิ หงวนเจริญ</remarks>
     [HttpGet("list/{id}")]
-    public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalList(int id)
+    public async Task<ActionResult<IEnumerable<ApprovalGetDto>>> GetApprovalList(string id)
     {
-        var requisition = await _context.CemsApproverRequistions
+        var requisition = await _context.CemsApproverRequisitions
             .Include(e => e.AprRq)
             .Include(e => e.AprAp)
             .Include(e => e.AprAp.ApUsr)
@@ -42,7 +42,7 @@ public class ApprovalList : ControllerBase
                 u.AprRq.RqName,
                 u.AprRq.RqPj.PjName,
                 u.AprRq.RqRqt.RqtName,
-                u.AprRq.RqDateWithdraw,
+                u.AprRq.RqWithdrawDate,
                 u.AprRq.RqExpenses
             }).ToListAsync();
 
@@ -67,8 +67,9 @@ public class ApprovalList : ControllerBase
                 u.AprRq.RqName,
                 u.AprRq.RqPj.PjName,
                 u.AprRq.RqRqt.RqtName,
-                u.AprRq.RqDateWithdraw,
-                u.AprRq.RqExpenses
+                u.AprRq.RqWithdrawDate,
+                u.AprRq.RqExpenses,
+                u.AprRq.RqStatus
             }).ToListAsync();
 
 
