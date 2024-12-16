@@ -193,7 +193,10 @@ const labels = [
   "December",
 ];
 
-onMounted(() => {
+onMounted(async() => {
+  await loadUser();
+  await totalExpense;
+  
   const linechart = document.getElementById("lineChart") as HTMLCanvasElement;
   if (linechart) {
     new Chart(linechart, {
@@ -203,7 +206,7 @@ onMounted(() => {
         datasets: [
           {
             label: "ยอดรวมการเบิกจ่าย (บาท)",
-            data: totalExpense.value,
+            data: totalExpense.value[0].totalExpense,
 
             fill: false,
             borderColor: "#8979FF",
