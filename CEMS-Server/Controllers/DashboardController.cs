@@ -14,7 +14,7 @@ using Microsoft.EntityFrameworkCore;
 namespace CEMS_Server.Controllers;
 
 [ApiController]
-[Route("api/user/dashboard")]
+[Route("api/dashboard")]
 public class DashboardController : ControllerBase
 {
     private readonly CemsContext _context;
@@ -28,9 +28,9 @@ public class DashboardController : ControllerBase
     /// <param name="id"> id ของ User </param>
     /// <returns>แสดงภาพรวมข้อมูลของ User</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-    [HttpGet("user")]
+    [HttpGet("user/{usr_id}")]
     public async Task<ActionResult<IEnumerable<UserDashboardSummaryDto>>> GetUserDashboard(
-        int usr_id
+        String usr_id
     )
     {
         // หาค่าคำขอเบิกที่รออนุมัติ
@@ -74,7 +74,7 @@ public class DashboardController : ControllerBase
     /// <returns>แสดงภาพรวมข้อมูลโครงการลำดับการเบิกสูงสุด</returns>
     /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     [HttpGet("project/{usr_id}")]
-    public async Task<IActionResult> GetDashboardProject(int usr_id)
+    public async Task<IActionResult> GetDashboardProject(String usr_id)
     {
         var result = await _context
             .CemsProjects.Select(project => new
@@ -100,7 +100,7 @@ public class DashboardController : ControllerBase
     /// <returns>แสดงภาพรวมข้อมูลประเภทการเบิกจ่ายที่มีการเบิก</returns>
     /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     [HttpGet("requisitionType/{usr_id}")]
-    public async Task<IActionResult> GetDashboardGetRequisitionType(int usr_id)
+    public async Task<IActionResult> GetDashboardGetRequisitionType(String usr_id)
     {
         var result = await _context
             .CemsRequisitionTypes.Select(requisitionType => new
@@ -124,8 +124,8 @@ public class DashboardController : ControllerBase
     /// <summary>แสดงภาพรวมข้อมูลต่างๆของ Approver</summary>
     /// <returns>แสดงภาพรวมข้อมูลของ Approver</returns>
     /// <remarks>แก้ไขล่าสุด: 6 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
-    [HttpGet("approver")]
-    public async Task<ActionResult<ApproverDashboardSummaryDto>> GetApproverDashboard(int usr_id)
+    [HttpGet("approver/{usr_id}")]
+    public async Task<ActionResult<ApproverDashboardSummaryDto>> GetApproverDashboard(String usr_id)
     {
         //หาชื่อ user จาก usr_id
         var user = await _context
@@ -141,23 +141,23 @@ public class DashboardController : ControllerBase
         var fullName = user.FullName;
 
         // หาค่าคำขอที่รอการอนุมัติ
-        var totalWaiting = await _context.CemsApproverRequistions.CountAsync(a =>
+        var totalWaiting = await _context.CemsApproverRequisitions.CountAsync(a =>
             a.AprName == fullName && a.AprStatus == "waiting"
         );
 
         // หาค่าคำขอที่ถูกอนุมัติหรือปฏิเสธการอนุมัติ
-        var totalAcceptedOrRejected = await _context.CemsApproverRequistions.CountAsync(a =>
+        var totalAcceptedOrRejected = await _context.CemsApproverRequisitions.CountAsync(a =>
             a.AprName == fullName && (a.AprStatus == "accept" || a.AprStatus == "reject")
         );
 
         // หาคำขอที่ต้องอนุมัติทั้งหมด
-        var totalRequisitions = await _context.CemsApproverRequistions.CountAsync(a =>
+        var totalRequisitions = await _context.CemsApproverRequisitions.CountAsync(a =>
             a.AprName == fullName
         );
 
         // หายอดรวมของแต่ละรายการที่มีการอนุมัติ
         var totalExpenses = await _context
-            .CemsApproverRequistions.Where(a => a.AprName == fullName)
+            .CemsApproverRequisitions.Where(a => a.AprName == fullName)
             .Join(
                 _context.CemsRequisitions,
                 apr => apr.AprRqId,
