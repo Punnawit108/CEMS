@@ -47,8 +47,8 @@ public class ExpenseController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
+                RqPayDate = u.RqPayDate,
+                RqWithDrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
                 RqInsteadName = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
@@ -87,8 +87,8 @@ public class ExpenseController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
+                RqPayDate = u.RqPayDate,
+                RqWithDrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
                 //RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
@@ -127,7 +127,7 @@ public class ExpenseController : ControllerBase
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqDatePay = u.RqDatePay,
+                RqPayDate = u.RqPayDate,
                 RqExpenses = u.RqExpenses,
             })
             .ToListAsync();
@@ -164,7 +164,7 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ExpenseManageDto>> GetExpenseById(int id)
+    public async Task<ActionResult<ExpenseManageDto>> GetExpenseById(string id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -182,8 +182,8 @@ public class ExpenseController : ControllerBase
                 RqVht = u.RqVh.VhType,
                 RqRqtId =  u.RqRqt.RqtId,
                 RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
+                RqPayDate = u.RqPayDate,
+                RqWithDrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
                 //RqInsteadName = u.RqInsteadEmail,
                 RqInsteadEmail = _context
@@ -236,8 +236,8 @@ public class ExpenseController : ControllerBase
             RqRqtId = expenseDto.RqRqtId,
             RqVhId = expenseDto.RqVhId,
             RqName = expenseDto.RqName,
-            RqDatePay = expenseDto.RqDatePay,
-            RqDateWithdraw = expenseDto.RqDateWithdraw,
+            RqPayDate = expenseDto.RqPayDate,
+            RqWithdrawDate = expenseDto.RqWithDrawDate,
             RqCode = expenseDto.RqCode,
             RqInsteadEmail = expenseDto.RqInsteadEmail,
             RqExpenses = expenseDto.RqExpenses,
@@ -282,8 +282,8 @@ public class ExpenseController : ControllerBase
         expense.RqRqtId = expenseDto.RqRqtId;
         expense.RqVhId = expenseDto.RqVhId;
         expense.RqName = expenseDto.RqName;
-        expense.RqDatePay = expenseDto.RqDatePay;
-        expense.RqDateWithdraw = expenseDto.RqDateWithdraw;
+        expense.RqPayDate = expenseDto.RqPayDate;
+        expense.RqWithdrawDate = expenseDto.RqWithDrawDate;
         expense.RqCode = expenseDto.RqCode;
         expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
         expense.RqExpenses = expenseDto.RqExpenses;

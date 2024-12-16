@@ -9,7 +9,7 @@ namespace CEMS_Server.DTOs
     //ของ User
     public class DashboardUserGetDto
     {
-        public int RqId { get; set; }
+        public required string RqId { get; set; }
 
         public string PjName { get; set; } = null!;
 
@@ -21,14 +21,14 @@ namespace CEMS_Server.DTOs
 
         public string RqtName { get; set; } = null!;
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithdrawDate { get; set; }
 
     }
 
     //ของ Approver
     public class DashboardApproverGetDto
     {
-        public int AprRqId { get; set; }
+        public required string AprRqId { get; set; }
 
         public int AprId { get; set; }
 
@@ -42,14 +42,14 @@ namespace CEMS_Server.DTOs
 
         public string RqtName { get; set; } = null!;
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithdrawDate { get; set; }
 
     }
 
     //ของ Admin
     public class DashboardAdminGetDto
     {
-        public int UsrId { get; set; }
+        public required string UsrId { get; set; }
 
         public string PjName { get; set; } = null!;
 
@@ -61,14 +61,14 @@ namespace CEMS_Server.DTOs
 
         public string RqtName { get; set; } = null!;
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithdrawDate { get; set; }
 
     }
 
     //ของ Accountant
     public class DashboardAccountantGetDto
     {
-        public int AprRqId { get; set; }
+        public required string AprRqId { get; set; }
 
         public int AprId { get; set; }
 
@@ -82,7 +82,7 @@ namespace CEMS_Server.DTOs
 
         public string RqtName { get; set; } = null!;
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithdrawDate { get; set; }
 
     }
 }
