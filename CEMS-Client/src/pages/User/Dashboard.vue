@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
   Chart,
@@ -20,6 +20,24 @@ import {
   Title,
   CategoryScale,
 } from "chart.js";
+import { useDashboardDetail } from "../../store/dashboard";
+
+
+const dashboardDetailStore = useDashboardDetail() ;
+const user = ref<any>(null);
+
+onMounted(async () => {
+  const storedUser = localStorage.getItem('user');
+  if (storedUser) {
+    try {
+      user.value = await JSON.parse(storedUser)
+      await dashboardDetailStore.getDashboardDetail(user)
+    } catch (error) {
+      console.log(error)
+    }
+  }
+})
+
 
 Chart.register(
   PieController,
@@ -244,24 +262,10 @@ onMounted(() => {
 
     <div class="mainfloat clearFix">
       <!-- Summary section -->
-      <div
-        class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch"
-      >
-        <div class="columnDashboard shadowBox">
-          <p class="font16">คำขอรอดำเนินการ</p>
-          <p class="font35">2</p>
-        </div>
-        <div class="columnDashboard shadowBox">
-          <p class="font16">คำขอเสร็จสิ้น</p>
-          <p class="font35">2</p>
-        </div>
-        <div class="columnDashboard shadowBox">
-          <p class="font16">โครงการที่ทำการเบิก</p>
-          <p class="font35">2</p>
-        </div>
-        <div class="columnDashboard shadowBox">
-          <p class="font16">ยอดเบิกจ่าย(บาท)</p>
-          <p class="font35" >2</p>
+      <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
+        <div v-for="(item  , index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox ">
+          <p class="font16">{{item.key}}</p>
+          <p class="font35">{{item.value}}</p>
         </div>
       </div>
 
@@ -355,9 +359,7 @@ onMounted(() => {
       </div>
 
       <!-- Pie chart -->
-      <div
-        class="graphPie w-[817px] h-[400px] shadowBox ml-6 mb-6 mr-6 summaryfloat"
-      >
+      <div class="graphPie w-[817px] h-[400px] shadowBox ml-6 mb-6 mr-6 summaryfloat">
         <p class="font16 font-bold m-3 text-left">
           ประเภทค่าใช้จ่ายของรายการเบิก
         </p>
