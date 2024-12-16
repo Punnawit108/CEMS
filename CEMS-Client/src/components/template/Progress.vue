@@ -54,7 +54,8 @@ console.log(isDisable)
 
       <div class="text">
         <!-- ถ้าอนุมัติแล้วใช้ aprName -->
-        <p class="w-fit font-bold">{{ item.usrFirstName + " " + item.usrLastName }}</p>
+        <p v-if="item.aprName == null" class="w-fit font-bold">{{ item.usrFirstName + " " + item.usrLastName }}</p>
+        <p v-if="item.aprName != null" class="w-fit font-bold">{{ item.aprName }}</p>
         <div v-if="item.aprStatus === 'accept'">
           <p class="text-[11px] text-gray-400 font-bold">
             อนุมัติเมื่อ :{{ item.aprDate }}

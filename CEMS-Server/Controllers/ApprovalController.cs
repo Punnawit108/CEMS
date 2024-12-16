@@ -170,22 +170,43 @@ public class ApprovalController : ControllerBase
         {
             return BadRequest("Expense data is null.");
         }
+
         var approver = await _context.CemsApproverRequisitions.FindAsync(approverUpdate.AprId);
+
         if (approver == null)
         {
             return NotFound($"ไม่มีข้อมูลของ id {approverUpdate.AprId} ในระบบ");
         }
         approver.AprApId = approverUpdate.AprApId;
         approver.AprName = approverUpdate.AprName;
-        approver.AprDate = approverUpdate.AprDate;
+        approver.AprDate = DateTime.Now;
         approver.AprStatus = approverUpdate.AprStatus;
 
         _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
-        
+
+        if (approverUpdate.AprApId != 3 && approverUpdate.AprStatus == "accept")
+        {
+            var nextApprover = await _context
+                .CemsApproverRequisitions.Where(a => a.AprApId == approverUpdate.AprApId + 1)
+                .FirstOrDefaultAsync();
+
+            if (nextApprover != null)
+            {
+                nextApprover.AprStatus = "waiting";
+                _context.CemsApproverRequisitions.Update(nextApprover);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept")
         {
-            var updateSuccess = await UpdateRequisitionsStatus(approver.AprRqId , "accept" , "paying" , null);
+            var updateSuccess = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "accept",
+                "paying",
+                null
+            );
             if (!updateSuccess)
             {
                 return NotFound();
@@ -193,7 +214,12 @@ public class ApprovalController : ControllerBase
         }
         if (approverUpdate.AprStatus == "edit")
         {
-            var updateEdit = await UpdateRequisitionsStatus(approver.AprRqId , "edit" , "accepting" , approverUpdate.RqReason);
+            var updateEdit = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "edit",
+                "accepting",
+                approverUpdate.RqReason
+            );
             if (!updateEdit)
             {
                 return NotFound();
@@ -201,7 +227,12 @@ public class ApprovalController : ControllerBase
         }
         if (approverUpdate.AprStatus == "reject")
         {
-            var updateReject = await UpdateRequisitionsStatus(approver.AprRqId , "reject" , "complete" , approverUpdate.RqReason);
+            var updateReject = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "reject",
+                "complete",
+                approverUpdate.RqReason
+            );
             if (!updateReject)
             {
                 return NotFound();
@@ -210,12 +241,17 @@ public class ApprovalController : ControllerBase
         return NoContent();
     }
 
-    private async Task<bool> UpdateRequisitionsStatus(string rqId , string rqStatus , string rqProgress ,string rqReason)
+    private async Task<bool> UpdateRequisitionsStatus(
+        string rqId,
+        string rqStatus,
+        string rqProgress,
+        string rqReason
+    )
     {
         var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r => r.RqId == rqId);
         if (requisition == null)
         {
-            return false; 
+            return false;
         }
         requisition.RqStatus = rqStatus;
         requisition.RqProgress = rqProgress;
@@ -223,5 +259,23 @@ public class ApprovalController : ControllerBase
         _context.CemsRequisitions.Update(requisition);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    [HttpPut("disburse/{rqId}")]
+    public async Task<ActionResult> updateDisburse(string rqId)
+    {
+        var requisition = await _context.CemsRequisitions.FindAsync(rqId);
+
+        if (requisition == null)
+        {
+            return NotFound();
+        }
+
+        requisition.RqDisburseDate = DateOnly.FromDateTime(DateTime.Now);
+        requisition.RqProgress = "complete";
+
+        _context.CemsRequisitions.Update(requisition);
+        await _context.SaveChangesAsync();
+        return NoContent();
     }
 }

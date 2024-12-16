@@ -258,9 +258,24 @@ public class ExpenseController : ControllerBase
                 AprStatus = approverId == 1 ? "waiting" : null,
             };
             _context.CemsApproverRequisitions.Add(approverRequisition);
+
+            if (approverId == 1)
+            {
+                var notification = new CemsNotification
+                {
+                    NtAprId = newAprId,
+                    NtDate = DateTime.Now,
+                    NtStatus = "unread",
+                };
+                _context.CemsNotifications.Add(notification);
+
+                string userId = "9999";
+                string message = "มีรายการอนุมัติมาแว้ว";
+            }
             newAprId++;
         }
-        await _context.SaveChangesAsync(); // บันทึกข้อมูลทั้งหมด
+        //await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
     }
 
