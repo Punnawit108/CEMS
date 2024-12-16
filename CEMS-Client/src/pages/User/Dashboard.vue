@@ -40,11 +40,6 @@ const loadUser = async () => {
   }
 };
 
-// ฟังก์ชันสำหรับโหลดข้อมูล Project และ Requisition
-const loadProjectAndRequisitionData = async () => {
-
-};
-
 Chart.register(
   PieController,
   ArcElement,
@@ -68,6 +63,8 @@ const requisitionType = ref<any>(null);
 const rqtNames: string[] = [];
 const totalRqt: number[] = [];
 
+const totalExpense = ref<any>(null);
+
 
 /*
 1. หา role ของ user ว่าเป็น role อะไร
@@ -83,8 +80,10 @@ onMounted(async () => {
     if (user.value?.usrRolName === "User") {
       projectData.value = await dashboardStore.getDashboardProjectById(user.value.usrId);
       requisitionType.value = await dashboardStore.getDashboardRequisitionTypeById(user.value.usrId);
-      
+      totalExpense.value = await dashboardStore.getDashboardTotalExpense();
+
     } else {
+      totalExpense.value = await dashboardStore.getDashboardTotalExpense();
       projectData.value = await dashboardStore.getDashboardProject();
       requisitionType.value = await dashboardStore.getDashboardRequisitionType();
     }
@@ -204,7 +203,7 @@ onMounted(() => {
         datasets: [
           {
             label: "ยอดรวมการเบิกจ่าย (บาท)",
-            data: [65, 59, 80, 81, 56, 55, 40, 90, 100, 105, 140, 80],
+            data: totalExpense.value,
 
             fill: false,
             borderColor: "#8979FF",

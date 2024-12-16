@@ -26,39 +26,10 @@ export const useDashboard = defineStore("dashboard", {
     project: [] as DashboardProject[],
     requisitionType: [] as DashboardRequisitionType[],
     payment: [] as DashboardPayment[],
+    totalExpense: []
 
   }),
   actions: {
-    async getDashboardUser() {
-      try {
-        const result = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/dashboard/user`
-        );
-        this.user = result.data;
-      } catch (error) {
-        console.error("Failed to fetch dashboard:", error);
-      }
-    },
-    async getDasboardAdmin() {
-      try {
-        const result = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/dashboard/admin`
-        );
-        this.admin = result.data;
-      } catch (error) {
-        console.error("Failed to fetch dashboard:", error);
-      }
-    },
-    async getDasboardAccoutant() {
-      try {
-        const result = await axios.get(
-          `${import.meta.env.VITE_BASE_URL}/api/dashboard/accountant`
-        );
-        this.accountant = result.data;
-      } catch (error) {
-        console.error("Failed to fetch dashboard:", error);
-      }
-    },
     async getDashboardProject() {
       try {
         const result = await axios.get(
@@ -95,6 +66,16 @@ export const useDashboard = defineStore("dashboard", {
           `${import.meta.env.VITE_BASE_URL}/api/dashboard/requisitionType/${usrId}`
         );
         return this.requisitionType = result.data;
+      } catch (error) {
+        console.error("Failed to fetch dashboard:", error);
+      }
+    },
+    async getDashboardTotalExpense() {
+      try {
+        const result = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/dashboard/totalexpense`
+        );
+        return this.totalExpense = result.data;
       } catch (error) {
         console.error("Failed to fetch dashboard:", error);
       }

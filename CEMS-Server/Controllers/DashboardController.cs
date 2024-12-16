@@ -299,4 +299,43 @@ public class DashboardController : ControllerBase
     /// <returns>แสดงภาพรวมข้อมูลยอดเบิกจ่ายแต่ละเดือน</returns>
     /// <remarks>แก้ไขล่าสุด: 10 ธันวาคม 2567 โดย นางสาวอลิสา ปะกังพลัง</remark>
     //DashboardGetDateExpenses
+    [HttpGet("totalexpense")]
+    public async Task<IActionResult> DashboardGetDateExpenses()
+    {
+        // ดึงข้อมูลจากฐานข้อมูล
+        var monthlyData = await _context
+            .CemsRequisitions.Where(r => r.RqDisburseDate != null)
+            .ToListAsync();
+
+        // หาเดือนล่าสุดของ RqDisburseDate
+        var latestDate = monthlyData.Max(r => r.RqDisburseDate.Value);
+        var latestYear = latestDate.Year;
+        var latestMonth = latestDate.Month;
+
+        // จัดกลุ่มข้อมูลตามปีและเดือน และตัดข้อมูลที่เกินจากเดือนล่าสุด
+        var groupedData = monthlyData
+            .Where(r =>
+                r.RqDisburseDate.Value.Year < latestYear
+                || (
+                    r.RqDisburseDate.Value.Year == latestYear
+                    && r.RqDisburseDate.Value.Month <= latestMonth
+                )
+            )
+            .GroupBy(r => r.RqDisburseDate.Value.Year)
+            .Select(g => new
+            {
+                Year = g.Key,
+                TotalExpense = Enumerable
+                    .Range(1, 12)
+                    .Select(month =>
+                        g.Where(r => r.RqDisburseDate.Value.Month == month).Sum(r => r.RqExpenses)
+                    )
+                    .Take(g.Key == latestYear ? latestMonth : 12)
+                    .ToList(),
+            })
+            .OrderBy(x => x.Year)
+            .ToList();
+
+        return Ok(groupedData);
+    }
 }
