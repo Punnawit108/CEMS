@@ -34,7 +34,7 @@ public class PdfService
                         if (approver.CemsApproverRequisitions.Any())
                         {
                             // Define the custom TextStyle and apply it
-                            var requisitionStyle = TextStyle.Default.Size(12).Color("#808080"); // Gray color
+                            var requisitionStyle = TextStyle.Default.FontSize(12).FontColor("#808080"); // Gray color
 
                             column.Item().Text($"Requisitions: {approver.CemsApproverRequisitions.Count}")
                                 .Style(requisitionStyle); // Apply the style
