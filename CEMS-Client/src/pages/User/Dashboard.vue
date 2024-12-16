@@ -7,6 +7,7 @@
 */
 import { onMounted, ref } from "vue";
 import { useDashboard } from "../../store/dashboard";
+import { useDashboardDetail } from "../../store/dashboard";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import {
   Chart,
@@ -21,7 +22,7 @@ import {
   Title,
   CategoryScale,
 } from "chart.js";
-import { useDashboardDetail } from "../../store/dashboard";
+
 
 
 const dashboardDetailStore = useDashboardDetail() ;
