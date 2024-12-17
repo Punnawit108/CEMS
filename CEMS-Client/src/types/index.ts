@@ -156,6 +156,13 @@ export interface DashboardRequisitionType {
     rqtName: string;
     totalRqt: number;
 }
+export interface DashboardRequisitionTypeMonth {
+    //กราฟ ประเภทค่าใช้จ่ายของรายการเบิก
+    rqtId: number;
+    rqtUsrId: number;
+    totalRqt: number;
+    
+}
 
 export interface DashboardPayment {
     rqMonth: number;

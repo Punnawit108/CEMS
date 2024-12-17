@@ -64,8 +64,6 @@ const rqtNames: string[] = [];
 const totalRqt: number[] = [];
 
 const totalExpense = ref<any>(null);
-
-
 /*
 1. หา role ของ user ว่าเป็น role อะไร
 2. เขียน if ตรวจสอบการดึง ถ้าเป็น user ธรรมดา จะ get project และ rqt เป็น by id 
@@ -80,8 +78,7 @@ onMounted(async () => {
     if (user.value?.usrRolName === "User") {
       projectData.value = await dashboardStore.getDashboardProjectById(user.value.usrId);
       requisitionType.value = await dashboardStore.getDashboardRequisitionTypeById(user.value.usrId);
-      totalExpense.value = await dashboardStore.getDashboardTotalExpense();
-
+      totalExpense.value = await dashboardStore.getDashboardTotalExpenseById(user.value.usrId);
     } else {
       totalExpense.value = await dashboardStore.getDashboardTotalExpense();
       projectData.value = await dashboardStore.getDashboardProject();
@@ -92,6 +89,9 @@ onMounted(async () => {
       totalRqt.push(item.totalRqt);
     });
   }
+
+
+
 
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
   if (ctx) {
@@ -207,7 +207,6 @@ onMounted(async() => {
           {
             label: "ยอดรวมการเบิกจ่าย (บาท)",
             data: totalExpense.value[0].totalExpense,
-
             fill: false,
             borderColor: "#8979FF",
             backgroundColor: "white",
