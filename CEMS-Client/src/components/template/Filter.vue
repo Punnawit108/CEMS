@@ -3,11 +3,12 @@
 * ชื่อไฟล์: Filter.vue
 * คำอธิบาย: Component สำหรับแสดงส่วนตัวกรองข้อมูลผู้ใช้และโครงการ
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 8 ธันวาคม 2567
+* วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
 */
 
-import { computed } from 'vue';
+import { computed, ref } from 'vue';
 import { User, Project, ExpenseManage } from '../../types';
+import SingleDatePicker from '../template/SingleDatePicker.vue';
 
 interface Props {
     loading: boolean;
@@ -16,8 +17,8 @@ interface Props {
     selectedDepartment: string;
     selectedDivision: string;
     selectedRole: string;
-    selectedProjectId: string;
-    selectedRequisitionTypeId: string;
+    selectedProjectId: string | number | undefined;
+    selectedRequisitionTypeId: string | number | undefined;
     projects: Project[];
     requisitionTypes: ExpenseManage[];
     showSearchFilter?: boolean;
@@ -26,6 +27,7 @@ interface Props {
     showRoleFilter?: boolean;
     showProjectFilter?: boolean;
     showRequisitionTypeFilter?: boolean;
+    showDateFilter?: boolean;
 }
 
 interface Emits {
@@ -35,6 +37,7 @@ interface Emits {
     (e: 'update:selectedRole', value: string): void;
     (e: 'update:selectedProjectId', value: string): void;
     (e: 'update:selectedRequisitionTypeId', value: string): void;
+    (e: 'dateFilter', start: Date, end: Date): void;
 }
 
 const props = withDefaults(defineProps<Props>(), {
@@ -45,10 +48,12 @@ const props = withDefaults(defineProps<Props>(), {
     showRoleFilter: true,
     showProjectFilter: true,
     showRequisitionTypeFilter: true,
+    showDateFilter: true,
 });
 
 const emit = defineEmits<Emits>();
 
+// Original filter computed properties and methods
 const departments = computed(() => {
     const depts = new Set(props.users.map(user => user.usrDptName));
     return Array.from(depts).sort();
@@ -64,6 +69,37 @@ const roles = computed(() => {
     return Array.from(roles).sort();
 });
 
+// Date filter functionality
+const startDate = ref(new Date());
+const endDate = ref(new Date());
+const tempStartDate = ref(new Date());
+const tempEndDate = ref(new Date());
+
+const handleDateConfirm = (type: 'start' | 'end', confirmedDate: Date) => {
+    if (type === 'start') {
+        startDate.value = confirmedDate;
+    } else {
+        endDate.value = confirmedDate;
+    }
+
+    if (startDate.value && endDate.value) {
+        const start = new Date(startDate.value);
+        const end = new Date(endDate.value);
+        start.setHours(0, 0, 0, 0);
+        end.setHours(23, 59, 59, 999);
+        emit('dateFilter', start, end);
+    }
+};
+
+const handleDateCancel = (type: 'start' | 'end') => {
+    if (type === 'start') {
+        tempStartDate.value = startDate.value;
+    } else {
+        tempEndDate.value = endDate.value;
+    }
+};
+
+// Original update methods
 const updateSearchTerm = (event: Event) => {
     const target = event.target as HTMLInputElement;
     emit('update:searchTerm', target.value);
@@ -98,10 +134,10 @@ const updateRequisitionType = (event: Event) => {
 <template>
     <div class="flex flex-wrap justify-start items-center gap-5 mb-12">
         <!-- Search Filter -->
-        <div v-if="showSearchFilter" class="h-[32px] w-[266px]">
+        <div v-if="showSearchFilter" class="h-[32px] w-[205px]">
             <form class="grid" @submit.prevent>
                 <label for="SearchBar" class="py-0.5 text-[14px] text-black text-start">ค้นหา</label>
-                <div class="relative h-[32px] w-[266px] justify-center items-center">
+                <div class="relative h-[32px] w-[200px] justify-center items-center">
                     <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
                         <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -117,15 +153,17 @@ const updateRequisitionType = (event: Event) => {
         </div>
 
         <!-- Department Filter -->
-        <div v-if="showDepartmentFilter" class="h-[32px] w-[266px]">
+        <div v-if="showDepartmentFilter" class="h-[32px] w-[205px]">
             <form class="grid">
                 <label for="SelectDepartment" class="py-0.5 text-[14px] text-black text-start">แผนก</label>
-                <div class="relative h-[32px] w-[266px] justify-center items-center">
+                <div class="relative h-[32px] w-[200px] justify-center items-center">
                     <select :value="selectedDepartment" @change="updateDepartment" id="SelectDepartment"
                         :disabled="loading"
                         class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8">
                         <option value="">ทั้งหมด</option>
-                        <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
+                        <option v-for="dept in departments" :key="dept" :value="dept">
+                            {{ dept.startsWith('search:') ? 'พิมพ์เพื่อค้นหา: ' + dept.substring(7) : dept }}
+                        </option>
                     </select>
                     <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
                         <svg width="13" height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -139,10 +177,10 @@ const updateRequisitionType = (event: Event) => {
         </div>
 
         <!-- Division Filter -->
-        <div v-if="showDivisionFilter" class="h-[32px] w-[266px]">
+        <div v-if="showDivisionFilter" class="h-[32px] w-[205px]">
             <form class="grid">
                 <label for="SelectDivision" class="py-0.5 text-[14px] text-black text-start">ฝ่าย</label>
-                <div class="relative h-[32px] w-[266px] justify-center items-center">
+                <div class="relative h-[32px] w-[200px] justify-center items-center">
                     <select :value="selectedDivision" @change="updateDivision" id="SelectDivision" :disabled="loading"
                         class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8">
                         <option value="">ทั้งหมด</option>
@@ -160,10 +198,10 @@ const updateRequisitionType = (event: Event) => {
         </div>
 
         <!-- Role Filter -->
-        <div v-if="showRoleFilter" class="h-[32px] w-[266px]">
+        <div v-if="showRoleFilter" class="h-[32px] w-[205px]">
             <form class="grid">
                 <label for="SelectRole" class="py-0.5 text-[14px] text-black text-start">บทบาท</label>
-                <div class="relative h-[32px] w-[266px] justify-center items-center">
+                <div class="relative h-[32px] w-[200px] justify-center items-center">
                     <select :value="selectedRole" @change="updateRole" id="SelectRole" :disabled="loading"
                         class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8">
                         <option value="">ทั้งหมด</option>
@@ -181,10 +219,10 @@ const updateRequisitionType = (event: Event) => {
         </div>
 
         <!-- Project Filter -->
-        <div v-if="showProjectFilter" class="h-[32px] w-[266px]">
+        <div v-if="showProjectFilter" class="h-[32px] w-[205px]">
             <form class="grid">
                 <label for="SelectProject" class="py-0.5 text-[14px] text-black text-start">โครงการ</label>
-                <div class="relative h-[32px] w-[266px] justify-center items-center">
+                <div class="relative h-[32px] w-[200px] justify-center items-center">
                     <select :value="selectedProjectId" @change="updateProject" id="SelectProject" :disabled="loading"
                         class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8">
                         <option value="">ทั้งหมด</option>
@@ -204,12 +242,12 @@ const updateRequisitionType = (event: Event) => {
         </div>
 
         <!-- Requisition Type Filter -->
-        <div v-if="showRequisitionTypeFilter" class="h-[32px] w-[266px]">
+        <div v-if="showRequisitionTypeFilter" class="h-[32px] w-[205px]">
             <form class="grid">
                 <label for="SelectRequisitionType" class="py-0.5 text-[14px] text-black text-start">
                     ประเภทค่าใช้จ่าย
                 </label>
-                <div class="relative h-[32px] w-[266px] justify-center items-center">
+                <div class="relative h-[32px] w-[200px] justify-center items-center">
                     <select :value="selectedRequisitionTypeId" @change="updateRequisitionType"
                         id="SelectRequisitionType" :disabled="loading"
                         class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8">
@@ -229,6 +267,32 @@ const updateRequisitionType = (event: Event) => {
             </form>
         </div>
 
+        <!-- Date Filter -->
+        <template v-if="showDateFilter">
+            <!-- Start Date -->
+            <div class="h-[32px] w-[205px]">
+                <form class="grid">
+                    <label class="py-0.5 text-[14px] text-black text-start">วันที่เริ่มต้น</label>
+                    <div class="relative h-[32px] w-[200px]">
+                        <SingleDatePicker v-model="tempStartDate" placeholder="mm/dd/yyyy" :disabled="loading"
+                            class="w-full" @confirm="handleDateConfirm('start', $event)"
+                            @cancel="handleDateCancel('start')" :confirmedDate="startDate" />
+                    </div>
+                </form>
+            </div>
+
+            <!-- End Date -->
+            <div class="h-[32px] w-[205px]">
+                <form class="grid">
+                    <label class="py-0.5 text-[14px] text-black text-start">วันที่สิ้นสุด</label>
+                    <div class="relative h-[32px] w-[200px]">
+                        <SingleDatePicker v-model="tempEndDate" placeholder="mm/dd/yyyy" :disabled="loading"
+                            class="w-full" @confirm="handleDateConfirm('end', $event)" @cancel="handleDateCancel('end')"
+                            :confirmedDate="endDate" />
+                    </div>
+                </form>
+            </div>
+        </template>
     </div>
 </template>
 
