@@ -5,6 +5,7 @@
 * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
+using System;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -30,36 +31,27 @@ public class ExpenseController : ControllerBase
     /// <returns>แสดงข้อมูลใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
-    [HttpGet("list")]
-    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList()
+    [HttpGet("list/{id}")]
+    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList(string id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "waiting" || u.RqStatus == "sketch" || u.RqStatus == "edit") // เพิ่มเงื่อนไข Where
+            .Where(u =>
+                (u.RqStatus == "waiting" || u.RqStatus == "sketch" || u.RqStatus == "edit")
+                && u.RqUsrId.Equals(id)
+            )
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqName = u.RqName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqVhName = u.RqVh.VhVehicle,
-                RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
-                RqCode = u.RqCode,
-                RqInsteadName = u.RqInsteadEmail,
-                RqExpenses = u.RqExpenses,
-                RqStartLocation = u.RqStartLocation,
-                RqEndLocation = u.RqEndLocation,
-                RqDistance = u.RqDistance,
-                RqPurpose = u.RqPurpose,
-                RqReason = u.RqReason,
-                RqProof = u.RqProof,
+                RqWithDrawDate = u.RqWithdrawDate,
                 RqStatus = u.RqStatus,
-                RqProgress = u.RqProgress,
+                RqExpenses = u.RqExpenses
             })
             .ToListAsync();
 
@@ -70,36 +62,24 @@ public class ExpenseController : ControllerBase
     /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
-    [HttpGet("History")]
-    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory()
+    [HttpGet("history/{id}")]
+    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory(string id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "reject" || u.RqStatus == "accept") // เพิ่มเงื่อนไข Where
+            .Where(u => (u.RqStatus == "reject" || u.RqStatus == "accept") && u.RqUsrId.Equals(id)) // เพิ่มเงื่อนไข Where
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqName = u.RqName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqVhName = u.RqVh.VhVehicle,
-                RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
-                RqCode = u.RqCode,
-                //RqInsteadEmail = u.RqInsteadEmail,
-                RqExpenses = u.RqExpenses,
-                RqStartLocation = u.RqStartLocation,
-                RqEndLocation = u.RqEndLocation,
-                RqDistance = u.RqDistance,
-                RqPurpose = u.RqPurpose,
-                RqReason = u.RqReason,
-                RqProof = u.RqProof,
+                RqWithDrawDate = u.RqWithdrawDate,
                 RqStatus = u.RqStatus,
-                RqProgress = u.RqProgress,
+                RqExpenses = u.RqExpenses
             })
             .ToListAsync();
 
@@ -128,7 +108,7 @@ public class ExpenseController : ControllerBase
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqDatePay = u.RqDatePay,
+                RqPayDate = u.RqPayDate,
                 RqExpenses = u.RqExpenses,
             })
             .ToListAsync();
@@ -168,7 +148,7 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<ExpenseManageDto>> GetExpenseById(int id)
+    public async Task<ActionResult<ExpenseGetByIdDto>> GetExpenseById(string id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -176,7 +156,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
             .Where(u => u.RqId == id) // ค้นหา RqId ด้วย id (parameter ที่รับค่าด้านบน)
-            .Select(u => new ExpenseManageDto
+            .Select(u => new ExpenseGetByIdDto
             {
                 RqId = u.RqId,
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
@@ -184,23 +164,22 @@ public class ExpenseController : ControllerBase
                 RqPjId = u.RqPj.PjId,
                 RqVhId = u.RqVh.VhId,
                 RqVht = u.RqVh.VhType,
-                RqRqtId =  u.RqRqt.RqtId,
+                RqRqtId = u.RqRqt.RqtId,
                 RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
+                RqPayDate = u.RqPayDate,
+                RqWithDrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
                 //RqInsteadName = u.RqInsteadEmail,
                 RqInsteadEmail = _context
                     .CemsUsers.Where(user => user.UsrEmail == u.RqInsteadEmail)
                     .Select(user => user.UsrFirstName + " " + user.UsrLastName)
                     .FirstOrDefault(),
-
+                RqReason = u.RqReason,
                 RqExpenses = u.RqExpenses,
                 RqStartLocation = u.RqStartLocation,
                 RqEndLocation = u.RqEndLocation,
                 RqDistance = u.RqDistance,
                 RqPurpose = u.RqPurpose,
-                RqReason = u.RqReason,
                 RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqProgress = u.RqProgress,
@@ -218,7 +197,7 @@ public class ExpenseController : ControllerBase
     /// <summary>สร้างข้อมูลคำขอเบิก</summary>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก /param>
     /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก /returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 14 ธันวาคม 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
     public async Task<ActionResult> CreateExpense([FromBody] ExpenseManageDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
@@ -233,15 +212,18 @@ public class ExpenseController : ControllerBase
             return BadRequest(ModelState);
         }
 
+        string rqId = Guid.NewGuid().ToString("N").Substring(0, 8);
+
         var expense = new CemsRequisition
         {
+            RqId = rqId,
             RqUsrId = expenseDto.RqUsrId,
             RqPjId = expenseDto.RqPjId,
             RqRqtId = expenseDto.RqRqtId,
             RqVhId = expenseDto.RqVhId,
             RqName = expenseDto.RqName,
-            RqDatePay = expenseDto.RqDatePay,
-            RqDateWithdraw = expenseDto.RqDateWithdraw,
+            RqPayDate = expenseDto.RqPayDate,
+            RqWithdrawDate = expenseDto.RqWithDrawDate,
             RqCode = expenseDto.RqCode,
             RqInsteadEmail = expenseDto.RqInsteadEmail,
             RqExpenses = expenseDto.RqExpenses,
@@ -249,7 +231,6 @@ public class ExpenseController : ControllerBase
             RqEndLocation = expenseDto.RqEndLocation,
             RqDistance = expenseDto.RqDistance,
             RqPurpose = expenseDto.RqPurpose,
-            RqReason = expenseDto.RqReason,
             RqProof = expenseDto.RqProof,
             RqStatus = expenseDto.RqStatus,
             RqProgress = expenseDto.RqProgress,
@@ -258,6 +239,49 @@ public class ExpenseController : ControllerBase
         _context.CemsRequisitions.Add(expense);
         await _context.SaveChangesAsync();
 
+        ///หาข้อมูล AprId ตัวสุดท้าย
+        var lastAprId = _context
+            .CemsApproverRequisitions.OrderByDescending(x => x.AprId)
+            .Select(x => x.AprId)
+            .FirstOrDefault();
+
+        ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
+        int newAprId = lastAprId + 1;
+
+        /// กำหนดตารางข้อมูลของ AprApId
+        var approverIds = new List<int> { 1, 2, 3 };
+
+        /// Loop สร้างข้อมูลผู้อนุมัติ
+        foreach (var approverId in approverIds)
+        {
+            var approverRequisition = new CemsApproverRequisition
+            {
+                AprId = newAprId,
+                AprRqId = rqId,
+                AprApId = approverId,
+                AprName = null,
+                AprDate = null,
+                AprStatus = approverId == 1 ? "waiting" : null,
+            };
+            _context.CemsApproverRequisitions.Add(approverRequisition);
+
+            if (approverId == 1)
+            {
+                var notification = new CemsNotification
+                {
+                    NtAprId = newAprId,
+                    NtDate = DateTime.Now,
+                    NtStatus = "unread",
+                };
+                _context.CemsNotifications.Add(notification);
+
+                string userId = "9999";
+                string message = "มีรายการอนุมัติมาแว้ว";
+            }
+            newAprId++;
+        }
+        //await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
     }
 
@@ -268,7 +292,10 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateExpense(int id, [FromBody] ExpenseManageDto expenseDto)
+    public async Task<IActionResult> UpdateExpense(
+        string id,
+        [FromBody] ExpenseManageDto expenseDto
+    )
     {
         if (expenseDto == null)
         {
@@ -286,8 +313,8 @@ public class ExpenseController : ControllerBase
         expense.RqRqtId = expenseDto.RqRqtId;
         expense.RqVhId = expenseDto.RqVhId;
         expense.RqName = expenseDto.RqName;
-        expense.RqDatePay = expenseDto.RqDatePay;
-        expense.RqDateWithdraw = expenseDto.RqDateWithdraw;
+        expense.RqPayDate = expenseDto.RqPayDate;
+        expense.RqWithdrawDate = expenseDto.RqWithDrawDate;
         expense.RqCode = expenseDto.RqCode;
         expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
         expense.RqExpenses = expenseDto.RqExpenses;
@@ -295,7 +322,6 @@ public class ExpenseController : ControllerBase
         expense.RqEndLocation = expenseDto.RqEndLocation;
         expense.RqDistance = expenseDto.RqDistance;
         expense.RqPurpose = expenseDto.RqPurpose;
-        expense.RqReason = expenseDto.RqReason;
         expense.RqProof = expenseDto.RqProof;
         expense.RqStatus = expenseDto.RqStatus;
         expense.RqProgress = expenseDto.RqProgress;
@@ -334,5 +360,4 @@ public class ExpenseController : ControllerBase
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
-
 }

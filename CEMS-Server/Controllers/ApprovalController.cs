@@ -49,7 +49,7 @@ public class ApprovalController : ControllerBase
     /// <param name="requisitionId">เลขใบคำขอเบิก</param>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpGet("progress/{requisitionId:int}")]
-    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(int requisitionId)
+    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(string requisitionId)
     {
         var disbursement = await _context
             .CemsRequisitions.Where(e => e.RqId == requisitionId)
@@ -58,13 +58,13 @@ public class ApprovalController : ControllerBase
                 e.RqId,
                 e.RqStatus,
                 e.RqProgress,
-                e.RqDatePay,
-                e.RqDateWithdraw,
+                e.RqPayDate,
+                e.RqWithdrawDate,
             })
             .ToListAsync();
 
         var acceptor = await _context
-            .CemsApproverRequistions.Where(e => e.AprRqId == requisitionId)
+            .CemsApproverRequisitions.Where(e => e.AprRqId == requisitionId)
             .Include(e => e.AprRq)
             .Include(e => e.AprAp)
             .Include(e => e.AprAp.ApUsr)
@@ -115,10 +115,10 @@ public class ApprovalController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpPost("approve")]
     public async Task<ActionResult> ApproveRequisition(
-        [FromBody] CemsApproverRequistion approverRequistion
+        [FromBody] CemsApproverRequisition approverRequistion
     )
     {
-        _context.CemsApproverRequistions.Add(approverRequistion);
+        _context.CemsApproverRequisitions.Add(approverRequistion);
         await _context.SaveChangesAsync();
 
         return CreatedAtAction(
@@ -170,7 +170,7 @@ public class ApprovalController : ControllerBase
         {
             return BadRequest("Expense data is null.");
         }
-        var approver = await _context.CemsApproverRequistions.FindAsync(approverUpdate.AprId);
+        var approver = await _context.CemsApproverRequisitions.FindAsync(approverUpdate.AprId);
         if (approver == null)
         {
             return NotFound($"ไม่มีข้อมูลของ id {approverUpdate.AprId} ในระบบ");
@@ -180,7 +180,7 @@ public class ApprovalController : ControllerBase
         approver.AprDate = approverUpdate.AprDate;
         approver.AprStatus = approverUpdate.AprStatus;
 
-        _context.CemsApproverRequistions.Update(approver);
+        _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
         
         if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept")
@@ -210,7 +210,7 @@ public class ApprovalController : ControllerBase
         return NoContent();
     }
 
-    private async Task<bool> UpdateRequisitionsStatus(int rqId , string rqStatus , string rqProgress ,string rqReason)
+    private async Task<bool> UpdateRequisitionsStatus(string rqId , string rqStatus , string rqProgress ,string rqReason)
     {
         var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r => r.RqId == rqId);
         if (requisition == null)

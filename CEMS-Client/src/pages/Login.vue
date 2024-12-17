@@ -5,35 +5,35 @@
 * ชื่อผู้เขียน/แก้ไข: นครียา วัฒนศรี
 * วันที่จัดทำ/แก้ไข: 13 พฤศจิกายน 2567
 */
-import { defineProps } from 'vue';
-import {  defineEmits } from 'vue';
+import { onMounted, ref } from 'vue';
 import { useRouter } from 'vue-router';
+import { useUserStore } from '../store/user';
 
+const userStore = useUserStore();
+const userData = ref(null);
 const router = useRouter();
-const emit = defineEmits(['updateRole']);
 
-const selectRole = (role: string) => {
-    localStorage.setItem('updateRole', role); 
-    console.log(role)
-    router.push({ path: '/dashboard' }); // เปลี่ยนเส้นทางไปที่ dashboard
+onMounted(() => {
+    userStore.getAllUsers();
+})
+
+const selectUser = (user: any) => {
+    localStorage.setItem('user', JSON.stringify(user));
+    router.push({ path: '/dashboard' });
 };
 
-const props = defineProps<{
-    roles: string
-}>();
 </script>
 <template>
     <div>
         <div>
             <dialog id="roleSelected" class="modal">
                 <div class="modal-box">
-                    <div class="modal-action flex justify-center">
-                        <form method="dialog" class="flex gap-3">
-                            <button class="btn" v-on:click="selectRole('User')">User</button>
-                            <button class="btn" v-on:click="selectRole('Approver')">Approver</button>
-                            <button class="btn" v-on:click="selectRole('Accountant')">Accountant</button>
-                            <button class="btn" v-on:click="selectRole('Admin')">Admin</button>
-                        </form>
+                    <div class="modal-action flex justify-center items-center m-0 flex-col">
+                        <select class="select select-bordered w-full max-w-xs mb-4" v-model="userData">
+                            <option :value="null" disabled selected>Select User</option>
+                            <option :value = "user" v-for="user in userStore.users">{{ user.usrId + " " + user.usrFirstName + " " + user.usrLastName + " (" + user.usrRolName + ")" }}</option>
+                        </select>
+                        <button class="btn" @click="selectUser(userData)">ยืนยัน</button>
                     </div>
                 </div>
             </dialog>

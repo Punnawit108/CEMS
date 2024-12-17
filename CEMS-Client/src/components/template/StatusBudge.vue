@@ -20,7 +20,7 @@ const props = defineProps<{
 
         <!-- content -->
         <div
-            class="flex gap-4 justify-center items-center px-4 text-xs leading-snug text-center text-white whitespace-nowrap bg-emerald-500 rounded-3xl">
+            class="flex gap-4 justify-center items-center px-2 text-xs leading-snug text-center text-white whitespace-nowrap bg-emerald-500 rounded-3xl">
             <!-- อนุมัติ -->
             <span v-if="status==='sts-accept'" class="!text-white rounded-[28px] bg-[#12B669] w-[82px] h-[24px] flex justify-center items-center font-sarabun">อนุมัติ</span>
             <!-- รออนุมัติ -->

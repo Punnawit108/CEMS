@@ -42,8 +42,8 @@ public class PaymentController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
+                RqPayDate = u.RqPayDate,
+                RqWithdrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
                 RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
@@ -80,8 +80,8 @@ public class PaymentController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
+                RqPayDate = u.RqPayDate,
+                RqWithdrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
                 RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
@@ -103,7 +103,7 @@ public class PaymentController : ControllerBase
     /// <returns>ข้อมูลรายการรอนำจ่าย</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpGet("{id}")]
-    public async Task<ActionResult<PaymentGetDto>> GetPaymentById(int id)
+    public async Task<ActionResult<PaymentGetDto>> GetPaymentById(string id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -119,8 +119,8 @@ public class PaymentController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqName = u.RqName,
-                RqDatePay = u.RqDatePay,
-                RqDateWithdraw = u.RqDateWithdraw,
+                RqPayDate = u.RqPayDate,
+                RqWithdrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
                 RqInsteadEmail = u.RqInsteadEmail,
                 RqExpenses = u.RqExpenses,
@@ -166,8 +166,8 @@ public class PaymentController : ControllerBase
         expense.RqRqtId = expenseDto.RqRqtId;
         expense.RqVhId = expenseDto.RqVhId;
         expense.RqName = expenseDto.RqName;
-        expense.RqDatePay = expenseDto.RqDatePay;
-        expense.RqDateWithdraw = expenseDto.RqDateWithdraw;
+        expense.RqPayDate = expenseDto.RqPayDate;
+        expense.RqWithdrawDate = expenseDto.RqWithdrawDate;
         expense.RqCode = expenseDto.RqCode;
         expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
         expense.RqExpenses = expenseDto.RqExpenses;

@@ -1,13 +1,8 @@
-﻿/*
-* ชื่อไฟล์: CemsContext.cs
-* คำอธิบาย: ใช้สำหรับรวม Model ที่ได้ mappingไปยัง table และเรียกการใช้งาน Model นั้นๆ
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 19 พฤศจิกายน 2567
-*/
+﻿
 using Microsoft.EntityFrameworkCore;
+using CEMS_Server.Models;
 
 namespace CEMS_Server.AppContext;
-using CEMS_Server.Models;
 
 public partial class CemsContext : DbContext
 {
@@ -22,7 +17,7 @@ public partial class CemsContext : DbContext
 
     public virtual DbSet<CemsApprover> CemsApprovers { get; set; }
 
-    public virtual DbSet<CemsApproverRequistion> CemsApproverRequistions { get; set; }
+    public virtual DbSet<CemsApproverRequisition> CemsApproverRequisitions { get; set; }
 
     public virtual DbSet<CemsCompany> CemsCompanies { get; set; }
 
@@ -41,6 +36,8 @@ public partial class CemsContext : DbContext
     public virtual DbSet<CemsRole> CemsRoles { get; set; }
 
     public virtual DbSet<CemsSection> CemsSections { get; set; }
+
+    public virtual DbSet<CemsStatus> CemsStatuses { get; set; }
 
     public virtual DbSet<CemsUser> CemsUsers { get; set; }
 
@@ -62,7 +59,9 @@ public partial class CemsContext : DbContext
 
             entity.Property(e => e.ApId).HasColumnName("ap_id");
             entity.Property(e => e.ApSequence).HasColumnName("ap_sequence");
-            entity.Property(e => e.ApUsrId).HasColumnName("ap_usr_id");
+            entity.Property(e => e.ApUsrId)
+                .HasMaxLength(10)
+                .HasColumnName("ap_usr_id");
 
             entity.HasOne(d => d.ApUsr).WithMany(p => p.CemsApprovers)
                 .HasForeignKey(d => d.ApUsrId)
@@ -70,11 +69,11 @@ public partial class CemsContext : DbContext
                 .HasConstraintName("fk_approver_user");
         });
 
-        modelBuilder.Entity<CemsApproverRequistion>(entity =>
+        modelBuilder.Entity<CemsApproverRequisition>(entity =>
         {
             entity.HasKey(e => e.AprId).HasName("PRIMARY");
 
-            entity.ToTable("cems_approver_requistion");
+            entity.ToTable("cems_approver_requisition");
 
             entity.HasIndex(e => e.AprApId, "fk_requisition_has_approver_approver_idx");
 
@@ -90,16 +89,18 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.AprName)
                 .HasMaxLength(45)
                 .HasColumnName("apr_name");
-            entity.Property(e => e.AprRqId).HasColumnName("apr_rq_id");
+            entity.Property(e => e.AprRqId)
+                .HasMaxLength(10)
+                .HasColumnName("apr_rq_id");
             entity.Property(e => e.AprStatus)
-                .HasColumnType("enum('waiting','accept')")
+                .HasColumnType("enum('waiting','accept','reject','edit')")
                 .HasColumnName("apr_status");
 
-            entity.HasOne(d => d.AprAp).WithMany(p => p.CemsApproverRequistions)
+            entity.HasOne(d => d.AprAp).WithMany(p => p.CemsApproverRequisitions)
                 .HasForeignKey(d => d.AprApId)
                 .HasConstraintName("fk_requisition_has_approver_approver");
 
-            entity.HasOne(d => d.AprRq).WithMany(p => p.CemsApproverRequistions)
+            entity.HasOne(d => d.AprRq).WithMany(p => p.CemsApproverRequisitions)
                 .HasForeignKey(d => d.AprRqId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
                 .HasConstraintName("fk_requisition_has_approver_requisition");
@@ -194,12 +195,13 @@ public partial class CemsContext : DbContext
 
             entity.HasIndex(e => e.RqVhId, "fk_requisition_vehicle_idx");
 
-            entity.Property(e => e.RqId).HasColumnName("rq_id");
+            entity.Property(e => e.RqId)
+                .HasMaxLength(10)
+                .HasColumnName("rq_id");
             entity.Property(e => e.RqCode)
                 .HasMaxLength(10)
                 .HasColumnName("rq_code");
-            entity.Property(e => e.RqDatePay).HasColumnName("rq_date_pay");
-            entity.Property(e => e.RqDateWithdraw).HasColumnName("rq_date_withdraw");
+            entity.Property(e => e.RqDisburseDate).HasColumnName("rq_disburse_date");
             entity.Property(e => e.RqDistance)
                 .HasMaxLength(45)
                 .HasColumnName("rq_distance");
@@ -213,9 +215,10 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.RqName)
                 .HasMaxLength(45)
                 .HasColumnName("rq_name");
+            entity.Property(e => e.RqPayDate).HasColumnName("rq_pay_date");
             entity.Property(e => e.RqPjId).HasColumnName("rq_pj_id");
             entity.Property(e => e.RqProgress)
-                .HasColumnType("enum('accepting','paying','complate')")
+                .HasColumnType("enum('accepting','paying','complete')")
                 .HasColumnName("rq_progress");
             entity.Property(e => e.RqProof)
                 .HasColumnType("text")
@@ -233,8 +236,11 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.RqStatus)
                 .HasColumnType("enum('sketch','waiting','edit','accept','reject')")
                 .HasColumnName("rq_status");
-            entity.Property(e => e.RqUsrId).HasColumnName("rq_usr_id");
+            entity.Property(e => e.RqUsrId)
+                .HasMaxLength(10)
+                .HasColumnName("rq_usr_id");
             entity.Property(e => e.RqVhId).HasColumnName("rq_vh_id");
+            entity.Property(e => e.RqWithdrawDate).HasColumnName("rq_withdraw_date");
 
             entity.HasOne(d => d.RqPj).WithMany(p => p.CemsRequisitions)
                 .HasForeignKey(d => d.RqPjId)
@@ -294,6 +300,15 @@ public partial class CemsContext : DbContext
                 .HasColumnName("st_name");
         });
 
+        modelBuilder.Entity<CemsStatus>(entity =>
+        {
+            entity
+                .HasNoKey()
+                .ToTable("cems_status");
+
+            entity.Property(e => e.SttStatus).HasColumnName("stt_status");
+        });
+
         modelBuilder.Entity<CemsUser>(entity =>
         {
             entity.HasKey(e => e.UsrId).HasName("PRIMARY");
@@ -314,7 +329,9 @@ public partial class CemsContext : DbContext
 
             entity.HasIndex(e => e.UsrEmail, "usr_email_UNIQUE").IsUnique();
 
-            entity.Property(e => e.UsrId).HasColumnName("usr_id");
+            entity.Property(e => e.UsrId)
+                .HasMaxLength(10)
+                .HasColumnName("usr_id");
             entity.Property(e => e.UsrCpnId).HasColumnName("usr_cpn_id");
             entity.Property(e => e.UsrDptId).HasColumnName("usr_dpt_id");
             entity.Property(e => e.UsrEmail)

@@ -9,27 +9,37 @@ namespace CEMS_Server.DTOs
     //ตัวแปรของเส้น Get
     public class ExpenseGetDto
     {
-        public int RqId { get; set; }
-
-        public string RqUsrName { get; set; } = null!;
+        public required string RqId { get; set; }
+        public string RqName { get; set; } = null!;
 
         public string RqPjName { get; set; } = null!;
 
         public string RqRqtName { get; set; } = null!;
 
-        public string RqVhName { get; set; } = null!;
-        public string RqVhType { get; set; } = null!;
-        public double? RqVhPayrate { get; set; } = null!;
+        public DateOnly RqWithDrawDate { get; set; }
 
+        public string RqStatus { get; set; } = null!;
+
+        public double RqExpenses { get; set; }
+    }
+
+    //ตัวแปรของเส้น GetById for detail
+    public class ExpenseGetByIdDto
+    {
+        public required string RqId { get; set; }
+        public required string RqUsrId { get; set; }
+        public int RqPjId { get; set; }
+        public int RqRqtId { get; set; }
+        public int? RqVhId { get; set; }
+        public string? RqVht { get; set; }
         public string RqName { get; set; } = null!;
+        public string RqUsrName { get; set; } = null!;
+        public DateOnly RqPayDate { get; set; }
 
-        public DateOnly RqDatePay { get; set; }
-
-        public DateOnly RqDateWithdraw { get; set; }
-
+        public DateOnly RqWithDrawDate { get; set; }
         public string? RqCode { get; set; }
 
-        public string? RqInsteadName { get; set; }
+        public string? RqInsteadEmail { get; set; }
 
         public double RqExpenses { get; set; }
 
@@ -50,20 +60,18 @@ namespace CEMS_Server.DTOs
         public string RqProgress { get; set; } = null!;
     }
 
-    //ตัวแปรของเส้น Post และ push
+    //ตัวแปรของเส้น post และ put
     public class ExpenseManageDto
     {
-        public int RqId { get; set; }
-        public int RqUsrId { get; set; }
+        public required string RqUsrId { get; set; }
         public int RqPjId { get; set; }
         public int RqRqtId { get; set; }
         public int? RqVhId { get; set; }
         public string? RqVht { get; set; }
         public string RqName { get; set; } = null!;
-        public string RqUsrName { get; set; } = null!;
-        public DateOnly RqDatePay { get; set; }
+        public DateOnly RqPayDate { get; set; }
 
-        public DateOnly RqDateWithdraw { get; set; }
+        public DateOnly RqWithDrawDate { get; set; }
         public string? RqCode { get; set; }
 
         public string? RqInsteadEmail { get; set; }
@@ -77,8 +85,6 @@ namespace CEMS_Server.DTOs
         public string? RqDistance { get; set; }
 
         public string? RqPurpose { get; set; }
-
-        public string? RqReason { get; set; }
 
         public string? RqProof { get; set; }
 
