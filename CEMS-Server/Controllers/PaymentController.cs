@@ -37,10 +37,53 @@ public class PaymentController : ControllerBase
             .Select(u => new PaymentGetDto
             {
                 RqId = u.RqId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
-                RqPjName = u.RqPj.PjName,
-                RqRqtName = u.RqRqt.RqtName,
-                RqVhName = u.RqVh.VhVehicle,
+                RqUsrName = u.RqUsr != null ? u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName : "",
+                RqPjName = u.RqPj != null ? u.RqPj.PjName : "",
+                RqRqtName = u.RqRqt != null ? u.RqRqt.RqtName : "",
+                RqVhName = u.RqVh != null ? u.RqVh.VhVehicle : "",
+                RqName = u.RqName,
+                RqPayDate = u.RqPayDate,
+                RqWithdrawDate = u.RqWithdrawDate,
+                RqCode = u.RqCode,
+                RqInsteadEmail = u.RqInsteadEmail,
+                RqExpenses = u.RqExpenses,
+                RqStartLocation = u.RqStartLocation,
+                RqEndLocation = u.RqEndLocation,
+                RqDistance = u.RqDistance,
+                RqPurpose = u.RqPurpose,
+                RqReason = u.RqReason,
+                RqProof = u.RqProof,
+                RqStatus = u.RqStatus,
+                RqProgress = u.RqProgress,
+            })
+            .ToListAsync();
+         if (requisition == null)
+        {
+            return NotFound("No payment list found.");
+        }
+
+        return Ok(requisition);
+    }
+    /// <summary>แสดงช้อมูลรายการประวัติการนำจ่าย</summary>
+    /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
+    [HttpGet("History")]
+    public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Include(e => e.RqUsr)
+            .Include(e => e.RqPj)
+            .Include(e => e.RqRqt)
+            .Include(e => e.RqVh)
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "complete")
+            .Select(u => new PaymentGetDto
+            {
+                RqId = u.RqId,
+                RqUsrName = u.RqUsr != null ? u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName : "",
+                RqPjName = u.RqPj != null ? u.RqPj.PjName : "",
+                RqRqtName = u.RqRqt != null ? u.RqRqt.RqtName : "",
+                RqVhName = u.RqVh != null ? u.RqVh.VhVehicle : "",
                 RqName = u.RqName,
                 RqPayDate = u.RqPayDate,
                 RqWithdrawDate = u.RqWithdrawDate,
@@ -58,43 +101,11 @@ public class PaymentController : ControllerBase
             })
             .ToListAsync();
 
-        return Ok(requisition);
-    }
-    /// <summary>แสดงช้อมูลรายการประวัติการนำจ่าย</summary>
-    /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด</returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
-    [HttpGet("History")]
-    public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory()
-    {
-        var requisition = await _context
-            .CemsRequisitions.Include(e => e.RqUsr)
-            .Include(e => e.RqPj)
-            .Include(e => e.RqRqt)
-            .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "accept" && u.RqProgress =="complete") // เพิ่มเงื่อนไข Where
-            .Select(u => new PaymentGetDto
-            {
-                RqId = u.RqId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
-                RqPjName = u.RqPj.PjName,
-                RqRqtName = u.RqRqt.RqtName,
-                RqVhName = u.RqVh.VhVehicle,
-                RqName = u.RqName,
-                RqPayDate = u.RqPayDate,
-                RqWithdrawDate = u.RqWithdrawDate,
-                RqCode = u.RqCode,
-                RqInsteadEmail = u.RqInsteadEmail,
-                RqExpenses = u.RqExpenses,
-                RqStartLocation = u.RqStartLocation,
-                RqEndLocation = u.RqEndLocation,
-                RqDistance = u.RqDistance,
-                RqPurpose = u.RqPurpose,
-                RqReason = u.RqReason,
-                RqProof = u.RqProof,
-                RqStatus = u.RqStatus,
-                RqProgress = u.RqProgress,
-            })
-            .ToListAsync();
+        // ตรวจสอบว่ามีข้อมูลหรือไม่
+        if (requisition == null)
+        {
+            return NotFound("No payment history found.");
+        }
 
         return Ok(requisition);
     }
@@ -114,10 +125,10 @@ public class PaymentController : ControllerBase
             .Select(u => new PaymentGetDto
             {
                 RqId = u.RqId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
-                RqPjName = u.RqPj.PjName,
-                RqRqtName = u.RqRqt.RqtName,
-                RqVhName = u.RqVh.VhVehicle,
+                RqUsrName = u.RqUsr != null ? u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName : "",
+                RqPjName = u.RqPj != null ? u.RqPj.PjName : "",
+                RqRqtName = u.RqRqt != null ? u.RqRqt.RqtName : "",
+                RqVhName = u.RqVh != null ? u.RqVh.VhVehicle : "",
                 RqName = u.RqName,
                 RqPayDate = u.RqPayDate,
                 RqWithdrawDate = u.RqWithdrawDate,
