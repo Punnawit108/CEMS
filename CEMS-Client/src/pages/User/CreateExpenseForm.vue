@@ -1,16 +1,16 @@
 <script setup lang="ts">
 /*
-* ชื่อไฟล์: CreateExpenseForm.vue
-* คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
-* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
-* วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
-*/
+ * ชื่อไฟล์: CreateExpenseForm.vue
+ * คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
+ * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+ * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+ */
 
 import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
-import Icon from '../../components/template/CIcon.vue';
+import Icon from "../../components/template/CIcon.vue";
 
 const requisitionStore = useRequisitionStore();
 
@@ -19,7 +19,6 @@ onMounted(async () => {
   await requisitionStore.getAllRequisitionType();
   await requisitionStore.getAllvehicleType();
 });
-
 
 const rqRqtName = ref(2);
 
@@ -34,16 +33,14 @@ const isAlertSaveOpen = ref(false); // ควบคุมการแสดง A
 const isAlertCancleOpen = ref(false); // ควบคุมการแสดง Alert ยกเลิก
 const isAlertSubmitOpen = ref(false); // ควบคุมการแสดง Alert ยืนยัน
 
-
-
 let formData: any = ref({
   rqName: "",
   rqUsrId: "9999",
   rqPjId: "1",
   rqRqtId: rqRqtName.value.toString(),
   rqVhId: null,
-  rqDatePay: "",
-  rqDateWithdraw: "",
+  rqPayDate: "",
+  rqWithdrawDate: "",
   rqCode: "",
   rqInsteadEmail: "",
   rqExpenses: "",
@@ -113,7 +110,7 @@ const uploadFile = async (file: File) => {
   if (isValidSize) {
     selectedFile.value = file; // เก็บไฟล์ที่ผ่านการตรวจสอบ
     previewUrl.value = URL.createObjectURL(file); // สร้าง URL สำหรับแสดงตัวอย่าง
-    formData.value.rqProof = await convertToBase64(file)
+    formData.value.rqProof = await convertToBase64(file);
   } else {
     alert(
       `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
@@ -143,13 +140,13 @@ const handleSelectChange = () => {
 
 const handleSubmit = async () => {
   formData.value.rqStatus = "waiting";
-  console.log(formData)
+  console.log(formData);
   const data = await requisitionStore.createExpense(formData.value);
-
+  
   if (data) {
-    router.push("/disbursement/listWithdraw")
+    router.push("/disbursement/listWithdraw");
   } else {
-    alert("Something went wrong")
+    alert("Something went wrong");
   }
 };
 
@@ -157,17 +154,16 @@ const handleSave = async () => {
   formData.value.rqStatus = "sketch";
   const data = await requisitionStore.createExpense(formData.value);
   if (data) {
-    router.push("/disbursement/listWithdraw")
+    router.push("/disbursement/listWithdraw");
   } else {
-    alert("Something went wrong")
+    alert("Something went wrong");
   }
 };
 
 const handleCancel = () => {
   // Reset form data or navigate away
-  router.push("/disbursement/listWithdraw")
+  router.push("/disbursement/listWithdraw");
 };
-
 
 // เปิด/ปิด Popup บันทึก ผู้อนุมัติ
 const openPopupSave = () => {
@@ -193,9 +189,8 @@ const closePopupSubmit = () => {
   isPopupSubmitOpen.value = false;
 };
 
-
 // เปิด/ปิด Alert บันทึก
-const confirmSave = async() => {
+const confirmSave = async () => {
   // เปิด Popup Alert
   isAlertSaveOpen.value = true;
   setTimeout(() => {
@@ -205,7 +200,7 @@ const confirmSave = async() => {
 };
 
 // เปิด/ปิด Alert ยกเลิก
-const confirmCancle = async() => {
+const confirmCancle = async () => {
   // เปิด Popup Alert
   isAlertCancleOpen.value = true;
   setTimeout(() => {
@@ -215,7 +210,7 @@ const confirmCancle = async() => {
 };
 
 // เปิด/ปิด Alert ยืนยัน
-const confirmSubmit = async() => {
+const confirmSubmit = async () => {
   // เปิด Popup Alert
   isAlertSubmitOpen.value = true;
   setTimeout(() => {
@@ -223,8 +218,6 @@ const confirmSubmit = async() => {
     closePopupSubmit(); // ปิด Popup แก้ไข
   }, 1500); // 1.5 วินาที
 };
-
-
 </script>
 <template>
   <form @submit.prevent="handleSubmit" class="text-black text-sm">
@@ -267,27 +260,27 @@ const confirmSubmit = async() => {
 
           <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
           <div class="m-4">
-            <label for="rqDatePay" class="block text-sm font-medium py-1"
+            <label for="rqPayDate" class="block text-sm font-medium py-1"
               >วันที่เกิดค่าใช้จ่าย *</label
             >
             <input
               type="text"
-              id="rqDatePay"
-              v-model="formData.rqDatePay"
+              id="rqPayDate"
+              v-model="formData.rqPayDate"
               placeholder="YYYY-MM-DD"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
           <div class="m-4">
-            <label for="rqDateWithdraw" class="block text-sm font-medium py-1"
+            <label for="rqWithdrawDate" class="block text-sm font-medium py-1"
               >วันที่ทำรายการเบิกค่าใช้จ่าย *</label
             >
             <input
               type="text"
-              id="rqDateWithdraw"
+              id="rqWithdrawDate"
               placeholder="YYYY-MM-DD"
-              v-model="formData.rqDateWithdraw"
+              v-model="formData.rqWithdrawDate"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
           </div>
@@ -376,7 +369,9 @@ const confirmSubmit = async() => {
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
                 v-model="requisitionStore.selectedTravelType"
               >
-                <option value=null disabled selected>เลือกประเภทการเดินทาง</option>
+                <option value="null" disabled selected>
+                  เลือกประเภทการเดินทาง
+                </option>
                 <option value="private">ประเภทส่วนตัว</option>
                 <option value="public">ประเภทสาธารณะ</option>
               </select>
@@ -399,7 +394,7 @@ const confirmSubmit = async() => {
                 v-model="formData.rqVhId"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
-                <option value=null selected disabled>เลือกประเภทรถ</option>
+                <option value="null" selected disabled>เลือกประเภทรถ</option>
                 <option
                   v-for="vehicle in requisitionStore.filteredVehicleType"
                   :key="vehicle.vhId.toString()"
@@ -534,17 +529,30 @@ const confirmSubmit = async() => {
       </div>
     </div>
 
-
     <!-- Popup บันทึก -->
-    <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isPopupSaveOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-                        clip-rule="evenodd" />
-                </svg>
+          <svg
+            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd"
+            />
+          </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
           ยืนยันการบันทึกคำขอเบิกค่าใช้จ่าย
@@ -553,12 +561,16 @@ const confirmSubmit = async() => {
           คุณยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button @click="closePopupSave"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="closePopupSave"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยกเลิก
           </button>
-          <button @click="confirmSave"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="confirmSave"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยืนยัน
           </button>
         </div>
@@ -566,15 +578,29 @@ const confirmSubmit = async() => {
     </div>
 
     <!-- Popup ยกเลิก -->
-    <div v-if="isPopupCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isPopupCancleOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-                        clip-rule="evenodd" />
-                </svg>
+          <svg
+            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd"
+            />
+          </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
           ยกเลิกการทำรายการเบิกค่าใช้จ่าย
@@ -583,12 +609,16 @@ const confirmSubmit = async() => {
           คุณยกเลิกการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button @click="closePopupCancle"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="closePopupCancle"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยกเลิก
           </button>
-          <button @click="confirmCancle"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="confirmCancle"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยืนยัน
           </button>
         </div>
@@ -596,15 +626,29 @@ const confirmSubmit = async() => {
     </div>
 
     <!-- Popup ยืนยัน -->
-    <div v-if="isPopupSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isPopupSubmitOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-                        clip-rule="evenodd" />
-                </svg>
+          <svg
+            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd"
+            />
+          </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
           ยืนยันการทำรายการเบิกค่าใช้จ่าย
@@ -613,61 +657,111 @@ const confirmSubmit = async() => {
           คุณยืนยันการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button @click="closePopupSubmit"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="closePopupSubmit"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยกเลิก
           </button>
-          <button @click="confirmSubmit"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="confirmSubmit"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยืนยัน
           </button>
         </div>
       </div>
     </div>
 
-  
     <!-- Alert -->
-  <div v-if="isAlertSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <div class="mb-4">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                        clip-rule="evenodd" />
-                </svg>
+    <div
+      v-if="isAlertSaveOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+      >
+        <div class="mb-4">
+          <svg
+            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="green"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">
+          บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ
+        </h2>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
     </div>
-  </div>
 
-  <div v-if="isAlertCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <div class="mb-4">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                        clip-rule="evenodd" />
-                </svg>
+    <div
+      v-if="isAlertCancleOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+      >
+        <div class="mb-4">
+          <svg
+            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="green"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-3">
+          ยกเลิกการทำรายการเบิกค่าใช้จ่ายสำเร็จ
+        </h2>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mb-3">ยกเลิกการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
     </div>
-  </div>
 
-  <div v-if="isAlertSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <div class="mb-4">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                        clip-rule="evenodd" />
-                </svg>
+    <div
+      v-if="isAlertSubmitOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+      >
+        <div class="mb-4">
+          <svg
+            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="green"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-3">
+          ยืนยันการทำรายการเบิกค่าใช้จ่ายสำเร็จ
+        </h2>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการทำรายการเบิกค่าใช้จ่ายสำเร็จ</h2>
     </div>
-  </div>
-
   </form>
 </template>

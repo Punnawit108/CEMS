@@ -21,9 +21,9 @@ export const useRequisitionStore = defineStore('dropdown', {
         selectedTravelType: null as any, // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
         filteredVehicles: null as any,
         selectedTravel: null as any,
-        selectedVehicleType: null as string | null, 
+        selectedVehicleType: null as string | null,
         // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
-    }), 
+    }),
     getters: {
         // Getter สำหรับกรอง vehicleType
 
@@ -51,6 +51,7 @@ export const useRequisitionStore = defineStore('dropdown', {
                 if (axios.isAxiosError(error)) {
                     console.error('Error fetching todos:', error.message);
                 } else {
+
                     console.error('Unexpected error:', error);
                 }
             }
@@ -124,15 +125,16 @@ export const useRequisitionStore = defineStore('dropdown', {
         * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
         */
         // ฟังก์ชันสำหรับกการputต์ค่าใช้จ่ายใหม่
-        async updateExpense(id: string, CreateExpense: any) {
+        async updateExpense(id: string, UpdateExpense: any) {
             //  CreateExpense.rqStatus = "accept";
-            // console.log(CreateExpense)
+
             try {
                 const result = await axios.put(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`, { CreateExpense });
+                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`,  UpdateExpense );
                 return result.data;
 
             } catch (error) {
+
                 console.log(error)
             }
         },
