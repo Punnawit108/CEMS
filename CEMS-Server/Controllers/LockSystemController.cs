@@ -53,7 +53,8 @@ public class LockSystemController : ControllerBase
         }
 
         // สร้างข้อความตอบกลับตามสถานะที่ถูกตั้ง
-        string message = status.SttLock == 1 ? "ระบบถูกล็อกเรียบร้อยแล้ว" : "ระบบถูกปลดล็อกเรียบร้อยแล้ว";
+        string message =
+            status.SttLock == 1 ? "ระบบถูกล็อกเรียบร้อยแล้ว" : "ระบบถูกปลดล็อกเรียบร้อยแล้ว";
         return Ok(new { Message = message, Status = status.SttLock });
     }
 }

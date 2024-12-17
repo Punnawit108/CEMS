@@ -302,11 +302,12 @@ public partial class CemsContext : DbContext
 
         modelBuilder.Entity<CemsStatus>(entity =>
         {
-            entity
-                .HasNoKey()
-                .ToTable("cems_status");
+            entity.HasKey(e => e.SttId).HasName("PRIMARY");
 
-            entity.Property(e => e.SttStatus).HasColumnName("stt_status");
+            entity.ToTable("cems_status");
+
+            entity.Property(e => e.SttId).HasColumnName("stt_id");
+            entity.Property(e => e.SttLock).HasColumnName("stt_lock");
         });
 
         modelBuilder.Entity<CemsUser>(entity =>
