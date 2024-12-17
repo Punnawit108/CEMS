@@ -59,7 +59,7 @@ public class ApprovalList : ControllerBase
             .Include(e => e.AprRq)
             .Include(e => e.AprAp)
             .Include(e => e.AprAp.ApUsr)
-            .Where(e => e.AprAp.ApUsr.UsrId == id && e.AprStatus == "accept" || e.AprStatus == "reject")
+            .Where(e => e.AprAp.ApUsr.UsrId == id && (e.AprStatus == "accept" || e.AprStatus == "reject"))
             .Select(u => new
             {
                 u.AprRq.RqId,

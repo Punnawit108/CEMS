@@ -152,7 +152,7 @@ const toDetails = async (data: Expense) => {
             <Ctable :table="'Table8-head'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(item, index) in approvalStore.approvalList" :key="item.rqId" class="border-b">
+                    <tr v-for="(item, index) in approvalStore.approvalHistory" :key="item.rqId" class="border-b">
                         <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
                         <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"

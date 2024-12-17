@@ -2,21 +2,32 @@
 /*
 * ชื่อไฟล์: ExpenseReimbursementList.vue
 * คำอธิบาย: ไฟล์นี้แสดงรายการเบิกค่าใช้จ่าย
-* ชื่อผู้เขียน/แก้ไข: นครียา วัฒนศรี
-* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+* ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
 */
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
 import { onMounted, ref } from 'vue';
-import { useExpenseReimbursementList } from '../../store/expenseReimbursementListStore';
+import { useExpenseReimbursement } from '../../store/expenseReimbursement';
 
 const router = useRouter();
-const expenseReimbursementList = useExpenseReimbursementList();
+const expenseReimbursementStore = useExpenseReimbursement();
+const user = ref<any>(null);
 
 onMounted(async () => {
-    await expenseReimbursementList.getAllExpenseReimbursementList();
+    const storedUser = localStorage.getItem("user"); // ดึงข้อมูลผู้ใช้จาก localStorage
+    if (storedUser) {
+        try {
+            user.value = await JSON.parse(storedUser); // แปลงข้อมูลที่ได้จาก JSON String เป็น Object
+        } catch (error) {
+            console.log("Error loading user:", error); // ถ้าล้มเหลวแสดงข้อความ Error 
+        }
+    }
+    if (user) {
+        await expenseReimbursementStore.getAllExpenseReimbursementList(user.value.usrId); // เรียกใช้ฟังก์ชันดึงข้อมูลประวัติการอนุมัติ
+    }
 });
 
 // ไปหน้า detail
@@ -43,7 +54,7 @@ const closeModal = () => {
 const confirmDelete = async () => {
     if (selectedItemId.value !== null) {
         try {
-            await expenseReimbursementList.deleteExpenseReimbursementItem(selectedItemId.value); // ลบรายการ
+            await expenseReimbursementStore.deleteExpenseReimbursementItem(selectedItemId.value); // ลบรายการ
         } catch (error) {
             console.error("Failed to delete item:", error);
         } finally {
@@ -136,22 +147,22 @@ const confirmDelete = async () => {
             <Ctable :table="'Table9-head-New'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(expenseReimbursementList, index) in expenseReimbursementList.expenseReimbursementList"
+                    <tr v-for="(expenseReimbursementList, index) in expenseReimbursementStore.expenseReimbursementList"
                         :key="expenseReimbursementList.rqId" class="text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
-                            :title="expenseReimbursementList.rqUsrName">
-                            {{ expenseReimbursementList.rqUsrName }}
-                        </th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                             :title="expenseReimbursementList.rqName">
                             {{ expenseReimbursementList.rqName }}
                         </th>
-                        <th class="py-[12px] px-5 w-32 text-start font-[100]">
+                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                            :title="expenseReimbursementList.rqPjName">
                             {{ expenseReimbursementList.rqPjName }}
                         </th>
+                        <th class="py-[12px] px-5 w-32 text-start font-[100]">
+                            {{ expenseReimbursementList.rqRqtName }}
+                        </th>
                         <th class="py-[12px] px-2 w-20 text-end">
-                            {{ expenseReimbursementList.rqDatePay }}
+                            {{ expenseReimbursementList.rqWithDrawDate }}
                         </th>
                         <th class="py-[12px] px-2 w-40 text-end">
                             {{ expenseReimbursementList.rqExpenses }}

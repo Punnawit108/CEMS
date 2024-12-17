@@ -4,6 +4,7 @@ import { defineStore } from "pinia";
 export const useApprovalStore = defineStore('approvalList', {
     state: () => ({
         approvalList: [] as any[],
+        approvalHistory: [] as any[]
     }),
     actions: {
         /*
@@ -32,7 +33,7 @@ export const useApprovalStore = defineStore('approvalList', {
         async getApprovalHistory(id: string) {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approvalList/history/${id}`);
-                this.approvalList = result.data;
+                this.approvalHistory = result.data;
             } catch (err) {
                 console.error("เกิดข้อผิดพลาดในการดึงข้อมูลประวัติคำขออนุมัติ:", err);
             }

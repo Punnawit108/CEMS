@@ -33,7 +33,8 @@ onMounted(async () => {
         }
     }
     if (user) {
-        await approvalStore.getApprovalHistory(user.value.usrId); // เรียกใช้ฟังก์ชันดึงข้อมูลประวัติการอนุมัติ
+        console.log(user.value.usrId)
+        await approvalStore.getApprovalList(user.value.usrId); // เรียกใช้ฟังก์ชันดึงข้อมูลประวัติการอนุมัติ
     }
 
 });

@@ -10,7 +10,6 @@ import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
-import Icon from "../../components/template/CIcon.vue";
 
 const requisitionStore = useRequisitionStore();
 
