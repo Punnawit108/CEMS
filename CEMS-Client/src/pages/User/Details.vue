@@ -21,13 +21,11 @@ const isAlertPrintOpen = ref(false); // ควบคุมการแสดง 
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
 
+
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
   expenseData.value = await detailStore.getRequisition(id);
-
 })
-
-console.log(progressData)
 
 
 // FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่
@@ -57,16 +55,31 @@ const colorStatus: { [key: string]: string } = {
   null: "#B6B7BA"
 };
 
-//จำลองผู้ใช้ในระบบ
-const currentUser = {
-  usr_id: 10002,
-  usr_first_name: "Khunpaen",
-  usr_last_name: "Chaiyoet",
+const loadUser = async () => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    try {
+      return JSON.parse(storedUser);
+    } catch (error) {
+      console.log("Error loading user:", error);
+    }
+  }
+  return null;
 };
 
-function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any[] }, user: { usr_first_name: string }) {
+const initializeCurrentUser = async () => {
+  const userData = await loadUser();
+  const currentUser = {
+    usrId: userData.usrId,
+    usrFirstName: userData.usrFirstName,
+    usrLastName: userData.usrLastName,
+  };
+  return currentUser ;
+}
+
+function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any[] }, user: { usrFirstName: string }) {
   const match = progressData.acceptor.find(
-    (acceptor) => acceptor.usrFirstName === user.usr_first_name
+    (acceptor) => acceptor.usrFirstName === user.usrFirstName
   );
   if (!match) {
     return null;
@@ -90,20 +103,21 @@ const formData = reactive<any>({
   rqReason: null
 })
 
-const handleSummit = (status: string) => {
+const handleSummit = async (status: string) => {
+  const currentUser = await initializeCurrentUser();
   const matchedAprId = findAprIdByFirstName(progressData.value, currentUser);
   if (matchedAprId != null) {
     const data = {
       aprId: matchedAprId.aprId,
       aprApId: matchedAprId.aprApId,
-      aprName: currentUser.usr_first_name + " " + currentUser.usr_last_name,
+      aprName: currentUser.usrFirstName + " " + currentUser.usrLastName,
       aprStatus: status,
       rqReason: formData.rqReason
     };
     console.log(data);
     detailStore.updateApprove(data);
     handleHideApproverPopup();
-    //router.push(`/approval/list/`)
+    router.push(`/approval/list/`)
   }
 };
 

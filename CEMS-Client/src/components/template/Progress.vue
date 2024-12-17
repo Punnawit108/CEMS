@@ -8,16 +8,12 @@
 import { defineProps } from "vue";
 
 const props = defineProps(["progressInfo", "colorStatus"]);
-console.log(props)
-console.log(props.progressInfo.disbursement[0]?.rqProgress);
 
 function hasRejectStatus(): { index: number } {
   const index = props.progressInfo.acceptor.findIndex((item: any) => item.aprStatus === "reject" || item.aprStatus ==="edit");
   return { index }; // ส่ง index ออกมา (ถ้าไม่พบจะเป็น -1)
 }
 
-const isDisable = hasRejectStatus()
-console.log(isDisable)
 </script>
 
 <template>
