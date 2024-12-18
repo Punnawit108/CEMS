@@ -30,7 +30,7 @@ export const useDetailStore = defineStore('detailExpense', {
         * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
         * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
         */
-        async getApprover(rqId: Number) {
+        async getApprover(rqId: string) {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approval/progress/${rqId}`);
                 this.approvals = result.data;
@@ -46,7 +46,7 @@ export const useDetailStore = defineStore('detailExpense', {
         * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
         * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
         */
-        async getRequisition(rqId: Number) {
+        async getRequisition(rqId: string) {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/${rqId}`);
                 this.requisition = result.data;
@@ -63,6 +63,18 @@ export const useDetailStore = defineStore('detailExpense', {
                 this.approvalRequisitions = result.data;
                 
                 return this.approvalRequisitions ;
+
+            } catch (error) {
+                console.error("Error fetching approver data:", error);
+            }
+        },
+
+        async updateDisburse(rqId : string) {
+            try {
+                const result = await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/disburse/${rqId}`);
+                this.getRequisition(rqId) ;
+                
+                return result ;
 
             } catch (error) {
                 console.error("Error fetching approver data:", error);
