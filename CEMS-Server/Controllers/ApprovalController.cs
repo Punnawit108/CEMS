@@ -9,7 +9,6 @@ using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
@@ -134,11 +133,13 @@ public class ApprovalController : ControllerBase
         [FromBody] ApprovalSequence approvalSequence
     )
     {
-        // Delete Old Sequence
+        // Find a repeat Sequence
         var approvalBySequence = await _context.CemsApprovers.FirstOrDefaultAsync(e =>
             e.ApSequence == approvalSequence.ApSequence
         );
 
+
+        //Add a Sequence to null sequence
         if(approvalBySequence == null){
             var approver = await _context.CemsApprovers.FindAsync(approvalSequence.ApId);
             approver.ApSequence = approvalSequence.ApSequence;
@@ -147,6 +148,7 @@ public class ApprovalController : ControllerBase
             return Ok();
         }
 
+        // Delete Old Sequence
         approvalBySequence.ApSequence = null;
 
         // Update New Sequence

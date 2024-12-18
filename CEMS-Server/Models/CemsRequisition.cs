@@ -41,6 +41,8 @@ public partial class CemsRequisition
 
     public string? RqProof { get; set; }
 
+    public string? RqDisburser { get; set; }
+
     public string RqStatus { get; set; } = null!;
 
     public string RqProgress { get; set; } = null!;
