@@ -107,7 +107,6 @@ export const useRequisitionStore = defineStore('dropdown', {
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
         async createExpense(CreateExpense: any) {
 
-
             try {
                 const result = await axios.post(
                     `${import.meta.env.VITE_BASE_URL}/api/expense`, CreateExpense);

@@ -84,7 +84,7 @@ namespace CEMS_Server.DTOs
     public class ApprovalSequence
     {
         public int ApId { get; set; }
-        public int ApSequence { get; set; }
+        public int? ApSequence { get; set; }
     }
 
     public class ApproverUpdateDto

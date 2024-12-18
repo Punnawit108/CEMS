@@ -9,6 +9,7 @@ using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing.Internal;
 using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
@@ -138,9 +139,12 @@ public class ApprovalController : ControllerBase
             e.ApSequence == approvalSequence.ApSequence
         );
 
-        if (approvalBySequence == null)
-        {
-            return NotFound($"Approval sequence {approvalSequence.ApSequence} not found.");
+        if(approvalBySequence == null){
+            var approver = await _context.CemsApprovers.FindAsync(approvalSequence.ApId);
+            approver.ApSequence = approvalSequence.ApSequence;
+            _context.CemsApprovers.Update(approver);
+            await _context.SaveChangesAsync();
+            return Ok();
         }
 
         approvalBySequence.ApSequence = null;

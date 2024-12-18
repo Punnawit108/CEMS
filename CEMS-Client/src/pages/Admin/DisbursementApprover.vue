@@ -86,38 +86,23 @@ const closePopupDelete = () => {
 
 
 const confirmAdd = async () => {
-  // เปิด Popup Alert
+
   await approvalStore.addApprovers(selectUserId.value);
-  isAddAlertOpen.value = true;
-  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
-  setTimeout(() => {
-    isAddAlertOpen.value = false; // ปิด Alert
-    closePopupAdd(); // ปิด Popup แก้ไข
-    closePopupConfirmAdd(); // ปิด Popup ยืนยัน
-  }, 1500); // 1.5 วินาที
+  closePopupAdd();
+  closePopupConfirmAdd();
 };
 
 const confirmEdit = async () => {
   await approvalStore.changeSequence(approverSequence);
-  // เปิด Popup Alert
-  isEditAlertOpen.value = true;
-  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
-  setTimeout(() => {
-    isEditAlertOpen.value = false; // ปิด Alert
-    closePopupEdit(); // ปิด Popup แก้ไข
-    closePopupConfirmEdit(); // ปิด Popup ยืนยัน
-  }, 1500); // 1.5 วินาที
+  closePopupEdit(); // ปิด Popup แก้ไข
+  closePopupConfirmEdit(); 
 };
 
 const confirmDelete = async () => {
   // เปิด Popup Alert
   await approvalStore.addApprovers(selectUserId.value);
-  isDeleteAlertOpen.value = true;
-  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
-  setTimeout(() => {
-    isDeleteAlertOpen.value = false; // ปิด Alert
-    closePopupDelete(); // ปิด Popup Delete
-  }, 1500); // 1.5 วินาที
+  closePopupAdd();
+  closePopupConfirmAdd();
 };
 
 // ตรวจสอบ path เมื่อ component โหลด
@@ -247,8 +232,8 @@ onMounted(async () => {
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" :value="user.usrId" v-for="user in userNotRepeatWithApprovers">{{
-                  user.usrFirstName }} {{ user.usrLastName }}</option>
+                <option class="text-black" :value="user.usrId" v-for="user in userNotRepeatWithApprovers">
+                  {{ user.usrFirstName }} {{ user.usrLastName }}</option>
               </select>
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
