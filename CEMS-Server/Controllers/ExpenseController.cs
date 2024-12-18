@@ -252,7 +252,7 @@ public class ExpenseController : ControllerBase
         int newAprId = lastAprId + 1;
 
         /// กำหนดตารางข้อมูลของ AprApId
-        var approverIds = new List<int> { 1, 2, 3 };
+        var approverIds = new List<int> { 1, 3, 7 };
 
         /// Loop สร้างข้อมูลผู้อนุมัติ
         foreach (var approverId in approverIds)
