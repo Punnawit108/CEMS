@@ -14,10 +14,10 @@ import { useDetailStore } from "../../store/detail";
 const route = useRoute();
 const router = useRouter();
 const detailStore = useDetailStore();
-const id = route.params.id.toString();
+
 const isPopupPrintOpen = ref(false); // สำหรับเปิด/ปิด Popup  ส่งออก
 const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
-
+const id = route.params.id.toString();
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
 
@@ -74,7 +74,7 @@ const initializeCurrentUser = async () => {
     usrFirstName: userData.usrFirstName,
     usrLastName: userData.usrLastName,
   };
-  return currentUser ;
+  return currentUser;
 }
 
 function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any[] }, user: { usrFirstName: string }) {

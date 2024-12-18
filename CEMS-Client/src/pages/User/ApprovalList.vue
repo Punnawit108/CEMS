@@ -41,7 +41,7 @@ onMounted(async () => {
 
 // ฟังก์ชันสำหรับเปลี่ยนเส้นทางไปยังหน้ารายละเอียดของรายการที่เลือก
 const toDetails = async (data: Expense) => {
-    router.push(`/approval/history/detail/${data.rqId}`); // นำไปที่ URL: /approval/history/detail/:rqId
+    router.push(`/approval/list/detail/${data.rqId}`); // นำไปที่ URL: /approval/history/detail/:rqId
 };
 </script>
 <!-- path for test = /approval/list -->
