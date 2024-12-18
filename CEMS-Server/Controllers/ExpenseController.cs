@@ -51,7 +51,6 @@ public class ExpenseController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
                 RqStatus = u.RqStatus,
-                RqExpenses = u.RqExpenses
             })
             .ToListAsync();
 
@@ -62,7 +61,7 @@ public class ExpenseController : ControllerBase
     /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
-    [HttpGet("history/{id}")]
+    [HttpGet("History/{id}")]
     public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory(string id)
     {
         var requisition = await _context
@@ -79,7 +78,6 @@ public class ExpenseController : ControllerBase
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
                 RqStatus = u.RqStatus,
-                RqExpenses = u.RqExpenses
             })
             .ToListAsync();
 
