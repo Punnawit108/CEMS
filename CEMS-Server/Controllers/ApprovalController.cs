@@ -48,11 +48,11 @@ public class ApprovalController : ControllerBase
     /// <returns>ช้อมูลการอนุมัติ</returns>
     /// <param name="requisitionId">เลขใบคำขอเบิก</param>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
-    [HttpGet("progress/{requisitionId:int}")]
-    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(string requisitionId)
+    [HttpGet("progress/{rqId}")]
+    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(string rqId)
     {
         var disbursement = await _context
-            .CemsRequisitions.Where(e => e.RqId == requisitionId)
+            .CemsRequisitions.Where(e => e.RqId == rqId)
             .Select(e => new
             {
                 e.RqId,
@@ -64,7 +64,7 @@ public class ApprovalController : ControllerBase
             .ToListAsync();
 
         var acceptor = await _context
-            .CemsApproverRequisitions.Where(e => e.AprRqId == requisitionId)
+            .CemsApproverRequisitions.Where(e => e.AprRqId == rqId)
             .Include(e => e.AprRq)
             .Include(e => e.AprAp)
             .Include(e => e.AprAp.ApUsr)
