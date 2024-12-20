@@ -85,7 +85,6 @@ const handleClickTypeVehicl = () => {
 };
 
 const toggleDivsTypeVehicle = () => {
-  
   isHiddenTypeVehical.value = true;
   isHiddenType.value = false;
 };
@@ -245,7 +244,15 @@ function cancelAddExpense() {
     isAddingExpense.value = false;
   }
 }
+// สร้างสถานะสำหรับประเภทของปุ่มประเภทค่าใช้จ่าย
+const buttonType = ref("btn-expenseTypeGray");
 
+// ฟังก์ชันเพื่อสลับประเภทของปุ่มประเภทค่าใช้จ่าย
+function toggleButtonType() {
+  buttonType.value =
+    buttonType.value === "btn-expenseTypeGray"
+      ? "btn-expenseTypeGrayClick"
+      : "btn-expenseTypeGray";
 
 // ฟังก์ชันสำหรับเปลี่ยนสีแถวและไอคอน
 function toggleGray(index: number) {
@@ -347,21 +354,18 @@ const confirmAddPublictravel = async () => {
     closePopupAddPublictravel(); // ปิด Popup แก้ไข
     closePopupConfirmAddPublictravel(); // ปิด Popup ยืนยัน
   }, 1500); // 1.5 วินาที
-};
-
-
+};}
 </script>
 
 <template>
   <div v-if="!isHiddenExpense">
     <div v-if="!isHiddenPublic">
-      <div v-if="!isHiddenPrivate" class="flex space-x-7 ">
-        <Button :type="'btn-expenseTypeGrayClick'" @click="handleClickTypeVehicl" />
+      <div v-if="!isHiddenPrivate" class="flex space-x-7">
+        <Button :type="'btn-expenseTypeGray'" @click="handleClickTypeVehicl" />
         <Button :type="'btn-transport'" @click="toggleDivsType" />
       </div>
     </div>
   </div>
-
   <div v-if="!isHiddenTypeVehical">
     <div v-if="!isHiddenPublic" class="flex flex-col items-end mb-5">
       <template v-if="!isAddingPrivate">
@@ -712,7 +716,6 @@ const confirmAddPublictravel = async () => {
       </div>
     </div>
   </div>
-
 
   <!-- POPUP +ประเภทค่าใช้จ่าย -->
   <div

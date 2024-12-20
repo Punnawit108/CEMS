@@ -1,6 +1,6 @@
 /*
 * ชื่อไฟล์: RuquisitionTypeController.cs
-* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ RequisitionType ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้ 
+* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ RequisitionType ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้
 * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
@@ -26,14 +26,6 @@ public class RequisitionTypeController : ControllerBase
         _context = context;
     }
 
-    // ดึงข้อมูลทั้งหมดในรูปแบบ List ของ CemsRequisitionType
-    // GET: api/requisitiontype
-    [HttpGet]
-    public ActionResult<IEnumerable<CemsRequisitionType>> GetAll()
-    {
-        return _context.CemsRequisitionTypes.ToList(); // คืนค่าข้อมูลทั้งหมดในตาราง
-    }
-
     // ดึงข้อมูลทั้งหมดในรูปแบบ DTO
     // GET: api/requisitiontype/list
     [HttpGet("list")]
@@ -41,11 +33,10 @@ public class RequisitionTypeController : ControllerBase
     {
         // แปลงข้อมูลในฐานข้อมูลเป็นรูปแบบ DTO และคืนค่ากลับ
         var requisitionTypes = await _context
-            .CemsRequisitionTypes
-            .Select(u => new RequisitionTypeDTO
+            .CemsRequisitionTypes.Select(u => new RequisitionTypeDTO
             {
                 RqtId = u.RqtId,
-                RqtName = u.RqtName
+                RqtName = u.RqtName,
             })
             .ToListAsync();
 
@@ -58,15 +49,13 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
         // สร้างออบเจ็กต์ใหม่จาก DTO
-        var newRequisitionType = new CemsRequisitionType
-        {
-            RqtName = requisitionTypeDto.RqtName
-        };
+        var newRequisitionType = new CemsRequisitionType { RqtName = requisitionTypeDto.RqtName };
 
         _context.CemsRequisitionTypes.Add(newRequisitionType); // เพิ่มข้อมูลลงในบริบท
         await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
 
-        return CreatedAtAction(nameof(GetAll), new { id = newRequisitionType.RqtId }, requisitionTypeDto); // ส่งสถานะ 201 พร้อมข้อมูลที่เพิ่ม
+        return NoContent();
+        //CreatedAtAction(new { id = newRequisitionType.RqtId }, requisitionTypeDto); // ส่งสถานะ 201 พร้อมข้อมูลที่เพิ่ม
     }
 
     // แก้ไขข้อมูลที่มีอยู่
@@ -75,7 +64,7 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> Update(int id, RequisitionTypeDTO requisitionTypeDto)
     {
         // ค้นหาข้อมูลที่ต้องการแก้ไข
-        var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id); 
+        var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
         if (existingRequisitionType == null)
         {
             return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
@@ -95,7 +84,7 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> Delete(int id)
     {
         // ค้นหาข้อมูลที่ต้องการลบ
-        var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id); 
+        var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
         if (existingRequisitionType == null)
         {
             return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
