@@ -5,6 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
+
 import { onMounted, ref } from "vue";
 import { useDashboard } from "../../store/dashboard";
 import { useDashboardDetail } from "../../store/dashboard";
@@ -23,11 +24,11 @@ import {
   CategoryScale,
 } from "chart.js";
 
-
-
+//รับค่า useDashboardDetail จาก store มาเก็บ
 const dashboardDetailStore = useDashboardDetail();
 const user = ref<any>(null);
 
+//ค้นหา user
 const loadUser = async () => {
   const storedUser = localStorage.getItem("user");
   if (storedUser) {
@@ -40,6 +41,7 @@ const loadUser = async () => {
   }
 };
 
+//นำเข้าเครื่องมือกราฟต่างๆ
 Chart.register(
   PieController,
   ArcElement,
@@ -54,25 +56,27 @@ Chart.register(
   ChartDataLabels
 );
 
+//รับค่า useDashboard จาก store เข้ามา
 const dashboardStore = useDashboard();
 const projectData = ref<any>(null);
 
-//const usr_id = 9999 ;
-
+//ประกาศตัวแปร ประเภทค่าใช้จ่าย
 const requisitionType = ref<any>(null);
 const rqtNames: string[] = [];
 const totalRqt: number[] = [];
 
-const totalExpense = ref<any>(null);
+//ประกาศตัวแปร ประเภทยอดรวมค่าใช้จ่าย ตามเดือน
+const totalExpense = ref<any>();
 /*
 1. หา role ของ user ว่าเป็น role อะไร
 2. เขียน if ตรวจสอบการดึง ถ้าเป็น user ธรรมดา จะ get project และ rqt เป็น by id 
 3. ตรงกล่อง 4 อัน อาจสร้าง component ไว้ก่อน
-
 */
 
-// Pie chart
+
 onMounted(async () => {
+
+  //ตรวจสอบว่าเป็น Role user หรือไม่ แล้วเก็บค่าลงตัวแปร
   await loadUser();
   if (user.value) {
     if (user.value?.usrRolName === "User") {
@@ -84,6 +88,7 @@ onMounted(async () => {
       projectData.value = await dashboardStore.getDashboardProject();
       requisitionType.value = await dashboardStore.getDashboardRequisitionType();
     }
+    //วนลูปประเภทค่าใช้จ่าย แล้วเก็บค่าลงในตัวแปร
     requisitionType.value.forEach((item: any) => {
       rqtNames.push(item.rqtName);
       totalRqt.push(item.totalRqt);
