@@ -1,6 +1,6 @@
 /*
 * ชื่อไฟล์: VehicleController.cs
-* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ Vehicle ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้ 
+* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ Vehicle ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้
 * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
@@ -28,11 +28,11 @@ namespace CEMS_Server.Controllers
 
         // ดึงข้อมูลรถทั้งหมด
         // GET: api/Vehicle
-        [HttpGet]
-        public IActionResult GetVehicles()
+        [HttpGet("private")]
+        public IActionResult GetVehiclesPrivate()
         {
             // ดึงข้อมูลจากตาราง CemsVehicles
-            var vehicles = _context.CemsVehicles.ToList();
+            var vehicles = _context.CemsVehicles.Where(v => v.VhType == "private").ToList();
 
             // ตรวจสอบว่ามีข้อมูลหรือไม่
             if (vehicles == null || !vehicles.Any())
@@ -41,13 +41,42 @@ namespace CEMS_Server.Controllers
             }
 
             // แปลงข้อมูลให้เหมาะสมกับการใช้งานบน Frontend
-            var vehicleDetails = vehicles.Select(vehicle => new
+            var vehicleDetails = vehicles
+                .Select(vehicle => new
+                {
+                    Id = vehicle.VhId, // แทนที่ VhId เป็น Id
+                    VehicleType = vehicle.VhType, // แทนที่ VhType เป็น VehicleType
+                    VhName = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
+                    PayRate = vehicle.VhPayrate, // แทนที่ VhPayrate เป็น PayRate
+                })
+                .ToList();
+
+            // ส่งคืนข้อมูลในรูปแบบ JSON
+            return Ok(vehicleDetails);
+        }
+
+        [HttpGet("public")]
+        public IActionResult GetVehiclePublic()
+        {
+            // ดึงข้อมูลจากตาราง CemsVehicles
+            var vehicles = _context.CemsVehicles.Where(v => v.VhType == "public").ToList();
+
+            // ตรวจสอบว่ามีข้อมูลหรือไม่
+            if (vehicles == null || !vehicles.Any())
             {
-                Id = vehicle.VhId,             // แทนที่ VhId เป็น Id
-                VehicleType = vehicle.VhType,   // แทนที่ VhType เป็น VehicleType
-                LicensePlate = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
-                PayRate = vehicle.VhPayrate    // แทนที่ VhPayrate เป็น PayRate
-            }).ToList();
+                return NotFound("No vehicles found."); // ส่งสถานะ 404 พร้อมข้อความ
+            }
+
+            // แปลงข้อมูลให้เหมาะสมกับการใช้งานบน Frontend
+            var vehicleDetails = vehicles
+                .Select(vehicle => new
+                {
+                    Id = vehicle.VhId, // แทนที่ VhId เป็น Id
+                    VehicleType = vehicle.VhType, // แทนที่ VhType เป็น VehicleType
+                    VhName = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
+                    PayRate = vehicle.VhPayrate, // แทนที่ VhPayrate เป็น PayRate
+                })
+                .ToList();
 
             // ส่งคืนข้อมูลในรูปแบบ JSON
             return Ok(vehicleDetails);
@@ -73,7 +102,7 @@ namespace CEMS_Server.Controllers
                 Id = vehicle.VhId,
                 VehicleType = vehicle.VhType,
                 LicensePlate = vehicle.VhVehicle,
-                PayRate = vehicle.VhPayrate
+                PayRate = vehicle.VhPayrate,
             };
 
             // ส่งข้อมูลกลับ
@@ -83,14 +112,20 @@ namespace CEMS_Server.Controllers
         // เพิ่มข้อมูลรถใหม่
         // POST: api/Vehicle
         [HttpPost]
-        public IActionResult CreateVehicle([FromBody] CemsVehicle vehicle)
+        public IActionResult CreateVehicle([FromBody] VehicleDTO vehicleDto)
         {
             // ตรวจสอบว่าข้อมูลที่ส่งมาไม่ถูกต้อง
-            if (vehicle == null)
+            if (vehicleDto == null)
             {
                 return BadRequest("Invalid vehicle data."); // ส่งสถานะ 400
             }
 
+            var vehicle = new CemsVehicle
+            {
+                VhType = vehicleDto.VhType,
+                VhPayrate = vehicleDto.VhPayrate,
+                VhVehicle = vehicleDto.VhVehicle,
+            };
             // เพิ่มข้อมูลใหม่ลงในบริบท
             _context.CemsVehicles.Add(vehicle);
             _context.SaveChanges(); // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล

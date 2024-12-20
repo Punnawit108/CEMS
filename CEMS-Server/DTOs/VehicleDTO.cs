@@ -10,8 +10,7 @@ namespace CEMS_Server.DTOs
     {
         public int VhId { get; set; }
         public string VhType { get; set; } = null!;
-        public string VhVehicle {get; set;} = null!;
-        public double VhPayrate { get; set; }
-        
+        public string VhVehicle { get; set; } = null!;
+        public double? VhPayrate { get; set; }
     }
 }

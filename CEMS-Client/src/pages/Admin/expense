@@ -1,0 +1,11 @@
+   <!-- แถบเนื้อหา -->
+      <div v-for="(expenseTypeRow, index) in expenseType" :key="expenseType.rqtId"
+        class="h-[50px] flex items-center justify-between text-[14px] text-black border-b border-[#BBBBBB]">
+        <p class="w-20 pl-6">{{ index + 1 }}</p>
+        <p class="w-4/5 pl-2">{{ expenseTypeRow.rqtName }} </p>
+        <div class="ml-5 w-52 text-center flex items-center justify-between">
+          <div class="">
+          </div>
+        </div>
+      </div>
+    </div>
