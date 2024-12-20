@@ -289,6 +289,9 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.RqtName)
                 .HasMaxLength(45)
                 .HasColumnName("rqt_name");
+
+            entity.Property(e => e.RqtVisible)
+                .HasColumnName("rqt_visible");
         });
 
         modelBuilder.Entity<CemsRole>(entity =>

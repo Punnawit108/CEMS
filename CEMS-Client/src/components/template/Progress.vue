@@ -14,6 +14,7 @@ function hasRejectStatus(): { index: number } {
   return { index }; // ส่ง index ออกมา (ถ้าไม่พบจะเป็น -1)
 }
 
+
 </script>
 
 <template>

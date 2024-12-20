@@ -79,13 +79,11 @@ const isPopupConfirmAddPublictravelOpen = ref(false); // สำหรับเ�
 const isPublictravelAlertOpen = ref(false); // ควบคุมการแสดง Alert ประเภทรถสาธารณะ
 
 
-
 const handleClickTypeVehicl = () => {
   toggleDivsTypeVehicle();
 };
 
 const toggleDivsTypeVehicle = () => {
-  
   isHiddenTypeVehical.value = true;
   isHiddenType.value = false;
 };
@@ -353,6 +351,7 @@ const confirmAddPublictravel = async () => {
 </script>
 
 <template>
+  
   <div v-if="!isHiddenExpense">
     <div v-if="!isHiddenPublic">
       <div v-if="!isHiddenPrivate" class="flex space-x-7 ">
