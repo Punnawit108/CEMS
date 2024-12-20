@@ -32,15 +32,38 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> GetAllAsDto()
     {
         // แปลงข้อมูลในฐานข้อมูลเป็นรูปแบบ DTO และคืนค่ากลับ
-        var requisitionTypes = await _context.CemsRequisitionTypes.Select(e => new {
+        var requisitionTypes = await _context
+            .CemsRequisitionTypes.Select(e => new
+            {
                 e.RqtId,
                 e.RqtName,
                 e.RqtVisible,
-                
             })
             .ToListAsync();
 
         return Ok(requisitionTypes); // ส่งข้อมูลกลับในรูปแบบ JSON
+    }
+
+    [HttpPut("update/{rqtId}")]
+    public async Task<ActionResult> ToggleVisibility(int rqtId)
+    {
+        var requisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(e =>
+            e.RqtId == rqtId
+        );
+
+        if (requisitionType == null)
+        {
+            return NotFound(new { message = "Requisition type not found." });
+        }
+
+        // สลับค่าของ RqtVisible
+        requisitionType.RqtVisible = requisitionType.RqtVisible == 0 ? 1 : 0;
+
+        // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+        await _context.SaveChangesAsync();
+
+        // ส่งผลลัพธ์กลับไป
+        return Ok();
     }
 
     // เพิ่มข้อมูลใหม่
