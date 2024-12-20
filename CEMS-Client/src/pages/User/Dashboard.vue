@@ -73,9 +73,23 @@ const totalExpense = ref<any>();
 3. ตรงกล่อง 4 อัน อาจสร้าง component ไว้ก่อน
 */
 
+//ตัวแปรเดือน Line chart
+const labels = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 onMounted(async () => {
-
   //ตรวจสอบว่าเป็น Role user หรือไม่ แล้วเก็บค่าลงตัวแปร
   await loadUser();
   if (user.value) {
@@ -95,6 +109,7 @@ onMounted(async () => {
     });
   }
 
+  //Pie Chart
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
   if (ctx) {
     new Chart(ctx, {
@@ -177,27 +192,12 @@ onMounted(async () => {
   } else {
     console.error("Canvas element not found");
   }
-});
 
-// Line chart
-const labels = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
-];
 
-onMounted(async () => {
   await loadUser();
   await totalExpense;
+  
+  //Line chart
   if (totalExpense.value != null) {
     const linechart = document.getElementById("lineChart") as HTMLCanvasElement;
     if (linechart) {
@@ -290,8 +290,9 @@ onMounted(async () => {
     }
   }
 });
-</script>
 
+
+</script>
 <template>
   <!-- path for test = / -->
   <div class="flex flex-col items-center text-center">
