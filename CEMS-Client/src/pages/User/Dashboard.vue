@@ -109,7 +109,7 @@ onMounted(async () => {
     });
   }
 
-  //Pie Chart
+  //Pie
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
   if (ctx) {
     new Chart(ctx, {
@@ -193,9 +193,6 @@ onMounted(async () => {
     console.error("Canvas element not found");
   }
 
-
-  await loadUser();
-  await totalExpense;
   
   //Line chart
   if (totalExpense.value != null) {
