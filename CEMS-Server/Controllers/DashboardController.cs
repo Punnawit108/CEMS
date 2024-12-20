@@ -41,7 +41,7 @@ public class DashboardController : ControllerBase
         // หาค่าคำขอเบิกที่อนุมัติ
         var rqTotalUserComplete = await _context
             .CemsRequisitions.Where(r =>
-                r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id
+                r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id && r.RqDisburseDate != null
             )
             .CountAsync();
 
@@ -55,7 +55,7 @@ public class DashboardController : ControllerBase
         // หาค่ายอดการเบิกจ่ายทั้งหมด
         var rqTotalExpense = await _context
             .CemsRequisitions.Where(r =>
-                r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id
+                r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqUsrId == usr_id && r.RqDisburseDate != null
             )
             .SumAsync(r => r.RqExpenses);
 
@@ -87,6 +87,7 @@ public class DashboardController : ControllerBase
                         && r.RqStatus == "accept"
                         && r.RqProgress == "complete"
                         && r.RqUsrId == usr_id
+                        && r.RqDisburseDate != null
                     )
                     .Sum(r => r.RqExpenses),
             })
@@ -113,6 +114,7 @@ public class DashboardController : ControllerBase
                         && r.RqStatus == "accept"
                         && r.RqProgress == "complete"
                         && r.RqUsrId == usr_id
+                        && r.RqDisburseDate != null
                     )
                     .Sum(r => r.RqExpenses),
             })
@@ -155,17 +157,22 @@ public class DashboardController : ControllerBase
             a.AprName == fullName
         );
 
-        // หายอดรวมของแต่ละรายการที่มีการอนุมัติ
+        //หายอดรวมเบิกจ่ายทั้งหมดของระบบ
         var totalExpenses = await _context
-            .CemsApproverRequisitions.Where(a => a.AprName == fullName)
-            .Join(
-                _context.CemsRequisitions,
-                apr => apr.AprRqId,
-                rq => rq.RqId,
-                (apr, rq) => new { apr, rq }
-            )
-            .Where(e => e.rq.RqStatus == "accept") //อาจต้องเพิ่มเงื่อนไข rqProgress == "Complete"
-            .SumAsync(e => e.rq.RqExpenses);
+        .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqDisburseDate != null)
+            .SumAsync(r => r.RqExpenses);
+
+        // // หายอดรวมของแต่ละรายการที่มีการอนุมัติ (ไม่ได้ใช้)
+        // var totalExpenses = await _context
+        //     .CemsApproverRequisitions.Where(a => a.AprName == fullName)
+        //     .Join(
+        //         _context.CemsRequisitions,
+        //         apr => apr.AprRqId,
+        //         rq => rq.RqId,
+        //         (apr, rq) => new { apr, rq }
+        //     )
+        //     .Where(e => e.rq.RqStatus == "accept" && e.rq.RqStatus == "complete" && e.rq.RqDisburseDate != null) //อาจต้องเพิ่มเงื่อนไข rqProgress == "Complete"
+        //     .SumAsync(e => e.rq.RqExpenses);
 
         var result = new ApproverDashboardSummaryDto
         {
@@ -188,14 +195,14 @@ public class DashboardController : ControllerBase
         var totalActiveUsers = await _context.CemsUsers.CountAsync(u => u.UsrIsActive == (sbyte)1);
 
         // หาค่าคำขอเบิกที่ถูกอนุมัติแล้ว
-        var totalRqAccept = await _context.CemsRequisitions.CountAsync(r => r.RqStatus == "accept");
+        var totalRqAccept = await _context.CemsRequisitions.CountAsync(r => r.RqStatus == "accept" && r.RqDisburseDate != null);
 
         // หาโครงการที่มีอยู่ในระบบทั้งหมด
         var totalProject = await _context.CemsProjects.CountAsync();
 
         // หายอดรวมของแต่ละรายการที่มีการอนุมัติ
         var totalRqAcceptExpense = await _context
-            .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
+            .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqDisburseDate != null)
             .SumAsync(r => r.RqExpenses);
 
         var result = new AdminDashboardSummaryDto
@@ -222,7 +229,7 @@ public class DashboardController : ControllerBase
 
         // หาค่าคำขอเบิกที่ถูกนำจ่ายแล้ว
         var totalRqComplete = await _context.CemsRequisitions.CountAsync(r =>
-            r.RqStatus == "accept" && r.RqProgress == "complete"
+            r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqDisburseDate != null
         );
 
         // หาค่าคำขอทั้งหมดที่อยู่ในสถานะรอนำจ่ายและนำจ่ายแล้ว
@@ -232,7 +239,7 @@ public class DashboardController : ControllerBase
 
         // หายอดรวมของการนำจ่ายสำเร็จ
         var totalRqExpense = await _context
-            .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete")
+            .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqDisburseDate != null)
             .SumAsync(r => r.RqExpenses);
 
         var result = new AccountantDashboardSummaryDto
@@ -262,6 +269,7 @@ public class DashboardController : ControllerBase
                         r.RqPjId == project.PjId
                         && r.RqStatus == "accept"
                         && r.RqProgress == "complete"
+                        && r.RqDisburseDate != null
                     )
                     .Sum(r => r.RqExpenses),
             })
@@ -287,6 +295,7 @@ public class DashboardController : ControllerBase
                         r.RqRqtId == requisitionType.RqtId
                         && r.RqStatus == "accept"
                         && r.RqProgress == "complete"
+                        && r.RqDisburseDate != null
                     )
                     .Sum(r => r.RqExpenses),
             })
