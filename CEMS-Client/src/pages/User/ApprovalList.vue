@@ -9,25 +9,40 @@
 import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
-import { useExpense } from '../../store/expenseStore';
-import { ref, computed, onMounted } from 'vue';
-import { useApprovalStore } from "../../store/approvalList";
+import { useApprovalStore } from '../../store/approvalList';
+import { onMounted, ref } from 'vue';
 import { Expense } from '../../types';
 
-const expense = useExpense(); // ใช้งาน Expense Store เพื่อดึงข้อมูลค่าใช้จ่าย
-const router = useRouter(); // ใช้งาน Router สำหรับการเปลี่ยนหน้า
+// เรียกใช้ ApprovalStore
+const approvalStore = useApprovalStore();
 
+// เรียกใช้ Router
+const router = useRouter();
 
-// เรียกใช้เมื่อ Component ถูก Mount เพื่อโหลดข้อมูลรายการอนุมัติทั้งหมด
-onMounted(() => {
-    expense.getAllApprovalList()
-})
+// สร้างตัวแปร ref สำหรับเก็บข้อมูลผู้ใช้
+const user = ref<any>(null);
 
-// ฟังก์ชันเปลี่ยนหน้าไปยังหน้ารายละเอียดของรายการ
-const toDetails =  (data: Expense) => {
-    router.push(`/approval/list/detail/${data.rqId}`);
-}
+// เมื่อ Component ถูก Mounted ให้ดึงข้อมูลประวัติการอนุมัติสำหรับผู้ใช้ที่ระบุ
+onMounted(async () => {
+    const storedUser = localStorage.getItem("user"); // ดึงข้อมูลผู้ใช้จาก localStorage
+    if (storedUser) {
+        try {
+            user.value = await JSON.parse(storedUser); // แปลงข้อมูลที่ได้จาก JSON String เป็น Object
+        } catch (error) {
+            console.log("Error loading user:", error); // ถ้าล้มเหลวแสดงข้อความ Error 
+        }
+    }
+    if (user) {
+        console.log(user.value.usrId)
+        await approvalStore.getApprovalList(user.value.usrId); // เรียกใช้ฟังก์ชันดึงข้อมูลประวัติการอนุมัติ
+    }
 
+});
+
+// ฟังก์ชันสำหรับเปลี่ยนเส้นทางไปยังหน้ารายละเอียดของรายการที่เลือก
+const toDetails = async (data: Expense) => {
+    router.push(`/approval/list/detail/${data.rqId}`); // นำไปที่ URL: /approval/history/detail/:rqId
+};
 </script>
 <!-- path for test = /approval/list -->
 <template>
@@ -133,33 +148,30 @@ const toDetails =  (data: Expense) => {
 
         <!-- Filter -->
 
-        <div class="w-full border-l-[2px] border-t-[2px] border-r-[2px] border-[#b6b7ba] mt-12">
-            <!-- ตาราง -->
-            <div>
-                <Ctable :table="'Table2-head'" />
-            </div>
-            <table class="w-full">
+        
+        <!-- ตาราง -->
+        <div class="w-full border mt-12">
+            <Ctable :table="'Table2-head'" />
+            <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(expense, index) in expense.expense" :key="expense.rqId"
-                        class=" text-[14px] border-b-2 border-[#BBBBBB] ">
-                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
-                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="{{expense.rqName}}">
-                            {{ expense.rqName }}
+                    <tr v-for="(item, index) in approvalStore.approvalList" :key="item.rqId" class="border-b">
+                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                        <th class="py-[11px] px-1 text-start w-56 truncate overflow-hidden"
+                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            title="Jakkawat Nguancharoen">
+                            {{ item.usrName }}
                         </th>
-                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="{{expense.rqPjName}}">
-                            {{ expense.rqPjName }}
+                        <th class="py-[11px] px-5 text-start w-56 truncate overflow-hidden"
+                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            title="เบิกค่าเดินทาง">
+                            {{ item.rqName }}
                         </th>
-                        <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDateWithdraw }}</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
-                        <th class="py-[10px] px-2 w-32 text-center">
-                            <span class="flex justify-center" v-on:click="toDetails(expense)">
-                                <Icon :icon="'viewDetails'" />
-                            </span>
+                        <th class="py-[11px] px-9 text-start w-56">{{ item.pjName }}</th>
+                        <th class="py-[11px] px-8 text-start w-44">{{ item.rqtName }}</th>
+                        <th class="py-[11px] px-4 text-end w-24">{{ item.rqWithdrawDate }}</th>
+                        <th class="py-[11px] px-7 text-end w-40">{{ item.rqExpenses }}</th>
+                        <th @click="toDetails(item)" class="py-[11px] px-10 w-20">
+                            <Icon :icon="'viewDetails'" />
                         </th>
                     </tr>
                 </tbody>

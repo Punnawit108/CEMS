@@ -8,26 +8,24 @@
 import { ref, computed, onMounted, reactive, watchEffect } from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
-import { useRoute , useRouter } from "vue-router";
+import { useRoute, useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
 
 const route = useRoute();
-const router = useRouter() ;
+const router = useRouter();
 const detailStore = useDetailStore();
-const id = Number(route.params.id);
+
 const isPopupPrintOpen = ref(false); // สำหรับเปิด/ปิด Popup  ส่งออก
 const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
-
+const id = route.params.id.toString();
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
+
 
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
   expenseData.value = await detailStore.getRequisition(id);
-
 })
-
-console.log(progressData)
 
 
 // FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่
@@ -45,10 +43,6 @@ const isPaymentOrHistoryPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list') || route.path.includes('history') && !route.path.includes('approval');
 });
 
-const isEditPath = computed(() => {
-
-});
-
 const colorStatus: { [key: string]: string } = {
   reject: "#E1032B",
   edit: "#FFBE40",
@@ -57,19 +51,35 @@ const colorStatus: { [key: string]: string } = {
   sketch: "#B6B7BA",
   paying: "#1976D2",
   complete: "#12B669",
-  accepting: "#B6B7BA"
+  accepting: "#B6B7BA",
+  null: "#B6B7BA"
 };
 
-//จำลองผู้ใช้ในระบบ
-const currentUser = {
-  usr_id: 10002,
-  usr_first_name: "Khunpaen",
-  usr_last_name: "Khunpaen",
+const loadUser = async () => {
+  const storedUser = localStorage.getItem("user");
+  if (storedUser) {
+    try {
+      return JSON.parse(storedUser);
+    } catch (error) {
+      console.log("Error loading user:", error);
+    }
+  }
+  return null;
 };
 
-function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any[] }, user: { usr_first_name: string }) {
+const initializeCurrentUser = async () => {
+  const userData = await loadUser();
+  const currentUser = {
+    usrId: userData.usrId,
+    usrFirstName: userData.usrFirstName,
+    usrLastName: userData.usrLastName,
+  };
+  return currentUser;
+}
+
+function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any[] }, user: { usrFirstName: string }) {
   const match = progressData.acceptor.find(
-    (acceptor) => acceptor.usrFirstName === user.usr_first_name
+    (acceptor) => acceptor.usrFirstName === user.usrFirstName
   );
   if (!match) {
     return null;
@@ -90,26 +100,31 @@ const handleHideApproverPopup = () => {
 };
 
 const formData = reactive<any>({
-    rqReason : null
+  rqReason: null
 })
 
-const handleSummit = (status : string ) => {
+const handleSummit = async (status: string) => {
+  const currentUser = await initializeCurrentUser();
   const matchedAprId = findAprIdByFirstName(progressData.value, currentUser);
   if (matchedAprId != null) {
     const data = {
-      AprId: matchedAprId.aprId,
-      AprApId: matchedAprId.aprApId,
-      AprName: currentUser.usr_first_name + " " + currentUser.usr_last_name,
-      AprDate: new Date().toISOString(),
-      AprStatus: status,
-      RqReason: formData.rqReason 
+      aprId: matchedAprId.aprId,
+      aprApId: matchedAprId.aprApId,
+      aprName: currentUser.usrFirstName + " " + currentUser.usrLastName,
+      aprStatus: status,
+      rqReason: formData.rqReason
     };
-    console.log(data)
-    detailStore.updateApprove(data)
-    handleHideApproverPopup()
+    console.log(data);
+    detailStore.updateApprove(data);
+    handleHideApproverPopup();
     router.push(`/approval/list/`)
   }
 };
+
+const handleDisburse = () => {
+  detailStore.updateDisburse(expenseData.value.rqId);
+  handleHideApproverPopup();
+}
 
 // เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
 const openPopupPrint = () => {
@@ -121,7 +136,7 @@ const closePopupPrint = () => {
 
 
 // เปิด/ปิด Alert บันทึก
-const confirmPrint = async() => {
+const confirmPrint = async () => {
   // เปิด Popup Alert
   isAlertPrintOpen.value = true;
   setTimeout(() => {
@@ -129,6 +144,20 @@ const confirmPrint = async() => {
     closePopupPrint(); // ปิด Popup แก้ไข
   }, 1500); // 1.5 วินาที
 };
+
+const approveCompleteDate = computed(() => {
+  const target = progressData.value.acceptor.find(
+    (item: any) => item.aprApId == 3
+  );
+  return target ? target.aprDate : null;
+})
+
+const editAprDate = computed(() => {
+  const target = progressData.value.acceptor.find(
+    (item: any) => item.aprStatus == "edit"
+  )
+  return target ? target.aprDate : "";
+})
 
 </script>
 
@@ -146,7 +175,7 @@ const confirmPrint = async() => {
       class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
       <div class="flex justify-between">
         <p class="!text-[#ED0000] font-bold">เหตุผลส่งกลับ :</p>
-        <p class="!text-[#FF0000]">วันที่ส่งกลับ : 11/09/2567</p>
+        <p class="!text-[#FF0000]">{{ editAprDate }}</p>
       </div>
       <p class="!text-[#FF0000]">{{ expenseData.rqReason }}</p>
     </div>
@@ -197,11 +226,11 @@ const confirmPrint = async() => {
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqDatePay }}</p>
+            <p class="item">{{ expenseData?.rqPayDate }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqDateWithdraw }}</p>
+            <p class="item">{{ expenseData?.rqWithDrawDate }}</p>
           </div>
         </div>
 
@@ -223,7 +252,7 @@ const confirmPrint = async() => {
           </div>
           <div v-if="isPaymentOrHistoryPath" class="col">
             <p class="head">วันที่อนุมัติ</p>
-            <p class="item">13/09/2567</p>
+            <p class="item">{{ approveCompleteDate }}</p>
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
@@ -376,16 +405,47 @@ const confirmPrint = async() => {
     </div>
   </div>
 
+  <!-- Popup นำจ่าย -->
+  <div v-if="isApproverPopup === 'pay'"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+      <div class="flex justify-center mb-4">
+        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+          <path fill-rule="evenodd"
+            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+            clip-rule="evenodd" />
+        </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mb-4">
+        ยืนยันการอัปเดตสถานะคำขอเบิก
+      </h2>
+      <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+        คุณยืนยันการอัปเดตสถานะคำขอเบิกหรือไม่ ?
+      </h2>
+      <div class="flex justify-center space-x-4">
+        <button @click="handleHideApproverPopup()"
+          class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          ยกเลิก
+        </button>
+        <button @click="handleDisburse()"
+          class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+
   <!-- Popup ส่งออก -->
   <div v-if="isPopupPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
       <div class="flex justify-center mb-4">
         <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd"
-                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-                      clip-rule="evenodd" />
-              </svg>
+          xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+          <path fill-rule="evenodd"
+            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+            clip-rule="evenodd" />
+        </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mb-4">
         ยืนยันส่งออกคำขอเบิกค่าใช้จ่าย
@@ -408,19 +468,19 @@ const confirmPrint = async() => {
 
 
   <!-- Alert ส่งออก-->
-<div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-  <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-    <div class="mb-4">
-      <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-                  <path fill-rule="evenodd"
-                      d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                      clip-rule="evenodd" />
-              </svg>
+  <div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+      <div class="mb-4">
+        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+          <path fill-rule="evenodd"
+            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+            clip-rule="evenodd" />
+        </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันส่งออกคำขอเบิกค่าใช้จ่ายสำเร็จ</h2>
     </div>
-    <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันส่งออกคำขอเบิกค่าใช้จ่ายสำเร็จ</h2>
   </div>
-</div>
 
   <!-- content -->
 </template>

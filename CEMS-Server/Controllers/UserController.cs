@@ -73,15 +73,19 @@ public class UserController : ControllerBase
     /// <param name="updateDto" > ข้อมูลของผู้ใช้ที่สามารถแก้ไขได้ </param>
     /// <returns> สิทธิ์การดูรายงานและบทบาท </returns>
     /// <remarks> แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย จิรภัทร มณีวงษ์ </remark>
+    /// 
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto updateDto)
+    public async Task<IActionResult> UpdateUserRole(string id, [FromBody] UpdateUserRoleDto updateDto)
     {
         if (updateDto == null)
         {
             return BadRequest("User role data is null.");
         }
 
-        var user = await _context.CemsUsers.FindAsync(id);
+        // ใช้ Include เพื่อโหลด role data ด้วย
+        var user = await _context.CemsUsers
+            .Include(u => u.UsrRol)
+            .FirstOrDefaultAsync(u => u.UsrId == id);
 
         if (user == null)
         {
@@ -89,8 +93,7 @@ public class UserController : ControllerBase
         }
 
         // หา Role จาก RoleName
-        var role =
-            await _context.CemsRoles // เปลี่ยนเป็น CemsRoles ตาม Model
+        var role = await _context.CemsRoles
             .FirstOrDefaultAsync(r => r.RolName == updateDto.UsrRolName);
 
         if (role == null)
@@ -98,11 +101,19 @@ public class UserController : ControllerBase
             return BadRequest($"Role '{updateDto.UsrRolName}' not found");
         }
 
+        // อัพเดตข้อมูล
         user.UsrRol = role;
-        user.UsrIsSeeReport = (sbyte)updateDto.UsrIsSeeReport; // เปลี่ยนกลับเป็น sbyte ตาม Model
+        user.UsrIsSeeReport = (sbyte)updateDto.UsrIsSeeReport;
 
-        _context.CemsUsers.Update(user);
-        await _context.SaveChangesAsync();
+        try 
+        {
+            _context.CemsUsers.Update(user);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"เกิดข้อผิดพลาดในการบันทึกข้อมูล: {ex.Message}");
+        }
 
         return NoContent();
     }

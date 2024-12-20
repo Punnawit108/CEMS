@@ -15,7 +15,7 @@ export interface Expense{
     rqVhName: string;
     rqVhType: string;
     rqVhPayrate: string;
-    rqDatePay: Date;
+    rqPayDate: Date;
     rqDateWithdraw: Date;
     rqCode: string | null;
     rqInsteadName: string | null;
@@ -64,7 +64,7 @@ export interface TravelManage {
 }
 //ตัวแปรผู้ใช้
 export interface User {
-    usrId: number;
+    usrId: string;
     usrEmployeeId: string;
     usrRolName: string;
     usrCpnName: string;
