@@ -424,6 +424,8 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.VhVehicle)
                 .HasMaxLength(45)
                 .HasColumnName("vh_vehicle");
+            entity.Property(e => e.VhVisible)
+                .HasColumnName("vh_visible");
         });
 
         OnModelCreatingPartial(modelBuilder);

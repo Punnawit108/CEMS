@@ -72,7 +72,7 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
         // สร้างออบเจ็กต์ใหม่จาก DTO
-        var newRequisitionType = new CemsRequisitionType { RqtName = requisitionTypeDto.RqtName };
+        var newRequisitionType = new CemsRequisitionType { RqtName = requisitionTypeDto.RqtName,RqtVisible = 1 };
 
         _context.CemsRequisitionTypes.Add(newRequisitionType); // เพิ่มข้อมูลลงในบริบท
         await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล

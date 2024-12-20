@@ -29,6 +29,7 @@ const formData = reactive<any>({
 
 const formRequisitiontype = reactive<any>({
   rqtName: "",
+
 });
 
 // State สำหรับแถวส่วนตัว
@@ -246,15 +247,15 @@ function cancelAddExpense() {
 
 
 // ฟังก์ชันสำหรับเปลี่ยนสีแถวและไอคอน
-function toggleGray(index: number) {
-  privateRows.value[index].isDisabled = !privateRows.value[index].isDisabled;
-  privateRows.value[index].isIconChanged =
-    !privateRows.value[index].isIconChanged;
+async function toggleGray(index: number) {
+  await expenseManageType.changeVehicle(index)
+  vehiclePrivate.value = await expenseManageType.getVehiclePrivate();
+  vehiclePublic.value = await expenseManageType.getVehiclePublic();
 }
-function toggleGray2(index: number) {
-  publicRows.value[index].isDisabled = !publicRows.value[index].isDisabled;
-  publicRows.value[index].isIconChanged =
-    !publicRows.value[index].isIconChanged;
+async function toggleGray2(index: number) {
+  await expenseManageType.changeRequisitionType(index)
+  expenseType.value = await expenseManageType.getRequisitionType();
+
 }
 function toggleGray3(index: number) {
   expenseRows.value[index].isDisabled = !expenseRows.value[index].isDisabled;
@@ -278,7 +279,8 @@ const closePopupConfirmAddExpense = () => {
   isPopupConfirmAddExpenseOpen.value = false;
 };
 const confirmAddExpense = async () => {
-  expenseManageType.createRequisitionType(formRequisitiontype);
+  await expenseManageType.createRequisitionType(formRequisitiontype);
+  expenseType.value = await expenseManageType.getRequisitionType();
 
   // เปิด Popup Alert
   isAddExpenseAlertOpen.value = true;
@@ -308,8 +310,9 @@ const closePopupConfirmAddPrivatecar = () => {
 const confirmAddPrivatecar = async () => {
   // เปิด Popup Alert
   formData.vhType = "private";
-  expenseManageType.createVehicle(formData);
+  await expenseManageType.createVehicle(formData);
   isPrivatecarAlertOpen.value = true;
+  vehiclePrivate.value = await expenseManageType.getVehiclePrivate()
   // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
   setTimeout(() => {
     isPrivatecarAlertOpen.value = false; // ปิด Alert
@@ -336,7 +339,8 @@ const confirmAddPublictravel = async () => {
   // เปิด Popup Alert
   formData.vhType = "public";
   formData.vhPayrate = null;
-  expenseManageType.createVehicle(formData);
+  await expenseManageType.createVehicle(formData);
+  vehiclePublic.value = await expenseManageType.getVehiclePublic()
 
   isPublictravelAlertOpen.value = true;
   // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
@@ -398,30 +402,35 @@ const confirmAddPublictravel = async () => {
           :class="{ 'text-gray-400': item.isDisabled }"
           class="flex items-center justify-between w-full"
         >
-          <div class="flex w-full space-x-4">
-            <p
-              :class="{
-                'text-gray-400': item.isDisabled,
-                'text-black': !item.isDisabled,
-              }"
-              class="px-3 text-sm"
-            >
+        <div class="flex w-full space-x-4">
+            <p class="text-sm px-3 text-grayNormal" v-if="item.vhVisible == 0">
               {{ index + 1 }}
             </p>
-            <p class="text-black px-3 text-sm">{{ item.vhName }}</p>
-          </div>
-
-          <div
-            v-if="!item.isSubmitted"
-            class="flex items-center justify-end w-1/2"
-          >
-            <p class="text-black px-3 text-sm">{{ item.payRate }}</p>
-          </div>
+            <p class="text-sm px-3 text-black" v-if="item.vhVisible == 1">
+              {{ index + 1 }}
+            </p>
+            
+              <p class="text-black px-3 text-sm" v-if="item.vhVisible == 1">
+                {{ item.vhName }}
+              </p>
+              <p class="text-grayNormal px-3 text-sm" v-if="item.vhVisible == 0">
+                {{ item.vhName }}
+              </p>
+            </div>
+            
+              <p class="text-black px-3  w-1/2 text-sm text-right" v-if="item.vhVisible == 1">
+                {{ item.payRate }}
+              </p>
+              <p class="text-grayNormal px-3  w-1/2 text-sm text-right" v-if="item.vhVisible == 0">
+                {{ item.payRate }}
+              </p>
+            
+          
 
           <div class="flex justify-end w-1/4">
-            <button @click="toggleGray(item)" class="px-2 py-1 text-black">
+            <button @click="toggleGray(item.id)" class="px-2 py-1 text-black">
               <div class="flex items-center space-x-1">
-                <template v-if="!item.isIconChanged">
+                <template v-if="item.vhVisible == 1">
                   <svg
                     class="w-[24px] h-[24px] text-gray-800 dark:text-white"
                     aria-hidden="true"
@@ -512,19 +521,17 @@ const confirmAddPublictravel = async () => {
           class="flex items-center justify-between w-full"
         >
           <div class="flex w-full space-x-4">
-            <p
-              :class="[
-                {
-                  'text-gray-400': item.isDisabled,
-                  'text-black': !item.isDisabled,
-                },
-                'text-sm px-3', // เพิ่มคลาส text-sm ที่นี่
-              ]"
-            >
+            <p class="text-sm px-3 text-grayNormal" v-if="item.vhVisible == 0">
+              {{ index + 1 }}
+            </p>
+            <p class="text-sm px-3 text-black" v-if="item.vhVisible == 1">
               {{ index + 1 }}
             </p>
             <div v-if="!item.isSubmitted">
-              <p class="text-black px-3 text-sm">
+              <p class="text-black px-3 text-sm" v-if="item.vhVisible == 1">
+                {{ item.vhName }}
+              </p>
+              <p class="text-grayNormal px-3 text-sm" v-if="item.vhVisible == 0">
                 {{ item.vhName }}
               </p>
             </div>
@@ -541,9 +548,10 @@ const confirmAddPublictravel = async () => {
             </div>
           </div>
           <div class="flex justify-end w-1/4">
-            <button @click="toggleGray2(index)" class="px-2 py-1 text-black">
+            <button @click="toggleGray(item.id)" class="px-2 py-1 text-black">
               <div class="flex items-center space-x-1">
-                <template v-if="!item.isIconChanged">
+                <template v-if="item.vhVisible == 1">
+
                   <svg
                     class="w-[24px] h-[24px] text-gray-800 dark:text-white"
                     aria-hidden="true"
@@ -627,30 +635,28 @@ const confirmAddPublictravel = async () => {
         class="flex flex-col space-y-4"
       >
         <div
-          :class="{ 'text-gray-400': item.isDisabled }"
+          :class="{ 'text-gray-400': item.rqtVisible == 0 }"
           class="flex items-center justify-between w-full"
         >
           <div class="flex w-full space-x-4">
-            <p
-              :class="[
-                {
-                  'text-gray-400': item.isDisabled,
-                  'text-black': !item.isDisabled,
-                },
-                'text-sm px-3', // เพิ่มคลาส text-sm ที่นี่
-              ]"
-            >
+            <p class="text-sm px-3 text-grayNormal" v-if="item.rqtVisible == 0">
+              {{ index + 1 }}
+            </p>
+            <p class="text-sm px-3 text-black" v-if="item.rqtVisible == 1">
               {{ index + 1 }}
             </p>
             <div v-if="!item.isSubmitted">
-              <p class="text-black px-3 text-sm">
+              <p class="text-black px-3 text-sm" v-if="item.rqtVisible == 1">
+                {{ item.rqtName }}
+              </p>
+              <p class="text-grayNormal px-3 text-sm" v-if="item.rqtVisible == 0">
                 {{ item.rqtName }}
               </p>
             </div>
             <div v-else>
               <p
                 :class="{
-                  'text-gray-400': item.isDisabled,
+                  'text-gray-400': item.rqtVisible == 0,
                   'text-black': !item.isDisabled,
                 }"
                 class="text-sm"
@@ -660,11 +666,11 @@ const confirmAddPublictravel = async () => {
             </div>
           </div>
           <div class="flex justify-end w-1/4">
-            <button @click="toggleGray2(index)" class="px-2 py-1 text-black">
+            <button @click="toggleGray2(item.rqtId)" class="px-2 py-1 text-black">
               <div class="flex items-center space-x-1">
-                <template v-if="!item.isIconChanged">
+                <template v-if="item.rqtVisible == 1">
                   <svg
-                    class="w-[24px] h-[24px] text-gray-800 dark:text-white"
+                    class="w-[24px] h-[24px] text-gray-800 dark:text-black"
                     aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg"
                     width="24"
@@ -961,7 +967,7 @@ const confirmAddPublictravel = async () => {
     </div>
   </div>
 
-  <!-- POPUP +ประเภทรถส่วนตัว -->
+  <!-- POPUP +ประเภทรถสาธารณะ -->
   <div
     v-if="isPopupAddPublictravelOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
