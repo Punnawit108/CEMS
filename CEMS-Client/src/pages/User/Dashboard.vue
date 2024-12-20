@@ -80,9 +80,9 @@ onMounted(async () => {
   await loadUser();
   if (user.value) {
     if (user.value?.usrRolName === "User") {
+      totalExpense.value = await dashboardStore.getDashboardTotalExpenseById(user.value.usrId);
       projectData.value = await dashboardStore.getDashboardProjectById(user.value.usrId);
       requisitionType.value = await dashboardStore.getDashboardRequisitionTypeById(user.value.usrId);
-      totalExpense.value = await dashboardStore.getDashboardTotalExpenseById(user.value.usrId);
     } else {
       totalExpense.value = await dashboardStore.getDashboardTotalExpense();
       projectData.value = await dashboardStore.getDashboardProject();
@@ -94,9 +94,6 @@ onMounted(async () => {
       totalRqt.push(item.totalRqt);
     });
   }
-
-
-
 
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
   if (ctx) {
@@ -198,98 +195,99 @@ const labels = [
   "December",
 ];
 
-onMounted(async() => {
+onMounted(async () => {
   await loadUser();
   await totalExpense;
-  
-  const linechart = document.getElementById("lineChart") as HTMLCanvasElement;
-  if (linechart) {
-    new Chart(linechart, {
-      type: "line",
-      data: {
-        labels: labels,
-        datasets: [
-          {
-            label: "ยอดรวมการเบิกจ่าย (บาท)",
-            data: totalExpense.value[0].totalExpense,
-            fill: false,
-            borderColor: "#8979FF",
-            backgroundColor: "white",
-            borderWidth: 2,
-            tension: 0.4,
-            datalabels: {
-              align: "top",
-              anchor: "center",
-              color: "rgba(0, 0, 0, 0.7)", // ตัวอักษรสีจาง
-              font: {
-                weight: "normal",
-                size: 10,
-                family: "Sarabun",
+  if (totalExpense.value != null) {
+    const linechart = document.getElementById("lineChart") as HTMLCanvasElement;
+    if (linechart) {
+      new Chart(linechart, {
+        type: "line",
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: "ยอดรวมการเบิกจ่าย (บาท)",
+              data: totalExpense.value[0].totalExpense,
+              fill: false,
+              borderColor: "#8979FF",
+              backgroundColor: "white",
+              borderWidth: 2,
+              tension: 0.4,
+              datalabels: {
+                align: "top",
+                anchor: "center",
+                color: "rgba(0, 0, 0, 0.7)", // ตัวอักษรสีจาง
+                font: {
+                  weight: "normal",
+                  size: 10,
+                  family: "Sarabun",
+                },
               },
             },
-          },
-        ],
-      },
-      options: {
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            ticks: {
-              font: {
-                size: 12,
+          ],
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                font: {
+                  size: 12,
+                },
               },
             },
-          },
 
-          x: {
-            beginAtZero: true,
-            ticks: {
-              font: {
-                size: 12,
+            x: {
+              beginAtZero: true,
+              ticks: {
+                font: {
+                  size: 12,
+                },
+              },
+            },
+          },
+          layout: {
+            padding: {
+              left: 20,
+              right: 20,
+              top: 20,
+              bottom: 20,
+            },
+          },
+          plugins: {
+            tooltip: {
+              enabled: true,
+              mode: "index",
+              intersect: false,
+              // callbacks: {
+              //   label: (tooltipItem) => {
+              //     return `ยอดเบิกจ่าย: ${tooltipItem.raw}`;
+              //   },
+              // },
+            },
+            legend: {
+              position: "bottom",
+              align: "center",
+              labels: {
+                padding: 16,
+                usePointStyle: true,
+                pointStyle: "line",
+                boxHeight: 16,
+                boxWidth: 16,
+                font: {
+                  size: 14,
+                  weight: "bold",
+                  family: "Sarabun",
+                },
               },
             },
           },
         },
-        layout: {
-          padding: {
-            left: 20,
-            right: 20,
-            top: 20,
-            bottom: 20,
-          },
-        },
-        plugins: {
-          tooltip: {
-            enabled: true,
-            mode: "index",
-            intersect: false,
-            // callbacks: {
-            //   label: (tooltipItem) => {
-            //     return `ยอดเบิกจ่าย: ${tooltipItem.raw}`;
-            //   },
-            // },
-          },
-          legend: {
-            position: "bottom",
-            align: "center",
-            labels: {
-              padding: 16,
-              usePointStyle: true,
-              pointStyle: "line",
-              boxHeight: 16,
-              boxWidth: 16,
-              font: {
-                size: 14,
-                weight: "bold",
-                family: "Sarabun",
-              },
-            },
-          },
-        },
-      },
-    });
+      });
+    }
   }
 });
 </script>
