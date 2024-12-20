@@ -6,7 +6,7 @@
 * วันที่จัดทำ/แก้ไข: 18 ธันวาคม 2567
 */
 
-import { computed, ref, onMounted, onUnmounted } from 'vue';
+import { computed, ref, watch } from 'vue';
 import { User, Project, ExpenseManage } from '../../types';
 import SingleDatePicker from '../template/SingleDatePicker.vue';
 
@@ -56,7 +56,7 @@ const props = withDefaults(defineProps<Props>(), {
 
 const emit = defineEmits<Emits>();
 
-// Original filter computed properties and methods
+// Filter computed properties
 const departments = computed(() => {
     const depts = new Set(props.users.map(user => user.usrDptName));
     return Array.from(depts).sort();
@@ -72,7 +72,7 @@ const roles = computed(() => {
     return Array.from(roles).sort();
 });
 
-// Date filter functionality
+// Date filter state
 const startDate = ref(new Date());
 const endDate = ref(new Date());
 const tempStartDate = ref(new Date());
@@ -82,22 +82,21 @@ const tempEndDate = ref(new Date());
 const startPickerOpen = ref(false);
 const endPickerOpen = ref(false);
 
+// Watch for date changes
+watch([startDate, endDate], ([newStartDate, newEndDate]) => {
+    emit('dateFilter', newStartDate, newEndDate);
+});
+
 // Date handlers
 const handleDateConfirm = (type: 'start' | 'end', confirmedDate: Date) => {
     if (type === 'start') {
         startDate.value = confirmedDate;
         startPickerOpen.value = false;
-        // Close end picker if open
         endPickerOpen.value = false;
     } else {
         endDate.value = confirmedDate;
         endPickerOpen.value = false;
-        // Close start picker if open
         startPickerOpen.value = false;
-    }
-
-    if (startDate.value && endDate.value) {
-        emit('dateFilter', startDate.value, endDate.value);
     }
 };
 
@@ -111,7 +110,7 @@ const handleDateCancel = (type: 'start' | 'end') => {
     }
 };
 
-// Original update methods
+// Update methods
 const updateSearchTerm = (event: Event) => {
     const target = event.target as HTMLInputElement;
     emit('update:searchTerm', target.value);
@@ -242,7 +241,7 @@ const updateRequisitionType = (event: Event) => {
                         <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
                     </select>
                     <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg width="13"height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <svg width="13" height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
                                 d="M7.2071 7.2071C6.8166 7.5976 6.1834 7.5976 5.7929 7.2071L0.79289 2.20711C0.40237 1.81658 0.40237 1.18342 0.79289 0.79289C1.18342 0.40237 1.81658 0.40237 2.20711 0.79289L6.5 5.0858L10.7929 0.79289C11.1834 0.40237 11.8166 0.40237 12.2071 0.79289C12.5976 1.18342 12.5976 1.81658 12.2071 2.20711L7.2071 7.2071Z"
                                 fill="black" />
