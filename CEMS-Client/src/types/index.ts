@@ -53,7 +53,7 @@ export interface ApproverRequisition {
 export interface ExpenseManage{
     rqtId?: number;
     rqtName: string;
-    
+    rqtVisible: number
 }
 //ตัวแปรประเภทการเดินทาง
 export interface TravelManage {

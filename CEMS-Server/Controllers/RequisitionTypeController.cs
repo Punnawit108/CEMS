@@ -29,18 +29,41 @@ public class RequisitionTypeController : ControllerBase
     // ดึงข้อมูลทั้งหมดในรูปแบบ DTO
     // GET: api/requisitiontype/list
     [HttpGet("list")]
-    public async Task<ActionResult<IEnumerable<RequisitionTypeDTO>>> GetAllAsDto()
+    public async Task<ActionResult> GetAllAsDto()
     {
         // แปลงข้อมูลในฐานข้อมูลเป็นรูปแบบ DTO และคืนค่ากลับ
         var requisitionTypes = await _context
-            .CemsRequisitionTypes.Select(u => new RequisitionTypeDTO
+            .CemsRequisitionTypes.Select(e => new
             {
-                RqtId = u.RqtId,
-                RqtName = u.RqtName,
+                e.RqtId,
+                e.RqtName,
+                e.RqtVisible,
             })
             .ToListAsync();
 
         return Ok(requisitionTypes); // ส่งข้อมูลกลับในรูปแบบ JSON
+    }
+
+    [HttpPut("update/{rqtId}")]
+    public async Task<ActionResult> ToggleVisibility(int rqtId)
+    {
+        var requisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(e =>
+            e.RqtId == rqtId
+        );
+
+        if (requisitionType == null)
+        {
+            return NotFound(new { message = "Requisition type not found." });
+        }
+
+        // สลับค่าของ RqtVisible
+        requisitionType.RqtVisible = requisitionType.RqtVisible == 0 ? 1 : 0;
+
+        // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+        await _context.SaveChangesAsync();
+
+        // ส่งผลลัพธ์กลับไป
+        return Ok();
     }
 
     // เพิ่มข้อมูลใหม่
@@ -49,7 +72,7 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
         // สร้างออบเจ็กต์ใหม่จาก DTO
-        var newRequisitionType = new CemsRequisitionType { RqtName = requisitionTypeDto.RqtName };
+        var newRequisitionType = new CemsRequisitionType { RqtName = requisitionTypeDto.RqtName,RqtVisible = 1 };
 
         _context.CemsRequisitionTypes.Add(newRequisitionType); // เพิ่มข้อมูลลงในบริบท
         await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล

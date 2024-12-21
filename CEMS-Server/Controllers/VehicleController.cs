@@ -48,6 +48,7 @@ namespace CEMS_Server.Controllers
                     VehicleType = vehicle.VhType, // แทนที่ VhType เป็น VehicleType
                     VhName = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
                     PayRate = vehicle.VhPayrate, // แทนที่ VhPayrate เป็น PayRate
+                    VhVisible = vehicle.VhVisible
                 })
                 .ToList();
 
@@ -75,6 +76,7 @@ namespace CEMS_Server.Controllers
                     VehicleType = vehicle.VhType, // แทนที่ VhType เป็น VehicleType
                     VhName = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
                     PayRate = vehicle.VhPayrate, // แทนที่ VhPayrate เป็น PayRate
+                    VhVisible = vehicle.VhVisible
                 })
                 .ToList();
 
@@ -125,6 +127,7 @@ namespace CEMS_Server.Controllers
                 VhType = vehicleDto.VhType,
                 VhPayrate = vehicleDto.VhPayrate,
                 VhVehicle = vehicleDto.VhVehicle,
+                VhVisible = 1
             };
             // เพิ่มข้อมูลใหม่ลงในบริบท
             _context.CemsVehicles.Add(vehicle);
@@ -137,14 +140,9 @@ namespace CEMS_Server.Controllers
         // อัปเดตข้อมูลรถ
         // PUT: api/Vehicle/5
         [HttpPut("{id}")]
-        public IActionResult UpdateVehicle(int id, [FromBody] CemsVehicle vehicle)
+        public IActionResult UpdateVehicle(int id)
         {
-            // ตรวจสอบความถูกต้องของข้อมูล
-            if (vehicle == null || id != vehicle.VhId)
-            {
-                return BadRequest("Vehicle data is invalid."); // ส่งสถานะ 400
-            }
-
+            
             // ค้นหาข้อมูลที่ต้องการแก้ไข
             var existingVehicle = _context.CemsVehicles.FirstOrDefault(v => v.VhId == id);
             if (existingVehicle == null)
@@ -152,10 +150,7 @@ namespace CEMS_Server.Controllers
                 return NotFound($"Vehicle with ID {id} not found."); // ส่งสถานะ 404
             }
 
-            // อัปเดตข้อมูลในออบเจ็กต์ที่ค้นพบ
-            existingVehicle.VhType = vehicle.VhType;
-            existingVehicle.VhVehicle = vehicle.VhVehicle;
-            existingVehicle.VhPayrate = vehicle.VhPayrate;
+            existingVehicle.VhVisible = existingVehicle.VhVisible == 0 ? 1 : 0;
 
             // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
             _context.SaveChanges();
