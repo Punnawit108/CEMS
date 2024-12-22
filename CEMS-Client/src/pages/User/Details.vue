@@ -62,9 +62,9 @@ const colorStatus: { [key: string]: string } = {
 
 //จำลองผู้ใช้ในระบบ
 const currentUser = {
-  usr_id: 10002,
-  usr_first_name: "Khunpaen",
-  usr_last_name: "Khunpaen",
+  usr_id: 9999,
+  usr_first_name: "Pongsatorn",
+  usr_last_name: "Boonyama",
 };
 
 function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any[] }, user: { usr_first_name: string }) {
@@ -105,9 +105,9 @@ const handleSummit = (status : string ) => {
       RqReason: formData.rqReason 
     };
     console.log(data)
-    detailStore.updateApprove(data)
+    //detailStore.updateApprove(data)
     handleHideApproverPopup()
-    router.push(`/approval/list/`)
+    //router.push(`/approval/list/`)
   }
 };
 

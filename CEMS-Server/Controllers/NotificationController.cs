@@ -31,13 +31,14 @@ public class NotificationController : ControllerBase
     /// <returns>ข้อมูลการแจ้งเตือนของระบบ</returns>
     /// <remarks>แก้ไขล่าสุด: 2 ธันวาคม 2567 โดย นายศตวรรษ ไตรธิเลน</remark>
 
-    [HttpGet("list")]
-    public async Task<ActionResult<IEnumerable<NotificationGetDto>>> GetNotificationList()
+    [HttpGet("list/{usr_id}")]
+    public async Task<ActionResult<IEnumerable<NotificationGetDto>>> GetNotificationList(string usr_id)
     {
         var notification = await _context
             .CemsNotifications.Include(e => e.NtApr) //เชื่อมตาราง Noti
             .Include(e => e.NtApr.AprRq)             //เชื่อมตาราง approver_requisition
             .Include(e => e.NtApr.AprRq.RqPj)        //เชื่อมตาราง requisition
+            .Where(e => e.NtApr.AprRq.RqUsrId == usr_id)
             .Select(u => new NotificationGetDto
             {
                 NtId = u.NtId,                              //รหัสแจ้งเตือน

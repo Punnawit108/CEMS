@@ -5,8 +5,8 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
 */
-import { ref,computed } from 'vue';
-import { useNotificationStore  } from '../../store/notification';
+import { ref, computed } from 'vue';
+import { useNotificationStore } from '../../store/notification';
 import { onMounted } from 'vue';
 import CardNotification from '../../components/template/CardNotification.vue';
 
@@ -19,11 +19,39 @@ let filterNotification = ref("All")
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
 */
+
 const notificationStore = useNotificationStore();
 
-onMounted(async ()  =>{
-    await notificationStore.loadNotifications() ; 
-    notificationStore.initSignalR();
+// const user = ref<any>(null);
+// onMounted(async () => {
+//     const storedUser = localStorage.getItem("user");
+//     if (storedUser) {
+//         try {
+//             user.value = await JSON.parse(storedUser);
+//         } catch (error) {
+//             console.log("Error loading user:", error);
+//         }
+//     }
+//     if (user) {
+//         await paymentHistory.getAllPaymentHistory(user.value.usrId);
+//     }
+// }
+
+const user = ref<any>(null);
+onMounted(async () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+        try {
+            user.value = await JSON.parse(storedUser);
+        } catch (error) {
+            console.log("Error loading user:", error);
+        }
+    }
+    if (user) {
+        user.value = await notificationStore.loadNotifications(user.value.usrId);
+        notificationStore.initSignalR(user.value.usrId);    
+        console.log(user)
+    }
 })
 
 const clickAllNotification = ref(true);
@@ -90,7 +118,7 @@ const filteredNotifications = computed(() => {
             <ul
                 class="flex flex-wrap gap-4 self-stretch py-2 pr-20 pl-2 my-auto text-sm leading-snug w-[1136px] max-md:pr-5 max-md:max-w-full">
                 <li>
-                    <button @click="toggleAllNotification" 
+                    <button @click="toggleAllNotification"
                         :class="['flex px-4 py-1.5 bg-white rounded-3xl border border-solid', clickAllNotification ? 'border-red-600 text-red-600' : 'border-neutral-400 text-neutral-500 text-opacity-80']">
                         <svg :style="{ fill: clickAllNotification ? 'red' : '#777777' }" width="18" height="17"
                             viewBox="0 0 18 17" xmlns="http://www.w3.org/2000/svg">
@@ -131,10 +159,10 @@ const filteredNotifications = computed(() => {
 
                 </li>
             </ul>
-                
+
         </nav>
         <article class="flex flex-col border border-solid border-zinc-400">
-            <CardNotification  v-if="filteredNotifications !== null" :notificationInfo="filteredNotifications" />
+            <CardNotification v-if="filteredNotifications !== null" :notificationInfo="filteredNotifications" />
 
             <footer
                 class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-zinc-400 min-h-[56px] max-md:max-w-full">

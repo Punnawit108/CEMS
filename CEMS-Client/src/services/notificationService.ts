@@ -36,7 +36,7 @@ export const onNotificationReceived = (callback: () => void) => {
 };
 
 // API สำหรับดึงการแจ้งเตือนจาก Backend
-export const fetchNotifications = async () => {
-    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/notification/list`); // เปลี่ยน URL ให้ถูกต้อง
+export const fetchNotifications = async (usrId : string) => {
+    const response = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/notification/list/${usrId}`); // เปลี่ยน URL ให้ถูกต้อง
     return response.data;
 };

@@ -21,18 +21,18 @@ export const useNotificationStore = defineStore('notificationStore', () => {
     const notifications = ref<Array<any>>([]);
 
     // โหลดข้อมูลการแจ้งเตือน
-    const loadNotifications = async () => {
-        const fetchedNotifications = await fetchNotifications();
+    const loadNotifications = async (usrId : string) => {
+        const fetchedNotifications = await fetchNotifications(usrId);
         notifications.value = fetchedNotifications;
     };
 
     // เชื่อมต่อ SignalR
-    const initSignalR = async () => {
+    const initSignalR = async (usrId : string) => {
         await startHubConnection();
 
         // รอ Event เมื่อมีการแจ้งเตือนใหม่
         onNotificationReceived(async () => {
-            await loadNotifications(); // อัปเดตข้อมูลแจ้งเตือนใหม่
+            await loadNotifications(usrId); // อัปเดตข้อมูลแจ้งเตือนใหม่
         });
     };
 
