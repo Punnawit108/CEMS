@@ -1,0 +1,57 @@
+@model IEnumerable<dynamic>
+
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Exported Expense Data</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            font-size: 12px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 8px;
+            border: 1px solid #000;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        td {
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Exported Expense Data</h1>
+    <table>
+        <thead>
+            <tr>
+                <th>ลำดับ</th>
+                <th>รายการเบิก</th>
+                <th>โครงการ</th>
+                <th>ประเภทค่าใช้จ่าย</th>
+                <th>วันที่ขอเบิก</th>
+                <th>จำนวนเงิน</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Select((value, index) => new { index, value }))
+            {
+                <tr>
+                    <td>@(item.index + 1)</td>
+                    <td>@item.value.UserFullName</td>
+                    <td>@item.value.RqPjName</td>
+                    <td>@item.value.RqRqtName</td>
+                    <td>@item.value.RqPayDate.ToString("dd/MM/yyyy")</td>
+                    <td>@item.value.RqExpenses.ToString("N2")</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</body>
+</html>

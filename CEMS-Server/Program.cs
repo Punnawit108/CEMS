@@ -1,7 +1,8 @@
 using QuestPDF.Infrastructure;
 using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
-
+using DinkToPdf; // เพิ่ม namespace นี้
+using DinkToPdf.Contracts; // สำหรับการใช้งาน IConverter
 var builder = WebApplication.CreateBuilder(args);
 
 // ตั้งค่าลิขสิทธิ์ด้วย LicenseType
@@ -15,7 +16,9 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<GetDataExport>();
 builder.Services.AddScoped<PdfService>();
-
+builder.Services.AddControllers();
+builder.Services.AddSingleton<ITools, PdfTools>();  // ใช้ PdfTools แทน Tools
+builder.Services.AddSingleton<IConverter, BasicConverter>(); 
 // ตั้งค่า CORS
 builder.Services.AddCors(options =>
 {
@@ -27,7 +30,7 @@ builder.Services.AddCors(options =>
     });
 });
 
-// ตั้งค่า MySQL connection
+
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (connectionString != null)
 {
