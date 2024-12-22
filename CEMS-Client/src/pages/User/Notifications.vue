@@ -135,14 +135,6 @@ const filteredNotifications = computed(() => {
         </nav>
         <article class="flex flex-col border border-solid border-zinc-400">
             <CardNotification  v-if="filteredNotifications !== null" :notificationInfo="filteredNotifications" />
-            
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
 
             <footer
                 class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-zinc-400 min-h-[56px] max-md:max-w-full">

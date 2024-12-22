@@ -7,8 +7,10 @@
 
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using CEMS_Server.Hubs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
@@ -18,10 +20,12 @@ namespace CEMS_Server.Controllers;
 public class ApprovalController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public ApprovalController(CemsContext context)
+    public ApprovalController(CemsContext context, IHubContext<NotificationHub> hubContext)
     {
         _context = context;
+        _hubContext = hubContext;
     }
 
     /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
@@ -182,10 +186,15 @@ public class ApprovalController : ControllerBase
 
         _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
-        
+
         if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept")
         {
-            var updateSuccess = await UpdateRequisitionsStatus(approver.AprRqId , "accept" , "paying" , null);
+            var updateSuccess = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "accept",
+                "paying",
+                null
+            );
             if (!updateSuccess)
             {
                 return NotFound();
@@ -193,7 +202,12 @@ public class ApprovalController : ControllerBase
         }
         if (approverUpdate.AprStatus == "edit")
         {
-            var updateEdit = await UpdateRequisitionsStatus(approver.AprRqId , "edit" , "accepting" , approverUpdate.RqReason);
+            var updateEdit = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "edit",
+                "accepting",
+                approverUpdate.RqReason
+            );
             if (!updateEdit)
             {
                 return NotFound();
@@ -201,21 +215,41 @@ public class ApprovalController : ControllerBase
         }
         if (approverUpdate.AprStatus == "reject")
         {
-            var updateReject = await UpdateRequisitionsStatus(approver.AprRqId , "reject" , "complete" , approverUpdate.RqReason);
+            var updateReject = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "reject",
+                "complete",
+                approverUpdate.RqReason
+            );
             if (!updateReject)
             {
                 return NotFound();
             }
         }
+        var notification = new CemsNotification
+        {
+            NtAprId = approverUpdate.AprId,
+            NtDate = DateTime.Now,
+            NtStatus = "unread",
+        };
+        _context.CemsNotifications.Add(notification);
+
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 
-    private async Task<bool> UpdateRequisitionsStatus(string rqId , string rqStatus , string rqProgress ,string rqReason)
+    private async Task<bool> UpdateRequisitionsStatus(
+        string rqId,
+        string rqStatus,
+        string rqProgress,
+        string rqReason
+    )
     {
         var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r => r.RqId == rqId);
         if (requisition == null)
         {
-            return false; 
+            return false;
         }
         requisition.RqStatus = rqStatus;
         requisition.RqProgress = rqProgress;

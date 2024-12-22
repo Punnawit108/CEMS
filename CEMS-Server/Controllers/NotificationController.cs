@@ -36,17 +36,17 @@ public class NotificationController : ControllerBase
     {
         var notification = await _context
             .CemsNotifications.Include(e => e.NtApr) //เชื่อมตาราง Noti
-            .Include(e => e.NtApr.AprRq) //เชื่อมตาราง approver_requisition
-            .Include(e => e.NtApr.AprRq.RqPj) //เชื่อมตาราง requisition
+            .Include(e => e.NtApr.AprRq)             //เชื่อมตาราง approver_requisition
+            .Include(e => e.NtApr.AprRq.RqPj)        //เชื่อมตาราง requisition
             .Select(u => new NotificationGetDto
             {
-                NtId = u.NtId, //รหัสแจ้งเตือน
-                NtStatus = u.NtStatus, //สถานะการแจ้งเตือน
-                NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName, //ชื่อโครงการ
-                NtAprRqId = u.NtApr.AprRq.RqId, //รหัสใบคำขอเบิก
-                NtAprStatus = u.NtApr.AprStatus, //สถานะคำขอเบิก
-                NtAprDate = u.NtApr.AprDate, //วันที่เบิก
-                NtAprRqUsrId = u.NtApr.AprRq.RqUsrId, //ไอดีผู้สร้างใบเบิก
+                NtId = u.NtId,                              //รหัสแจ้งเตือน
+                NtStatus = u.NtStatus,                      //สถานะการแจ้งเตือน
+                NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
+                NtAprRqId = u.NtApr.AprRq.RqId,             //รหัสใบคำขอเบิก
+                NtAprStatus = u.NtApr.AprStatus,            //สถานะคำขอเบิก
+                NtAprDate = u.NtApr.AprDate,                //วันที่เบิก
+                NtAprRqUsrId = u.NtApr.AprRq.RqUsrId,       //ไอดีผู้สร้างใบเบิก
                 NtAprRqProgress = u.NtApr.AprRq.RqProgress,
             })
             .ToListAsync();
