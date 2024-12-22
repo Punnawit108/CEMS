@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import { ref, onMounted} from 'vue';
+import { ref, onMounted } from 'vue';
 import Icon from './CIcon.vue';
 import { useNotificationStore } from '../../store/notification';
 
@@ -13,11 +13,11 @@ const notificationStore = useNotificationStore();
 
 let role = ref("User");
 
-onMounted(async() => {
+onMounted(async () => {
     const userData = localStorage.getItem('user')
     const parsedData = userData ? JSON.parse(userData) : null;
     role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
-    await notificationStore.loadNotifications() ; 
+    await notificationStore.loadNotifications();
     notificationStore.initSignalR();
 })
 const clickDashboard = ref(true);
@@ -41,24 +41,58 @@ const isApprovalDropdownOpen = ref(false);
 const isDeliverDropdownOpen = ref(false);
 const isSettingDropdownOpen = ref(false);
 
+const resetAllDropdown = () => {
+    isWithdrawDropdownOpen.value = false;
+    isReportDropdownOpen.value = false;
+    isApprovalDropdownOpen.value = false;
+    isDeliverDropdownOpen.value = false;
+    isSettingDropdownOpen.value = false;
+};
+
 const toggleWithdrawDropdown = () => {
-    isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
+    if (isWithdrawDropdownOpen.value == true) {
+        isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isWithdrawDropdownOpen.value = true;
+    }
 };
 
 const toggleReportDropdown = () => {
-    isReportDropdownOpen.value = !isReportDropdownOpen.value;
+    if (isReportDropdownOpen.value == true) {
+        isReportDropdownOpen.value = !isReportDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isReportDropdownOpen.value = true;
+    }
 };
 
 const toggleApprovalDropdown = () => {
-    isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
+    if (isApprovalDropdownOpen.value == true) {
+        isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isApprovalDropdownOpen.value = true;
+    }
 };
 
 const toggleDeliverDropdown = () => {
-    isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
+    if (isDeliverDropdownOpen.value == true) {
+        isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isDeliverDropdownOpen.value = true;
+    }
 };
 
+
 const toggleSettingDropdown = () => {
-    isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
+    if (isSettingDropdownOpen.value == true) {
+        isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isSettingDropdownOpen.value = true;
+    }
 };
 
 const resetAllToggles = () => {
@@ -154,7 +188,6 @@ const toggleSettingTypeWithdraw = () => {
     resetAllToggles();
     clickSettingTypeWithdraw.value = true;
 };
-
 </script>
 
 <template>
