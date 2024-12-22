@@ -14,7 +14,7 @@ const userData = ref(null);
 const router = useRouter();
 
 onMounted(() => {
-    userStore.getAllUsers();
+    userStore.getLocalUsers();
 })
 
 const selectUser = (user: any) => {
@@ -31,7 +31,7 @@ const selectUser = (user: any) => {
                     <div class="modal-action flex justify-center items-center m-0 flex-col">
                         <select class="select select-bordered w-full max-w-xs mb-4" v-model="userData">
                             <option :value="null" disabled selected>Select User</option>
-                            <option :value = "user" v-for="user in userStore.users">{{ user.usrId + " " + user.usrFirstName + " " + user.usrLastName + " (" + user.usrRolName + ")" }}</option>
+                            <option :value="user" v-for="user in userStore.users">{{ user.usrId + " " + user.usrFirstName + " " + user.usrLastName + " (" + user.usrRolName + ")" }}</option>
                         </select>
                         <button class="btn" @click="selectUser(userData)">ยืนยัน</button>
                     </div>

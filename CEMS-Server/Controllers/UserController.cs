@@ -68,6 +68,40 @@ public class UserController : ControllerBase
 
         return Ok(users);
     }
+
+    [HttpGet("localUser")]
+public async Task<ActionResult<IEnumerable<UserLocalDto>>> GetLocalUser()
+{
+    var users = await _context
+        .CemsUsers.Include(e => e.UsrRol)
+        .Select(u => new UserLocalDto
+        {
+            UsrId = u.UsrId,
+            UsrRolName = u.UsrRol.RolName,
+            UsrFirstName = u.UsrFirstName,
+            UsrLastName = u.UsrLastName,
+            UsrIsSeeReport = u.UsrIsSeeReport,
+            UsrIsActive = u.UsrIsActive,
+            UsrIsApprover = 0,
+        })
+        .ToListAsync();
+
+    var approvers = await _context.CemsApprovers
+        .Where(e => e.ApSequence != null)
+        .Select(e => new { e.ApUsrId, e.ApSequence })
+        .ToListAsync();
+
+    foreach (var user in users)
+    {
+        if (approvers.Any(a => a.ApUsrId == user.UsrId))
+        {
+            user.UsrIsApprover = 1; // Set the desired role name
+        }
+    }
+
+    return Ok(users);
+}
+
     /// <summary> เปลี่ยนแปลงข้อมูลผู้ใช้ </summary>
     /// <param name="id" > id ของผู้ใช้ </param>
     /// <param name="updateDto" > ข้อมูลของผู้ใช้ที่สามารถแก้ไขได้ </param>
