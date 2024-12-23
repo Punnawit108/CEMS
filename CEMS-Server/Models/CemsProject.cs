@@ -14,4 +14,5 @@ public partial class CemsProject
     public sbyte PjIsActive { get; set; }
 
     public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; } = new List<CemsRequisition>();
+    public double PjSumAmountExpenses { get; internal set; }
 }

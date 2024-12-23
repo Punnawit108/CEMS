@@ -2,6 +2,7 @@ using QuestPDF.Infrastructure;
 using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ตั้งค่าลิขสิทธิ์ด้วย LicenseType
@@ -15,6 +16,7 @@ builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<GetDataExport>();
 builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<PdfServiceProject>();
 
 // ตั้งค่า CORS
 builder.Services.AddCors(options =>
