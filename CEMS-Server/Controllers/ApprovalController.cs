@@ -310,7 +310,7 @@ public class ApprovalController : ControllerBase
         }
 
         return Ok($"ลบผู้อนุมัติที่มี ID {approverId} และตั้งค่า AprApId ใน cems_approver_requistion เป็น null เรียบร้อยแล้ว");
-
+    }
     [HttpPut("disburse/{rqId}")]
     public async Task<ActionResult> updateDisburse(string rqId)
     {
