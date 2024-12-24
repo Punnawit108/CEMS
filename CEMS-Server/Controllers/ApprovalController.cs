@@ -267,6 +267,50 @@ public class ApprovalController : ControllerBase
         return true;
     }
 
+    /// <summary>ลบข้อมูลผู้อนุมัติ</summary>
+    /// <param name="approverId">รหัสผู้อนุมัติ</param>
+    /// <returns>ผลลัพธ์การลบข้อมูลผู้อนุมัติ</returns>
+    /// <remarks>แก้ไขล่าสุด: วันที่ 16 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
+    [HttpDelete("{approverId:int}")]
+    public async Task<ActionResult> DeleteApprover(int approverId)
+    {
+        // ค้นหาผู้อนุมัติโดยใช้ ID
+        var approver = await _context.CemsApprovers.FindAsync(approverId);
+
+        if (approver == null)
+        {
+            return NotFound($"ไม่พบผู้อนุมัติที่มี ID {approverId}");
+        }
+
+        // อัปเดตข้อมูลใน cems_approver_requistion ให้ AprApId เป็น null
+        var approverRequisitions = await _context.CemsApproverRequisitions
+            .Where(e => e.AprApId == approverId)
+            .ToListAsync();
+
+        if (approverRequisitions.Any())
+        {
+            foreach (var requisition in approverRequisitions)
+            {
+                requisition.AprApId = null;
+            }
+            _context.CemsApproverRequisitions.UpdateRange(approverRequisitions);
+        }
+
+        // ลบข้อมูลผู้อนุมัติ
+        _context.CemsApprovers.Remove(approver);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            // จัดการข้อผิดพลาดเมื่อมีความสัมพันธ์ในฐานข้อมูลที่ไม่สามารถลบได้
+            return Conflict($"ไม่สามารถลบผู้อนุมัติได้เนื่องจากข้อผิดพลาด: {ex.Message}");
+        }
+
+        return Ok($"ลบผู้อนุมัติที่มี ID {approverId} และตั้งค่า AprApId ใน cems_approver_requistion เป็น null เรียบร้อยแล้ว");
+
     [HttpPut("disburse/{rqId}")]
     public async Task<ActionResult> updateDisburse(string rqId)
     {

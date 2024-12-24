@@ -46,13 +46,21 @@ export const useApprovalStore = defineStore('approval', {
         },
 
         async changeSequence(approverSequence : ApproverSequence) {
-
-
             try{
                 await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/swapSequence`,approverSequence)
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approval`)
                 this.approvers = result.data;
             }catch(err){
+                console.log(err);
+            }
+        },
+
+        async deleteApprover(approverId: number) {
+            try {
+                await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/approval/${approverId}`)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/approval`)
+                this.approvers = result.data;
+            } catch (err) {
                 console.log(err);
             }
         }
