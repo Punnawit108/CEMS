@@ -242,8 +242,11 @@ public class ExpenseController : ControllerBase
         ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
         int newAprId = lastAprId + 1;
 
-        /// กำหนดตารางข้อมูลของ AprApId
-        var approverIds = new List<int> { 1, 2, 3 };
+        var approverIds = await _context
+            .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
+            .OrderBy(u => u.ApSequence)
+            .Select(x => x.ApId)
+            .ToListAsync();
 
         /// Loop สร้างข้อมูลผู้อนุมัติ
         foreach (var approverId in approverIds)
@@ -255,11 +258,11 @@ public class ExpenseController : ControllerBase
                 AprApId = approverId,
                 AprName = null,
                 AprDate = null,
-                AprStatus = approverId == 1 ? "waiting" : null,
+                AprStatus = approverId == approverIds.First() ? "waiting" : null,
             };
             _context.CemsApproverRequisitions.Add(approverRequisition);
 
-            if (approverId == 1)
+            if (approverId == approverIds.First())
             {
                 var notification = new CemsNotification
                 {
@@ -268,9 +271,6 @@ public class ExpenseController : ControllerBase
                     NtStatus = "unread",
                 };
                 _context.CemsNotifications.Add(notification);
-
-                string userId = "9999";
-                string message = "มีรายการอนุมัติมาแว้ว";
             }
             newAprId++;
         }

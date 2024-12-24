@@ -138,9 +138,9 @@ public class ApprovalController : ControllerBase
             e.ApSequence == approvalSequence.ApSequence
         );
 
-
         //Add a Sequence to null sequence
-        if(approvalBySequence == null){
+        if (approvalBySequence == null)
+        {
             var approver = await _context.CemsApprovers.FindAsync(approvalSequence.ApId);
             approver.ApSequence = approvalSequence.ApSequence;
             _context.CemsApprovers.Update(approver);
