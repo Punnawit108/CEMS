@@ -49,9 +49,9 @@ export const usePayment = defineStore('expense', {
         * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
         * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
         */
-        async getAllPaymentHistory(){
+        async getAllPaymentHistory(id:string){
             try{
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/payment/History`)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/payment/History/${id}`)
                 this.expense = result.data;
             }catch (error){
                 console.error("Failed to fetch payment data:", error)

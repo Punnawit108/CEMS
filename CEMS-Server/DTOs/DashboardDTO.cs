@@ -7,83 +7,35 @@
 namespace CEMS_Server.DTOs
 {
     //ของ User
-    public class DashboardUserGetDto
+    public class UserDashboardSummaryDto
     {
-        public required string RqId { get; set; }
-
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqWithdrawDate { get; set; }
-
+        public int RqTotalUserWaiting { get; set; }
+        public int RqTotalUserComplete { get; set; }
+        public int RqTotalUserProject { get; set; }
+        public double RqTotalExpense { get; set; }
     }
 
-    //ของ Approver
-    public class DashboardApproverGetDto
+    public class ApproverDashboardSummaryDto
     {
-        public required string AprRqId { get; set; }
-
-        public int AprId { get; set; }
-
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqWithdrawDate { get; set; }
-
+        public int TotalRequisitionsWaiting { get; set; }
+        public int TotalRequisitionsAcceptedOrRejected { get; set; }
+        public int TotalRequisitions { get; set; }
+        public double TotalRequisitionExpenses { get; set; }
     }
 
-    //ของ Admin
-    public class DashboardAdminGetDto
+    public class AdminDashboardSummaryDto
     {
-        public required string UsrId { get; set; }
-
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqWithdrawDate { get; set; }
-
+        public int TotalUser { get; set; }
+        public int TotalRqAccept { get; set; }
+        public int TotalProject { get; set; }
+        public double TotalRqAcceptExpense { get; set; }
     }
 
-    //ของ Accountant
-    public class DashboardAccountantGetDto
+    public class AccountantDashboardSummaryDto
     {
-        public required string AprRqId { get; set; }
-
-        public int AprId { get; set; }
-
-        public string PjName { get; set; } = null!;
-
-        public double RqExpenses { get; set; }
-
-        public double PjAmountExpenses { get; set; }
-
-        public string RqStatus { get; set; } = null!;
-
-        public string RqtName { get; set; } = null!;
-
-        public DateOnly RqWithdrawDate { get; set; }
-
+        public int TotalRqPay { get; set; }
+        public int TotalRqComplete { get; set; }
+        public int TotalRequisition { get; set; }
+        public double TotalRqExpense { get; set; }
     }
 }
-

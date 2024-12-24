@@ -234,7 +234,7 @@ const confirmSubmit = async () => {
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
       <!-- แบ่งเป็น 2 คอลัมน์ -->
-      <div class="flex flex-col md:flex-row justify-between gap-5">
+      <div class="flex flex-col md:flex-row justify-around gap-5">
         <!-- Form Left -->
         <div class="w-1/2 rounded-[10px]">
           <!-- ช่อง "รหัสรายการเบิก *" -->

@@ -86,6 +86,18 @@ import Button from './Button.vue';
             <p>btn-expenseTypeGray</p>
         </div>
         <div>
+            <!-- สร้างประเภทค่าใช้จ่ายพื้นหลังเทา -->
+            <Button :type="'btn-expenseTypeGrayClick'"></Button>
+            <p>btn-expenseTypeGrayClick</p>
+        </div>
+        <div>
+            <!-- สร้างประเภทค่าเดินทางพื้นหลังเทา -->
+            <Button :type="'btn-transportClick'"></Button>
+            <p>btn-transportClick</p>
+        </div>
+
+        
+        <div>
             <!-- นำจ่าย -->
             <Button :type="'btn-payment1'"></Button>
             <p>btn-payment1</p>

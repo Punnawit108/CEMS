@@ -3,7 +3,7 @@
 * ชื่อไฟล์: UserSetting.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าจอจัดการผู้ใช้ ซึ่งแสดงตารางผู้ใช้ภายในระบบ พร้อมฟังก์ชั่นค้นหาและกรองข้อมูล
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 8 ธันวาคม 2567
+* วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
 */
 
 import Icon from '../../components/template/CIcon.vue';
@@ -29,6 +29,7 @@ const itemsPerPage = ref(10);
 
 const filters = ref({
   searchTerm: '',
+  searchRqName: '',
   department: '',
   division: '',
   status: '',
@@ -116,17 +117,20 @@ onMounted(async () => {
       :projects="projectStore.projects"
       :requisitionTypes="requisitionTypeStore.requisitionTypes"
       v-model:searchTerm="filters.searchTerm"
+      v-model:searchRqName="filters.searchRqName"
+      v-model:selectedDepartment="filters.department" 
+      v-model:selectedDivision="filters.division"      
+      v-model:selectedRole="filters.role"
       v-model:selectedProjectId="filters.projectId"
       v-model:selectedRequisitionTypeId="filters.selectedRequisitionTypeId"
+      :showRqNameFilter="false"
       :showSearchFilter="true"
-      :showDepartmentFilter="false" 
-      :showDivisionFilter="false"
-      :showRoleFilter="false"
-      :showProjectFilter="true"
-      :showRequisitionTypeFilter="true"
-      selectedDepartment=""
-      selectedDivision=""
-      selectedRole=""
+      :showDepartmentFilter="true" 
+      :showDivisionFilter="true"
+      :showRoleFilter="true"
+      :showProjectFilter="false"
+      :showRequisitionTypeFilter="false"
+      :showDateFilter="false"
     />
     <div class="w-full h-fit border-[2px] flex flex-col items-start">
       <Ctable :table="'Table5-head'" />

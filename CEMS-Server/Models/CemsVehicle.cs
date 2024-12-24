@@ -12,6 +12,7 @@ public partial class CemsVehicle
     public string VhVehicle { get; set; } = null!;
 
     public double? VhPayrate { get; set; }
+    public int? VhVisible {get; set;}
 
     public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; } = new List<CemsRequisition>();
 }

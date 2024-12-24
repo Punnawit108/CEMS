@@ -1,4 +1,4 @@
-/*
+ /*
 * ชื่อไฟล์: user.ts
 * คำอธิบาย: ไฟล์ store API ของข้อมูลของผู้ใช้
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
@@ -45,7 +45,7 @@ export const useUserStore = defineStore('users', {
     * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
     * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
     */
-    async editUserRole(userId: number, updateData: UpdateUserRoleDto) {
+    async editUserRole(userId: string, updateData: UpdateUserRoleDto) {
       try {
         await axios.put(`${BASE_URL}/api/user/${userId}`, updateData);
         // อัพเดทข้อมูลใน store

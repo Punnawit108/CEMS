@@ -41,6 +41,8 @@ public partial class CemsRequisition
 
     public string? RqProof { get; set; }
 
+    public string? RqDisburser { get; set; }
+
     public string RqStatus { get; set; } = null!;
 
     public string RqProgress { get; set; } = null!;
@@ -54,4 +56,5 @@ public partial class CemsRequisition
     public virtual CemsUser RqUsr { get; set; } = null!;
 
     public virtual CemsVehicle? RqVh { get; set; }
+    public int Id { get; internal set; }
 }
