@@ -29,7 +29,6 @@ const formData = reactive<any>({
 
 const formRequisitiontype = reactive<any>({
   rqtName: "",
-
 });
 
 // State สำหรับแถวส่วนตัว
@@ -78,7 +77,6 @@ const isPrivatecarAlertOpen = ref(false); // ควบคุมการแส�
 const isPopupAddPublictravelOpen = ref(false); // สำหรับเปิด/ปิด Popup Add ประเภทรถสาธารณะ
 const isPopupConfirmAddPublictravelOpen = ref(false); // สำหรับเปิด/ปิด Popup ConfirmAdd ประเภทรถสาธารณะ
 const isPublictravelAlertOpen = ref(false); // ควบคุมการแสดง Alert ประเภทรถสาธารณะ
-
 
 const handleClickTypeVehicl = () => {
   toggleDivsTypeVehicle();
@@ -245,17 +243,15 @@ function cancelAddExpense() {
   }
 }
 
-
 // ฟังก์ชันสำหรับเปลี่ยนสีแถวและไอคอน
 async function toggleGray(index: number) {
-  await expenseManageType.changeVehicle(index)
+  await expenseManageType.changeVehicle(index);
   vehiclePrivate.value = await expenseManageType.getVehiclePrivate();
   vehiclePublic.value = await expenseManageType.getVehiclePublic();
 }
 async function toggleGray2(index: number) {
-  await expenseManageType.changeRequisitionType(index)
+  await expenseManageType.changeRequisitionType(index);
   expenseType.value = await expenseManageType.getRequisitionType();
-
 }
 function toggleGray3(index: number) {
   expenseRows.value[index].isDisabled = !expenseRows.value[index].isDisabled;
@@ -312,7 +308,7 @@ const confirmAddPrivatecar = async () => {
   formData.vhType = "private";
   await expenseManageType.createVehicle(formData);
   isPrivatecarAlertOpen.value = true;
-  vehiclePrivate.value = await expenseManageType.getVehiclePrivate()
+  vehiclePrivate.value = await expenseManageType.getVehiclePrivate();
   // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
   setTimeout(() => {
     isPrivatecarAlertOpen.value = false; // ปิด Alert
@@ -340,7 +336,7 @@ const confirmAddPublictravel = async () => {
   formData.vhType = "public";
   formData.vhPayrate = null;
   await expenseManageType.createVehicle(formData);
-  vehiclePublic.value = await expenseManageType.getVehiclePublic()
+  vehiclePublic.value = await expenseManageType.getVehiclePublic();
 
   isPublictravelAlertOpen.value = true;
   // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
@@ -351,16 +347,58 @@ const confirmAddPublictravel = async () => {
   }, 1500); // 1.5 วินาที
 };
 
+// State for active button
+const activeButton = ref<"expense" | "transport" | null>("expense");
 
+// Toggle functions
+const toggleButton = (button: "expense" | "transport") => {
+  activeButton.value = button;
+};
 </script>
 
 <template>
-  
   <div v-if="!isHiddenExpense">
     <div v-if="!isHiddenPublic">
-      <div v-if="!isHiddenPrivate" class="flex space-x-7 ">
-        <Button :type="'btn-expenseTypeGrayClick'" @click="handleClickTypeVehicl" />
-        <Button :type="'btn-transport'" @click="toggleDivsType" />
+      <div v-if="!isHiddenPrivate" class="flex space-x-7">
+        <!-- old button -->
+        <!-- <Button :type="'btn-expenseTypeGrayClick'" @click="handleClickTypeVehicl" />
+        <Button :type="'btn-transport'" @click="toggleDivsType" /> -->
+        
+          <!-- Button 1: Expense Type -->
+          <button
+            :class="{
+              'btn-gray bg-grayNormal border-2 border-grayNormal text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin':
+                activeButton === 'expense',
+              'btn-white bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin':
+                activeButton !== 'expense',
+            }"
+            @click="
+              () => {
+                toggleButton('expense');
+                handleClickTypeVehicl();
+              }
+            "
+          >
+            ประเภทค่าใช้จ่าย
+          </button>
+
+          <!-- Button 2: Transport -->
+          <button
+            :class="{
+              'btn-gray bg-grayNormal border-2 border-grayNormal text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin':
+                activeButton === 'transport',
+              'btn-white bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin':
+                activeButton !== 'transport',
+            }"
+            @click="
+              () => {
+                toggleButton('transport');
+                toggleDivsType();
+              }
+            "
+          >
+            ประเภทค่าเดินทาง
+          </button>
       </div>
     </div>
   </div>
@@ -402,30 +440,34 @@ const confirmAddPublictravel = async () => {
           :class="{ 'text-gray-400': item.isDisabled }"
           class="flex items-center justify-between w-full"
         >
-        <div class="flex w-full space-x-4">
+          <div class="flex w-full space-x-4">
             <p class="text-sm px-3 text-grayNormal" v-if="item.vhVisible == 0">
               {{ index + 1 }}
             </p>
             <p class="text-sm px-3 text-black" v-if="item.vhVisible == 1">
               {{ index + 1 }}
             </p>
-            
-              <p class="text-black px-3 text-sm" v-if="item.vhVisible == 1">
-                {{ item.vhName }}
-              </p>
-              <p class="text-grayNormal px-3 text-sm" v-if="item.vhVisible == 0">
-                {{ item.vhName }}
-              </p>
-            </div>
-            
-              <p class="text-black px-3  w-1/2 text-sm text-right" v-if="item.vhVisible == 1">
-                {{ item.payRate }}
-              </p>
-              <p class="text-grayNormal px-3  w-1/2 text-sm text-right" v-if="item.vhVisible == 0">
-                {{ item.payRate }}
-              </p>
-            
-          
+
+            <p class="text-black px-3 text-sm" v-if="item.vhVisible == 1">
+              {{ item.vhName }}
+            </p>
+            <p class="text-grayNormal px-3 text-sm" v-if="item.vhVisible == 0">
+              {{ item.vhName }}
+            </p>
+          </div>
+
+          <p
+            class="text-black px-3 w-1/2 text-sm text-right"
+            v-if="item.vhVisible == 1"
+          >
+            {{ item.payRate }}
+          </p>
+          <p
+            class="text-grayNormal px-3 w-1/2 text-sm text-right"
+            v-if="item.vhVisible == 0"
+          >
+            {{ item.payRate }}
+          </p>
 
           <div class="flex justify-end w-1/4">
             <button @click="toggleGray(item.id)" class="px-2 py-1 text-black">
@@ -531,7 +573,10 @@ const confirmAddPublictravel = async () => {
               <p class="text-black px-3 text-sm" v-if="item.vhVisible == 1">
                 {{ item.vhName }}
               </p>
-              <p class="text-grayNormal px-3 text-sm" v-if="item.vhVisible == 0">
+              <p
+                class="text-grayNormal px-3 text-sm"
+                v-if="item.vhVisible == 0"
+              >
                 {{ item.vhName }}
               </p>
             </div>
@@ -551,7 +596,6 @@ const confirmAddPublictravel = async () => {
             <button @click="toggleGray(item.id)" class="px-2 py-1 text-black">
               <div class="flex items-center space-x-1">
                 <template v-if="item.vhVisible == 1">
-
                   <svg
                     class="w-[24px] h-[24px] text-gray-800 dark:text-white"
                     aria-hidden="true"
@@ -628,7 +672,6 @@ const confirmAddPublictravel = async () => {
         <p class="text-sm text-right text-black">จัดการ</p>
       </div>
 
-
       <div
         v-for="(item, index) in expenseType"
         :key="'public-' + index"
@@ -649,7 +692,10 @@ const confirmAddPublictravel = async () => {
               <p class="text-black px-3 text-sm" v-if="item.rqtVisible == 1">
                 {{ item.rqtName }}
               </p>
-              <p class="text-grayNormal px-3 text-sm" v-if="item.rqtVisible == 0">
+              <p
+                class="text-grayNormal px-3 text-sm"
+                v-if="item.rqtVisible == 0"
+              >
                 {{ item.rqtName }}
               </p>
             </div>
@@ -666,7 +712,10 @@ const confirmAddPublictravel = async () => {
             </div>
           </div>
           <div class="flex justify-end w-1/4">
-            <button @click="toggleGray2(item.rqtId)" class="px-2 py-1 text-black">
+            <button
+              @click="toggleGray2(item.rqtId)"
+              class="px-2 py-1 text-black"
+            >
               <div class="flex items-center space-x-1">
                 <template v-if="item.rqtVisible == 1">
                   <svg
@@ -717,7 +766,6 @@ const confirmAddPublictravel = async () => {
       </div>
     </div>
   </div>
-
 
   <!-- POPUP +ประเภทค่าใช้จ่าย -->
   <div
@@ -1085,3 +1133,16 @@ const confirmAddPublictravel = async () => {
     </div>
   </div>
 </template>
+<style scoped>
+/* Gray button style */
+.btn-gray {
+  background-color: gray;
+  color: white;
+}
+
+/* White button style */
+.btn-white {
+  background-color: white;
+  color: black;
+}
+</style>

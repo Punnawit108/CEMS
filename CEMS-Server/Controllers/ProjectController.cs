@@ -24,13 +24,9 @@ public class ProjectController : ControllerBase
         _context = context;
     }
 
-    /// <summary> 
-    /// ดึงช้อมูลโครงการทั้งหมด 
-    /// </summary>
+    /// <summary> ดึงช้อมูลโครงการทั้งหมด </summary>
     /// <returns> ข้อมูลโครงทั้งหมด </returns>
-    /// <remarks>
-    /// แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล
-    /// </remark>
+    /// <remarks> แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล </remark>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProject()
     {

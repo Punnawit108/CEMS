@@ -98,6 +98,7 @@ public class ExpenseController : ControllerBase
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
+            .Where(u => u.RqProgress == "complete")
             .Select(u => new ExpenseReportDto
             {
                 RqId = u.RqId,
@@ -121,19 +122,22 @@ public class ExpenseController : ControllerBase
     /// แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล
     /// </remark>
     [HttpGet("graph")]
-    public async Task<ActionResult<IEnumerable<ExpenseReportDto>>> GetExpenseGraph()
+    public async Task<ActionResult<IEnumerable<ExpenseGraphDto>>> GetExpenseGraph()
     {
         var requisition = await _context
-            .CemsRequisitions.Include(e => e.RqRqt)
-            .Select(u => new ExpenseGraphDto
+            .CemsRequisitions
+            .Include(e => e.RqRqt)
+            .Where(u => u.RqProgress == "complete")
+            .GroupBy(e => e.RqRqt.RqtName)
+            .Select(g => new
             {
-                RqRqtId = u.RqRqt.RqtId,
-                RqRqtName = u.RqRqt.RqtName,
-                // RqSumExpenses
+                RqRqtName = g.Key,
+                RqSumExpenses = g.Sum(u => u.RqExpenses)
             })
             .ToListAsync();
 
         return Ok(requisition);
+
     }
 
     /// <summary>แสดงข้อมูลรายละเอียดคำขอเบิก</summary>
