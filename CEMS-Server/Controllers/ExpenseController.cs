@@ -125,19 +125,13 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult<IEnumerable<ExpenseGraphDto>>> GetExpenseGraph()
     {
         var requisition = await _context
-            .CemsRequisitions
-            .Include(e => e.RqRqt)
+            .CemsRequisitions.Include(e => e.RqRqt)
             .Where(u => u.RqProgress == "complete")
             .GroupBy(e => e.RqRqt.RqtName)
-            .Select(g => new
-            {
-                RqRqtName = g.Key,
-                RqSumExpenses = g.Sum(u => u.RqExpenses)
-            })
+            .Select(g => new { RqRqtName = g.Key, RqSumExpenses = g.Sum(u => u.RqExpenses) })
             .ToListAsync();
 
         return Ok(requisition);
-
     }
 
     /// <summary>แสดงข้อมูลรายละเอียดคำขอเบิก</summary>
@@ -157,17 +151,17 @@ public class ExpenseController : ControllerBase
             .Select(u => new ExpenseGetByIdDto
             {
                 RqId = u.RqId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqUsrId = u.RqUsr.UsrId,
-                RqPjId = u.RqPj.PjId,
-                RqVhId = u.RqVh.VhId,
-                RqVht = u.RqVh.VhType,
-                RqRqtId = u.RqRqt.RqtId,
+                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqPjName = u.RqPj.PjName,
+                RqVhName = u.RqVh.VhVehicle,
+                RqVhType = u.RqVh.VhType,
+                RqVhPayrate = u.RqVh.VhPayrate,
+                RqRqtName = u.RqRqt.RqtName,
                 RqName = u.RqName,
                 RqPayDate = u.RqPayDate,
                 RqWithDrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
-                //RqInsteadName = u.RqInsteadEmail,
                 RqInsteadEmail = _context
                     .CemsUsers.Where(user => user.UsrEmail == u.RqInsteadEmail)
                     .Select(user => user.UsrFirstName + " " + user.UsrLastName)

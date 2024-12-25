@@ -5,7 +5,8 @@
 * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ, นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 22 ตุลาคม 2567
 */
-import { ref, computed, onMounted, reactive, watchEffect } from "vue";
+
+import { ref, computed, onMounted, reactive } from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -28,11 +29,13 @@ onMounted(async () => {
 })
 
 
-// FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่
+// FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่  
+// ถ้ารายการคำขอเบิกนั้นๆ เป็นของ ผู้ใช้ปัจจุบัน และ AprStatus นั้นเป็น waiting จะดึงข้อมูล
 const isApprovalPath = computed(() => {
   return route.path.includes('approval') && route.path.includes('list');
 });
 
+// ถ้ารายการคำขอเบิกนั้นๆ มีสถานะเป็น rqStatus = accept , rqProgress = paying
 const isPaymentPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list');
 });
@@ -117,7 +120,7 @@ const handleSummit = async (status: string) => {
     console.log(data);
     detailStore.updateApprove(data);
     handleHideApproverPopup();
-    router.push(`/approval/list/`)
+    //router.push(`/approval/list/`)
   }
 };
 
@@ -222,7 +225,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
-            <p class="item">{{ expenseData?.rqPjName }}</p>
+            <p class="item">{{ expenseData?.rqPjName || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
@@ -241,7 +244,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
-            <p class="item">{{ expenseData?.rqInsteadName }}</p>
+            <p class="item">{{ expenseData?.rqInsteadName || '-' }}</p>
           </div>
         </div>
 
@@ -277,7 +280,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhPayrate }}</p>
+            <p class="item">{{ expenseData?.rqVhPayrate || '-'}}</p>
           </div>
 
         </div>
