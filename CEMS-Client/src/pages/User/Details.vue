@@ -46,6 +46,48 @@ const isPaymentOrHistoryPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list') || route.path.includes('history') && !route.path.includes('approval');
 });
 
+const statusMapping = [
+  {
+    condition: (data: any) => data.rqProgress === 'accepting',
+    label: 'รออนุมัติ',
+    color: '#1976D2',
+  },
+  {
+    condition: (data: any) => data.rqStatus === 'edit',
+    label: 'แก้ไข',
+    color: '#FFBE40',
+  },
+  // {
+  //   condition: (data: any) => data.rqStatus === 'accept',
+  //   label: 'อนุมัติ',
+  //   color: '#12B669',
+  // },
+  {
+    condition: (data: any) => data.rqStatus === 'reject',
+    label: 'ไม่อนุมัติ',
+    color: '#E1032B',
+  },
+  {
+    condition: (data: any) => data.rqStatus === 'accept' && data.rqProgress === 'paying',
+    label: 'รอนำจ่าย',
+    color: '#FFBE40',
+  },
+  {
+    condition: (data: any) => data.rqStatus === 'accept' && data.rqProgress === 'complete',
+    label: 'นำจ่ายสำเร็จ',
+    color: '#12B669',
+  },
+  
+];
+
+const statusInfo = computed(() => {
+  if (expenseData.value) {
+    const match = statusMapping.find((item) => item.condition(expenseData.value));
+    return match || { label: 'ไม่ทราบสถานะ', color: '#000000' };
+  }
+  return { label: 'กำลังโหลดข้อมูล...', color: '#CCCCCC' }; // กรณีที่ข้อมูลยังไม่โหลด
+});
+
 const colorStatus: { [key: string]: string } = {
   reject: "#E1032B",
   edit: "#FFBE40",
@@ -149,11 +191,9 @@ const confirmPrint = async () => {
 };
 
 const approveCompleteDate = computed(() => {
-  const target = progressData.value.acceptor.find(
-    (item: any) => item.aprApId == 3
-  );
-  return target ? target.aprDate : null;
-})
+  const lastAccepter = progressData.value.acceptor.slice(-1)[0];
+  return lastAccepter.aprDate.split(' ')[0];
+});
 
 const editAprDate = computed(() => {
   const target = progressData.value.acceptor.find(
@@ -209,9 +249,9 @@ const editAprDate = computed(() => {
       <div class="left w-[85%]">
         <div class="flex items-center align-middle justify-between">
           <h3 class="text-base font-bold text-black ">
-            เบิกค่าใช้จ่าย<span :class="`bg-[${colorStatus[expenseData.rqStatus]}]`"
+            เบิกค่าใช้จ่าย<span :class="`bg-[${statusInfo.color}]`"
               class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
-                expenseData.rqStatus }}</span>
+                statusInfo.label }}</span>
           </h3>
           <div class="pr-5">
             <Button :type="'btn-print2'" @click="openPopupPrint"></Button>
@@ -229,7 +269,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqPayDate }}</p>
+            <p class="item">{{ expenseData?.rqPayDate || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
