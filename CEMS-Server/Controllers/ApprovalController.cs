@@ -5,6 +5,7 @@
 * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
 */
 
+using System.Globalization;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -183,10 +184,18 @@ public class ApprovalController : ControllerBase
         {
             return NotFound($"ไม่มีข้อมูลของ id {approverUpdate.AprId} ในระบบ");
         }
+        var now = DateTime.Now;
 
         approver.AprApId = approverUpdate.AprApId;
         approver.AprName = approverUpdate.AprName;
-        approver.AprDate = DateTime.Now;
+        approver.AprDate = new DateTime(
+            now.Year + 543,
+            now.Month,
+            now.Day,
+            now.Hour,
+            now.Minute,
+            now.Second
+        );
         approver.AprStatus = approverUpdate.AprStatus;
 
         _context.CemsApproverRequisitions.Update(approver);
@@ -327,17 +336,19 @@ public class ApprovalController : ControllerBase
         );
     }
 
-    [HttpPut("disburse/{rqId}")]
-    public async Task<ActionResult> updateDisburse(string rqId)
+    [HttpPut("disburse")]
+    public async Task<ActionResult> updateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
     {
-        var requisition = await _context.CemsRequisitions.FindAsync(rqId);
+        var requisition = await _context.CemsRequisitions.FindAsync(disburseUpdate.RqId);
 
         if (requisition == null)
         {
             return NotFound();
         }
+        var now = DateTime.Now;
 
-        requisition.RqDisburseDate = DateOnly.FromDateTime(DateTime.Now);
+        requisition.RqDisburser = disburseUpdate.UsrId;
+        requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
 
         _context.CemsRequisitions.Update(requisition);

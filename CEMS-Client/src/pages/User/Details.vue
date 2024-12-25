@@ -77,7 +77,7 @@ const statusMapping = [
     label: 'นำจ่ายสำเร็จ',
     color: '#12B669',
   },
-  
+
 ];
 
 const statusInfo = computed(() => {
@@ -166,8 +166,16 @@ const handleSummit = async (status: string) => {
   }
 };
 
-const handleDisburse = () => {
-  detailStore.updateDisburse(expenseData.value.rqId);
+const handleDisburse = async () => {
+  const currentUser = await initializeCurrentUser();
+  if (currentUser) {
+    const data = {
+      usrId:currentUser.usrId,
+      rqId:expenseData.value.rqId, 
+    };
+    detailStore.updateDisburse(data);
+  }
+  
   handleHideApproverPopup();
 }
 
@@ -265,11 +273,11 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
-            <p class="item">{{ expenseData?.rqPjName || '-'}}</p>
+            <p class="item">{{ expenseData?.rqPjName || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqPayDate || '-'}}</p>
+            <p class="item">{{ expenseData?.rqPayDate || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
@@ -320,7 +328,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhPayrate || '-'}}</p>
+            <p class="item">{{ expenseData?.rqVhPayrate || '-' }}</p>
           </div>
 
         </div>
