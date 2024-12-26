@@ -51,7 +51,7 @@ let formData: any = ref({
   rqProof: null,
   rqStatus: "",
   rqProgress: "accepting",
-  preview: null,
+  //preview: null,
 });
 
 // ตัวแปร ref สำหรับเก็บค่าต่างๆ
@@ -186,13 +186,13 @@ const closePopupSubmit = () => {
 };
 
 // เปิด/ปิด Alert บันทึก
-const confirmSave = async () => {
+const confirmSave = async (event : Event) => {
   event.preventDefault();
   // เปิด Popup Alert
   isAlertSaveOpen.value = true;
   formData.value.rqStatus = "sketch";
-  const data = await requisitionStore.createExpense(formData.value);
-  console.log(data);
+  await requisitionStore.createExpense(formData.value);
+  console.log(formData.value);
 
   setTimeout(() => {
     isAlertSaveOpen.value = false; // ปิด Alert
