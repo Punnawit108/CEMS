@@ -1,20 +1,16 @@
 <script setup lang="ts">
-/*
-* ชื่อไฟล์: DisbursementApprover.vue
-* คำอธิบาย: ไฟล์นี้เป็น หน้าจอ DisbursementApprover
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
-*/
-import { ref, onMounted, reactive, watch } from 'vue';
+import { ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Button from '../../components/template/Button.vue';
 import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
 import { User } from '../../types';
+import { useLockStore } from '../../store/lock';
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
+const lockStore = useLockStore();
 
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isEditPage = ref(false);
@@ -26,16 +22,14 @@ const isPopupConfirmAddOpen = ref(false); // สำหรับเปิด/ป�
 const isPopupConfirmEditOpen = ref(false); // สำหรับเปิด/ปิด Popup ConfirmEdit
 const isAddAlertOpen = ref(false); // ควบคุมการแสดง Alert Add
 const isEditAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
-const isDeleteAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
+const isDeleteAlertOpen = ref(false); // ควบคุมการแสดง Alert delete
 let userNotRepeatWithApprovers = ref<User[]>();
 const selectUserId = ref<string>("");
 const approverSequence = reactive({
   apId: 0,
   apSequence: 0
 })
-
-
-
+const selectedApproverId = ref<number>(0);
 
 // ใช้ Vue Router
 const route = useRoute();
@@ -49,7 +43,7 @@ const closePopupAdd = () => {
   isPopupAddOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
-// เปิด PopupAdd ผู้อนุมัติ
+// เปิด Popup edit ผู้อนุมัติ
 const openPopupEdit = () => {
   isPopupEditOpen.value = true;
 };
@@ -77,42 +71,35 @@ const closePopupConfirmEdit = () => {
 };
 
 // เปิด Popup Delete
-const openPopupDelete = () => {
+const openPopupDelete = (approverId: number) => {
+  selectedApproverId.value = approverId;
   isPopupDeleteOpen.value = true;
 };
+
 const closePopupDelete = () => {
   isPopupDeleteOpen.value = false;
 };
 
 
 const confirmAdd = async () => {
-  // เปิด Popup Alert
+
   await approvalStore.addApprovers(selectUserId.value);
-  isAddAlertOpen.value = true;
-  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
-  setTimeout(() => {
-    isAddAlertOpen.value = false; // ปิด Alert
-    closePopupAdd(); // ปิด Popup แก้ไข
-    closePopupConfirmAdd(); // ปิด Popup ยืนยัน
-  }, 1500); // 1.5 วินาที
+  closePopupAdd();
+  closePopupConfirmAdd();
 };
 
 const confirmEdit = async () => {
   await approvalStore.changeSequence(approverSequence);
-  // เปิด Popup Alert
-  isEditAlertOpen.value = true;
-  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
-  setTimeout(() => {
-    isEditAlertOpen.value = false; // ปิด Alert
-    closePopupEdit(); // ปิด Popup แก้ไข
-    closePopupConfirmEdit(); // ปิด Popup ยืนยัน
-  }, 1500); // 1.5 วินาที
+  closePopupEdit(); // ปิด Popup แก้ไข
+  closePopupConfirmEdit(); 
 };
 
 const confirmDelete = async () => {
   // เปิด Popup Alert
-  await approvalStore.addApprovers(selectUserId.value);
+  await approvalStore.deleteApprover(selectedApproverId.value);
+  // เปิด Popup Alert
   isDeleteAlertOpen.value = true;
+
   // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
   setTimeout(() => {
     isDeleteAlertOpen.value = false; // ปิด Alert
@@ -135,11 +122,15 @@ onMounted(async () => {
     isEditPage.value = false;
   }
 });
+
+const lockSystem = async () => {
+  lockStore.toggleLock(!lockStore.isLocked);
+  console.log(lockStore.isLocked);
+};
 </script>
 
 <template>
   <div>
-
     <!-- ปุ่มเปลี่ยนเส้นทาง -->
     <div class="items-center">
       <div>
@@ -162,7 +153,7 @@ onMounted(async () => {
             </form>
           </div>
           <div>
-            <Button :type="'btn-editProject'" class="">ปิดรับคำขอ</Button>
+            <Button :type="'btn-editProject'" class="" @click="lockSystem">ปิดรับคำขอ</Button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
@@ -197,14 +188,13 @@ onMounted(async () => {
             </select>
           </div>
 
-          <Icon :icon="'bin'" @click="openPopupDelete" class="mx-3" />
+          <Icon :icon="'bin'" @click="openPopupDelete(approver.apId)" class="mx-3" />
         </div>
       </div>
     </div>
 
     <!-- Popup Delete -->
-    <div v-if="isPopupDeleteOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="isPopupDeleteOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
           <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
@@ -247,8 +237,8 @@ onMounted(async () => {
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" :value="user.usrId" v-for="user in userNotRepeatWithApprovers">{{
-                  user.usrFirstName }} {{ user.usrLastName }}</option>
+                <option class="text-black" :value="user.usrId" v-for="user in userNotRepeatWithApprovers">
+                  {{ user.usrFirstName }} {{ user.usrLastName }}</option>
               </select>
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
@@ -384,49 +374,51 @@ onMounted(async () => {
       </div>
     </div>
 
-  </div>
-
-
-  <!-- Alert -->
-  <div v-if="isAddAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-          <path fill-rule="evenodd"
-            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-            clip-rule="evenodd" />
-        </svg>
+    <!-- Alert -->
+    <div v-if="isAddAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+
     </div>
-  </div>
 
-  <div v-if="isEditAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-          <path fill-rule="evenodd"
-            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-            clip-rule="evenodd" />
-        </svg>
+    <div v-if="isEditAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันลบผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
     </div>
-  </div>
 
-  <div v-if="isDeleteAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-      <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-          <path fill-rule="evenodd"
-            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-            clip-rule="evenodd" />
-        </svg>
+    <div v-if="isDeleteAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการลบผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันลบผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
     </div>
   </div>
 </template>

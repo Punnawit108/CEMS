@@ -8,16 +8,13 @@
 import { defineProps } from "vue";
 
 const props = defineProps(["progressInfo", "colorStatus"]);
-console.log(props)
-console.log(props.progressInfo.disbursement[0]?.rqProgress);
 
 function hasRejectStatus(): { index: number } {
   const index = props.progressInfo.acceptor.findIndex((item: any) => item.aprStatus === "reject" || item.aprStatus ==="edit");
   return { index }; // ส่ง index ออกมา (ถ้าไม่พบจะเป็น -1)
 }
 
-const isDisable = hasRejectStatus()
-console.log(isDisable)
+
 </script>
 
 <template>
@@ -54,7 +51,8 @@ console.log(isDisable)
 
       <div class="text">
         <!-- ถ้าอนุมัติแล้วใช้ aprName -->
-        <p class="w-fit font-bold">{{ item.usrFirstName + " " + item.usrLastName }}</p>
+        <p v-if="item.aprName == null" class="w-fit font-bold">{{ item.usrFirstName + " " + item.usrLastName }}</p>
+        <p v-if="item.aprName != null" class="w-fit font-bold">{{ item.aprName }}</p>
         <div v-if="item.aprStatus === 'accept'">
           <p class="text-[11px] text-gray-400 font-bold">
             อนุมัติเมื่อ :{{ item.aprDate }}

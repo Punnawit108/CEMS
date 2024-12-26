@@ -3,6 +3,7 @@ using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
 using CEMS_Server.Hubs;
 
+
 var builder = WebApplication.CreateBuilder(args);
 
 // ตั้งค่าลิขสิทธิ์ด้วย LicenseType
@@ -18,6 +19,7 @@ builder.Services.AddSwaggerGen();
 builder.Services.AddSignalR();
 builder.Services.AddScoped<GetDataExport>();
 builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<PdfServiceProject>();
 
 // ตั้งค่า CORS
 builder.Services.AddCors(options =>

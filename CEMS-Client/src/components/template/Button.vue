@@ -163,6 +163,14 @@ const emit = defineEmits(["click"]);
     
   ><slot>ประเภทค่าใช้จ่าย</slot></button>
 
+  <!-- ประเภทค่าใช้จ่ายเทาพื้นหลัง -->
+  <button
+    v-if="type === 'btn-expenseTypeGrayClick'"
+    class="btn-ประเภทค่าใช้จ่าย bg-grayNormal border-2 border-grayNormal text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin"
+    @click="$emit('click')"
+    
+  ><slot>ประเภทค่าใช้จ่าย</slot></button>
+
   <button
     v-if="type === 'btn-payment1'"
     class="btn-นำจ่าย bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin"
@@ -268,6 +276,15 @@ const emit = defineEmits(["click"]);
     v-if="type === 'btn-transport'"
     id="btn-ประเภทค่าเดินทาง"
     class="btn-ประเภทค่าเดินทาง bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin"
+    @click="$emit('click')"
+  >
+    <slot>ประเภทค่าเดินทาง</slot>
+  </button>
+
+  <button
+    v-if="type === 'btn-transportClick'"
+    id="btn-ประเภทค่าเดินทาง"
+    class="btn-ประเภทค่าเดินทาง bg-grayNormal border-2 border-grayNormal text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin"
     @click="$emit('click')"
   >
     <slot>ประเภทค่าเดินทาง</slot>

@@ -3,7 +3,7 @@
 * ชื่อไฟล์: ExpenseReimbursementHistory.vue
 * คำอธิบาย: ไฟล์นี้แสดงประวัติการเบิกค่าใช้จ่าย
 * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
 */
 
 import { useRouter } from 'vue-router';
@@ -11,18 +11,26 @@ import Icon from '../../components/template/CIcon.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
 import Ctable from '../../components/template/CTable.vue';
 
-import { onMounted } from 'vue';
+import { onMounted, ref } from 'vue';
 //import { useExpense } from '../../store/ExpenseStore';
-import { useExpenseReimbursementHistory } from '../../store/expenseReimbursementHistoryStore';
+import { useExpenseReimbursement } from '../../store/expenseReimbursement';
 
-
-
-const expenseReimbursementHistory = useExpenseReimbursementHistory();
+const expenseReimbursementStore = useExpenseReimbursement();
 const router = useRouter();
+const user = ref<any>(null);
 
 onMounted(async() => {
-    await expenseReimbursementHistory.getAllExpenseReimbursementHistory();
-    console.log(expenseReimbursementHistory.expenseReimbursementHistory)
+    const storedUser = localStorage.getItem("user"); // ดึงข้อมูลผู้ใช้จาก localStorage
+    if (storedUser) {
+        try {
+            user.value = await JSON.parse(storedUser); // แปลงข้อมูลที่ได้จาก JSON String เป็น Object
+        } catch (error) {
+            console.log("Error loading user:", error); // ถ้าล้มเหลวแสดงข้อความ Error 
+        }
+    }
+    if (user) {
+        await expenseReimbursementStore.getAllExpenseReimbursementHistory(user.value.usrId); // เรียกใช้ฟังก์ชันดึงข้อมูลประวัติการอนุมัติ
+    }
 })
 
 const toDetails = (id: number) => {
@@ -113,22 +121,22 @@ const toDetails = (id: number) => {
             </div>
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(expenseReimbursementHistory, index) in expenseReimbursementHistory.expenseReimbursementHistory"
+                    <tr v-for="(expenseReimbursementHistory, index) in expenseReimbursementStore.expenseReimbursementHistory"
                         :key="expenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="นายเทียนชัย คูเมือง">
-                            {{ expenseReimbursementHistory.rqUsrName }}
+                            {{ expenseReimbursementHistory.rqName }}
                         </th>
                         <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                             {{ expenseReimbursementHistory.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expenseReimbursementHistory.rqName }}
+                        <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expenseReimbursementHistory.rqRqtName }}
                         </th>
-                        <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqDatePay }}</th>
+                        <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqWithDrawDate }}</th>
                         <th class="py-[12px] px-2 w-40 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
                         <th class="py-[12px] px-2 w-32 text-center "><span>
                                 <StatusBudge :status="'sts-'+expenseReimbursementHistory.rqStatus"></StatusBudge>

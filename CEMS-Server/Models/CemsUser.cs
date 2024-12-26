@@ -19,6 +19,8 @@ public partial class CemsUser
 
     public int UsrStId { get; set; }
 
+    public int UsrNpId { get; set; }
+
     public string UsrFirstName { get; set; } = null!;
 
     public string UsrLastName { get; set; } = null!;
@@ -38,6 +40,8 @@ public partial class CemsUser
     public virtual CemsCompany UsrCpn { get; set; } = null!;
 
     public virtual CemsDepartment UsrDpt { get; set; } = null!;
+
+    public virtual CemsNamePrefix UsrNp { get; set; } = null!;
 
     public virtual CemsPosition UsrPst { get; set; } = null!;
 

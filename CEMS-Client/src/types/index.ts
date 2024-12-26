@@ -7,7 +7,7 @@
 
 //ตัวแปรคำขอเบิก
 export interface Expense{
-    rqId: number;
+    rqId: string;
     rqName: number;
     rqUsrName: string;
     rqPjName: string;
@@ -15,7 +15,7 @@ export interface Expense{
     rqVhName: string;
     rqVhType: string;
     rqVhPayrate: string;
-    rqDatePay: Date;
+    rqPayDate: Date;
     rqDateWithdraw: Date;
     rqCode: string | null;
     rqInsteadName: string | null;
@@ -53,7 +53,7 @@ export interface ApproverRequisition {
 export interface ExpenseManage{
     rqtId?: number;
     rqtName: string;
-    
+    rqtVisible: number
 }
 //ตัวแปรประเภทการเดินทาง
 export interface TravelManage {
@@ -64,7 +64,7 @@ export interface TravelManage {
 }
 //ตัวแปรผู้ใช้
 export interface User {
-    usrId: number;
+    usrId: string;
     usrEmployeeId: string;
     usrRolName: string;
     usrCpnName: string;
@@ -121,26 +121,52 @@ export interface Dashboard {
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ User
 export interface DashboardForUser {
-    rqSumOfWaiting: number;
-    rqSumOfApprove: number;
-    rqSumOfExpense: number;
-    rqSumExpense: number;
+    rqTotalUserWaiting: number;
+    rqTotalUserComplete: number;
+    rqTotalUserProject: number;
+    rqTotalExpense: number;
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Accountant
 export interface DashboardForAccountant {
-    rqSumOfWaiting: number ;
-    rqSumOfComplate: number ;
-    rqSumOfExpense: number ;
-    rqSumExpense: number ;
+    totalRqPay: number ;
+    totalRqComplete: number ;
+    totalRequisition: number ;
+    totalRqExpense: number ;
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Admin
 export interface DashboardForAdmin {
-    usrAll: number ;
-    rqSumOfExpense: number ;
-    pjAll: number ;
-    rqSumExpense: number ;
+    totalUser: number ;
+    totalRqAccept: number ;
+    totalProject: number ;
+    totalRqAcceptExpense: number ;
+}
+
+export interface DashboardProject {
+    //ตารางการเบิกสูงสุดของโครงการ
+    PjId: number;
+    PjName: string;
+    totalPjExpense: string;
+}
+
+export interface DashboardRequisitionType {
+    //กราฟ ประเภทค่าใช้จ่ายของรายการเบิก
+    rqtId: number;
+    rqtName: string;
+    totalRqt: number;
+}
+export interface DashboardRequisitionTypeMonth {
+    //กราฟ ประเภทค่าใช้จ่ายของรายการเบิก
+    rqtId: number;
+    rqtUsrId: number;
+    totalRqt: number;
+    
+}
+
+export interface DashboardPayment {
+    rqMonth: number;
+    rqSumExpensesInMonth: number;
 }
 
 export interface Project {

@@ -84,7 +84,7 @@ namespace CEMS_Server.DTOs
     public class ApprovalSequence
     {
         public int ApId { get; set; }
-        public int ApSequence { get; set; }
+        public int? ApSequence { get; set; }
     }
 
     public class ApproverUpdateDto
@@ -100,5 +100,11 @@ namespace CEMS_Server.DTOs
         public string? AprStatus { get; set; }
 
         public string? RqReason { get; set; }
+    }
+
+    public class DisburseUpdateDto
+    {
+        public required string RqId { get; set; }
+        public string UsrId { get; set; } = null!;
     }
 }
