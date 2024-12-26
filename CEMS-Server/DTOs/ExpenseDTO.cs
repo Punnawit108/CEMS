@@ -95,7 +95,7 @@ namespace CEMS_Server.DTOs
         public string RqProgress { get; set; } = null!;
     }
 
-    // Expense Report 
+    // Expense Report
     public class ExpenseReportDto
     {
         public required string RqId { get; set; }
