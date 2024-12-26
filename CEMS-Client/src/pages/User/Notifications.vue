@@ -49,7 +49,7 @@ onMounted(async () => {
     }
     if (user) {
         user.value = await notificationStore.loadNotifications(user.value.usrId);
-        notificationStore.initSignalR(user.value.usrId);    
+        await notificationStore.initSignalR(user.value.usrId);    
         console.log(user)
     }
 })
