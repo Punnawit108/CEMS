@@ -107,7 +107,7 @@ export const useExpenseManageStore = defineStore("expenseManage", {
     async changeRequisitionType(rqtId: number) {
       try {
         await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/update/${rqtId}`
+          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`
         );
         this.getRequisitionType()
       } catch (err) {
@@ -123,5 +123,28 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.log(err);
       }
     },
+    async deleteVehicle(vhId: number) {
+      try {
+          const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`);
+          this.getVehiclePrivate(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
+  
+          return result;
+  
+      } catch (error) {
+          console.error("Error deleting disburse data:", error);
+      }
+  },
+  async deleteExpense(rqtId: number) {
+    try {
+        const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`);
+        //this.getRequisitionType(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
+
+        return result;
+
+    } catch (error) {
+        console.error("Error deleting disburse data:", error);
+    }
+},
+  
   },
 });
