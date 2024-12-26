@@ -7,8 +7,10 @@
 
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using CEMS_Server.Hubs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
@@ -18,10 +20,12 @@ namespace CEMS_Server.Controllers;
 public class ApprovalController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public ApprovalController(CemsContext context)
+    public ApprovalController(CemsContext context, IHubContext<NotificationHub> hubContext)
     {
         _context = context;
+        _hubContext = hubContext;
     }
 
     /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
@@ -190,21 +194,7 @@ public class ApprovalController : ControllerBase
 
         _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
-
-        if (approverUpdate.AprApId != 3 && approverUpdate.AprStatus == "accept")
-        {
-            var nextApprover = await _context
-                .CemsApproverRequisitions.Where(a => a.AprApId == approverUpdate.AprApId + 1)
-                .FirstOrDefaultAsync();
-
-            if (nextApprover != null)
-            {
-                nextApprover.AprStatus = "waiting";
-                _context.CemsApproverRequisitions.Update(nextApprover);
-                await _context.SaveChangesAsync();
-            }
-        }
-
+        
         if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept")
         {
             var updateSuccess = await UpdateRequisitionsStatus(
@@ -244,6 +234,16 @@ public class ApprovalController : ControllerBase
                 return NotFound();
             }
         }
+        var notification = new CemsNotification
+        {
+            NtAprId = approverUpdate.AprId,
+            NtDate = DateTime.Now,
+            NtStatus = "unread",
+        };
+        _context.CemsNotifications.Add(notification);
+
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        await _context.SaveChangesAsync();
         return NoContent();
     }
 

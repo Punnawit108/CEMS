@@ -7,14 +7,23 @@
 */
 import { ref, onMounted } from 'vue';
 import Icon from './CIcon.vue';
+import { useNotificationStore } from '../../store/notification';
+
+const notificationStore = useNotificationStore();
 
 let role = ref("User");
+const userInfo = ref<any>(null) ;
 
-onMounted(() => {
+onMounted(async () => {
     const userData = localStorage.getItem('user')
-    const parsedData = userData ? JSON.parse(userData) : null;
-    role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
+    userInfo.value =  userData ? await JSON.parse(userData) : null;
+    //role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
+    await notificationStore.loadNotifications();
+    notificationStore.initSignalR();
 })
+
+
+
 const clickDashboard = ref(true);
 const clickNotification = ref(false);
 
@@ -36,24 +45,58 @@ const isApprovalDropdownOpen = ref(false);
 const isDeliverDropdownOpen = ref(false);
 const isSettingDropdownOpen = ref(false);
 
+const resetAllDropdown = () => {
+    isWithdrawDropdownOpen.value = false;
+    isReportDropdownOpen.value = false;
+    isApprovalDropdownOpen.value = false;
+    isDeliverDropdownOpen.value = false;
+    isSettingDropdownOpen.value = false;
+};
+
 const toggleWithdrawDropdown = () => {
-    isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
+    if (isWithdrawDropdownOpen.value == true) {
+        isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isWithdrawDropdownOpen.value = true;
+    }
 };
 
 const toggleReportDropdown = () => {
-    isReportDropdownOpen.value = !isReportDropdownOpen.value;
+    if (isReportDropdownOpen.value == true) {
+        isReportDropdownOpen.value = !isReportDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isReportDropdownOpen.value = true;
+    }
 };
 
 const toggleApprovalDropdown = () => {
-    isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
+    if (isApprovalDropdownOpen.value == true) {
+        isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isApprovalDropdownOpen.value = true;
+    }
 };
 
 const toggleDeliverDropdown = () => {
-    isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
+    if (isDeliverDropdownOpen.value == true) {
+        isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isDeliverDropdownOpen.value = true;
+    }
 };
 
+
 const toggleSettingDropdown = () => {
-    isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
+    if (isSettingDropdownOpen.value == true) {
+        isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
+    }else {
+        resetAllDropdown();
+        isSettingDropdownOpen.value = true;
+    }
 };
 
 const resetAllToggles = () => {
@@ -161,7 +204,7 @@ const toggleSettingTypeWithdraw = () => {
             </div>
         </header>
 
-        <ul class="flex flex-col w-full">
+        <ul class="flex flex-col w-full" v-if="userInfo != null">
             <!-- ปุ่มแดชบอร์ด -->
             <li
                 class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap ">
@@ -229,7 +272,7 @@ const toggleSettingTypeWithdraw = () => {
                 </ul>
             </li>
             <!-- รายงาน dropdown -->
-            <li v-if="role === 'Approver' || role === 'Accountant' || role === 'Admin'"
+            <li v-if="userInfo.usrIsSeeReport == 1"
                 class="flex overflow-hidden flex-col px-4 py-2.5 w-full">
                 <button @click="toggleReportDropdown" :class="{ 'bg-neutral-100 rounded-xl': isReportDropdownOpen }"
                     class="flex relative gap-2.5 items-center w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px] hover:bg-neutral-100 rounded-xl"
@@ -281,7 +324,7 @@ const toggleSettingTypeWithdraw = () => {
             </li>
 
             <!-- การอนุมัติ dropdown -->
-            <li v-if="role === 'Approver'"
+            <li v-if="userInfo.usrIsApprover == 1"
                 class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
                 <button @click="toggleApprovalDropdown" :class="{ 'bg-neutral-100 rounded-xl': isApprovalDropdownOpen }"
                     class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
@@ -334,7 +377,7 @@ const toggleSettingTypeWithdraw = () => {
             </li>
 
             <!-- การนำจ่าย dropdown -->
-            <li v-if="role === 'Accountant'"
+            <li v-if="userInfo.usrRolName == 'Accountant'"
                 class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
                 <button @click="toggleDeliverDropdown" :class="{ 'bg-neutral-100 rounded-xl': isDeliverDropdownOpen }"
                     class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
@@ -391,7 +434,7 @@ const toggleSettingTypeWithdraw = () => {
             </li>
 
             <!-- ตั้งค่าระบบ dropdown -->
-            <li v-if="role === 'Admin'"
+            <li v-if="userInfo.usrRolName == 'Admin'"
                 class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
                 <button @click="toggleSettingDropdown" :class="{ 'bg-neutral-100 rounded-xl': isSettingDropdownOpen }"
                     class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
@@ -470,7 +513,8 @@ const toggleSettingTypeWithdraw = () => {
                         tabindex="0">
                         <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                         <Icon :icon="'notification'" class="ml-2" />
-
+                        <!-- ตัวเลข -->
+                        <span>{{notificationStore.unreadCount}}</span>
                         <span class="self-stretch py-2.5 my-auto w-[174px] text-left">การแจ้งเตือน</span>
                     </button>
                 </RouterLink>

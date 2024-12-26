@@ -8,8 +8,10 @@
 using System;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using CEMS_Server.Hubs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
@@ -21,10 +23,17 @@ public class ExpenseController : ControllerBase
     private readonly CemsContext _context;
     private readonly IWebHostEnvironment _environment;
 
-    public ExpenseController(CemsContext context, IWebHostEnvironment environment)
+    private readonly IHubContext<NotificationHub> _hubContext;
+
+    public ExpenseController(
+        CemsContext context,
+        IWebHostEnvironment environment,
+        IHubContext<NotificationHub> hubContext
+    )
     {
         _context = context;
         _environment = environment;
+        _hubContext = hubContext;
     }
 
     /// <summary>แสดงช้อมูลรายการคำขอเบิก</summary>
