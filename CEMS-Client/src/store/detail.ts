@@ -69,13 +69,10 @@ export const useDetailStore = defineStore('detailExpense', {
             }
         },
 
-        async updateDisburse(rqId : string) {
+        async updateDisburse(data : any) {
             try {
-                const result = await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/disburse/${rqId}`);
-                this.getRequisition(rqId) ;
-                
+                const result = await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/disburse` , data);
                 return result ;
-
             } catch (error) {
                 console.error("Error fetching approver data:", error);
             }

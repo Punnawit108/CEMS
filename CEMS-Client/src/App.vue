@@ -5,6 +5,8 @@ import SideBar from "./components/template/SideBar.vue";
 import Navbar from "./components/template/Navbar.vue";
 import Login from "./pages/Login.vue";
 import { computed ,ref} from "vue";
+import connection from './services/signalr';
+
 
 const userRole = ref(''); 
 const route = useRoute();

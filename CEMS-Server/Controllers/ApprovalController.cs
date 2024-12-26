@@ -5,6 +5,7 @@
 * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
 */
 
+using System.Globalization;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -138,9 +139,9 @@ public class ApprovalController : ControllerBase
             e.ApSequence == approvalSequence.ApSequence
         );
 
-
         //Add a Sequence to null sequence
-        if(approvalBySequence == null){
+        if (approvalBySequence == null)
+        {
             var approver = await _context.CemsApprovers.FindAsync(approvalSequence.ApId);
             approver.ApSequence = approvalSequence.ApSequence;
             _context.CemsApprovers.Update(approver);
@@ -183,41 +184,62 @@ public class ApprovalController : ControllerBase
         {
             return NotFound($"ไม่มีข้อมูลของ id {approverUpdate.AprId} ในระบบ");
         }
+        var now = DateTime.Now;
+
         approver.AprApId = approverUpdate.AprApId;
         approver.AprName = approverUpdate.AprName;
-        approver.AprDate = DateTime.Now;
+        approver.AprDate = new DateTime(
+            now.Year + 543,
+            now.Month,
+            now.Day,
+            now.Hour,
+            now.Minute,
+            now.Second
+        );
         approver.AprStatus = approverUpdate.AprStatus;
 
         _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
 
-        if (approverUpdate.AprApId != 3 && approverUpdate.AprStatus == "accept")
+        if (approverUpdate.AprStatus == "accept")
         {
-            var nextApprover = await _context
-                .CemsApproverRequisitions.Where(a => a.AprApId == approverUpdate.AprApId + 1)
-                .FirstOrDefaultAsync();
+            var approvers = await _context
+                .CemsApproverRequisitions.Where(a => a.AprRqId == approver.AprRqId)
+                .OrderBy(a => a.AprId)
+                .ToListAsync();
 
-            if (nextApprover != null)
+            // หา index ของผู้อนุมัติคนปัจจุบัน
+            var currentApproverIndex = approvers.FindIndex(a => a.AprId == approver.AprId);
+
+            // ตรวจสอบว่ามีผู้อนุมัติถัดไปในลำดับ
+            if (currentApproverIndex != -1)
             {
-                nextApprover.AprStatus = "waiting";
-                _context.CemsApproverRequisitions.Update(nextApprover);
-                await _context.SaveChangesAsync();
+                if (currentApproverIndex + 1 < approvers.Count)
+                {
+                    var nextApprover = approvers[currentApproverIndex + 1];
+                    if (nextApprover != null && string.IsNullOrEmpty(nextApprover.AprStatus))
+                    {
+                        nextApprover.AprStatus = "waiting"; // เปลี่ยนสถานะเป็น waiting
+                        _context.CemsApproverRequisitions.Update(nextApprover);
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    var updateSuccess = await UpdateRequisitionsStatus(
+                        approver.AprRqId,
+                        "accept",
+                        "paying",
+                        null
+                    );
+                    if (!updateSuccess)
+                    {
+                        return NotFound();
+                    }
+                }
             }
         }
-
-        if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept")
-        {
-            var updateSuccess = await UpdateRequisitionsStatus(
-                approver.AprRqId,
-                "accept",
-                "paying",
-                null
-            );
-            if (!updateSuccess)
-            {
-                return NotFound();
-            }
-        }
+        //if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept") { }
         if (approverUpdate.AprStatus == "edit")
         {
             var updateEdit = await UpdateRequisitionsStatus(
@@ -283,8 +305,8 @@ public class ApprovalController : ControllerBase
         }
 
         // อัปเดตข้อมูลใน cems_approver_requistion ให้ AprApId เป็น null
-        var approverRequisitions = await _context.CemsApproverRequisitions
-            .Where(e => e.AprApId == approverId)
+        var approverRequisitions = await _context
+            .CemsApproverRequisitions.Where(e => e.AprApId == approverId)
             .ToListAsync();
 
         if (approverRequisitions.Any())
@@ -309,19 +331,24 @@ public class ApprovalController : ControllerBase
             return Conflict($"ไม่สามารถลบผู้อนุมัติได้เนื่องจากข้อผิดพลาด: {ex.Message}");
         }
 
-        return Ok($"ลบผู้อนุมัติที่มี ID {approverId} และตั้งค่า AprApId ใน cems_approver_requistion เป็น null เรียบร้อยแล้ว");
+        return Ok(
+            $"ลบผู้อนุมัติที่มี ID {approverId} และตั้งค่า AprApId ใน cems_approver_requistion เป็น null เรียบร้อยแล้ว"
+        );
+    }
 
-    [HttpPut("disburse/{rqId}")]
-    public async Task<ActionResult> updateDisburse(string rqId)
+    [HttpPut("disburse")]
+    public async Task<ActionResult> updateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
     {
-        var requisition = await _context.CemsRequisitions.FindAsync(rqId);
+        var requisition = await _context.CemsRequisitions.FindAsync(disburseUpdate.RqId);
 
         if (requisition == null)
         {
             return NotFound();
         }
+        var now = DateTime.Now;
 
-        requisition.RqDisburseDate = DateOnly.FromDateTime(DateTime.Now);
+        requisition.RqDisburser = disburseUpdate.UsrId;
+        requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
 
         _context.CemsRequisitions.Update(requisition);

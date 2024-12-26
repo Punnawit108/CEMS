@@ -5,7 +5,8 @@
 * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ, นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 22 ตุลาคม 2567
 */
-import { ref, computed, onMounted, reactive, watchEffect } from "vue";
+
+import { ref, computed, onMounted, reactive } from "vue";
 import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
 import { useRoute, useRouter } from "vue-router";
@@ -28,11 +29,13 @@ onMounted(async () => {
 })
 
 
-// FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่
+// FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่  
+// ถ้ารายการคำขอเบิกนั้นๆ เป็นของ ผู้ใช้ปัจจุบัน และ AprStatus นั้นเป็น waiting จะดึงข้อมูล
 const isApprovalPath = computed(() => {
   return route.path.includes('approval') && route.path.includes('list');
 });
 
+// ถ้ารายการคำขอเบิกนั้นๆ มีสถานะเป็น rqStatus = accept , rqProgress = paying
 const isPaymentPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list');
 });
@@ -41,6 +44,48 @@ const isPaymentPath = computed(() => {
 // FN ตรวจสอบว่ามีคำว่า 'payment' และ list ใน path หรือไม่
 const isPaymentOrHistoryPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list') || route.path.includes('history') && !route.path.includes('approval');
+});
+
+const statusMapping = [
+  {
+    condition: (data: any) => data.rqProgress === 'accepting',
+    label: 'รออนุมัติ',
+    color: '#1976D2',
+  },
+  {
+    condition: (data: any) => data.rqStatus === 'edit',
+    label: 'แก้ไข',
+    color: '#FFBE40',
+  },
+  // {
+  //   condition: (data: any) => data.rqStatus === 'accept',
+  //   label: 'อนุมัติ',
+  //   color: '#12B669',
+  // },
+  {
+    condition: (data: any) => data.rqStatus === 'reject',
+    label: 'ไม่อนุมัติ',
+    color: '#E1032B',
+  },
+  {
+    condition: (data: any) => data.rqStatus === 'accept' && data.rqProgress === 'paying',
+    label: 'รอนำจ่าย',
+    color: '#FFBE40',
+  },
+  {
+    condition: (data: any) => data.rqStatus === 'accept' && data.rqProgress === 'complete',
+    label: 'นำจ่ายสำเร็จ',
+    color: '#12B669',
+  },
+
+];
+
+const statusInfo = computed(() => {
+  if (expenseData.value) {
+    const match = statusMapping.find((item) => item.condition(expenseData.value));
+    return match || { label: 'ไม่ทราบสถานะ', color: '#000000' };
+  }
+  return { label: 'กำลังโหลดข้อมูล...', color: '#CCCCCC' }; // กรณีที่ข้อมูลยังไม่โหลด
 });
 
 const colorStatus: { [key: string]: string } = {
@@ -117,12 +162,20 @@ const handleSummit = async (status: string) => {
     console.log(data);
     detailStore.updateApprove(data);
     handleHideApproverPopup();
-    router.push(`/approval/list/`)
+    //router.push(`/approval/list/`)
   }
 };
 
-const handleDisburse = () => {
-  detailStore.updateDisburse(expenseData.value.rqId);
+const handleDisburse = async () => {
+  const currentUser = await initializeCurrentUser();
+  if (currentUser) {
+    const data = {
+      usrId:currentUser.usrId,
+      rqId:expenseData.value.rqId, 
+    };
+    detailStore.updateDisburse(data);
+  }
+  
   handleHideApproverPopup();
 }
 
@@ -146,11 +199,9 @@ const confirmPrint = async () => {
 };
 
 const approveCompleteDate = computed(() => {
-  const target = progressData.value.acceptor.find(
-    (item: any) => item.aprApId == 3
-  );
-  return target ? target.aprDate : null;
-})
+  const lastAccepter = progressData.value.acceptor.slice(-1)[0];
+  return lastAccepter.aprDate.split(' ')[0];
+});
 
 const editAprDate = computed(() => {
   const target = progressData.value.acceptor.find(
@@ -206,9 +257,9 @@ const editAprDate = computed(() => {
       <div class="left w-[85%]">
         <div class="flex items-center align-middle justify-between">
           <h3 class="text-base font-bold text-black ">
-            เบิกค่าใช้จ่าย<span :class="`bg-[${colorStatus[expenseData.rqStatus]}]`"
+            เบิกค่าใช้จ่าย<span :class="`bg-[${statusInfo.color}]`"
               class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
-                expenseData.rqStatus }}</span>
+                statusInfo.label }}</span>
           </h3>
           <div class="pr-5">
             <Button :type="'btn-print2'" @click="openPopupPrint"></Button>
@@ -222,11 +273,11 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
-            <p class="item">{{ expenseData?.rqPjName }}</p>
+            <p class="item">{{ expenseData?.rqPjName || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqPayDate }}</p>
+            <p class="item">{{ expenseData?.rqPayDate || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
@@ -241,7 +292,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
-            <p class="item">{{ expenseData?.rqInsteadName }}</p>
+            <p class="item">{{ expenseData?.rqInsteadName || '-' }}</p>
           </div>
         </div>
 
@@ -277,7 +328,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhPayrate }}</p>
+            <p class="item">{{ expenseData?.rqVhPayrate || '-' }}</p>
           </div>
 
         </div>
