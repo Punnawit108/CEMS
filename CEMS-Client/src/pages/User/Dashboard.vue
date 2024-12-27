@@ -1,10 +1,10 @@
 <script setup lang="ts">
 /*
-* ชื่อไฟล์: dashboard.vue
-* คำอธิบาย: ไฟล์นี้แสดงภาพรวมคำขอเบิกต่างๆ และรายการรออนุมัติของผู้ใช้ทั่วไปที่มีสิทธิ์
-* ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
-*/
+ * ชื่อไฟล์: dashboard.vue
+ * คำอธิบาย: ไฟล์นี้แสดงภาพรวมคำขอเบิกต่างๆ และรายการรออนุมัติของผู้ใช้ทั่วไปที่มีสิทธิ์
+ * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+ * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+ */
 
 import { onMounted, ref } from "vue";
 import { useDashboard } from "../../store/dashboard";
@@ -94,13 +94,19 @@ onMounted(async () => {
   await loadUser();
   if (user.value) {
     if (user.value?.usrRolName === "User") {
-      totalExpense.value = await dashboardStore.getDashboardTotalExpenseById(user.value.usrId);
-      projectData.value = await dashboardStore.getDashboardProjectById(user.value.usrId);
-      requisitionType.value = await dashboardStore.getDashboardRequisitionTypeById(user.value.usrId);
+      totalExpense.value = await dashboardStore.getDashboardTotalExpenseById(
+        user.value.usrId
+      );
+      projectData.value = await dashboardStore.getDashboardProjectById(
+        user.value.usrId
+      );
+      requisitionType.value =
+        await dashboardStore.getDashboardRequisitionTypeById(user.value.usrId);
     } else {
       totalExpense.value = await dashboardStore.getDashboardTotalExpense();
       projectData.value = await dashboardStore.getDashboardProject();
-      requisitionType.value = await dashboardStore.getDashboardRequisitionType();
+      requisitionType.value =
+        await dashboardStore.getDashboardRequisitionType();
     }
     //วนลูปประเภทค่าใช้จ่าย แล้วเก็บค่าลงในตัวแปร
     requisitionType.value.forEach((item: any) => {
@@ -109,7 +115,6 @@ onMounted(async () => {
     });
   }
 
-  //Pie
   const ctx = document.getElementById("pieChart") as HTMLCanvasElement;
   if (ctx) {
     new Chart(ctx, {
@@ -118,7 +123,6 @@ onMounted(async () => {
         labels: rqtNames,
         datasets: [
           {
-            label: "ประเภทค่าใช้จ่ายของรายการเบิก",
             data: totalRqt,
             backgroundColor: [
               "#8979FF",
@@ -127,56 +131,44 @@ onMounted(async () => {
               "#FFAE4C",
               "#537FF1",
             ],
-            hoverOffset: 5,
+            borderWidth: 0,
           },
         ],
       },
       options: {
         responsive: true,
+        
         maintainAspectRatio: false,
-        animation: {
-          animateScale: true,
+        layout: {
+          padding: 30, // ระยะห่างของกราฟ
         },
         plugins: {
           tooltip: {
             callbacks: {
               label: (tooltipItem: any) => {
-                const { dataset, raw } = tooltipItem;
-                const value = raw as number; // แปลง raw ให้เป็น number
-                const total = dataset.data.reduce(
+                const total = tooltipItem.dataset.data.reduce(
                   (acc: number, val: number) => acc + val,
                   0
-                ); // คำนวณผลรวม
-                const percentage = ((value / total) * 100).toFixed(2) + "%"; // คำนวณเปอร์เซ็นต์
+                );
+                const value = tooltipItem.raw;
+                const percentage = ((value / total) * 100).toFixed(2) + "%";
                 return `${tooltipItem.label}: ${percentage}`;
               },
             },
           },
           datalabels: {
-            formatter: (value: number, context: any) => {
-              const total = context.chart.data.datasets[0].data.reduce(
-                (acc: number, val: number) => acc + val,
-                0
-              ); // คำนวณผลรวม
-              const percentage = ((value / total) * 100).toFixed(2) + "%"; // คำนวณเปอร์เซ็นต์
-              return percentage; // ส่งกลับเปอร์เซ็นต์
-            },
-            color: "#fff", // สีของตัวอักษร
-            anchor: "end",
-            align: "end",
-            font: {
-              weight: "bold",
-            },
+            display: false, // ปิดการแสดงผล Data Labels
           },
-
           legend: {
             position: "right",
             align: "center",
-
+            // Style ของ Label
             labels: {
               padding: 16,
+              //สไตล์ของจุด
               usePointStyle: true,
               pointStyle: "circle",
+              //ขนาดของกล่อง
               boxHeight: 8,
               boxWidth: 8,
               font: {
@@ -188,12 +180,79 @@ onMounted(async () => {
           },
         },
       },
+      //
+      plugins: [
+       {
+  id: "lines",
+  afterDatasetsDraw(chart) {
+    const { ctx } = chart;
+    const meta = chart.getDatasetMeta(0);
+
+    // จุดกึ่งกลางของกราฟ
+    const centerX = chart.chartArea.width / 2 + chart.chartArea.left;
+    const centerY = chart.chartArea.height / 2 + chart.chartArea.top;
+
+    meta.data.forEach((segment, index) => {
+  const startAngle = segment.startAngle; // มุมเริ่มต้น
+  const endAngle = segment.endAngle; // มุมสิ้นสุด
+  const middleAngle = (startAngle + endAngle) / 2; // มุมกึ่งกลางของ segment
+
+  // ระยะที่ปลายเส้นยื่นออกจากกราฟ
+  const outerRadius = segment.outerRadius;
+  const endX = centerX + (outerRadius + 20) * Math.cos(middleAngle);
+  const endY = centerY + (outerRadius + 15) * Math.sin(middleAngle);
+
+  // คำนวณความกว้างของ label และ percentage
+  const label = `${chart.data.labels[index]}: `;
+  const percentage = (
+    (chart.data.datasets[0].data[index] /
+      chart.data.datasets[0].data.reduce((a, b) => a + b, 0)) *
+    100
+  ).toFixed(2);
+  const percentageText = `${percentage}%`;
+
+  const labelWidth = ctx.measureText(label).width;
+  const percentageTextWidth = ctx.measureText(percentageText).width;
+
+  // คำนวณตำแหน่งของเส้นแนวนอนโดยให้สิ้นสุดก่อนถึงข้อความ
+  const horizontalX =
+    endX > centerX
+      ? endX + labelWidth + percentageTextWidth + 10
+      : endX - labelWidth - percentageTextWidth - 10;
+
+  // วาดเส้นจากจุดกึ่งกลาง -> segment -> แนวนอน
+  ctx.save();
+  ctx.beginPath();
+  ctx.moveTo(centerX, centerY); // จุดเริ่มต้นที่กึ่งกลางกราฟ
+  ctx.lineTo(endX, endY); // เส้นออกจากกราฟ
+  ctx.lineTo(horizontalX, endY); // เส้นแนวนอน
+  ctx.strokeStyle = segment.options.backgroundColor || "#000";
+  ctx.lineWidth = 1;
+  ctx.stroke();
+  ctx.restore();
+
+  // เพิ่มข้อความให้ไม่ทับกัน
+  const textX = (endX + horizontalX) / 2;
+  const textY = endY;
+
+  // วาด label
+  ctx.font = "12px Arial";
+  ctx.fillStyle = "#000";
+  ctx.textAlign = endX > centerX ? "right" : "left";
+  ctx.fillText(label, endX > centerX ? horizontalX - percentageTextWidth : horizontalX, textY - 5);
+
+  // วาด percentage
+  ctx.fillStyle = chart.data.datasets[0].backgroundColor[index] || "#000";
+  ctx.fillText(percentageText, endX > centerX ? horizontalX : horizontalX + labelWidth, textY - 5);
+});
+
+  },
+},
+
+      ],
     });
-  } else {
-    console.error("Canvas element not found");
   }
 
-  
   //Line chart
   if (totalExpense.value != null) {
     const linechart = document.getElementById("lineChart") as HTMLCanvasElement;
@@ -287,8 +346,6 @@ onMounted(async () => {
     }
   }
 });
-
-
 </script>
 <template>
   <!-- path for test = / -->
@@ -297,8 +354,14 @@ onMounted(async () => {
 
     <div class="mainfloat clearFix">
       <!-- Summary section -->
-      <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
-        <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox ">
+      <div
+        class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch"
+      >
+        <div
+          v-for="(item, index) in dashboardDetailStore.dashboard"
+          :key="index"
+          class="columnDashboard shadowBox"
+        >
           <p class="font16">{{ item.key }}</p>
           <p class="font35">{{ item.value }}</p>
         </div>
@@ -326,18 +389,19 @@ onMounted(async () => {
               <td class="textOverflow">{{ project.pjName }}</td>
               <td class="text-right">{{ project.totalPjExpense }}</td>
             </tr>
-
           </tbody>
         </table>
       </div>
 
       <!-- Pie chart -->
-      <div class="graphPie w-[817px] h-[400px] shadowBox ml-6 mb-6 mr-6 summaryfloat">
+      <div
+        class="shadowBox summaryfloat pieChartBox items-center "
+      >
         <p class="font16 font-bold m-3 text-left">
           ประเภทค่าใช้จ่ายของรายการเบิก
         </p>
-        <div>
-          <canvas id="pieChart"></canvas>
+        <div >
+          <canvas  id="pieChart"></canvas>
         </div>
       </div>
     </div>

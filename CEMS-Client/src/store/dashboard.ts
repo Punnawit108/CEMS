@@ -118,9 +118,9 @@ export const useDashboardDetail = defineStore("dashboardDetail", {
           if (role == "user") {
             this.dashboard = [
               { key: "คำขอรอดำเนินการ", value: data.rqTotalUserWaiting },
-              { key: "คำขอเสร็จสิ้น", value: data.rqTotalUserComplete },
+              { key: "คำขอเบิกจ่ายแล้ว", value: data.rqTotalUserComplete },
               { key: "โครงการที่ทำการเบิก", value: data.rqTotalUserProject },
-              { key: "ยอดเบิกจ่าย(บาท)", value: data.rqTotalExpense },
+              { key: "ยอดเบิกจ่ายแล้ว (บาท)", value: data.rqTotalExpense },
             ];
           } else if (role == "approver") {
             this.dashboard = [
@@ -130,7 +130,7 @@ export const useDashboardDetail = defineStore("dashboardDetail", {
                 value: data.totalRequisitionsAcceptedOrRejected,
               },
               { key: "รายการเบิกทั้งหมด", value: data.totalRequisitions },
-              { key: "ยอดเบิกจ่าย(บาท)", value: data.totalRequisitionExpenses },
+              { key: "ยอดที่อนุมัติแล้ว (บาท)", value: data.totalRequisitionExpenses },
             ];
           }
           return this.dashboard;
@@ -144,14 +144,14 @@ export const useDashboardDetail = defineStore("dashboardDetail", {
               { key: "ผู้ใช้งานทั้งหมด", value: data.totalUser },
               { key: "คำขอเบิกจ่ายทั้งหมด", value: data.totalRqAccept },
               { key: "โครงการทั้งหมด", value: data.totalProject },
-              { key: "ยอดเบิกจ่าย(บาท)", value: data.totalRqAcceptExpense },
+              { key: "ยอดเบิกจ่ายแล้ว (บาท)", value: data.totalRqAcceptExpense },
             ];
           } else if (role == "accountant") {
             this.dashboard = [
               { key: "คำขอรอนำจ่าย", value: data.totalRqPay },
               { key: "นำจ่ายเสร็จสิ้น", value: data.totalRqComplete },
               { key: "รายการเบิกทั้งหมด", value: data.totalRequisition },
-              { key: "ยอดเบิกจ่าย(บาท)", value: data.totalRqExpense },
+              { key: "ยอดเบิกจ่ายแล้ว (บาท)", value: data.totalRqExpense },
             ];
           }
           return this.dashboard;
