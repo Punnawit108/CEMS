@@ -137,7 +137,7 @@ onMounted(async () => {
       },
       options: {
         responsive: true,
-        
+
         maintainAspectRatio: false,
         layout: {
           padding: 30, // ระยะห่างของกราฟ
@@ -182,73 +182,82 @@ onMounted(async () => {
       },
       //
       plugins: [
-       {
-  id: "lines",
-  afterDatasetsDraw(chart) {
-    const { ctx } = chart;
-    const meta = chart.getDatasetMeta(0);
+        {
+          id: "lines",
+          afterDatasetsDraw(chart) {
+            const { ctx } = chart;
+            const meta = chart.getDatasetMeta(0);
 
-    // จุดกึ่งกลางของกราฟ
-    const centerX = chart.chartArea.width / 2 + chart.chartArea.left;
-    const centerY = chart.chartArea.height / 2 + chart.chartArea.top;
+            // Check if chart data is available
+            if (!chart.data.datasets[0].data) return;
 
-    meta.data.forEach((segment, index) => {
-  const startAngle = segment.startAngle; // มุมเริ่มต้น
-  const endAngle = segment.endAngle; // มุมสิ้นสุด
-  const middleAngle = (startAngle + endAngle) / 2; // มุมกึ่งกลางของ segment
+            const centerX = chart.chartArea.width / 2 + chart.chartArea.left;
+            const centerY = chart.chartArea.height / 2 + chart.chartArea.top;
 
-  // ระยะที่ปลายเส้นยื่นออกจากกราฟ
-  const outerRadius = segment.outerRadius;
-  const endX = centerX + (outerRadius + 20) * Math.cos(middleAngle);
-  const endY = centerY + (outerRadius + 15) * Math.sin(middleAngle);
+            meta.data.forEach((segment, index) => {
+              // Skip drawing lines for hidden segments
+              if (!meta.data[index].hidden) {
+                const startAngle = segment.startAngle;
+                const endAngle = segment.endAngle;
+                const middleAngle = (startAngle + endAngle) / 2;
 
-  // คำนวณความกว้างของ label และ percentage
-  const label = `${chart.data.labels[index]}: `;
-  const percentage = (
-    (chart.data.datasets[0].data[index] /
-      chart.data.datasets[0].data.reduce((a, b) => a + b, 0)) *
-    100
-  ).toFixed(2);
-  const percentageText = `${percentage}%`;
+                const outerRadius = segment.outerRadius;
+                const endX = centerX + (outerRadius + 20) * Math.cos(middleAngle);
+                const endY = centerY + (outerRadius + 15) * Math.sin(middleAngle);
 
-  const labelWidth = ctx.measureText(label).width;
-  const percentageTextWidth = ctx.measureText(percentageText).width;
+                // Only proceed if the segment is visible
+                if (chart.getDataVisibility(index)) {
+                  const label = `${chart.data.labels[index]}: `;
+                  const percentage = (
+                    (chart.data.datasets[0].data[index] /
+                      chart.data.datasets[0].data.reduce((a, b) => a + b, 0)) *
+                    100
+                  ).toFixed(2);
+                  const percentageText = `${percentage}%`;
 
-  // คำนวณตำแหน่งของเส้นแนวนอนโดยให้สิ้นสุดก่อนถึงข้อความ
-  const horizontalX =
-    endX > centerX
-      ? endX + labelWidth + percentageTextWidth + 10
-      : endX - labelWidth - percentageTextWidth - 10;
+                  const labelWidth = ctx.measureText(label).width;
+                  const percentageTextWidth = ctx.measureText(percentageText).width;
 
-  // วาดเส้นจากจุดกึ่งกลาง -> segment -> แนวนอน
-  ctx.save();
-  ctx.beginPath();
-  ctx.moveTo(centerX, centerY); // จุดเริ่มต้นที่กึ่งกลางกราฟ
-  ctx.lineTo(endX, endY); // เส้นออกจากกราฟ
-  ctx.lineTo(horizontalX, endY); // เส้นแนวนอน
-  ctx.strokeStyle = segment.options.backgroundColor || "#000";
-  ctx.lineWidth = 1;
-  ctx.stroke();
-  ctx.restore();
+                  const horizontalX =
+                    endX > centerX
+                      ? endX + labelWidth + percentageTextWidth + 10
+                      : endX - labelWidth - percentageTextWidth - 10;
 
-  // เพิ่มข้อความให้ไม่ทับกัน
-  const textX = (endX + horizontalX) / 2;
-  const textY = endY;
+                  // Draw lines only for visible segments
+                  ctx.save();
+                  ctx.beginPath();
+                  ctx.moveTo(centerX, centerY);
+                  ctx.lineTo(endX, endY);
+                  ctx.lineTo(horizontalX, endY);
+                  ctx.strokeStyle = segment.options.backgroundColor || "#000";
+                  ctx.lineWidth = 1;
+                  ctx.stroke();
+                  ctx.restore();
 
-  // วาด label
-  ctx.font = "12px Arial";
-  ctx.fillStyle = "#000";
-  ctx.textAlign = endX > centerX ? "right" : "left";
-  ctx.fillText(label, endX > centerX ? horizontalX - percentageTextWidth : horizontalX, textY - 5);
+                  // Add text
+                  const textX = (endX + horizontalX) / 2;
+                  const textY = endY;
 
-  // วาด percentage
-  ctx.fillStyle = chart.data.datasets[0].backgroundColor[index] || "#000";
-  ctx.fillText(percentageText, endX > centerX ? horizontalX : horizontalX + labelWidth, textY - 5);
-});
+                  ctx.font = "12px Arial";
+                  ctx.fillStyle = "#000";
+                  ctx.textAlign = endX > centerX ? "right" : "left";
+                  ctx.fillText(
+                    label,
+                    endX > centerX ? horizontalX - percentageTextWidth : horizontalX,
+                    textY - 5
+                  );
 
-  },
-},
-
+                  ctx.fillStyle = chart.data.datasets[0].backgroundColor[index] || "#000";
+                  ctx.fillText(
+                    percentageText,
+                    endX > centerX ? horizontalX : horizontalX + labelWidth,
+                    textY - 5
+                  );
+                }
+              }
+            });
+          },
+        },
       ],
     });
   }
@@ -354,14 +363,8 @@ onMounted(async () => {
 
     <div class="mainfloat clearFix">
       <!-- Summary section -->
-      <div
-        class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch"
-      >
-        <div
-          v-for="(item, index) in dashboardDetailStore.dashboard"
-          :key="index"
-          class="columnDashboard shadowBox"
-        >
+      <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
+        <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox">
           <p class="font16">{{ item.key }}</p>
           <p class="font35">{{ item.value }}</p>
         </div>
@@ -394,14 +397,12 @@ onMounted(async () => {
       </div>
 
       <!-- Pie chart -->
-      <div
-        class="shadowBox summaryfloat pieChartBox items-center "
-      >
+      <div class="shadowBox summaryfloat pieChartBox items-center ">
         <p class="font16 font-bold m-3 text-left">
           ประเภทค่าใช้จ่ายของรายการเบิก
         </p>
-        <div >
-          <canvas  id="pieChart"></canvas>
+        <div>
+          <canvas id="pieChart"></canvas>
         </div>
       </div>
     </div>
