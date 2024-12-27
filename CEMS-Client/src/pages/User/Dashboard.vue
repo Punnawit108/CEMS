@@ -136,6 +136,10 @@ onMounted(async () => {
         ],
       },
       options: {
+        animation: {
+          animateScale: true,
+          duration: 700, // ระยะเวลาของอนิเมชันในหน่วยมิลลิวินาที (เช่น 1000ms = 1 วินาที)
+        },
         responsive: true,
 
         maintainAspectRatio: false,
@@ -202,8 +206,10 @@ onMounted(async () => {
                 const middleAngle = (startAngle + endAngle) / 2;
 
                 const outerRadius = segment.outerRadius;
-                const endX = centerX + (outerRadius + 20) * Math.cos(middleAngle);
-                const endY = centerY + (outerRadius + 15) * Math.sin(middleAngle);
+                const endX =
+                  centerX + (outerRadius + 20) * Math.cos(middleAngle);
+                const endY =
+                  centerY + (outerRadius + 15) * Math.sin(middleAngle);
 
                 // Only proceed if the segment is visible
                 if (chart.getDataVisibility(index)) {
@@ -216,7 +222,8 @@ onMounted(async () => {
                   const percentageText = `${percentage}%`;
 
                   const labelWidth = ctx.measureText(label).width;
-                  const percentageTextWidth = ctx.measureText(percentageText).width;
+                  const percentageTextWidth =
+                    ctx.measureText(percentageText).width;
 
                   const horizontalX =
                     endX > centerX
@@ -243,11 +250,14 @@ onMounted(async () => {
                   ctx.textAlign = endX > centerX ? "right" : "left";
                   ctx.fillText(
                     label,
-                    endX > centerX ? horizontalX - percentageTextWidth : horizontalX,
+                    endX > centerX
+                      ? horizontalX - percentageTextWidth
+                      : horizontalX,
                     textY - 5
                   );
 
-                  ctx.fillStyle = chart.data.datasets[0].backgroundColor[index] || "#000";
+                  ctx.fillStyle =
+                    chart.data.datasets[0].backgroundColor[index] || "#000";
                   ctx.fillText(
                     percentageText,
                     endX > centerX ? horizontalX : horizontalX + labelWidth,
@@ -363,8 +373,14 @@ onMounted(async () => {
 
     <div class="mainfloat clearFix">
       <!-- Summary section -->
-      <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
-        <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox">
+      <div
+        class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch"
+      >
+        <div
+          v-for="(item, index) in dashboardDetailStore.dashboard"
+          :key="index"
+          class="columnDashboard shadowBox"
+        >
           <p class="font16">{{ item.key }}</p>
           <p class="font35">{{ item.value }}</p>
         </div>
@@ -397,7 +413,7 @@ onMounted(async () => {
       </div>
 
       <!-- Pie chart -->
-      <div class="shadowBox summaryfloat pieChartBox items-center ">
+      <div class="shadowBox summaryfloat pieChartBox items-center">
         <p class="font16 font-bold m-3 text-left">
           ประเภทค่าใช้จ่ายของรายการเบิก
         </p>
