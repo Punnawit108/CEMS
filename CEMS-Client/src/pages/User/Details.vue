@@ -162,7 +162,8 @@ const handleSummit = async (status: string) => {
     console.log(data);
     detailStore.updateApprove(data);
     handleHideApproverPopup();
-    //router.push(`/approval/list/`)
+    confirmPrint(status)
+    router.push(`/approval/list/`)
   }
 };
 
@@ -170,13 +171,13 @@ const handleDisburse = async () => {
   const currentUser = await initializeCurrentUser();
   if (currentUser) {
     const data = {
-      usrId:currentUser.usrId,
-      rqId:expenseData.value.rqId, 
+      usrId: currentUser.usrId,
+      rqId: expenseData.value.rqId,
     };
     detailStore.updateDisburse(data);
+    confirmPrint("pay")
+    handleHideApproverPopup();
   }
-  
-  handleHideApproverPopup();
 }
 
 // เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
@@ -187,15 +188,23 @@ const closePopupPrint = () => {
   isPopupPrintOpen.value = false;
 };
 
+const statusMessage = {
+  accept: "ยืนยันการการอนุมัติค่าใช้จ่ายสำเร็จ",
+  reject: "ยืนยันการปฏิเสธคำขอสำเร็จ",
+  edit: "ยืนยันการส่งกลับคำขอสำเร็จ",
+  pay: "ยืนยันการอัปเดตสถานะคำขอเบิกสำเร็จ",
+};
 
-// เปิด/ปิด Alert บันทึก
-const confirmPrint = async () => {
-  // เปิด Popup Alert
+const alertMessage = ref("")
+const confirmPrint = async (status: string) => {
+  const message = statusMessage[status as keyof typeof statusMessage] || "สถานะไม่ถูกต้อง";
+  alertMessage.value = message;
   isAlertPrintOpen.value = true;
+
   setTimeout(() => {
-    isAlertPrintOpen.value = false; // ปิด Alert
-    closePopupPrint(); // ปิด Popup แก้ไข
-  }, 1500); // 1.5 วินาที
+    isAlertPrintOpen.value = false;
+    closePopupPrint();
+  }, 1500);
 };
 
 const approveCompleteDate = computed(() => {
@@ -257,7 +266,7 @@ const editAprDate = computed(() => {
       <div class="left w-[85%]">
         <div class="flex items-center align-middle justify-between">
           <h3 class="text-base font-bold text-black ">
-            เบิกค่าใช้จ่าย<span :class="`bg-[${statusInfo.color}]`"
+            {{expenseData.rqName}}<span :class="`bg-[${statusInfo.color}]`"
               class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
@@ -379,17 +388,19 @@ const editAprDate = computed(() => {
             fill="#FFBE40" />
         </svg>
       </div>
-      <h2 class="text-center text-[24px] text-black mb-4">
+      <h2 class="text-[24px] font-bold text-center text-black mb-4">
         ยืนยันการอนุมัติค่าใช้จ่าย
       </h2>
-      <p class="text-center text-black text-[18px] mb-4">
+      <!-- <p class="text-[27px] font-bold text-center text-black">
         {{ expenseData.rqUsrName }}
         <br />
-        วันที่ขอเบิก {{ expenseData.rqDatePay }}
-      </p>
-      <p class="text-center text-gray-400 text-[18px] mb-8">
+        วันที่ขอเบิก {{ expenseData.rqWithDrawDate }}
+      </p> -->
+      <h1 class="text-[16px] text-center text-black mb-2">{{ expenseData.rqUsrName }}</h1>
+      <h1 class="text-[16px] text-center text-black mb-3">วันที่ขอเบิก {{ expenseData.rqWithDrawDate }}</h1>
+      <h1 class="text-[18px] text-center text-[#5e5e5e] mb-4">
         คุณยืนยันการอนุมัติค่าใช้จ่ายหรือไม่ ?
-      </p>
+      </h1>
       <div class="flex justify-center gap-5">
         <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup();"></Button>
         <Button :type="'btn-summit'" @click="handleSummit('accept')"></Button>
@@ -412,13 +423,14 @@ const editAprDate = computed(() => {
           ยืนยันการปฏิเสธคำขอ
         </h2>
       </div>
-      <p class="text-center text-gray-400 text-[18px] mb-4">
+      <h1 class="text-center text-[#7E7E7E] text-[18px] mb-4">
         คุณยืนยันการปฏิเสธคำขอหรือไม่ ?
-      </p>
-      <p class="text-start text-gray-400 text-[18px] mb-4">ระบุเหตุผลการปฏิเสธ <span class="text-red-500">*</span></p>
+      </h1>
+      <p class="text-start text-black text-[16px] mb-1">ระบุเหตุผลการปฏิเสธ <span class="text-red-500">*</span></p>
       <textarea id="rqReason" v-model="formData.rqReason" required
-        class="flex overflow-hidden gap-1.5 items-start mb-4 px-2.5 pt-1.5 pb-7 w-full text-sm text-gray-500 bg-white rounded-md border border-solid border-slate-200 min-h-[70px]"
-        aria-label="ระบุเหตุผลการปฏิเสธ" />
+        class="flex overflow-hidden gap-1.5 items-start mb-4 px-2.5 pt-1.5 pb-7 w-full text-sm text-gray-500 bg-white rounded-md border-2 border-solid border-gray-200 min-h-[70px] focus:outline-none focus:border-gray-500"
+        aria-label="ระบุเหตุผลการปฏิเสธ" placeholder="ระบุเหตุผล">
+      </textarea>
       <div class="flex justify-center gap-5">
         <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup()"></Button>
         <Button :type="'btn-summit'" @click="handleSummit('reject')"></Button>
@@ -442,14 +454,15 @@ const editAprDate = computed(() => {
           ยืนยันการส่งกลับคำขอ
         </h2>
       </div>
-      <p class="text-center text-gray-400 text-[18px] mb-4">
+      <h1 class="text-center text-[#7E7E7E] text-[18px] mb-4">
         คุณยืนยันการส่งกลับคำขอหรือไม่ ?
-      </p>
-      <p class="text-start text-gray-400 text-[18px] mb-4">ระบุเหตุผล <span class="text-red-500">*</span></p>
+      </h1>
+      <h1 class="text-start text-black text-[16px] mb-1">ระบุเหตุผล <span class="text-red-500">*</span></h1>
       <textarea id="rqReason" v-model="formData.rqReason" required
-        class="flex overflow-hidden gap-1.5 items-start mb-4 px-2.5 pt-1.5 pb-7 w-full text-sm text-gray-500 bg-white rounded-md border border-solid border-slate-200 min-h-[70px]"
-        aria-label="ระบุเหตุผล" />
-      <div class="flex justify-center gap-5">
+        class="flex overflow-hidden gap-1.5 items-start mb-4 px-2.5 pt-1.5 pb-7 w-full text-sm text-gray-500 bg-white rounded-md border-2 border-solid border-gray-200 min-h-[70px] focus:outline-none focus:border-gray-500"
+        aria-label="ระบุเหตุผล" placeholder="ระบุเหตุผล">
+      </textarea>
+      <div class="flex justify-center gap-5"> 
         <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup()"></Button>
         <Button :type="'btn-summit'" @click="handleSummit('edit')"></Button>
       </div>
@@ -529,7 +542,7 @@ const editAprDate = computed(() => {
             clip-rule="evenodd" />
         </svg>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันส่งออกคำขอเบิกค่าใช้จ่ายสำเร็จ</h2>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">{{alertMessage}}</h2>
     </div>
   </div>
 
