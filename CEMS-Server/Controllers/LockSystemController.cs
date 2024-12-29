@@ -58,7 +58,7 @@ public class LockSystemController : ControllerBase
 
     /// <summary>ตรวจสอบสถานะระบบล็อก</summary>
     /// <returns>สถานะระบบล็อก: 1 = ล็อก, 0 = ปลดล็อก</returns>
-    /// <remarks>แก้ไขล่าสุด: วันที่ 16 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
+    /// <remarks>แก้ไขล่าสุด: วันที่ 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
     [HttpGet("lock-status")]
     public async Task<ActionResult> GetSystemLockStatus()
     {
@@ -70,7 +70,6 @@ public class LockSystemController : ControllerBase
             return NotFound("ไม่พบข้อมูลสถานะระบบที่มี SttId = 1");
         }
 
-        // ส่งค่าผลลัพธ์กลับพร้อมสถานะ
         return Ok(new
         {
             Status = systemStatus.SttLock,

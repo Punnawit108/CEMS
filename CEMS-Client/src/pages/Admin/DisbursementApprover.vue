@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/*
+* ชื่อไฟล์: DisbursementApprover.vue
+* คำอธิบาย: ไฟล์นี้แสดงรายชื่อผู้มีสิทธิ์ในการอนุมัติ
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
+* วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
+*/
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
