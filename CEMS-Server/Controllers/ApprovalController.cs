@@ -1,8 +1,8 @@
 /*
 * ชื่อไฟล์: ApprovalController.cs
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของการอนุมัติและผู้อนุมัติ
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+* วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
 */
 
 using System.Globalization;
@@ -27,12 +27,13 @@ public class ApprovalController : ControllerBase
 
     /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
     /// <returns>ข้อมูลผู้อนุมัติทั้งหมด</returns>
-    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
+    /// <remarks>แก้ไขล่าสุด: 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<object>>> ApproverList()
     {
         var acceptorList = await _context
             .CemsApprovers.Include(e => e.ApUsr)
+            .OrderBy(e => e.ApSequence)
             .Select(e => new
             {
                 e.ApUsr.UsrId,
