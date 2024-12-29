@@ -102,10 +102,14 @@ public class ApprovalController : ControllerBase
     /// <summary>ใช้เพิ่มผู้อนุมัติ</summary>
     /// <returns>ข้อมูลผู้อนุมัติ</returns>
     /// <param name="approver">ข้อมูลผู้อนุมัติ</param>
-    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
+    /// <remarks>แก้ไขล่าสุด: 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
     [HttpPost]
     public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
     {
+        var latestSequence = await _context.CemsApprovers.CountAsync();
+
+        approver.ApSequence = latestSequence + 1;
+
         _context.CemsApprovers.Add(approver);
         await _context.SaveChangesAsync();
 
