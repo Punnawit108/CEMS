@@ -310,7 +310,7 @@ public class ApprovalController : ControllerBase
     /// <summary>ลบข้อมูลผู้อนุมัติ</summary>
     /// <param name="approverId">รหัสผู้อนุมัติ</param>
     /// <returns>ผลลัพธ์การลบข้อมูลผู้อนุมัติ</returns>
-    /// <remarks>แก้ไขล่าสุด: วันที่ 16 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
+    /// <remarks>แก้ไขล่าสุด: วันที่ 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
     [HttpDelete("{approverId:int}")]
     public async Task<ActionResult> DeleteApprover(int approverId)
     {
@@ -321,6 +321,9 @@ public class ApprovalController : ControllerBase
         {
             return NotFound($"ไม่พบผู้อนุมัติที่มี ID {approverId}");
         }
+
+        // เก็บลำดับของผู้อนุมัติที่จะลบไว้
+        var deletedSequence = approver.ApSequence;
 
         // อัปเดตข้อมูลใน cems_approver_requistion ให้ AprApId เป็น null
         var approverRequisitions = await _context
@@ -336,7 +339,18 @@ public class ApprovalController : ControllerBase
             _context.CemsApproverRequisitions.UpdateRange(approverRequisitions);
         }
 
-        // ลบข้อมูลผู้อนุมัติ
+        // ดึงข้อมูลผู้อนุมัติทั้งหมดที่มีลำดับมากกว่าผู้อนุมัติที่จะลบ
+        var approversToUpdate = await _context.CemsApprovers
+            .Where(a => a.ApSequence > deletedSequence)
+            .OrderBy(a => a.ApSequence)
+            .ToListAsync();
+
+        // ลดลำดับของผู้อนุมัติที่เหลือลง 1 ลำดับ
+        foreach (var remainingApprover in approversToUpdate)
+        {
+            remainingApprover.ApSequence--;
+        }
+
         _context.CemsApprovers.Remove(approver);
 
         try
@@ -350,7 +364,7 @@ public class ApprovalController : ControllerBase
         }
 
         return Ok(
-            $"ลบผู้อนุมัติที่มี ID {approverId} และตั้งค่า AprApId ใน cems_approver_requistion เป็น null เรียบร้อยแล้ว"
+            $"ลบผู้อนุมัติที่มี ID {approverId}"
         );
     }
 
