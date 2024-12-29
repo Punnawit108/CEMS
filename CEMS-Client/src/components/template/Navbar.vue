@@ -3,13 +3,13 @@
 * ชื่อไฟล์: navbar.vue
 * คำอธิบาย: ไฟล์นี้ Component navbar หรือ Header
 * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
 */
 import { useRoute } from 'vue-router';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import Icon from './CIcon.vue';
 import Button from './Button.vue';
-import { useLockStore } from '../../store/lock';
+import { useLockStore } from '../../store/lockSystem';
 
 // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 const route = useRoute();
@@ -22,10 +22,13 @@ const navbarTitle = computed(() => {
     return route.meta.breadcrumb;
 });
 
-// ฟังก์ชันที่ใช้เมื่อคลิกปุ่ม
+onMounted(async () => {
+    await lockStore.fetchLockStatus();
+});
+
 const handleClick = () => {
     if (lockStore.isLocked) {
-        alert('ไม่สามารถทำการเบิกได้ในขณะนี้');
+        alert('ไม่สามารถทำรายการเบิกได้ในขณะนี้');
     }
 };
 </script>

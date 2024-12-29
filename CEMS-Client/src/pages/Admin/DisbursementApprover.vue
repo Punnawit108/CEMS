@@ -6,7 +6,7 @@ import Button from '../../components/template/Button.vue';
 import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
 import { User } from '../../types';
-import { useLockStore } from '../../store/lock';
+import { useLockStore } from '../../store/lockSystem';
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
@@ -107,8 +107,14 @@ const confirmDelete = async () => {
   }, 1500); // 1.5 วินาที
 };
 
+// ฟังก์ชันล็อคระบบ
+const lockSystem = () => {
+  lockStore.toggleLock();
+};
+
 // ตรวจสอบ path เมื่อ component โหลด
 onMounted(async () => {
+  await lockStore.fetchLockStatus();
   await approvalStore.getApprovers();
   await userStore.getAllUsers();
 
@@ -122,11 +128,6 @@ onMounted(async () => {
     isEditPage.value = false;
   }
 });
-
-const lockSystem = async () => {
-  lockStore.toggleLock(!lockStore.isLocked);
-  console.log(lockStore.isLocked);
-};
 </script>
 
 <template>
@@ -153,7 +154,9 @@ const lockSystem = async () => {
             </form>
           </div>
           <div>
-            <Button :type="'btn-editProject'" class="" @click="lockSystem">ปิดรับคำขอ</Button>
+            <Button :type="'btn-editProject'" class="" @click="lockSystem">
+              {{ lockStore.isLocked ? 'เปิดรับคำขอ' : 'ปิดรับคำขอ' }}
+            </Button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
