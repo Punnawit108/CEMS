@@ -24,8 +24,8 @@
 }
 
 .summaryfloat{
-  width: 817px;
   float: left;
+  margin: 0px 24px 24px 24px;
 }
 
 .projectfloat{
@@ -56,9 +56,9 @@ td {
   padding: 8px;
 }
 
-#pieChart {
-  width: 800px !important;
-  height: 336px !important;
+.chart-wrapper {
+  width: 80%;
+  height: 100%;
 }
 
 #lineChart{
@@ -72,5 +72,19 @@ td {
   overflow: hidden;
   text-align: start;
 
+}
+
+.pieChartBox{
+  width: 817px !important;
+  height: 400px !important;
+}
+
+#pieChart{
+  height: 350px !important;
+}
+
+canvas {
+  max-width: 100%;
+  max-height: 100%;
 }
 
