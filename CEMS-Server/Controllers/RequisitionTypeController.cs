@@ -84,7 +84,7 @@ public class RequisitionTypeController : ControllerBase
     // แก้ไขข้อมูลที่มีอยู่
     // PUT: api/requisitiontype/{id}
     [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, RequisitionTypeDTO requisitionTypeDto)
+    public async Task<ActionResult> UpdateExpense(int id, RequisitionTypeDTO requisitionTypeDto)
     {
         // ค้นหาข้อมูลที่ต้องการแก้ไข
         var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
@@ -103,19 +103,37 @@ public class RequisitionTypeController : ControllerBase
 
     // ลบข้อมูล
     // DELETE: api/requisitiontype/{id}
+    // [HttpDelete("{id}")]
+    // public async Task<ActionResult> DeleteExpense(int id)
+    // {
+    //     // ค้นหาข้อมูลที่ต้องการลบ
+    //     var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
+    //     if (existingRequisitionType == null)
+    //     {
+    //         return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
+    //     }
+
+    //     _context.CemsRequisitionTypes.Remove(existingRequisitionType); // ลบข้อมูลออกจากบริบท
+    //     await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+
+    //     return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
+    // }
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public IActionResult DeleteExpense(int id)
     {
         // ค้นหาข้อมูลที่ต้องการลบ
-        var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
-        if (existingRequisitionType == null)
-        {
-            return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
-        }
+        var expense = _context.CemsRequisitionTypes.FirstOrDefault(v => v.RqtId == id);
+            if (expense == null)
+            {
+                return NotFound($"Expense with ID {id} not found."); // ส่งสถานะ 404
+            }
 
-        _context.CemsRequisitionTypes.Remove(existingRequisitionType); // ลบข้อมูลออกจากบริบท
-        await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+            // ลบข้อมูลออกจากบริบท
+            _context.CemsRequisitionTypes.Remove(expense);
+            _context.SaveChanges(); // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
 
-        return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
+            // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
+            return NoContent();
     }
 }
+
