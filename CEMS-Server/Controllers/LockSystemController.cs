@@ -59,7 +59,7 @@ public class LockSystemController : ControllerBase
     /// <summary>ตรวจสอบสถานะระบบล็อก</summary>
     /// <returns>สถานะระบบล็อก: 1 = ล็อก, 0 = ปลดล็อก</returns>
     /// <remarks>แก้ไขล่าสุด: วันที่ 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
-    [HttpGet("lock-status")]
+    [HttpGet("lockStatus")]
     public async Task<ActionResult> GetSystemLockStatus()
     {
         // ค้นหาข้อมูลสถานะระบบที่มี SttId = 1
