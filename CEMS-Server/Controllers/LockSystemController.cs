@@ -39,7 +39,7 @@ public class LockSystemController : ControllerBase
             return BadRequest("สถานะต้องเป็น 0 (ปลดล็อก) หรือ 1 (ล็อก) เท่านั้น");
         }
 
-        // ใช้ค่า SttId คงที่เป็น 1
+        // ใช้ค่า SttId = 1
         var systemStatus = await _context.CemsStatuses.FirstOrDefaultAsync(s => s.SttId == 1);
 
         if (systemStatus == null)
