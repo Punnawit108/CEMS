@@ -66,7 +66,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         */
         async getAllRequisitionType() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/dataType/requisition`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/list`);
                 this.requisitionType = result.data;
                 return this.requisitionType;
             } catch (error) {
