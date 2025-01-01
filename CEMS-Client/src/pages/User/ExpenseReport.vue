@@ -30,33 +30,41 @@ import {
 } from "chart.js";
 // ตัวแปรแสดง/ซ่อน Modal
 const showModal = ref(false);
+const selectedType = ref<string | null>(null);
 
 // ฟังก์ชัน Export ไฟล์
-const exportFile = async (type: string) => {
+const exportFile = async () => {
   try {
-    // URL สำหรับ Export PDF หรือ XLSX
-    const url = type === 'pdf'
-      ? 'http://localhost:5247/api/pdf/export'
-      : 'http://localhost:5247/api/ExportExcel/export';
+    // URL สำหรับ Export ตามประเภทที่เลือก
+    const url =
+      selectedType.value === 'pdf'
+        ? 'http://localhost:5247/api/pdf/export'
+        : 'http://localhost:5247/api/excel/export';
 
-    // เรียก API
+    // เรียก API และกำหนด response เป็น blob
     const response = await axios.get(url, { responseType: 'blob' });
 
     // สร้าง Blob สำหรับดาวน์โหลดไฟล์
-    const blob = new Blob([response.data], { type: type === 'pdf' ? 'application/pdf' : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+    const blob = new Blob([response.data], {
+      type:
+        selectedType.value === 'pdf'
+          ? 'application/pdf'
+          : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+    });
 
-    // สร้างลิงก์สำหรับดาวน์โหลดไฟล์
+    // สร้างลิงก์สำหรับดาวน์โหลด
     const link = document.createElement('a');
     link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', `ExportedExpenseData.${type}`);
+    link.setAttribute('download', `ExportedExpenseData.${selectedType.value}`);
     document.body.appendChild(link);
     link.click();
     link.remove();
 
     // ปิด Modal
     showModal.value = false;
+    selectedType.value = null; // รีเซ็ตค่า
   } catch (error) {
-    console.error(`Error exporting ${type}:`, error);
+    console.error(`Error exporting ${selectedType.value}:`, error);
     alert('เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์');
   }
 };
@@ -195,6 +203,7 @@ onMounted(async () => {
 </script>
 
 <template>
+  <div>
   <!-- path for test = /report/project -->
 
   <!-- begin::Filter -->
@@ -311,28 +320,53 @@ onMounted(async () => {
       </form>
     </div>
     <div>
-    <!-- ปุ่มสำหรับเปิด Modal -->
+    <!-- ปุ่มเปิด Modal -->
     <Button
       :type="'btn-print2'"
       @click="showModal = true"
       class="fixed right-0 mr-4 transform -translate-y-1/2 top-1/2"
     >
-      ส่งออก
+      Export
     </Button>
 
     <!-- Modal -->
     <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-      <div class="p-6 bg-white rounded-lg shadow-lg">
+      <div class="p-6 bg-white rounded-lg shadow-lg w-80">
         <h2 class="mb-4 text-lg font-semibold">เลือกประเภทไฟล์ที่ต้องการ Export</h2>
-        <div class="flex space-x-4">
-          <button @click="exportFile('pdf')" class="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600">
+
+        <!-- ปุ่มเลือกประเภทไฟล์ -->
+        <div class="flex mb-4 space-x-4">
+          <button
+            @click="selectedType = 'pdf'"
+            :class="['px-4 py-2 rounded', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-200']"
+          >
             PDF
           </button>
-          <button @click="exportFile('xlsx')" class="px-4 py-2 text-white bg-green-500 rounded hover:bg-green-600">
+          <button
+            @click="selectedType = 'xlsx'"
+            :class="['px-4 py-2 rounded', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-200']"
+          >
             XLSX
           </button>
         </div>
-        <button @click="showModal = false" class="mt-4 text-gray-500 hover:text-gray-700">ยกเลิก</button>
+
+        <!-- ปุ่มยืนยันและยกเลิก -->
+        <div class="flex justify-end space-x-2">
+          <button
+            @click="exportFile"
+            :disabled="!selectedType"
+            class="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-gray-300"
+          >
+            ยืนยัน
+          </button>
+          <button
+            @click="showModal = false"
+            type="button"
+            class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400"
+          >
+            ยกเลิก
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -422,10 +456,11 @@ onMounted(async () => {
       <!-- Table Footer -->
       <Ctable :table="'Table7-footer'" />
     </div>
-    <!-- end::Table -->
   </div>
   <!-- end::Content -->
+  </div>
 </template>
+
 
 <style scoped>
 .custom-select {

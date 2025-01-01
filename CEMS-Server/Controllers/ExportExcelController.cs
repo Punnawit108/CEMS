@@ -7,7 +7,7 @@ using CEMS_Server.AppContext;
 using CEMS_Server.Models;
 
 [ApiController]
-[Route("api/[controller]")]
+[Route("api/excel")]
 public class ExportExcelController : ControllerBase
 {
     private readonly CemsContext _dbContext;
