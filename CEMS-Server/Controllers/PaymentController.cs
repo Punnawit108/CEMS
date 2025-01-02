@@ -63,15 +63,15 @@ public class PaymentController : ControllerBase
     /// <summary>แสดงช้อมูลรายการประวัติการนำจ่าย</summary>
     /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
-    [HttpGet("History")]
-    public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory()
+    [HttpGet("History/{id}")]
+    public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory(string id)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "accept" && u.RqProgress =="complete") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqDisburser == id && u.RqStatus == "accept" && u.RqProgress =="complete") // เพิ่มเงื่อนไข Where
             .Select(u => new PaymentGetDto
             {
                 RqId = u.RqId,
@@ -90,6 +90,7 @@ public class PaymentController : ControllerBase
                 RqDistance = u.RqDistance,
                 RqPurpose = u.RqPurpose,
                 RqReason = u.RqReason,
+                RqDisburser= u.RqDisburser,
                 RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqProgress = u.RqProgress,

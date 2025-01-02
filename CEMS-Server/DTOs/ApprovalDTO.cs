@@ -101,4 +101,10 @@ namespace CEMS_Server.DTOs
 
         public string? RqReason { get; set; }
     }
+
+    public class DisburseUpdateDto
+    {
+        public required string RqId { get; set; }
+        public string UsrId { get; set; } = null!;
+    }
 }

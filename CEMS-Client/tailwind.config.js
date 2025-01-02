@@ -35,6 +35,7 @@ export default {
         'navyNormal': "#393C8A",
 
         'navyDark': "#2B2D68",
+        'navyblue': "#0066DD",
     },
     fontSize: {
       'Header-Bold-Navbar': '32px',

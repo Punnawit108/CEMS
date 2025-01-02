@@ -151,7 +151,7 @@ const toDetails = (id: string) => {
                             <th class="py-[12px] px-2 w-24 text-end ">{{ paymentlist.rqDateWithdraw }}</th>
                             <th class="py-[12px] px-2 w-40 text-end ">{{ paymentlist.rqExpenses }}</th>
                             <th class="py-[10px] px-2 w-32 text-center ">
-                                <span class="flex justify-center" v-on:click="toDetails">
+                                <span class="flex justify-center" v-on:click="toDetails(paymentlist.rqId)">
                                     <Icon :icon="'viewDetails'" />
                                 </span>
                             </th>

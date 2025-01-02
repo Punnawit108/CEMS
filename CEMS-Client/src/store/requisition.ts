@@ -66,7 +66,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         */
         async getAllRequisitionType() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/dataType/requisition`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/list`);
                 this.requisitionType = result.data;
                 return this.requisitionType;
             } catch (error) {
@@ -106,10 +106,14 @@ export const useRequisitionStore = defineStore('dropdown', {
         */
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
         async createExpense(CreateExpense: any) {
+             // ตรวจสอบข้อมูลที่ส่งไป
+
 
             try {
                 const result = await axios.post(
                     `${import.meta.env.VITE_BASE_URL}/api/expense`, CreateExpense);
+                console.log(result);
+                console.log(result.data);console.log(CreateExpense);
                 return result.data;
 
             } catch (error) {
@@ -129,7 +133,7 @@ export const useRequisitionStore = defineStore('dropdown', {
 
             try {
                 const result = await axios.put(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`,  UpdateExpense );
+                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`, UpdateExpense);
                 return result.data;
 
             } catch (error) {
