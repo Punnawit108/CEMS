@@ -2,11 +2,13 @@
   "name": "cems-client",
   "private": true,
   "version": "0.0.0",
-  "type": "module",
+  
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "cypress:open": "cypress open",
+    "cypress:run": "cypress run"
   },
   "dependencies": {
     "@microsoft/signalr": "^8.0.7",
@@ -23,12 +25,15 @@
   },
   "devDependencies": {
     "@types/chart.js": "^2.9.41",
+    "@types/node": "^22.10.3",
     "@vitejs/plugin-vue": "^5.1.4",
     "autoprefixer": "^10.4.20",
+    "cypress": "^13.17.0",
     "daisyui": "^4.12.12",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
-    "typescript": "^5.5.3",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2",
     "vite": "^5.4.8",
     "vue-tsc": "^2.1.6"
   }
