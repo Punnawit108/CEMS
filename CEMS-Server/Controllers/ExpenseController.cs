@@ -281,7 +281,7 @@ public class ExpenseController : ControllerBase
             }
             newAprId++;
         }
-        //await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
         return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
     }

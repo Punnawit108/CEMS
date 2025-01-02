@@ -14,12 +14,14 @@ const notificationStore = useNotificationStore();
 let role = ref("User");
 const userInfo = ref<any>(null) ;
 
+console.log(notificationStore.unreadCount)
+
 onMounted(async () => {
     const userData = localStorage.getItem('user')
     userInfo.value =  userData ? await JSON.parse(userData) : null;
     //role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
-    await notificationStore.loadNotifications();
-    notificationStore.initSignalR();
+    await notificationStore.loadNotifications(userInfo.value.usrId);
+    notificationStore.initSignalR(userInfo.value.usrId);
 })
 
 
