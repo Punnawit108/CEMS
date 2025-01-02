@@ -38,6 +38,16 @@ export const useUserStore = defineStore('users', {
         throw error;
       }
     },
+
+    async getLocalUsers() {
+      try {
+        const result = await axios.get(`${BASE_URL}/api/user/localUser`);
+        this.users = result.data;
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        throw error;
+      }
+    },
     /*
     * คำอธิบาย: แก้ไขข้อมูลผู้ใช้ของแต่ละผู้ใช้ตาม id
     * Input: userId, updateData (usrRolName, usrIsSeeReport)

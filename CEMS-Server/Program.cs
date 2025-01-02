@@ -1,6 +1,8 @@
 using QuestPDF.Infrastructure;
 using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
+using CEMS_Server.Hubs;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,8 +15,11 @@ builder.Services.AddControllers();
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+// Add SignalR service
+builder.Services.AddSignalR();
 builder.Services.AddScoped<GetDataExport>();
 builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<PdfServiceProject>();
 
 // ตั้งค่า CORS
 builder.Services.AddCors(options =>
@@ -23,7 +28,8 @@ builder.Services.AddCors(options =>
     {
         policy.WithOrigins("http://localhost:5173") // กำหนด URL ที่อนุญาต
               .AllowAnyHeader() // อนุญาตทุก header
-              .AllowAnyMethod(); // อนุญาตทุก method (GET, POST, PUT, DELETE)
+              .AllowAnyMethod() // อนุญาตทุก method (GET, POST, PUT, DELETE)
+              .AllowCredentials();
     });
 });
 
@@ -50,6 +56,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+// Map SignalR hub
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
 

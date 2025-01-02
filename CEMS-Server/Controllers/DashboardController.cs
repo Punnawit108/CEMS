@@ -152,27 +152,28 @@ public class DashboardController : ControllerBase
             a.AprName == fullName && (a.AprStatus == "accept" || a.AprStatus == "reject")
         );
 
-        // หาคำขอที่ต้องอนุมัติทั้งหมด
+        // หารายการคำขอเบิกทั้งหมด
         var totalRequisitions = await _context.CemsApproverRequisitions.CountAsync(a =>
-            a.AprName == fullName
+            a.AprName == fullName && a.AprStatus != "edit" && a.AprStatus != null
         );
 
         //หายอดรวมเบิกจ่ายทั้งหมดของระบบ
-        var totalExpenses = await _context
-        .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqDisburseDate != null)
-            .SumAsync(r => r.RqExpenses);
-
-        // // หายอดรวมของแต่ละรายการที่มีการอนุมัติ (ไม่ได้ใช้)
         // var totalExpenses = await _context
-        //     .CemsApproverRequisitions.Where(a => a.AprName == fullName)
-        //     .Join(
-        //         _context.CemsRequisitions,
-        //         apr => apr.AprRqId,
-        //         rq => rq.RqId,
-        //         (apr, rq) => new { apr, rq }
-        //     )
-        //     .Where(e => e.rq.RqStatus == "accept" && e.rq.RqStatus == "complete" && e.rq.RqDisburseDate != null) //อาจต้องเพิ่มเงื่อนไข rqProgress == "Complete"
-        //     .SumAsync(e => e.rq.RqExpenses);
+        // .CemsRequisitions.Where(r => r.RqStatus == "accept" && r.RqProgress == "complete" && r.RqDisburseDate != null)
+        //     .SumAsync(r => r.RqExpenses);
+
+        // หายอดรวมของแต่ละรายการที่มีการอนุมัติ
+        var totalExpenses = await _context
+            .CemsApproverRequisitions.Where(a => a.AprName == fullName)
+            .Join(
+                _context.CemsRequisitions,
+                apr => apr.AprRqId,
+                rq => rq.RqId,
+                (apr, rq) => new { apr, rq }
+            )
+            .Where(e => e.rq.RqStatus == "accept") //อาจต้องเพิ่มเงื่อนไข rqProgress == "Complete"
+            //&& e.rq.RqStatus == "complete" && e.rq.RqDisburseDate != null
+            .SumAsync(e => e.rq.RqExpenses);
 
         var result = new ApproverDashboardSummaryDto
         {

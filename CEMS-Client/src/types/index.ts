@@ -7,7 +7,7 @@
 
 //ตัวแปรคำขอเบิก
 export interface Expense{
-    rqId: number;
+    rqId: string;
     rqName: number;
     rqUsrName: string;
     rqPjName: string;

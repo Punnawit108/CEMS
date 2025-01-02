@@ -28,10 +28,12 @@ namespace CEMS_Server.DTOs
     {
         public required string RqId { get; set; }
         public required string RqUsrId { get; set; }
-        public int RqPjId { get; set; }
-        public int RqRqtId { get; set; }
-        public int? RqVhId { get; set; }
-        public string? RqVht { get; set; }
+        public string? RqPjName { get; set; }
+        public string? RqRqtName { get; set; }
+        public string? RqVhName { get; set; }
+        public string? RqVhType { get; set; }
+        public double? RqVhPayrate { get; set; }
+
         public string RqName { get; set; } = null!;
         public string RqUsrName { get; set; } = null!;
         public DateOnly RqPayDate { get; set; }
@@ -91,5 +93,33 @@ namespace CEMS_Server.DTOs
         public string RqStatus { get; set; } = null!;
 
         public string RqProgress { get; set; } = null!;
+    }
+
+    // Expense Report
+    public class ExpenseReportDto
+    {
+        public required string RqId { get; set; }
+
+        public string? RqName { get; set; }
+
+        public string RqUsrName { get; set; } = null!;
+
+        public string RqPjName { get; set; } = null!;
+
+        public string RqRqtName { get; set; } = null!;
+
+        public DateOnly RqPayDate { get; set; }
+
+        public double RqExpenses { get; set; }
+    }
+
+    // Expense Grap
+    public class ExpenseGraphDto
+    {
+        public int RqRqtId { get; set; }
+
+        public string RqRqtName { get; set; } = null!;
+
+        public double RqSumExpenses { get; set; }
     }
 }
