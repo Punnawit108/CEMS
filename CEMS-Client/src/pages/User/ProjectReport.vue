@@ -241,7 +241,7 @@ onMounted(async () => {
 
         <!-- begin::Table -->
         <!-- <div class="w-full h-fit border-[2px] flex flex-col items-start"> -->
-        <div class="w-full h-fit border-[2px] flex flex-col items-start">
+        <div class="w-full h-fit border-r-[2px] border-l-[2px] border-t-[2px] flex flex-col items-start">
             <!-- Table Header -->
             <Ctable :table="'Table4-head'" />
             <!-- Table Data -->
@@ -260,7 +260,7 @@ onMounted(async () => {
                 </tbody>
             </table>
             <!-- Table Footer -->
-            <Ctable :table="'Table4-footer'" />
+            <Ctable :table="'Table9-footer'" />
         </div>
         <!-- end::Table -->
 

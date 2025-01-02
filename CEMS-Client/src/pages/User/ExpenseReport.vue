@@ -157,6 +157,8 @@ onMounted(async () => {
         console.error("Canvas element for bar chart not found");
     }
 });
+
+
 </script>
 
 <template>
@@ -246,7 +248,7 @@ onMounted(async () => {
         <!-- end::Bar chart -->
 
         <!-- begin::Table -->
-        <div class="w-full h-fit border-[2px] flex flex-col items-start">
+        <div class="w-full h-fit border-r-[2px] border-l-[2px] border-t-[2px] flex flex-col items-start">
             <!-- Table Header -->
             <Ctable :table="'Table7-head'" />
             <!-- Table Data -->

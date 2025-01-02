@@ -121,15 +121,21 @@ const toDetails = (id: number) => {
             </div>
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(expenseReimbursementHistory, index) in expenseReimbursementStore.expenseReimbursementHistory"
+                    <!-- ตรวจสอบว่ามีข้อมูลหรือไม่ -->
+                    <tr v-if="!expenseReimbursementStore.expenseReimbursementList || expenseReimbursementStore.expenseReimbursementList.length === 0">
+                        <th colspan="8" class="py-5 text-center text-red-500">
+                            ไม่พบข้อมูลในระบบ หรือไม่สามารถโหลดข้อมูลได้
+                        </th>
+                    </tr>
+                    <tr v-else v-for="(expenseReimbursementHistory, index) in expenseReimbursementStore.expenseReimbursementHistory"
                         :key="expenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="นายเทียนชัย คูเมือง">
                             {{ expenseReimbursementHistory.rqName }}
                         </th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                             {{ expenseReimbursementHistory.rqPjName }}
@@ -137,12 +143,12 @@ const toDetails = (id: number) => {
                         <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expenseReimbursementHistory.rqRqtName }}
                         </th>
                         <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqWithDrawDate }}</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
-                        <th class="py-[12px] px-2 w-32 text-center "><span>
+                        <th class="py-[12px] px-2 w-32 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
+                        <th class="py-[12px] px-2 w-28 text-center "><span>
                                 <StatusBudge :status="'sts-'+expenseReimbursementHistory.rqStatus"></StatusBudge>
                             </span>
                         </th>
-                        <th class="py-[10px] px-2 w-24 text-center ">
+                        <th class="py-[10px] px-2 w-20 text-center ">
                             <span v-on:click="toDetails(expenseReimbursementHistory.rqId)" class="flex justify-center ">
                                 <Icon :icon="'viewDetails'" />
                             </span>

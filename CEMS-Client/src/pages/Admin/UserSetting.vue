@@ -132,7 +132,7 @@ onMounted(async () => {
       :showRequisitionTypeFilter="false"
       :showDateFilter="false"
     />
-    <div class="w-full h-fit border-[2px] flex flex-col items-start">
+    <div class="w-full h-fit border-r-[2px] border-l-[2px] border-t-[2px] flex flex-col items-start">
       <Ctable :table="'Table5-head'" />
       <table class="table-auto w-full text-center text-black">
         <tbody>
