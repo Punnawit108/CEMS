@@ -1,17 +1,18 @@
 <script setup lang="ts">
 /*
-* ชื่อไฟล์: ExpenseReport.vue
-* คำอธิบาย: ไฟล์นี้แสดงรายงานของคำขอเบิกค่าใช้จ่ายทั้งหมดในระบบ
-* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
-* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
-*/
+ * ชื่อไฟล์: ExpenseReport.vue
+ * คำอธิบาย: ไฟล์นี้แสดงรายงานของคำขอเบิกค่าใช้จ่ายทั้งหมดในระบบ
+ * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+ * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+ */
 import Icon from '../../components/template/CIcon.vue';
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from '../../components/template/CTable.vue';
 import { useExpensesListStore, useExpensesGraphStore } from '../../store/expensesReport';
 import ExpenseReportGraph from '../../types/index';
-
+import Button from "../../components/template/Button.vue";
+import axios from "axios";
 import {
     Chart,
     BarController,
@@ -27,7 +28,46 @@ import {
     Title,
     CategoryScale,
 } from "chart.js";
+// ตัวแปรแสดง/ซ่อน Modal
+const showModal = ref(false);
+const selectedType = ref<string | null>(null);
 
+// ฟังก์ชัน Export ไฟล์
+const exportFile = async () => {
+    try {
+        // URL สำหรับ Export ตามประเภทที่เลือก
+        const url =
+            selectedType.value === 'pdf'
+                ? 'http://localhost:5247/api/pdf/export'
+                : 'http://localhost:5247/api/excel/export';
+
+        // เรียก API และกำหนด response เป็น blob
+        const response = await axios.get(url, { responseType: 'blob' });
+
+        // สร้าง Blob สำหรับดาวน์โหลดไฟล์
+        const blob = new Blob([response.data], {
+            type:
+                selectedType.value === 'pdf'
+                    ? 'application/pdf'
+                    : 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+        });
+
+        // สร้างลิงก์สำหรับดาวน์โหลด
+        const link = document.createElement('a');
+        link.href = window.URL.createObjectURL(blob);
+        link.setAttribute('download', `ExportedExpenseData.${selectedType.value}`);
+        document.body.appendChild(link);
+        link.click();
+        link.remove();
+
+        // ปิด Modal
+        showModal.value = false;
+        selectedType.value = null; // รีเซ็ตค่า
+    } catch (error) {
+        console.error(`Error exporting ${selectedType.value}:`, error);
+        alert('เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์');
+    }
+};
 // Register Chart.js components, including for the bar chart
 Chart.register(
     BarController,
@@ -59,20 +99,14 @@ onMounted(async () => {
     try {
         await expensesListStore.getAllExpenses();
         await expensesGraphStore.getAllExpenses();
-
-        console.log(expensesGraphStore.expensegraph);
-
         expensesGraphStore.expensegraph.forEach((item: ExpenseReportGraph) => {
             expense.push(item.rqRqtName);
             amountMoney.push(item.rqSumExpenses);
         });
-
-        console.log(expense);
-        console.log(amountMoney);
     } catch (error) {
         console.error("Error fetching expenses:", error);
     }
-
+    
     const barchart = document.getElementById("barChart") as HTMLCanvasElement;
     if (barchart) {
         new Chart(barchart, {
@@ -100,16 +134,16 @@ onMounted(async () => {
                             display: true,
                             text: "ประเภทค่าใช้จ่าย",
                             font: {
-                                weight: 'bold',
+                                weight: "bold",
                                 size: 14,
                             },
                             padding: {
                                 top: 20,
-                            }
+                            },
                         },
                         ticks: {
                             font: {
-                                weight: 'bold',
+                                weight: "bold",
                                 size: 12,
                             },
                         },
@@ -121,7 +155,7 @@ onMounted(async () => {
                         beginAtZero: true, // แกน y เริ่มที่ 0
                         ticks: {
                             font: {
-                                weight: 'bold',
+                                weight: "bold",
                                 size: 12,
                             },
                             stepSize: 500, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
@@ -141,7 +175,7 @@ onMounted(async () => {
                             bottom: 30,
                         },
                         font: {
-                            weight: 'bold',
+                            weight: "bold",
                             size: 14,
                         },
                     },
@@ -169,14 +203,14 @@ onMounted(async () => {
         <!-- path for test = /report/project -->
 
         <!-- begin::Filter -->
-        <div class="flex gap-6 w-full mb-8">
+        <div class="flex w-full gap-6 mb-8">
             <!-- Filter ค้นหา -->
-            <div class="h-fit w-[266px] ">
+
+            <div class="h-fit w-[266px]">
                 <form class="grid">
                     <label for="SearchBar" class="py-0.5 text-[14px] text-black text-start">ค้นหา</label>
-                    <div class="relative h-[32px] w-[266px]  justify-center items-center">
-
-                        <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <div class="relative h-[32px] w-[266px] justify-center items-center">
+                        <div class="absolute transform -translate-y-1/2 pointer-events-none left-2 top-1/2">
                             <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -192,19 +226,20 @@ onMounted(async () => {
                 </form>
             </div>
             <!-- Filter ประเภทค่าใช้จ่าย -->
-            <div class="h-fit w-[266px] ">
+            <div class="h-fit w-[266px]">
                 <form class="grid">
                     <label for="ExpenseType" class="py-0.5 text-[14px] text-black text-start">ประเภทค่าใช้จ่าย</label>
-                    <div class="relative h-[32px] w-[266px]  justify-center items-center">
-
+                    <div class="relative h-[32px] w-[266px] justify-center items-center">
                         <select required
                             class="custom-select text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4">
-                            <option value="" disabled selected hidden class="placeholder">ประเภทค่าใช้จ่าย</option>
+                            <option value="" disabled selected hidden class="placeholder">
+                                ประเภทค่าใช้จ่าย
+                            </option>
                             <option value="Type1">ประเภทที่ 1</option>
                             <option value="Type2">ประเภทที่ 2</option>
                         </select>
 
-                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
                             <svg width="13" height="8" viewBox="0 0 13 8" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path fill-rule="evenodd" clip-rule="evenodd"
@@ -219,13 +254,12 @@ onMounted(async () => {
             <div class="h-fit w-[266px]">
                 <form class="grid">
                     <label for="Calendar" class="py-0.5 text-[14px] text-black text-start">วันที่เบิก</label>
-                    <div class="relative h-[32px] w-[266px]  justify-center items-center">
-
+                    <div class="relative h-[32px] w-[266px] justify-center items-center">
                         <input type="text" id="Calendar"
                             class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4"
                             placeholder="01/01/2567-31/12/2567" />
 
-                        <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                        <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
                             <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
                                 xmlns="http://www.w3.org/2000/svg">
                                 <path
@@ -236,16 +270,55 @@ onMounted(async () => {
                     </div>
                 </form>
             </div>
+            <div>
+                <!-- ปุ่มเปิด Modal -->
+                <Button :type="'btn-print2'" @click="showModal = true"
+                    class="fixed right-0 mr-4 transform -translate-y-1/2 top-1/2">
+                    Export
+                </Button>
+
+                <!-- Modal -->
+                <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                    <div class="p-6 bg-white rounded-lg shadow-lg w-80">
+                        <h2 class="mb-4 text-lg font-semibold">เลือกประเภทไฟล์ที่ต้องการ Export</h2>
+
+                        <!-- ปุ่มเลือกประเภทไฟล์ -->
+                        <div class="flex mb-4 space-x-4">
+                            <button @click="selectedType = 'pdf'"
+                                :class="['px-4 py-2 rounded', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-200']">
+                                PDF
+                            </button>
+                            <button @click="selectedType = 'xlsx'"
+                                :class="['px-4 py-2 rounded', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-200']">
+                                XLSX
+                            </button>
+                        </div>
+
+                        <!-- ปุ่มยืนยันและยกเลิก -->
+                        <div class="flex justify-end space-x-2">
+                            <button @click="exportFile" :disabled="!selectedType"
+                                class="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-gray-300">
+                                ยืนยัน
+                            </button>
+                            <button @click="showModal = false" type="button"
+                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                                ยกเลิก
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
         <!-- end::Filter -->
 
         <!-- begin::Content -->
         <div class="flex flex-col items-center justify-center">
-
             <!-- begin::Bar chart -->
             <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-                <p class="font-bold text-black mb-10 text-center">ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท</p>
-                <div class=" h-full w-3/4">
+                <p class="mb-10 font-bold text-center text-black">
+                    ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
+                </p>
+                <div class="w-3/4 h-full">
                     <canvas id="barChart"></canvas>
                 </div>
             </div>
@@ -257,30 +330,45 @@ onMounted(async () => {
                 <Ctable :table="'Table7-head'" />
                 <!-- Table Data -->
                 <!-- <Ctable :table="'Table7-data'" />    -->
-                <table class="table-auto w-full text-center text-black">
+                <table class="w-full text-center text-black table-auto">
                     <tbody>
                         <tr v-for="(expense, index) in expensesListStore.expenses" :key="index"
-                            class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                            class="text-[14px] border-b-2 border-[#BBBBBB]">
                             <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="นายเทียนชัย คูเมือง">
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
+                max-width: 224px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+              " title="นายเทียนชัย คูเมือง">
                                 {{ expense.rqUsrName }}
                             </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
+                max-width: 224px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+              " title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                                 {{ expense.rqName }}
                             </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
+                max-width: 224px;
+                white-space: nowrap;
+                text-overflow: ellipsis;
+                overflow: hidden;
+              " title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                                 {{ expense.rqPjName }}
                             </th>
-                            <th class="py-[12px] px-5 w-44 text-start ">{{ expense.rqRqtName }}</th>
-                            <th class="py-[12px] px-2 w-24 text-end ">{{ expense.rqDatePay }}</th>
-                            <th class="py-[12px] px-2 w-40 text-end ">{{ expense.rqExpenses }}</th>
-                            <th class="py-[10px] px-2 w-32 text-center ">
+                            <th class="py-[12px] px-5 w-44 text-start">
+                                {{ expense.rqRqtName }}
+                            </th>
+                            <th class="py-[12px] px-2 w-24 text-end">
+                                {{ expense.rqDatePay }}
+                            </th>
+                            <th class="py-[12px] px-2 w-40 text-end">
+                                {{ expense.rqExpenses }}
+                            </th>
+                            <th class="py-[10px] px-2 w-32 text-center">
                                 <span class="flex justify-center">
                                     <Icon :icon="'viewDetails'" />
                                 </span>
@@ -291,12 +379,11 @@ onMounted(async () => {
                 <!-- Table Footer -->
                 <Ctable :table="'Table7-footer'" />
             </div>
-            <!-- end::Table -->
-
         </div>
         <!-- end::Content -->
     </div>
 </template>
+
 
 <style scoped>
 .custom-select {
@@ -326,7 +413,7 @@ select option[value=""] {
 }
 
 /* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
     .custom-select {
         background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
         background-repeat: no-repeat;
