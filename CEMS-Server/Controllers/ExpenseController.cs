@@ -341,7 +341,7 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteExpense(int id)
+    public async Task<IActionResult> DeleteExpense(string id)
     {
         // ค้นหา id ในตาราง
         var expense = await _context.CemsRequisitions.FindAsync(id);
