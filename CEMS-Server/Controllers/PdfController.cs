@@ -10,21 +10,21 @@ public class PdfController : Controller
     }
 
     [HttpGet]
-    [Route("api/pdf/export")]  // This is the route for the export
-    public IActionResult ExportPdf()
+    [Route("api/pdf/export")]
+    public IActionResult ExportPdf([FromQuery] string? projectName, [FromQuery] string? requestType)
     {
         try
         {
-            // Generate the PDF file
-            byte[] pdf = _pdfService.GenerateExpenseReport();
+            // เรียกใช้งานเมทอดพร้อมเงื่อนไขการกรอง
+            byte[] pdf = _pdfService.GenerateExpenseReport(projectName, requestType);
 
-            // Return the PDF file as a response with the correct content type
             return File(pdf, "application/pdf", "ExportedExpenseData.pdf");
         }
         catch (Exception ex)
         {
-            // In case of error, return a 500 status code
             return StatusCode(500, $"An error occurred: {ex.Message}");
         }
     }
+
+
 }
