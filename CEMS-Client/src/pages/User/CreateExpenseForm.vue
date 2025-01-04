@@ -2,15 +2,14 @@
 /*
  * ชื่อไฟล์: CreateExpenseForm.vue
  * คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
- * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+ * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
  */
 
 import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
-import SingleDatePicker from "../../components/template/SingleDatePicker.vue";
 const user = ref<any>(null);
 const requisitionStore = useRequisitionStore();
 
@@ -26,10 +25,9 @@ onMounted(async () => {
       console.log("Error loading user:", error); // ถ้าล้มเหลวแสดงข้อความ Error
     }
   }
-  console.log(user.value.usrId);
 });
 
-const rqRqtName = ref(2);
+const rqtId = ref(2);
 const startPickerOpen = ref(false);
 const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
@@ -46,7 +44,7 @@ let formData: any = ref({
   rqName: "",
   rqUsrId: "",
   rqPjId: "",
-  rqRqtId: rqRqtName.value.toString(),
+  rqRqtId: rqtId.value.toString(),
   rqVhId: null,
   rqPayDate: "",
   rqWithdrawDate: null,
@@ -61,7 +59,6 @@ let formData: any = ref({
   rqProof: null,
   rqStatus: "",
   rqProgress: "accepting",
-  //preview: null,
 });
 
 // ตัวแปร ref สำหรับเก็บค่าต่างๆ
@@ -148,18 +145,9 @@ const handleSelectChange = () => {
 };
 
 const handleSubmit = async () => {
-  event.preventDefault();
-  console.log(formData.value);
+
   openPopupSubmit();
-  // formData.value.rqStatus = "waiting";
-  // console.log(formData);
-  // const data = await requisitionStore.createExpense(formData.value);
-  // console.log("API Response:", data);
-  // if (data) {
-  //   router.push("/disbursement/listWithdraw");
-  // } else {
-  //   alert(`Something went wrong: ${JSON.stringify(data)}`);
-  // }
+
 };
 
 const handleSave = async () => {
@@ -167,11 +155,9 @@ const handleSave = async () => {
 };
 
 const handleCancel = () => {
-  // Reset form data or navigate away
   openPopupCancle();
 };
 
-// เปิด/ปิด Popup บันทึก ผู้อนุมัติ
 const openPopupSave = () => {
   isPopupSaveOpen.value = true;
 };
@@ -179,7 +165,6 @@ const closePopupSave = () => {
   isPopupSaveOpen.value = false;
 };
 
-// เปิด/ปิด Popup ยกเลิก ผู้อนุมัติ
 const openPopupCancle = () => {
   isPopupCancleOpen.value = true;
 };
@@ -187,7 +172,6 @@ const closePopupCancle = () => {
   isPopupCancleOpen.value = false;
 };
 
-// เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
 const openPopupSubmit = () => {
   isPopupSubmitOpen.value = true;
 };
@@ -196,7 +180,6 @@ const closePopupSubmit = () => {
   isPopupSubmitOpen.value = false;
 };
 
-// เปิด/ปิด Alert บันทึก
 const confirmSave = async (event: Event) => {
   event.preventDefault();
   // เปิด Popup Alert
@@ -204,47 +187,35 @@ const confirmSave = async (event: Event) => {
   formData.value.rqStatus = "sketch";
   formData.value.rqUsrId = user.value.usrId;
   await requisitionStore.createExpense(formData.value);
-  console.log(formData.value);
 
-  setTimeout(async () => {
+  setTimeout(() => {
     isAlertSaveOpen.value = false; // ปิด Alert
      closePopupSave();
     // ปิด Popup แก้ไข
-    await router.push("/disbursement/listWithdraw");
+    router.push("/disbursement/listWithdraw");
   }, 1500); // 1.5 วินาที
 
-  // if (data) {
-  //   router.push("/disbursement/listWithdraw");
-  // } else {
-  //   alert("Something went wrong");
-  // }
 };
 
 // เปิด/ปิด Alert ยืนยัน
-const confirmSubmit = async () => {
+const confirmSubmit = async (event:Event) => {
   event.preventDefault();
   // เปิด Popup Alert
   isAlertSubmitOpen.value = true;
   formData.value.rqStatus = "waiting";
   formData.value.rqUsrId = user.value.usrId;
 
-  //const data = await requisitionStore.createExpense(formData.value);
+  await requisitionStore.createExpense(formData.value);
 
   setTimeout(() => {
     isAlertSubmitOpen.value = false; // ปิด Alert
     closePopupSubmit();
-    //router.push("/disbursement/listWithdraw"); // ปิด Popup แก้ไข
+    router.push("/disbursement/listWithdraw"); // ปิด Popup แก้ไข
   }, 1500); // 1.5 วินาที
 
-  // console.log("API Response:", data);
-  // if (data) {
-  //   router.push("/disbursement/listWithdraw");
-  // } else {
-  //   alert(`Something went wrong: ${JSON.stringify(data)}`);
-  // }
 };
 // เปิด/ปิด Alert ยกเลิก
-const confirmCancle = async () => {
+const confirmCancle = async (event:Event) => {
   event.preventDefault();
   // เปิด Popup Alert
   isAlertCancleOpen.value = true;
@@ -254,6 +225,7 @@ const confirmCancle = async () => {
     router.push("/disbursement/listWithdraw");
   }, 1500); // 1.5 วินาที
 };
+
 const handleDateConfirm = (type: "start" | "end", confirmedDate: Date) => {
   if (type === "start") {
     // startDate.value = confirmedDate;
@@ -268,18 +240,14 @@ const handleDateCancel = (type: "start" | "end") => {
     startPickerOpen.value = false;
   }
 };
+
 </script>
 <template>
   <form class="text-black text-sm">
     <!-- btn -->
     <div class="flex justify-end gap-4">
-      <!-- <Button :type="'btn-save'" @click="openPopupSave"></Button>
-      <Button :type="'btn-cancleBorderGray'" @click="openPopupCancle"></Button>
-      <Button :type="'btn-summit'" @click="openPopupSubmit"></Button> -->
       <Button :type="'btn-save'" @click="handleSave">บันทึก</Button>
-      <Button :type="'btn-cancleBorderGray'" @click="handleCancel"
-        >ยกเลิก</Button
-      >
+      <Button :type="'btn-cancleBorderGray'" @click="handleCancel">ยกเลิก</Button>
       <Button :type="'btn-summit'" @click="handleSubmit">ยืนยัน</Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
@@ -426,7 +394,7 @@ const handleDateCancel = (type: "start" | "end") => {
             </div>
           </div>
           <!-- ช่อง "ประเภทการเดินทาง" -->
-          <div class="m-4" v-if="rqRqtName === 2">
+          <div class="m-4" v-if="rqtId === 2">
             <label for="travelType" class="block text-sm font-medium py-1">
               ประเภทการเดินทาง
             </label>
@@ -452,7 +420,7 @@ const handleDateCancel = (type: "start" | "end") => {
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-          <div class="m-4" v-show="rqRqtName === 2">
+          <div class="m-4" v-show="rqtId === 2">
             <label for="vehicleType" class="block text-sm font-medium py-1">
               ประเภทรถ
             </label>
@@ -479,7 +447,7 @@ const handleDateCancel = (type: "start" | "end") => {
             </div>
           </div>
           <!-- ช่อง "สถานที่เริ่มต้น" -->
-          <div v-show="rqRqtName === 2" class="m-4">
+          <div v-show="rqtId === 2" class="m-4">
             <label for="rqStartLocation" class="block text-sm font-medium py-1"
               >สถานที่เริ่มต้น</label
             >
@@ -492,7 +460,7 @@ const handleDateCancel = (type: "start" | "end") => {
           </div>
 
           <!-- ช่อง "สถานที่สิ้นสุด" -->
-          <div v-show="rqRqtName === 2" class="m-4">
+          <div v-show="rqtId === 2" class="m-4">
             <label for="rqEndLocation" class="block text-sm font-medium py-1"
               >สถานที่สิ้นสุด</label
             >
@@ -505,7 +473,7 @@ const handleDateCancel = (type: "start" | "end") => {
           </div>
 
           <!-- ช่อง "ระยะทาง" -->
-          <div v-show="rqRqtName === 2" class="m-4">
+          <div v-show="rqtId === 2" class="m-4">
             <label for="rqEndLocation" class="block text-sm font-medium py-1"
               >ระยะทาง</label
             >
@@ -518,7 +486,7 @@ const handleDateCancel = (type: "start" | "end") => {
           </div>
 
           <!-- ช่อง "สถาน *" -->
-          <!-- <div v-if="rqRqtName !== 'ค่าเดินทาง'" class="m-4">
+          <!-- <div v-if="rqtId !== 'ค่าเดินทาง'" class="m-4">
             <label for="rqLocation" class="block text-sm font-medium py-1"
               >สถาน *</label
             >
