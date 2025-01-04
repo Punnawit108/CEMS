@@ -10,17 +10,27 @@ import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
-
+import SingleDatePicker from "../../components/template/SingleDatePicker.vue";
+const user = ref<any>(null);
 const requisitionStore = useRequisitionStore();
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
   await requisitionStore.getAllvehicleType();
+  const storedUser = localStorage.getItem("user"); // ดึงข้อมูลผู้ใช้จาก localStorage
+  if (storedUser) {
+    try {
+      user.value = await JSON.parse(storedUser); // แปลงข้อมูลที่ได้จาก JSON String เป็น Object
+    } catch (error) {
+      console.log("Error loading user:", error); // ถ้าล้มเหลวแสดงข้อความ Error
+    }
+  }
+  console.log(user.value.usrId);
 });
 
 const rqRqtName = ref(2);
-
+const startPickerOpen = ref(false);
 const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
 const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
@@ -34,11 +44,11 @@ const isAlertSubmitOpen = ref(false); // ควบคุมการแสดง
 
 let formData: any = ref({
   rqName: "",
-  rqUsrId: "9999",
-  rqPjId: "1",
+  rqUsrId: "",
+  rqPjId: "",
   rqRqtId: rqRqtName.value.toString(),
   rqVhId: null,
-  rqPayDate: null,
+  rqPayDate: "",
   rqWithdrawDate: null,
   rqCode: null,
   rqInsteadEmail: null,
@@ -139,6 +149,7 @@ const handleSelectChange = () => {
 
 const handleSubmit = async () => {
   event.preventDefault();
+  console.log(formData.value);
   openPopupSubmit();
   // formData.value.rqStatus = "waiting";
   // console.log(formData);
@@ -186,18 +197,20 @@ const closePopupSubmit = () => {
 };
 
 // เปิด/ปิด Alert บันทึก
-const confirmSave = async (event : Event) => {
+const confirmSave = async (event: Event) => {
   event.preventDefault();
   // เปิด Popup Alert
   isAlertSaveOpen.value = true;
   formData.value.rqStatus = "sketch";
+  formData.value.rqUsrId = user.value.usrId;
   await requisitionStore.createExpense(formData.value);
   console.log(formData.value);
 
-  setTimeout(() => {
+  setTimeout(async () => {
     isAlertSaveOpen.value = false; // ปิด Alert
-    closePopupSave();
-    router.push("/disbursement/listWithdraw"); // ปิด Popup แก้ไข
+     closePopupSave();
+    // ปิด Popup แก้ไข
+    await router.push("/disbursement/listWithdraw");
   }, 1500); // 1.5 วินาที
 
   // if (data) {
@@ -213,12 +226,14 @@ const confirmSubmit = async () => {
   // เปิด Popup Alert
   isAlertSubmitOpen.value = true;
   formData.value.rqStatus = "waiting";
-  const data = await requisitionStore.createExpense(formData.value);
+  formData.value.rqUsrId = user.value.usrId;
+
+  //const data = await requisitionStore.createExpense(formData.value);
 
   setTimeout(() => {
     isAlertSubmitOpen.value = false; // ปิด Alert
     closePopupSubmit();
-    router.push("/disbursement/listWithdraw"); // ปิด Popup แก้ไข
+    //router.push("/disbursement/listWithdraw"); // ปิด Popup แก้ไข
   }, 1500); // 1.5 วินาที
 
   // console.log("API Response:", data);
@@ -239,6 +254,20 @@ const confirmCancle = async () => {
     router.push("/disbursement/listWithdraw");
   }, 1500); // 1.5 วินาที
 };
+const handleDateConfirm = (type: "start" | "end", confirmedDate: Date) => {
+  if (type === "start") {
+    // startDate.value = confirmedDate;
+    startPickerOpen.value = false;
+  } else {
+    startPickerOpen.value = false;
+  }
+};
+
+const handleDateCancel = (type: "start" | "end") => {
+  if (type === "start") {
+    startPickerOpen.value = false;
+  }
+};
 </script>
 <template>
   <form class="text-black text-sm">
@@ -256,7 +285,7 @@ const confirmCancle = async () => {
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
       <!-- แบ่งเป็น 2 คอลัมน์ -->
-      <div class="flex flex-col md:flex-row justify-around ">
+      <div class="flex flex-col md:flex-row justify-around">
         <!-- Form Left -->
         <div class="w-2/5 rounded-[10px]">
           <!-- ช่อง "รหัสรายการเบิก *" -->
@@ -296,6 +325,17 @@ const confirmCancle = async () => {
               placeholder="YYYY-MM-DD"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
+            <!-- <div class="relative h-[32px] w-[208px] date-picker-container">
+              <SingleDatePicker
+                v-model="formData.rqPayDate"
+                placeholder="yyyy-mm-dd"
+                :disabled="loading"
+                class="w-full"
+                :confirmedDate="startDate"
+                :isOpen="startPickerOpen"
+                @update:isOpen="startPickerOpen = $event"
+              />
+            </div> -->
           </div>
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
           <div class="m-4">
@@ -315,6 +355,7 @@ const confirmCancle = async () => {
             <div class="text-xs">
               <select
                 id="projectName"
+                v-model="formData.rqPjId"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
                 <option disabled selected>เลือกโครงการ</option>
@@ -355,7 +396,7 @@ const confirmCancle = async () => {
             <div class="relative">
               <select
                 id="selectExpenseType"
-                v-model="rqRqtName"
+                v-model="formData.rqRqtId"
                 @change="handleSelectChange"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
