@@ -59,6 +59,7 @@ public class ExpenseController : ControllerBase
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
+                RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
             .ToListAsync();
@@ -86,6 +87,7 @@ public class ExpenseController : ControllerBase
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
+                RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
             .ToListAsync();
