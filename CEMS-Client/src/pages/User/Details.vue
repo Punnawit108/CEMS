@@ -11,6 +11,7 @@ import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
+import axios from "axios";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,12 +23,10 @@ const id = route.params.id.toString();
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
 
-
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
   expenseData.value = await detailStore.getRequisition(id);
-})
-
+});
 
 // FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่  
 // ถ้ารายการคำขอเบิกนั้นๆ เป็นของ ผู้ใช้ปัจจุบัน และ AprStatus นั้นเป็น waiting จะดึงข้อมูล
@@ -39,7 +38,6 @@ const isApprovalPath = computed(() => {
 const isPaymentPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list');
 });
-
 
 // FN ตรวจสอบว่ามีคำว่า 'payment' และ list ใน path หรือไม่
 const isPaymentOrHistoryPath = computed(() => {
@@ -132,7 +130,6 @@ function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any
   return match; // ส่งข้อมูล match และ status
 }
 
-
 // ประเภท popup เช่น 'reject', 'edit', 'approve'
 const isApproverPopup = ref("null");
 
@@ -217,9 +214,34 @@ const editAprDate = computed(() => {
     (item: any) => item.aprStatus == "edit"
   )
   return target ? target.aprDate : "";
-})
+});
+
+// เรียกใช้ฟังก์ชัน export ไปยัง PDF
+const exportFile = async () => {
+  try {
+    const url = `http://localhost:5247/api/detail/export?expenseId=${id}`;
+
+    // เรียก API และกำหนด response เป็น blob
+    const response = await axios.get(url, { responseType: 'blob' });
+
+    // สร้าง Blob สำหรับดาวน์โหลดไฟล์
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+
+    // สร้างลิงก์สำหรับดาวน์โหลด
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute('download', `ExportedExpenseData.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
+    alert('เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์ PDF');
+  }
+};
 
 </script>
+
 
 <!-- path for test = /disbursement/listWithdraw/detailsExpenseForm/:id -->
 <!-- path for test = /disbursement/historyWithdraw/detail/:id -->
@@ -522,7 +544,7 @@ const editAprDate = computed(() => {
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยกเลิก
         </button>
-        <button @click="confirmPrint"
+        <button @click="exportFile"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
         </button>

@@ -1,5 +1,4 @@
 using CEMS_Server.AppContext;
-using CEMS_Server.DTOs;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
@@ -17,7 +16,6 @@ public class DetailService
 
     public byte[] GenerateDetail(string? expenseId)
     {
-        // ดึงข้อมูลจากฐานข้อมูลโดยการ join กับ CemsVehicles และ CemsProjects
         var expense = (from e in _context.CemsRequisitions
                        join p in _context.CemsProjects on e.RqPjId equals p.PjId into projects
                        from p in projects.DefaultIfEmpty()
@@ -29,29 +27,27 @@ public class DetailService
                        select new
                        {
                            e.RqCode,
-                           RqPjName = p != null ? p.PjName : null, // ชื่อโครงการ
+                           RqPjName = p != null ? p.PjName : null,
                            e.RqPayDate,
                            e.RqWithdrawDate,
-                           RqUsrName = u != null ? $"{u.UsrFirstName} {u.UsrLastName}" : null, // ชื่อผู้เบิก
-                           e.RqInsteadEmail, // ชื่อผู้เบิกแทน
-                           RqRqtName = e.RqRqt != null ? e.RqRqt.RqtName : null, // ประเภทค่าใช้จ่าย
+                           RqUsrName = u != null ? $"{u.UsrFirstName} {u.UsrLastName}" : null,
+                           e.RqInsteadEmail,
+                           RqRqtName = e.RqRqt != null ? e.RqRqt.RqtName : null,
                            e.RqExpenses,
-                           RqVhType = v != null ? v.VhType : null, // ประเภทการเดินทาง
-                           RqVhName = v != null ? v.VhVehicle : null, // ประเภทรถ
+                           RqVhType = v != null ? v.VhType : null,
+                           RqVhName = v != null ? v.VhVehicle : null,
                            e.RqDistance,
-                           RqVhPayrate = v != null ? v.VhPayrate : null, // อัตราค่าเดินทาง
+                           RqVhPayrate = v != null ? v.VhPayrate : null,
                            e.RqStartLocation,
                            e.RqEndLocation,
-                           e.RqPurpose // รายละเอียด
+                           e.RqPurpose
                        }).FirstOrDefault();
 
-        // ตรวจสอบข้อมูล null
         if (expense == null)
         {
-            return Array.Empty<byte>(); // กรณีไม่พบข้อมูล
+            return Array.Empty<byte>();
         }
 
-        // สร้าง PDF เอกสาร
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -60,96 +56,88 @@ public class DetailService
                 page.Margin(20);
                 page.Content().Column(column =>
                 {
-                    // รายละเอียดเอกสาร
-                    column.Item().Row(row =>
+                    // Header Section (Right-aligned)
+                    
+                    column.Item().AlignRight().Text($"รหัสรายการเบิก: {expense.RqCode ?? "-"}").Bold();
+                    column.Item().AlignRight().Text($"วันที่เบิก: {(expense.RqWithdrawDate != null ? expense.RqWithdrawDate.ToString("dd/MM/yyyy") : "-")}");
+                    column.Item().AlignRight().Text($"วันที่เกิดค่าใช้จ่าย: {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}");
+                    column.Item().AlignCenter().Text("ใบเบิกค่าใช้จ่าย").Bold().FontSize(14);
+                    column.Item().LineHorizontal(1);
+
+                    // User Info Table
+                    column.Item().Table(table =>
                     {
-                        row.RelativeItem().Text("รหัสรายการเบิก:").Bold();
-                        row.RelativeItem().Text(expense.RqCode ?? "-");
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
+
+                        table.Cell().Element(CellStyle).Text($"ชื่อผู้เบิก : {expense.RqUsrName ?? "-"}");
+                        table.Cell().Element(CellStyle).Text($"ชื่อผู้เบิกแทน : {"-"}");
+
+                        table.Cell().ColumnSpan(2).Element(CellStyle).Text($"วัตถุประสงค์การเบิกค่าใช้จ่าย : {expense.RqPurpose ?? "-"}");
                     });
 
-                    column.Item().Row(row =>
+                    column.Item().LineHorizontal(1);
+
+                    // Expense Details Table
+                    column.Item().Table(table =>
                     {
-                        row.RelativeItem().Text("โครงการ:").Bold();
-                        row.RelativeItem().Text(expense.RqPjName ?? "-");
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
+
+                        table.Cell().Element(CellStyle).Text($"โครงการ : {expense.RqPjName ?? "-"}");
+                        table.Cell().Element(CellStyle).Text($"ประเภทค่าใช้จ่าย : {expense.RqRqtName ?? "-"}");
+
+                        table.Cell().Element(CellStyle).Text($"ประเภทการเดินทาง : {expense.RqVhType ?? "-"}");
+                        table.Cell().Element(CellStyle).Text($"ประเภทรถ : {expense.RqVhName ?? "-"}");
+
+                        table.Cell().Element(CellStyle).Text($"สถานที่เริ่มต้น : {expense.RqStartLocation ?? "-"}");
+                        table.Cell().Element(CellStyle).Text($"สถานที่สิ้นสุด : {expense.RqEndLocation ?? "-"}");
+
+                        table.Cell().Element(CellStyle).Text($"ระยะทาง (กม.) : {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}");
+                        table.Cell().Element(CellStyle).Text($"จำนวนเงิน (บาท) : {expense.RqExpenses.ToString("C2")}");
+                        table.Cell().ColumnSpan(2).Element(CellStyle).AlignCenter().Text($"รวม (    {expense.RqExpenses.ToString("C2")}    )   บาท");
                     });
 
-                    column.Item().Row(row =>
+                    column.Item().LineHorizontal(1);
+
+                    // Additional Rows for Approval
+                    column.Item().Table(table =>
                     {
-                        row.RelativeItem().Text("วันที่เกิดค่าใช้จ่าย:").Bold();
-                        row.RelativeItem().Text(expense.RqPayDate.ToString("dd/MM/yyyy") ?? "-");
+                        table.ColumnsDefinition(columns =>
+                        {
+                            for (int i = 0; i < 5; i++)
+                            {
+                                columns.RelativeColumn();
+                            }
+                        });
+
+                        table.Cell().Element(CellStyle).Text("ผู้ขอเบิก");
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติ");
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติ");
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติ");
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติเบิกจ่าย");
+
+                        for (int i = 0; i < 2; i++)
+                        {
+                            for (int j = 0; j < 5; j++)
+                            {
+                                table.Cell().Element(CellStyle).Text("(ชื่อ)");
+                            }
+
+                            for (int j = 0; j < 5; j++)
+                            {
+                                table.Cell().Element(CellStyle).Text(i == 0 ? "วันเบิก" : "วันที่อนุมัติ");
+                            }
+                        }
                     });
 
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("วันที่ทำรายการเบิกค่าใช้จ่าย:").Bold();
-                        row.RelativeItem().Text(expense.RqWithdrawDate.ToString("dd/MM/yyyy") ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("ชื่อผู้เบิก:").Bold();
-                        row.RelativeItem().Text(expense.RqUsrName ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("ชื่อผู้เบิกแทน:").Bold();
-                        row.RelativeItem().Text(expense.RqInsteadEmail ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("ประเภทค่าใช้จ่าย:").Bold();
-                        row.RelativeItem().Text(expense.RqRqtName ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("จำนวนเงิน(บาท):").Bold();
-                        row.RelativeItem().Text(expense.RqExpenses.ToString("C2"));
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("ประเภทการเดินทาง:").Bold();
-                        row.RelativeItem().Text(expense.RqVhType ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("ประเภทรถ:").Bold();
-                        row.RelativeItem().Text(expense.RqVhName ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("ระยะทาง:").Bold();
-                        row.RelativeItem().Text(expense.RqDistance ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("อัตราค่าเดินทาง:").Bold();
-                        row.RelativeItem().Text(expense.RqVhPayrate?.ToString("C2") ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("สถานที่เริ่มต้น:").Bold();
-                        row.RelativeItem().Text(expense.RqStartLocation ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("สถานที่สิ้นสุด:").Bold();
-                        row.RelativeItem().Text(expense.RqEndLocation ?? "-");
-                    });
-
-                    column.Item().Row(row =>
-                    {
-                        row.RelativeItem().Text("รายละเอียด:").Bold();
-                        row.RelativeItem().Text(expense.RqPurpose ?? "-");
-                    });
+                    column.Item().LineHorizontal(1);
                 });
 
                 page.Footer().AlignCenter().Text($"วันที่พิมพ์: {DateTime.Now:dd/MM/yyyy}");
@@ -159,4 +147,8 @@ public class DetailService
         return document.GeneratePdf();
     }
 
+    private static IContainer CellStyle(IContainer container)
+    {
+        return container.Padding(0).Border(1);
+    }
 }
