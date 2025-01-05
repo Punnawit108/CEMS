@@ -43,6 +43,12 @@ public class DetailService
                            e.RqPurpose
                        }).FirstOrDefault();
 
+        var approvers = _context.CemsApproverRequisitions
+            .Where(a => a.AprRqId == expenseId && a.AprStatus == "accept")
+            .OrderBy(a => a.AprId)
+            .Take(3)
+            .ToList();
+
         if (expense == null)
         {
             return Array.Empty<byte>();
@@ -100,8 +106,8 @@ public class DetailService
                         table.Cell().Element(CellStyle).Text($"สถานที่สิ้นสุด : {expense.RqEndLocation ?? "-"}");
 
                         table.Cell().Element(CellStyle).Text($"ระยะทาง (กม.) : {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}");
-                        table.Cell().Element(CellStyle).Text($"จำนวนเงิน (บาท) : {expense.RqExpenses.ToString("C2")}");
-                        table.Cell().ColumnSpan(2).Element(CellStyle).AlignCenter().Text($"รวม (    {expense.RqExpenses.ToString("C2")}    )   บาท");
+                        table.Cell().Element(CellStyle).Text($"จำนวนเงิน (บาท) : {expense.RqExpenses.ToString("")}");
+                        table.Cell().ColumnSpan(2).Element(CellStyle).AlignCenter().Text($"รวม (    {expense.RqExpenses.ToString("")}    )   บาท");
                     });
 
                     column.Item().LineHorizontal(1);
@@ -123,17 +129,24 @@ public class DetailService
                         table.Cell().Element(CellStyle).Text("ผู้อนุมัติ");
                         table.Cell().Element(CellStyle).Text("ผู้อนุมัติเบิกจ่าย");
 
-                        for (int i = 0; i < 2; i++)
+                        table.Cell().Element(CellStyle).Text(expense.RqUsrName ?? "-");
+                        for (int i = 0; i < approvers.Count; i++)
                         {
-                            for (int j = 0; j < 5; j++)
-                            {
-                                table.Cell().Element(CellStyle).Text("(ชื่อ)");
-                            }
+                            table.Cell().Element(CellStyle).Text(approvers[i].AprName ?? "-");
+                        }
+                        for (int i = approvers.Count; i < 4; i++)
+                        {
+                            table.Cell().Element(CellStyle).Text("-");
+                        }
 
-                            for (int j = 0; j < 5; j++)
-                            {
-                                table.Cell().Element(CellStyle).Text(i == 0 ? "วันเบิก" : "วันที่อนุมัติ");
-                            }
+                        table.Cell().Element(CellStyle).Text(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-");
+                        for (int i = 0; i < approvers.Count; i++)
+                        {
+                            table.Cell().Element(CellStyle).Text(approvers[i].AprDate?.ToString("dd/MM/yyyy") ?? "-");
+                        }
+                        for (int i = approvers.Count; i < 4; i++)
+                        {
+                            table.Cell().Element(CellStyle).Text("-");
                         }
                     });
 
