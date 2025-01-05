@@ -108,12 +108,12 @@ export const useRequisitionStore = defineStore('dropdown', {
         async createExpense(CreateExpense: any) {
              // ตรวจสอบข้อมูลที่ส่งไป
 
-
+            console.log(CreateExpense)
             try {
                 const result = await axios.post(
                     `${import.meta.env.VITE_BASE_URL}/api/expense`, CreateExpense);
                 console.log(result);
-                console.log(result.data);console.log(CreateExpense);
+                console.log(CreateExpense);
                 return result.data;
 
             } catch (error) {

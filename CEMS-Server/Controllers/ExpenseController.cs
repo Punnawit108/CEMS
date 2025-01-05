@@ -59,6 +59,7 @@ public class ExpenseController : ControllerBase
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
+                RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
             .ToListAsync();
@@ -86,6 +87,7 @@ public class ExpenseController : ControllerBase
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
+                RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
             .ToListAsync();
@@ -240,50 +242,62 @@ public class ExpenseController : ControllerBase
         _context.CemsRequisitions.Add(expense);
         await _context.SaveChangesAsync();
 
-        ///หาข้อมูล AprId ตัวสุดท้าย
-        var lastAprId = _context
-            .CemsApproverRequisitions.OrderByDescending(x => x.AprId)
-            .Select(x => x.AprId)
-            .FirstOrDefault();
-
-        ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
-        int newAprId = lastAprId + 1;
-
-        var approverIds = await _context
-            .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
-            .OrderBy(u => u.ApSequence)
-            .Select(x => x.ApId)
-            .ToListAsync();
-
-        /// Loop สร้างข้อมูลผู้อนุมัติ
-        foreach (var approverId in approverIds)
+        if (expenseDto.RqStatus != "sketch")
         {
-            var approverRequisition = new CemsApproverRequisition
-            {
-                AprId = newAprId,
-                AprRqId = rqId,
-                AprApId = approverId,
-                AprName = null,
-                AprDate = null,
-                AprStatus = approverId == approverIds.First() ? "waiting" : null,
-            };
-            _context.CemsApproverRequisitions.Add(approverRequisition);
+            ///หาข้อมูล AprId ตัวสุดท้าย
+            var lastAprId = _context
+                .CemsApproverRequisitions.OrderByDescending(x => x.AprId)
+                .Select(x => x.AprId)
+                .FirstOrDefault();
 
-            if (approverId == approverIds.First())
+            ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
+            int newAprId = lastAprId + 1;
+
+            var approverIds = await _context
+                .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
+                .OrderBy(u => u.ApSequence)
+                .Select(x => x.ApId)
+                .ToListAsync();
+
+            /// Loop สร้างข้อมูลผู้อนุมัติ
+            foreach (var approverId in approverIds)
             {
-                var notification = new CemsNotification
+                var approverRequisition = new CemsApproverRequisition
                 {
-                    NtAprId = newAprId,
-                    NtDate = DateTime.Now,
-                    NtStatus = "unread",
+                    AprId = newAprId,
+                    AprRqId = rqId,
+                    AprApId = approverId,
+                    AprName = null,
+                    AprDate = null,
+                    AprStatus = approverId == approverIds.First() ? "waiting" : null,
                 };
-                _context.CemsNotifications.Add(notification);
+                _context.CemsApproverRequisitions.Add(approverRequisition);
+
+                if (approverId == approverIds.First())
+                {
+                    var notification = new CemsNotification
+                    {
+                        NtAprId = newAprId,
+                        NtDate = DateTime.Now,
+                        NtStatus = "unread",
+                    };
+                    _context.CemsNotifications.Add(notification);
+                }
+                newAprId++;
             }
-            newAprId++;
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+            await _context.SaveChangesAsync();
+            return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
         }
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
-        await _context.SaveChangesAsync();
-        return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
+        return CreatedAtAction(
+            nameof(GetExpenseList),
+            new { id = expense.RqId },
+            new
+            {
+                Message = "The requisition has been created in sketch status.",
+                Id = expense.RqId,
+            }
+        );
     }
 
     /// <summary>เปลี่ยนแปลงข้อมูลคำขอเบิก</summary>
@@ -341,7 +355,7 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteExpense(int id)
+    public async Task<IActionResult> DeleteExpense(string id)
     {
         // ค้นหา id ในตาราง
         var expense = await _context.CemsRequisitions.FindAsync(id);
