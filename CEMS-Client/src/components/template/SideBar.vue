@@ -12,13 +12,13 @@ import { useNotificationStore } from '../../store/notification';
 const notificationStore = useNotificationStore();
 
 let role = ref("User");
-const userInfo = ref<any>(null) ;
+const userInfo = ref<any>(null);
 
 console.log(notificationStore.unreadCount)
 
 onMounted(async () => {
     const userData = localStorage.getItem('user')
-    userInfo.value =  userData ? await JSON.parse(userData) : null;
+    userInfo.value = userData ? await JSON.parse(userData) : null;
     //role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
     await notificationStore.loadNotifications(userInfo.value.usrId);
     notificationStore.initSignalR(userInfo.value.usrId);
@@ -58,7 +58,7 @@ const resetAllDropdown = () => {
 const toggleWithdrawDropdown = () => {
     if (isWithdrawDropdownOpen.value == true) {
         isWithdrawDropdownOpen.value = !isWithdrawDropdownOpen.value;
-    }else {
+    } else {
         resetAllDropdown();
         isWithdrawDropdownOpen.value = true;
     }
@@ -67,7 +67,7 @@ const toggleWithdrawDropdown = () => {
 const toggleReportDropdown = () => {
     if (isReportDropdownOpen.value == true) {
         isReportDropdownOpen.value = !isReportDropdownOpen.value;
-    }else {
+    } else {
         resetAllDropdown();
         isReportDropdownOpen.value = true;
     }
@@ -76,7 +76,7 @@ const toggleReportDropdown = () => {
 const toggleApprovalDropdown = () => {
     if (isApprovalDropdownOpen.value == true) {
         isApprovalDropdownOpen.value = !isApprovalDropdownOpen.value;
-    }else {
+    } else {
         resetAllDropdown();
         isApprovalDropdownOpen.value = true;
     }
@@ -85,7 +85,7 @@ const toggleApprovalDropdown = () => {
 const toggleDeliverDropdown = () => {
     if (isDeliverDropdownOpen.value == true) {
         isDeliverDropdownOpen.value = !isDeliverDropdownOpen.value;
-    }else {
+    } else {
         resetAllDropdown();
         isDeliverDropdownOpen.value = true;
     }
@@ -95,7 +95,7 @@ const toggleDeliverDropdown = () => {
 const toggleSettingDropdown = () => {
     if (isSettingDropdownOpen.value == true) {
         isSettingDropdownOpen.value = !isSettingDropdownOpen.value;
-    }else {
+    } else {
         resetAllDropdown();
         isSettingDropdownOpen.value = true;
     }
@@ -274,8 +274,7 @@ const toggleSettingTypeWithdraw = () => {
                 </ul>
             </li>
             <!-- รายงาน dropdown -->
-            <li v-if="userInfo.usrIsSeeReport == 1"
-                class="flex overflow-hidden flex-col px-4 py-2.5 w-full">
+            <li v-if="userInfo.usrIsSeeReport == 1" class="flex overflow-hidden flex-col px-4 py-2.5 w-full">
                 <button @click="toggleReportDropdown" :class="{ 'bg-neutral-100 rounded-xl': isReportDropdownOpen }"
                     class="flex relative gap-2.5 items-center w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px] hover:bg-neutral-100 rounded-xl"
                     tabindex="0">
@@ -508,15 +507,20 @@ const toggleSettingTypeWithdraw = () => {
 
             <!-- ปุ่มแจ้งเตือน -->
             <li
-                class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap ">
+                class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
                 <RouterLink to="/notification">
                     <button @click="toggleNotification" :class="{ 'bg-red-100 rounded-xl': clickNotification }"
-                        class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-red-100  rounded-xl"
+                        class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-red-100 rounded-xl"
                         tabindex="0">
                         <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                         <Icon :icon="'notification'" class="ml-2" />
+
                         <!-- ตัวเลข -->
-                        <span>{{notificationStore.unreadCount}}</span>
+                        <div v-if="notificationStore.unreadCount > 0"
+                            class="absolute right-2 flex items-center justify-center w-6 h-6 text-white bg-red-500 rounded-full text-xs">
+                            {{ notificationStore.unreadCount }}
+                        </div>
+
                         <span class="self-stretch py-2.5 my-auto w-[174px] text-left">การแจ้งเตือน</span>
                     </button>
                 </RouterLink>

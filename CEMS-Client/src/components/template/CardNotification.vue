@@ -7,14 +7,15 @@
 */
 import { useNotification } from '../../store/notification';
 import { defineProps, computed } from 'vue';
-const notificationStore = useNotification();
+import { useRouter } from 'vue-router'; // นำเข้า useRouter
 
+const notificationStore = useNotification();
+const router = useRouter(); // สร้างอินสแตนซ์ router
 
 const props = defineProps(["notificationInfo"]);
 
 const updateStatus = (NtId: number) => {
     notificationStore.updateStatusNoti(NtId);
-
 };
 
 // ฟังก์ชันจัดรูปแบบวันที่
@@ -27,6 +28,7 @@ const formatDateTime = (dateTime: string): string => {
     const minutes = date.getMinutes().toString().padStart(2, '0');
     return `${day}/${month}/${year} เวลา ${hours}.${minutes} น.`;
 };
+
 const getStatusMessage = (status: string, progress: string): string => {
     if (status === "accept") return "ได้รับการอนุมัติเรียบร้อยแล้ว";
     if (status === "edit") return "แก้ไขเพิ่มเติม กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
@@ -36,6 +38,7 @@ const getStatusMessage = (status: string, progress: string): string => {
     if (progress === "complete") return "ได้รับการนำจ่ายเรียบร้อยแล้ว";
     return "";
 };
+
 const sortedNotifications = computed(() => {
     return props.notificationInfo.sort((a: any, b: any) => {
         if (a.ntStatus === 'unread' && b.ntStatus === 'read') return -1;
@@ -44,12 +47,22 @@ const sortedNotifications = computed(() => {
     });
 });
 
+// ฟังก์ชันนำทางเมื่อคลิกที่แจ้งเตือน
+const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: string) => {
+    if (ntAprStatus === "reject" || ntAprRqProgress === "complete") {
+        router.push(`/approval/list/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
+    }else if(ntAprStatus === "waiting" || ntAprRqProgress === "accepting"){
+        router.push(`/approval/list/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
 
+    }
+};
 </script>
 
 <template>
-    <section v-for="item in sortedNotifications" :key="item.ntId" @click="updateStatus(item.ntId)"
-        class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400 hover:bg-current cursor-pointer"
+    <section v-for="item in sortedNotifications" :key="item.ntId" @click="() => {
+        updateStatus(item.ntId);
+        navigateToDetail(item.ntAprRqId, item.ntAprStatus, item.ntAprRqProgress);
+    }" class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400 hover:bg-current cursor-pointer"
         :class="[item.ntStatus === 'unread' ? 'bg-white' : 'bg-neutral-300']">
         <div
             class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
