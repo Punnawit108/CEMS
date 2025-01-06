@@ -44,27 +44,27 @@ public class RequisitionTypeController : ControllerBase
         return Ok(requisitionTypes); // ส่งข้อมูลกลับในรูปแบบ JSON
     }
 
-    // [HttpPut("update/{rqtId}")]
-    // public async Task<ActionResult> ToggleVisibility(int rqtId)
-    // {
-    //     var requisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(e =>
-    //         e.RqtId == rqtId
-    //     );
+    [HttpPut("update/{rqtId}")]
+    public async Task<ActionResult> ToggleVisibility(int rqtId)
+    {
+        var requisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(e =>
+            e.RqtId == rqtId
+        );
 
-    //     if (requisitionType == null)
-    //     {
-    //         return NotFound(new { message = "Requisition type not found." });
-    //     }
+        if (requisitionType == null)
+        {
+            return NotFound(new { message = "Requisition type not found." });
+        }
 
-    //     // สลับค่าของ RqtVisible
-    //     requisitionType.RqtVisible = requisitionType.RqtVisible == 0 ? 1 : 0;
+        // สลับค่าของ RqtVisible
+        requisitionType.RqtVisible = requisitionType.RqtVisible == 0 ? 1 : 0;
 
-    //     // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
-    //     await _context.SaveChangesAsync();
+        // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+        await _context.SaveChangesAsync();
 
-    //     // ส่งผลลัพธ์กลับไป
-    //     return Ok();
-    // }
+        // ส่งผลลัพธ์กลับไป
+        return Ok();
+    }
 
     // เพิ่มข้อมูลใหม่
     // POST: api/requisitiontype

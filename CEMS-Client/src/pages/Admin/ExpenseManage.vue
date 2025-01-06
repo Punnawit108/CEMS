@@ -1375,7 +1375,7 @@ const confirmUpdateExpense = async () => {
         </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mt-3">
-        ไม่สามารถแก้ไขประเภทค่าใช้จ่ายนี่้ได้
+        ไม่สามารถแก้ไขประเภทค่าใช้จ่ายนี้ได้
       </h2>
     </div>
   </div>
