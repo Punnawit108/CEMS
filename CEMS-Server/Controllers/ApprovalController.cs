@@ -201,6 +201,15 @@ public class ApprovalController : ControllerBase
         _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
 
+        var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r =>
+            r.RqId == approver.AprRqId
+        );
+
+        if (requisition == null)
+        {
+            return BadRequest("");
+        }
+
         if (approverUpdate.AprStatus == "accept")
         {
             var approvers = await _context
@@ -217,6 +226,7 @@ public class ApprovalController : ControllerBase
                 if (currentApproverIndex + 1 < approvers.Count)
                 {
                     var nextApprover = approvers[currentApproverIndex + 1];
+
                     if (nextApprover != null && string.IsNullOrEmpty(nextApprover.AprStatus))
                     {
                         nextApprover.AprStatus = "waiting"; // เปลี่ยนสถานะเป็น waiting
@@ -248,6 +258,7 @@ public class ApprovalController : ControllerBase
                 "accepting",
                 approverUpdate.RqReason
             );
+
             if (!updateEdit)
             {
                 return NotFound();
@@ -266,6 +277,7 @@ public class ApprovalController : ControllerBase
                 return NotFound();
             }
         }
+
         return NoContent();
     }
 

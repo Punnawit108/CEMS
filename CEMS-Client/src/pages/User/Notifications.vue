@@ -38,21 +38,30 @@ const notificationStore = useNotificationStore();
 // }
 
 const user = ref<any>(null);
-onMounted(async () => {
+    onMounted(async () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
         try {
-            user.value = await JSON.parse(storedUser);
+            // Parse JSON และตรวจสอบว่าได้ผลลัพธ์เป็น object
+            const parsedUser = JSON.parse(storedUser);
+            if (parsedUser && typeof parsedUser === "object") {
+                user.value = parsedUser;
+
+                // ตรวจสอบว่า user.value และ usrId มีอยู่
+                if (user.value && user.value.usrId) {
+                    user.value = await notificationStore.loadNotifications(user.value.usrId);
+                    await notificationStore.initSignalR(user.value.usrId);
+                } else {
+                    console.log("Invalid user data: missing usrId");
+                }
+            } else {
+                console.log("Invalid user data: not an object");
+            }
         } catch (error) {
             console.log("Error loading user:", error);
         }
     }
-    if (user) {
-        user.value = await notificationStore.loadNotifications(user.value.usrId);
-        await notificationStore.initSignalR(user.value.usrId);    
-        console.log(user)
-    }
-})
+});
 
 const clickAllNotification = ref(true);
 const clickReadedNotification = ref(false);

@@ -252,7 +252,7 @@ public class ExpenseController : ControllerBase
         var approverIds = await _context
             .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
             .OrderBy(u => u.ApSequence)
-            .Select(x => x.ApId)
+            .Select(x => new { x.ApId, x.ApUsrId })
             .ToListAsync();
 
         /// Loop สร้างข้อมูลผู้อนุมัติ
@@ -262,7 +262,7 @@ public class ExpenseController : ControllerBase
             {
                 AprId = newAprId,
                 AprRqId = rqId,
-                AprApId = approverId,
+                AprApId = approverId.ApId,
                 AprName = null,
                 AprDate = null,
                 AprStatus = approverId == approverIds.First() ? "waiting" : null,
@@ -276,6 +276,7 @@ public class ExpenseController : ControllerBase
                     NtAprId = newAprId,
                     NtDate = DateTime.Now,
                     NtStatus = "unread",
+                    NtUsrId = approverId.ApUsrId,
                 };
                 _context.CemsNotifications.Add(notification);
             }
