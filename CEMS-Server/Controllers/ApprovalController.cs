@@ -83,6 +83,23 @@ public class ApprovalController : ControllerBase
             .OrderBy(e => e.AprId)
             .ToListAsync();
 
+        if (acceptor == null || !acceptor.Any())
+        {
+            int mockCount = 3; // จำนวนข้อมูลจำลองที่ต้องการ
+            acceptor = Enumerable
+                .Range(1, mockCount)
+                .Select(i => new
+                {
+                    AprId = (int?)null,
+                    AprApId = (int?)null,
+                    UsrFirstName = "-",
+                    UsrLastName = "-",
+                    AprName = (string?)null,
+                    AprDate = (DateTime?)null,
+                    AprStatus = (string?)null,
+                })
+                .ToList();
+        }
         var formattedAcceptor = acceptor.Select(e => new
         {
             e.AprId,
@@ -139,15 +156,18 @@ public class ApprovalController : ControllerBase
     /// <param name="approver">ข้อมูลผู้อนุมัติ</param>
     /// <remarks>แก้ไขล่าสุด: 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
     [HttpPut("swapSequence")]
-    public async Task<ActionResult> SwapRequisitionSequence([FromBody] ApprovalSequence approvalSequence)
+    public async Task<ActionResult> SwapRequisitionSequence(
+        [FromBody] ApprovalSequence approvalSequence
+    )
     {
         // ค้นหาผู้อนุมัติที่ต้องการจะย้ายตำแหน่ง
-        var approverToMove = await _context.CemsApprovers
-            .FirstOrDefaultAsync(e => e.ApId == approvalSequence.ApId);
+        var approverToMove = await _context.CemsApprovers.FirstOrDefaultAsync(e =>
+            e.ApId == approvalSequence.ApId
+        );
 
         // ดึงข้อมูลผู้อนุมัติทั้งหมด ยกเว้นผู้ที่เราจะย้าย และเรียงตามลำดับ
-        var allApprovers = await _context.CemsApprovers
-            .Where(e => e.ApId != approvalSequence.ApId)
+        var allApprovers = await _context
+            .CemsApprovers.Where(e => e.ApId != approvalSequence.ApId)
             .OrderBy(e => e.ApSequence)
             .ToListAsync();
 
@@ -186,7 +206,6 @@ public class ApprovalController : ControllerBase
 
         return Ok("Sequences updated successfully.");
     }
-
 
     [HttpPut("approve")]
     public async Task<ActionResult> updateApprove([FromBody] ApproverUpdateDto approverUpdate)
@@ -340,8 +359,8 @@ public class ApprovalController : ControllerBase
         }
 
         // ดึงข้อมูลผู้อนุมัติทั้งหมดที่มีลำดับมากกว่าผู้อนุมัติที่จะลบ
-        var approversToUpdate = await _context.CemsApprovers
-            .Where(a => a.ApSequence > deletedSequence)
+        var approversToUpdate = await _context
+            .CemsApprovers.Where(a => a.ApSequence > deletedSequence)
             .OrderBy(a => a.ApSequence)
             .ToListAsync();
 
@@ -363,9 +382,7 @@ public class ApprovalController : ControllerBase
             return Conflict($"ไม่สามารถลบผู้อนุมัติได้เนื่องจากข้อผิดพลาด: {ex.Message}");
         }
 
-        return Ok(
-            $"ลบผู้อนุมัติที่มี ID {approverId}"
-        );
+        return Ok($"ลบผู้อนุมัติที่มี ID {approverId}");
     }
 
     [HttpPut("disburse")]

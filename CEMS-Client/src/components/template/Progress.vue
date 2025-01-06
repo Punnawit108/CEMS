@@ -2,7 +2,7 @@
 /*
 * ชื่อไฟล์: Progress.vue
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับแสดงความก้าวหน้าของการอนุมัติ
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ , นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 8 ตุลาคม 2567
 */
 import { defineProps } from "vue";
@@ -14,11 +14,11 @@ function hasRejectStatus(): { index: number } {
   return { index }; // ส่ง index ออกมา (ถ้าไม่พบจะเป็น -1)
 }
 
-
+console.log(props)
 </script>
 
 <template>
-  <div class="border border-[#B6B7BA] px-[16px] py-[16px]">
+  <div class="border border-[#B6B7BA] px-[16px] py-[16px] w-[232px]">
     <div class="row">
       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
         <path
@@ -41,17 +41,12 @@ function hasRejectStatus(): { index: number } {
           d="M16.5 0C7.387 0 0 7.388 0 16.5 0 25.613 7.388 33 16.5 33 25.613 33 33 25.613 33 16.5S25.613 0 16.5 0ZM3 16.5c0 3.135 1.07 6.021 2.862 8.313A13.485 13.485 0 0 1 16.598 19.5a13.469 13.469 0 0 1 10.637 5.187A13.499 13.499 0 0 0 8.63 5.534 13.5 13.5 0 0 0 3 16.5ZM16.5 30a13.44 13.44 0 0 1-8.508-3.018 10.485 10.485 0 0 1 8.605-4.482 10.484 10.484 0 0 1 8.534 4.38A13.44 13.44 0 0 1 16.5 30Z"
           clip-rule="evenodd" />
       </svg>
-      <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 33 33" v-else>
-        <path fill="#B6B7BA" fill-rule="evenodd"
-          d="M22.5 12a6 6 0 1 1-12 0 6 6 0 0 1 12 0Zm-3 0a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" clip-rule="evenodd" />
-        <path fill="#B6B7BA" fill-rule="evenodd"
-          d="M16.5 0C7.387 0 0 7.388 0 16.5 0 25.613 7.388 33 16.5 33 25.613 33 33 25.613 33 16.5S25.613 0 16.5 0ZM3 16.5c0 3.135 1.07 6.021 2.862 8.313A13.485 13.485 0 0 1 16.598 19.5a13.469 13.469 0 0 1 10.637 5.187A13.499 13.499 0 0 0 8.63 5.534 13.5 13.5 0 0 0 3 16.5ZM16.5 30a13.44 13.44 0 0 1-8.508-3.018 10.485 10.485 0 0 1 8.605-4.482 10.484 10.484 0 0 1 8.534 4.38A13.44 13.44 0 0 1 16.5 30Z"
-          clip-rule="evenodd" />
-      </svg>
+      
 
       <div class="text">
         <!-- ถ้าอนุมัติแล้วใช้ aprName -->
-        <p v-if="item.aprName == null" class="w-fit font-bold">{{ item.usrFirstName + " " + item.usrLastName }}</p>
+        <p v-if="item.aprId == null" class="w-fit font-bold">-</p>
+        <p v-if="item.aprName == null && item.aprId != null" class="w-fit font-bold">{{ item.usrFirstName + " " + item.usrLastName }}</p>
         <p v-if="item.aprName != null" class="w-fit font-bold">{{ item.aprName }}</p>
         <div v-if="item.aprStatus === 'accept'">
           <p class="text-[11px] text-gray-400 font-bold">

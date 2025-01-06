@@ -48,7 +48,7 @@ const isPaymentOrHistoryPath = computed(() => {
 
 const statusMapping = [
   {
-    condition: (data: any) => data.rqProgress === 'accepting',
+    condition: (data: any) => data.rqProgress === 'accepting' && data.rqStatus === 'waiting',
     label: 'รออนุมัติ',
     color: '#1976D2',
   },
@@ -68,6 +68,11 @@ const statusMapping = [
     color: '#E1032B',
   },
   {
+    condition: (data: any) => data.rqStatus === 'sketch',
+    label: 'แบบร่าง',
+    color: '#B6B7BA',
+  },
+  {
     condition: (data: any) => data.rqStatus === 'accept' && data.rqProgress === 'paying',
     label: 'รอนำจ่าย',
     color: '#FFBE40',
@@ -85,7 +90,7 @@ const statusInfo = computed(() => {
     const match = statusMapping.find((item) => item.condition(expenseData.value));
     return match || { label: 'ไม่ทราบสถานะ', color: '#000000' };
   }
-  return { label: 'กำลังโหลดข้อมูล...', color: '#CCCCCC' }; // กรณีที่ข้อมูลยังไม่โหลด
+  return { label: 'กำลังโหลดข้อมูล...', color: '##B6B7BA' }; // กรณีที่ข้อมูลยังไม่โหลด
 });
 
 const colorStatus: { [key: string]: string } = {
@@ -159,7 +164,6 @@ const handleSummit = async (status: string) => {
       aprStatus: status,
       rqReason: formData.rqReason
     };
-    console.log(data);
     detailStore.updateApprove(data);
     handleHideApproverPopup();
     confirmPrint(status)
@@ -278,7 +282,7 @@ const editAprDate = computed(() => {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">รหัสรายการเบิก</p>
-            <p class="item">{{ expenseData.rqCode }}</p>
+            <p class="item">{{ expenseData.rqCode || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
@@ -290,14 +294,14 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqWithDrawDate }}</p>
+            <p class="item">{{ expenseData?.rqWithDrawDate || '-'}}</p>
           </div>
         </div>
 
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">ชื่อผู้เบิก</p>
-            <p class="item">{{ expenseData?.rqUsrName }}</p>
+            <p class="item">{{ expenseData?.rqUsrName || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
@@ -308,7 +312,7 @@ const editAprDate = computed(() => {
         <div class="flex flex-row">
           <div class="col">
             <p class="head">ประเภทค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqRqtName }}</p>
+            <p class="item">{{ expenseData?.rqRqtName || '-'}}</p>
           </div>
           <div v-if="isPaymentOrHistoryPath" class="col">
             <p class="head">วันที่อนุมัติ</p>
@@ -316,7 +320,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
-            <p class="item">{{ expenseData?.rqExpenses }}</p>
+            <p class="item">{{ expenseData?.rqExpenses || '-'}}</p>
           </div>
           <div class="col"></div>
           <div v-if="!isPaymentOrHistoryPath" class="col"></div>
@@ -325,15 +329,15 @@ const editAprDate = computed(() => {
         <div class="travel row flex">
           <div class="col">
             <p class="head">ประเภทการเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhType }}</p>
+            <p class="item">{{ expenseData?.rqVhType || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">ประเภทรถ</p>
-            <p class="item">{{ expenseData?.rqVhName }}</p>
+            <p class="item">{{ expenseData?.rqVhName || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">ระยะทาง</p>
-            <p class="item">{{ expenseData?.rqDistance }}</p>
+            <p class="item">{{ expenseData?.rqDistance || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
@@ -345,17 +349,17 @@ const editAprDate = computed(() => {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">สถานที่เริ่มต้น</p>
-            <p class="item">{{ expenseData?.rqStartLocation }}</p>
+            <p class="item">{{ expenseData?.rqStartLocation || '-'}}</p>
           </div>
           <div class="col">
             <p class="head">สถานที่สิ้นสุด</p>
-            <p class="item">{{ expenseData?.rqEndLocation }}</p>
+            <p class="item">{{ expenseData?.rqEndLocation || '-'}}</p>
           </div>
         </div>
 
         <div class="row">
           <p class="head">รายละเอียด</p>
-          <p class="item">{{ expenseData?.rqPurpose }}</p>
+          <p class="item">{{ expenseData?.rqPurpose || '-'}}</p>
         </div>
 
         <div class="row flex">
@@ -364,6 +368,7 @@ const editAprDate = computed(() => {
             <div>
             </div>
             <img :src="(expenseData?.rqProof)" alt="" class="w-[50%] h-auto cursor-pointer" />
+            <p v-if="expenseData.rqProof == null" class="item">-</p>
           </div>
           <div class="flex-1"></div>
         </div>
@@ -522,6 +527,7 @@ const editAprDate = computed(() => {
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยกเลิก
         </button>
+
         <button @click="confirmPrint"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
