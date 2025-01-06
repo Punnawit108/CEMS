@@ -382,6 +382,7 @@ const toggleButton = (button: "expense" | "transport") => {
 //   closePopupConfirmEdit(); 
 // };
 
+// แก้ไขประเภทรถส่วนตัว
 const isPopupEditPrivatecarOpen = ref(false); // สำหรับเปิด/ปิด Popup Add ประเภทรถส่วนตัว
 const isPopupConfirmEditPrivatecarOpen = ref(false); // สำหรับเปิด/ปิด Popup ConfirmAdd ประเภทรถส่วนตัว
 
@@ -413,6 +414,40 @@ const confirmEditPrivatecar = async () => {
     closePopupConfirmEditPrivatecar(); // ปิด Popup ยืนยัน
   }, 1500); // 1.5 วินาที
 };
+
+// แก้ไขประเภทรถสาธารณะ
+const isPopupEditPubliccarOpen = ref(false); 
+const isPopupConfirmEditPubliccarOpen = ref(false); 
+
+
+const openPopupEditPubliccar = () => {
+  isPopupEditPubliccarOpen.value = true;
+};
+const closePopupEditPubliccar = () => {
+  isPopupEditPubliccarOpen.value = false;
+};
+
+const openPopupConfirmEditPubliccar = () => {
+  isPopupConfirmEditPubliccarOpen.value = true;
+};
+const closePopupConfirmEditPubliccar = () => {
+  isPopupConfirmEditPubliccarOpen.value = false;
+};
+
+const confirmEditPubliccar = async () => {
+  // เปิด Popup Alert
+  formData.vhType = "public";
+  await expenseManageType.changeVehicle(formData);
+  isPubliccarAlertOpen.value = true;
+  vehiclePublic.value = await expenseManageType.getVehiclePublic();
+  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
+  setTimeout(() => {
+    isPubliccarAlertOpen.value = false; // ปิด Alert
+    closePopupEditPubliccar(); // ปิด Popup แก้ไข
+    closePopupConfirmEditPubliccar(); // ปิด Popup ยืนยัน
+  }, 1500); // 1.5 วินาที
+};
+
 
 //DELETE ประเภทค่าเดินทาง
 const isPopupDeleteOpen = ref(false); // สำหรับเปิด/ปิด Popup Delete
@@ -707,7 +742,7 @@ const confirmUpdateExpense = async () => {
             </div>
           </div>
           <div class="flex justify-end w-1/4">
-            <button> <Icon :icon="'edit'" @click="openPopupEditPrivatecar" /></button>
+            <button> <Icon :icon="'edit'" @click="openPopupEditPubliccar" /></button>
             <button> <Icon :icon="'bin'"  @click="openPopupDelete(item.id)" /> </button>
             <button @click="toggleGray(item.id)" class="px-2 py-1 text-black">
               <div class="flex items-center space-x-1">
@@ -830,6 +865,7 @@ const confirmUpdateExpense = async () => {
           <div class="flex justify-end w-1/4">
             <button> <Icon :icon="'edit'" @click="openPopupUpdateExpense" /></button>
             <button> <Icon :icon="'bin'"  @click="openPopupDeleteExpense(item.rqtId)" /> </button>
+            <!-- visible button ประเภทค่าใช้จ่าย -->
             <button
               @click="toggleGray2(item.rqtId)"
               class="px-2 py-1 text-black"
@@ -1168,13 +1204,13 @@ const confirmUpdateExpense = async () => {
       </div>
       <div class="flex justify-center space-x-4 mt-3">
         <button
-          @click="closePopupAddPrivatecar"
+          @click="closePopupEditPrivatecar"
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
         >
           ยกเลิก
         </button>
         <button
-          @click="openPopupConfirmAddPrivatecar"
+          @click="openPopupConfirmEditPrivatecar"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
         >
           ยืนยัน
@@ -1184,7 +1220,7 @@ const confirmUpdateExpense = async () => {
   </div>
   <!-- Popup ยืนยัน + ประเภทรถส่วนตัว -->
   <div
-    v-if="isPopupConfirmAddPrivatecarOpen"
+    v-if="isPopupConfirmEditPrivatecarOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
   >
     <div
@@ -1208,20 +1244,20 @@ const confirmUpdateExpense = async () => {
         </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mb-3">
-        ยืนยันการเพิ่มข้อมูลประเภทค่าเดินทางส่วนตัว
+        ยืนยันการแก้ไขข้อมูลประเภทค่าเดินทางส่วนตัว
       </h2>
       <h2 class="text-[16px] text-center text-[#7E7E7E] mb-4">
-        คุณยืนยันการเพิ่มข้อมูลประเภทค่าเดินทางส่วนตัวหรือไม่ ?
+        คุณยืนยันการแก้ไขข้อมูลประเภทค่าเดินทางส่วนตัวหรือไม่ ?
       </h2>
       <div class="flex justify-center space-x-4">
         <button
-          @click="closePopupConfirmAddPrivatecar"
+          @click="closePopupConfirmEditPrivatecar"
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
         >
           ยกเลิก
         </button>
         <button
-          @click="confirmAddPrivatecar"
+          @click="confirmEditPrivatecar"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
         >
           ยืนยัน
@@ -1255,7 +1291,134 @@ const confirmUpdateExpense = async () => {
         </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mt-3">
-        ยืนยันการเพิ่มข้อมูลประเภทค่าเดินทางส่วนตัวสำเร็จ
+        ยืนยันการแก้ไขข้อมูลประเภทค่าเดินทางส่วนตัวสำเร็จ
+      </h2>
+    </div>
+  </div>
+
+  <!-- POPUP +แก้ไขประเภทรถสาธารณะ-->
+  <div
+    v-if="isPopupEditPubliccarOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+    >
+      <h2 class="text-[16px] font-bold text-center text-black mb-3">
+        แก้ไขข้อมูลประเภทค่าเดินทางส่วนตัว
+      </h2>
+      <div class="w-full my-3 flex justify-center">
+        <form>
+          <div class="relative mb-6">
+            <input
+              type="text"
+              required
+              placeholder="ข้อมูลประเภทค่าเดินทางส่วนตัวใหม่"
+              v-model="formData.vhVehicle"
+              class="w-[300px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 text-[14px] text-black focus:outline-none"
+            />
+          </div>
+          <div class="relative">
+            <input
+              type="text"
+              required
+              placeholder="อัตราประเภทค่าเดินทางส่วนตัวใหม่"
+              v-model="formData.vhPayrate"
+              class="w-[300px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 text-[14px] text-black focus:outline-none"
+            />
+          </div>
+        </form>
+      </div>
+      <div class="flex justify-center space-x-4 mt-3">
+        <button
+          @click="closePopupEditPrivatecar"
+          class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+        >
+          ยกเลิก
+        </button>
+        <button
+          @click="openPopupConfirmEditPrivatecar"
+          class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+        >
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Popup ยืนยัน + ประเภทรถส่วนตัว -->
+  <div
+    v-if="isPopupConfirmEditPrivatecarOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+    >
+      <div class="flex justify-center mb-4">
+        <svg
+          :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="20"
+          height="20"
+          fill="#FFBE40"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mb-3">
+        ยืนยันการแก้ไขข้อมูลประเภทค่าเดินทางส่วนตัว
+      </h2>
+      <h2 class="text-[16px] text-center text-[#7E7E7E] mb-4">
+        คุณยืนยันการแก้ไขข้อมูลประเภทค่าเดินทางส่วนตัวหรือไม่ ?
+      </h2>
+      <div class="flex justify-center space-x-4">
+        <button
+          @click="closePopupConfirmEditPrivatecar"
+          class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+        >
+          ยกเลิก
+        </button>
+        <button
+          @click="confirmEditPrivatecar"
+          class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+        >
+          ยืนยัน
+        </button>
+      </div>
+    </div>
+  </div>
+  <!-- Alert + ประเภทรถส่วนตัว -->
+  <div
+    v-if="isPrivatecarAlertOpen"
+    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+  >
+    <div
+      class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+    >
+      <div class="flex justify-center">
+        <svg
+          :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
+          aria-hidden="true"
+          xmlns="http://www.w3.org/2000/svg"
+          width="24"
+          height="24"
+          fill="green"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill-rule="evenodd"
+            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+            clip-rule="evenodd"
+          />
+        </svg>
+      </div>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">
+        ยืนยันการแก้ไขข้อมูลประเภทค่าเดินทางส่วนตัวสำเร็จ
       </h2>
     </div>
   </div>
@@ -1440,7 +1603,7 @@ const confirmUpdateExpense = async () => {
       </div>
     </div>
 
-    <!-- Popup Update ค่าใช้จ่าย-->
+    <!-- Popup แก้ไข ประเภทค่าใช้จ่าย-->
   <div
     v-if="isPopupUpdateExpenseOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
@@ -1457,17 +1620,8 @@ const confirmUpdateExpense = async () => {
             <input
               type="text"
               required
-              placeholder="ข้อมูลประเภทค่าเดินทางส่วนตัวใหม่"
+              placeholder="ข้อมูลประเภทค่าใช้จ่ายใหม่"
               v-model="formData.vhVehicle"
-              class="w-[300px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 text-[14px] text-black focus:outline-none"
-            />
-          </div>
-          <div class="relative">
-            <input
-              type="text"
-              required
-              placeholder="อัตราประเภทค่าเดินทางส่วนตัวใหม่"
-              v-model="formData.vhPayrate"
               class="w-[300px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 text-[14px] text-black focus:outline-none"
             />
           </div>

@@ -60,7 +60,7 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         return (this.vehiclePublic = result.data);
       } catch (error) {
         console.error("Failed to fetch expense data:", error);
-        throw new Error("ไม่สามารถดึงข้อมูลประเภทค่าใช้จ่ายได้");
+        throw new Error("ไม่สามารถดึงข้อมูลประเภทรถสาธารณะได้");
       }
     },
 
@@ -78,7 +78,7 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         return (this.vehiclePrivate = result.data);
       } catch (error) {
         console.error("Failed to fetch expense data:", error);
-        throw new Error("ไม่สามารถดึงข้อมูลประเภทค่าใช้จ่ายได้");
+        throw new Error("ไม่สามารถดึงข้อมูลประเภทรถส่วนตัวได้");
       }
     },
     //post vehicle
@@ -107,7 +107,7 @@ export const useExpenseManageStore = defineStore("expenseManage", {
     async changeRequisitionType(rqtId: number) {
       try {
         await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`
+          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/update/${rqtId}`
         );
         this.getRequisitionType()
       } catch (err) {
