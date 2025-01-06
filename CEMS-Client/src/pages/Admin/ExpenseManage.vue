@@ -518,7 +518,7 @@ const formRequisitionTypeEdit = reactive<any>({
 });
 
 const confirmUpdateExpense = async () => {
-  await expenseManageType.changeRequisitionType(formRequisitionTypeEdit);
+  await expenseManageType.updateRequisitionType(formRequisitionTypeEdit);
   expenseType.value = await expenseManageType.getRequisitionType();
   closePopupUpdateExpense();
 };

@@ -104,7 +104,17 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.log(error);
       }
     },
-    async changeRequisitionType(data : any) {
+    async changeRequisitionType(rqtId : number) {
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/update/${rqtId}`
+        );
+        await this.getRequisitionType(); // เรียกข้อมูลใหม่เมื่อสำเร็จ
+      } catch (err) {
+        console.error("Error updating requisition type:", err);
+      }
+    },
+    async updateRequisitionType(data : any) {
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype`,
