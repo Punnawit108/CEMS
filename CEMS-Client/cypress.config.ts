@@ -9,4 +9,6 @@ export default defineConfig({
     specPattern: "cypress/e2e/**/*.cy.{js,jsx,ts,tsx}", // รูปแบบไฟล์ทดสอบ
     supportFile: "cypress/support/e2e.ts", // support file (ปรับตามต้องการ)
   },
+  viewportWidth: 1920, // ความกว้างหน้าจอ
+  viewportHeight: 1080, // ความสูงหน้าจอ
 });
