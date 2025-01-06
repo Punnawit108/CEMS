@@ -154,6 +154,15 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.error('Failed to fetch requisition types:', error);
         throw error;
       }
+    },
+    async validationVehicle(VhId: number) {
+      try {
+        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/vehicle/validation/${VhId}`);
+        return result.data.isInUse;
+      } catch (error) {
+        console.error('Failed to fetch vehicle:', error);
+        throw error;
+      }
     }
   },
 });
