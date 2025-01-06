@@ -92,6 +92,7 @@ const emit = defineEmits(["click"]);
 
   <!-- ยืนยัน -->
   <button
+    type="button"
     v-if="type === 'btn-summit'"
     class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin"
     @click="$emit('click')"

@@ -47,9 +47,19 @@ const prevPage = () => {
   }
 };
 
-
-onMounted(() => {
-    paymentHistory.getAllPaymentHistory();
+const user = ref<any>(null);
+onMounted(async() => {
+    const storedUser = localStorage.getItem("user"); 
+    if (storedUser) {
+        try {
+            user.value = await JSON.parse(storedUser); 
+        } catch (error) {
+            console.log("Error loading user:", error); 
+        }
+    }
+    if (user) {
+        await paymentHistory.getAllPaymentHistory(user.value.usrId); 
+    }
 }
 )
 

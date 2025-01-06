@@ -29,6 +29,7 @@ const itemsPerPage = ref(10);
 
 const filters = ref({
   searchTerm: '',
+  searchRqName: '',
   department: '',
   division: '',
   status: '',
@@ -116,9 +117,13 @@ onMounted(async () => {
       :projects="projectStore.projects"
       :requisitionTypes="requisitionTypeStore.requisitionTypes"
       v-model:searchTerm="filters.searchTerm"
+      v-model:searchRqName="filters.searchRqName"
       v-model:selectedDepartment="filters.department" 
       v-model:selectedDivision="filters.division"      
-      v-model:selectedRole="filters.role"   
+      v-model:selectedRole="filters.role"
+      v-model:selectedProjectId="filters.projectId"
+      v-model:selectedRequisitionTypeId="filters.selectedRequisitionTypeId"
+      :showRqNameFilter="false"
       :showSearchFilter="true"
       :showDepartmentFilter="true" 
       :showDivisionFilter="true"
@@ -126,8 +131,6 @@ onMounted(async () => {
       :showProjectFilter="false"
       :showRequisitionTypeFilter="false"
       :showDateFilter="false"
-      selectedProjectId=""
-      selectedRequisitionTypeId=""
     />
     <div class="w-full h-fit border-[2px] flex flex-col items-start">
       <Ctable :table="'Table5-head'" />

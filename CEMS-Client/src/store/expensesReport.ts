@@ -7,7 +7,7 @@
 
 import axios from "axios"
 import { defineStore } from "pinia";
-import {ExpenseReportList,ExpenseReportGraph} from "../types/index";
+import { ExpenseReportList, ExpenseReportGraph } from "../types/index";
 
 
 export const useExpensesListStore = defineStore("expenses", {
@@ -24,7 +24,7 @@ export const useExpensesListStore = defineStore("expenses", {
         */
         async getAllExpenses() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/report`);
                 this.expenses = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);
@@ -33,9 +33,9 @@ export const useExpensesListStore = defineStore("expenses", {
     },
 });
 
-export const useExpensesGraphStore = defineStore("expenses", {
+export const useExpensesGraphStore = defineStore("expensegraph", {
     state: () => ({
-        expenses: [] as ExpenseReportGraph[],
+        expensegraph: [] as ExpenseReportGraph[],
     }),
     actions: {
         /*
@@ -48,7 +48,7 @@ export const useExpensesGraphStore = defineStore("expenses", {
         async getAllExpenses() {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/graph`);
-                this.expenses = result.data;
+                this.expensegraph = result.data;
             } catch (error) {
                 console.error("Failed to fetch expenses:", error);
             }
