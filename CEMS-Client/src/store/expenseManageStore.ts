@@ -104,14 +104,15 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.log(error);
       }
     },
-    async changeRequisitionType(rqtId: number) {
+    async changeRequisitionType(data : any) {
       try {
         await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`
+          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype`,
+          data // ส่งข้อมูลไปใน body
         );
-        this.getRequisitionType()
+        await this.getRequisitionType(); // เรียกข้อมูลใหม่เมื่อสำเร็จ
       } catch (err) {
-        console.log(err);
+        console.error("Error updating requisition type:", err);
       }
     },
     async changeVehicle(vhId: number) {
@@ -125,26 +126,34 @@ export const useExpenseManageStore = defineStore("expenseManage", {
     },
     async deleteVehicle(vhId: number) {
       try {
-          const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`);
-          this.getVehiclePrivate(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
-  
-          return result;
-  
+        const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`);
+        this.getVehiclePrivate(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
+
+        return result;
+
       } catch (error) {
-          console.error("Error deleting disburse data:", error);
+        console.error("Error deleting disburse data:", error);
       }
-  },
-  async deleteExpense(rqtId: number) {
-    try {
+    },
+    async deleteExpense(rqtId: number) {
+      try {
         const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`);
         //this.getRequisitionType(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
 
         return result;
 
-    } catch (error) {
+      } catch (error) {
         console.error("Error deleting disburse data:", error);
+      }
+    },
+    async validationRequisitionTypes(rqtId: number) {
+      try {
+        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/validation/${rqtId}`);
+        return result.data.isInUse;
+      } catch (error) {
+        console.error('Failed to fetch requisition types:', error);
+        throw error;
+      }
     }
-},
-  
   },
 });

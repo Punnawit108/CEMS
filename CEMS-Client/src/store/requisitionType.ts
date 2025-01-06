@@ -31,6 +31,7 @@ export const useRequisitionTypeStore = defineStore('requisitiontype', {
         console.error('Failed to fetch requisition types:', error);
         throw error;
       }
-    }
+    },
+    
   }
 });
