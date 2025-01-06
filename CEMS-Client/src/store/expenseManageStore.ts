@@ -167,12 +167,31 @@ export const useExpenseManageStore = defineStore("expenseManage", {
     },
     async validationVehicle(VhId: number) {
       try {
+        console.log(VhId)
         const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/vehicle/validation/${VhId}`);
         return result.data.isInUse;
       } catch (error) {
         console.error('Failed to fetch vehicle:', error);
         throw error;
       }
-    }
+    },
+    async changeVehiclePublic(data: any) {
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/public`,data
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async changeVehiclePrivate(data: any) {
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/private`,data
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    },
   },
 });

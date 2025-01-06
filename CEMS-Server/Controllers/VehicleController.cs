@@ -230,7 +230,7 @@ public async Task<IActionResult> UpdatePublic(VehiclePublicUpdateDTO vehicleDTO)
     [HttpGet("validation/{VhId}")]
     public async Task<IActionResult> CheckVehicleUsage(int VhId)
     {
-        var isInUse = await _context.CemsVehicles.AnyAsync(r => r.VhId == VhId);
+        var isInUse = await _context.CemsRequisitions.AnyAsync(vh => vh.RqVhId == VhId);
         return Ok(new { VhId, isInUse });
     }
 
