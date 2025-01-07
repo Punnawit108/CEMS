@@ -251,7 +251,7 @@ public class ExpenseController : ControllerBase
                 .FirstOrDefault();
 
             ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
-            int newAprId = lastAprId + 1;
+            int newAprId = (lastAprId ?? 0) + 1;
 
             var approverIds = await _context
                 .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
