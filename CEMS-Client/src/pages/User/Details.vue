@@ -26,6 +26,7 @@ const progressData = ref<any>(null);
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
   expenseData.value = await detailStore.getRequisition(id);
+  console.log(progressData.value)
 })
 
 
@@ -167,7 +168,13 @@ const handleSummit = async (status: string) => {
     detailStore.updateApprove(data);
     handleHideApproverPopup();
     confirmPrint(status)
-    router.push(`/approval/list/`)
+    isAlertPrintOpen.value = true;
+    setTimeout(() => {
+      isAlertPrintOpen.value = false;
+      closePopupPrint();
+      router.push(`/approval/list/`)
+    }, 1500);
+    
   }
 };
 
@@ -211,10 +218,10 @@ const confirmPrint = async (status: string) => {
   }, 1500);
 };
 
-const approveCompleteDate = computed(() => {
-  const lastAccepter = progressData.value.acceptor.slice(-1)[0];
-  return lastAccepter.aprDate.split(' ')[0];
-});
+// const approveCompleteDate = computed(() => {
+//   const lastAccepter = progressData.value.acceptor.slice(-1)[0];
+//   return lastAccepter.aprDate.split(' ')[0];
+// });
 
 const editAprDate = computed(() => {
   const target = progressData.value.acceptor.find(
@@ -270,7 +277,7 @@ const editAprDate = computed(() => {
       <div class="left w-[85%]">
         <div class="flex items-center align-middle justify-between">
           <h3 class="text-base font-bold text-black ">
-            {{expenseData.rqName}}<span :class="`bg-[${statusInfo.color}]`"
+            {{ expenseData.rqName }}<span :class="`bg-[${statusInfo.color}]`"
               class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
@@ -282,7 +289,7 @@ const editAprDate = computed(() => {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">รหัสรายการเบิก</p>
-            <p class="item">{{ expenseData.rqCode || '-'}}</p>
+            <p class="item">{{ expenseData.rqCode || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
@@ -294,14 +301,14 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqWithDrawDate || '-'}}</p>
+            <p class="item">{{ expenseData?.rqWithDrawDate || '-' }}</p>
           </div>
         </div>
 
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">ชื่อผู้เบิก</p>
-            <p class="item">{{ expenseData?.rqUsrName || '-'}}</p>
+            <p class="item">{{ expenseData?.rqUsrName || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
@@ -312,7 +319,7 @@ const editAprDate = computed(() => {
         <div class="flex flex-row">
           <div class="col">
             <p class="head">ประเภทค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqRqtName || '-'}}</p>
+            <p class="item">{{ expenseData?.rqRqtName || '-' }}</p>
           </div>
           <div v-if="isPaymentOrHistoryPath" class="col">
             <p class="head">วันที่อนุมัติ</p>
@@ -320,7 +327,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
-            <p class="item">{{ expenseData?.rqExpenses || '-'}}</p>
+            <p class="item">{{ expenseData?.rqExpenses || '-' }}</p>
           </div>
           <div class="col"></div>
           <div v-if="!isPaymentOrHistoryPath" class="col"></div>
@@ -329,15 +336,15 @@ const editAprDate = computed(() => {
         <div class="travel row flex">
           <div class="col">
             <p class="head">ประเภทการเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhType || '-'}}</p>
+            <p class="item">{{ expenseData?.rqVhType || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ประเภทรถ</p>
-            <p class="item">{{ expenseData?.rqVhName || '-'}}</p>
+            <p class="item">{{ expenseData?.rqVhName || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ระยะทาง</p>
-            <p class="item">{{ expenseData?.rqDistance || '-'}}</p>
+            <p class="item">{{ expenseData?.rqDistance || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
@@ -349,17 +356,17 @@ const editAprDate = computed(() => {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">สถานที่เริ่มต้น</p>
-            <p class="item">{{ expenseData?.rqStartLocation || '-'}}</p>
+            <p class="item">{{ expenseData?.rqStartLocation || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">สถานที่สิ้นสุด</p>
-            <p class="item">{{ expenseData?.rqEndLocation || '-'}}</p>
+            <p class="item">{{ expenseData?.rqEndLocation || '-' }}</p>
           </div>
         </div>
 
         <div class="row">
           <p class="head">รายละเอียด</p>
-          <p class="item">{{ expenseData?.rqPurpose || '-'}}</p>
+          <p class="item">{{ expenseData?.rqPurpose || '-' }}</p>
         </div>
 
         <div class="row flex">
@@ -467,7 +474,7 @@ const editAprDate = computed(() => {
         class="flex overflow-hidden gap-1.5 items-start mb-4 px-2.5 pt-1.5 pb-7 w-full text-sm text-gray-500 bg-white rounded-md border-2 border-solid border-gray-200 min-h-[70px] focus:outline-none focus:border-gray-500"
         aria-label="ระบุเหตุผล" placeholder="ระบุเหตุผล">
       </textarea>
-      <div class="flex justify-center gap-5"> 
+      <div class="flex justify-center gap-5">
         <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup()"></Button>
         <Button :type="'btn-summit'" @click="handleSummit('edit')"></Button>
       </div>
@@ -548,7 +555,7 @@ const editAprDate = computed(() => {
             clip-rule="evenodd" />
         </svg>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">{{alertMessage}}</h2>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">{{ alertMessage }}</h2>
     </div>
   </div>
 
