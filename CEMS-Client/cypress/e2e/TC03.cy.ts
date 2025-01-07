@@ -19,9 +19,8 @@ describe('Test New Feature', () => {
         // ตรวจสอบว่า URL เปลี่ยนไปตามที่คาดไว้
         cy.url().should('include', '/disbursement/listWithdraw');
         //cy.xpath(``).click();
-        cy.get('table tr').eq(0) // เลือกแถวแรก
-             // ค้นหาไอคอน "viewDetails"
-        cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table[11]/tbody/tr[1]/th[8]/span/div[1]/div/div/svg"').click();
-        cy.get('svg[aria-hidden="true"][data-icon="bin"]').click();
+        cy.wait(1500)
+        cy.get('th[data-v-9c67ba91] svg').eq(10).click()
+
     });
 });
