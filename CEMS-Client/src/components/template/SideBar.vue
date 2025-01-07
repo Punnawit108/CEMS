@@ -10,15 +10,14 @@ import Icon from './CIcon.vue';
 import { useNotificationStore } from '../../store/notification';
 
 const notificationStore = useNotificationStore();
-
-let role = ref("User");
-const userInfo = ref<any>(null) ;
+;
+const userInfo = ref<any>([]) ;
 
 console.log(notificationStore.unreadCount)
 
 onMounted(async () => {
     const userData = localStorage.getItem('user')
-    userInfo.value =  userData ? await JSON.parse(userData) : null;
+    userInfo.value =  userData ? await JSON.parse(userData) : [];
     //role.value = parsedData && parsedData.usrRolName ? parsedData.usrRolName : null;
     await notificationStore.loadNotifications(userInfo.value.usrId);
     notificationStore.initSignalR(userInfo.value.usrId);
