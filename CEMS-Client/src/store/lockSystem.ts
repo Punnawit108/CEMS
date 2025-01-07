@@ -41,7 +41,7 @@ export const useLockStore = defineStore("lock", {
         */
         async fetchLockStatus() {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/system/lock-status`);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/system/lockStatus`);
                 this.isLocked = result.data.status === 1;
             } catch (error) {
                 console.error("ไม่สามารถดึงสถานะระบบได้:", error);
