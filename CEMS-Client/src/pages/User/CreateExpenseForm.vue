@@ -2,25 +2,33 @@
 /*
  * ชื่อไฟล์: CreateExpenseForm.vue
  * คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
- * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+ * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
  */
 
 import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
-
+const user = ref<any>(null);
 const requisitionStore = useRequisitionStore();
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
   await requisitionStore.getAllvehicleType();
+  const storedUser = localStorage.getItem("user"); // ดึงข้อมูลผู้ใช้จาก localStorage
+  if (storedUser) {
+    try {
+      user.value = await JSON.parse(storedUser); // แปลงข้อมูลที่ได้จาก JSON String เป็น Object
+    } catch (error) {
+      console.log("Error loading user:", error); // ถ้าล้มเหลวแสดงข้อความ Error
+    }
+  }
 });
 
-const rqRqtName = ref(2);
-
+const rqtId = ref(2);
+const startPickerOpen = ref(false);
 const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
 const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
 const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
@@ -34,24 +42,23 @@ const isAlertSubmitOpen = ref(false); // ควบคุมการแสดง
 
 let formData: any = ref({
   rqName: "",
-  rqUsrId: "9999",
-  rqPjId: "1",
-  rqRqtId: rqRqtName.value.toString(),
+  rqUsrId: "",
+  rqPjId: "",
+  rqRqtId: rqtId.value.toString(),
   rqVhId: null,
   rqPayDate: "",
-  rqWithdrawDate: "",
-  rqCode: "",
-  rqInsteadEmail: "",
-  rqExpenses: "",
-  rqStartLocation: "",
-  rqEndLocation: "",
-  rqDistance: "",
-  rqPurpose: "",
+  rqWithdrawDate: null,
+  rqCode: null,
+  rqInsteadEmail: null,
+  rqExpenses: null,
+  rqStartLocation: null,
+  rqEndLocation: null,
+  rqDistance: null,
+  rqPurpose: null,
   rqReason: "",
-  rqProof: "",
+  rqProof: null,
   rqStatus: "",
   rqProgress: "accepting",
-  preview: null,
 });
 
 // ตัวแปร ref สำหรับเก็บค่าต่างๆ
@@ -138,33 +145,19 @@ const handleSelectChange = () => {
 };
 
 const handleSubmit = async () => {
-  formData.value.rqStatus = "waiting";
-  console.log(formData);
-  const data = await requisitionStore.createExpense(formData.value);
-  
-  if (data) {
-    router.push("/disbursement/listWithdraw");
-  } else {
-    alert("Something went wrong");
-  }
+
+  openPopupSubmit();
+
 };
 
 const handleSave = async () => {
-  formData.value.rqStatus = "sketch";
-  const data = await requisitionStore.createExpense(formData.value);
-  if (data) {
-    router.push("/disbursement/listWithdraw");
-  } else {
-    alert("Something went wrong");
-  }
+  openPopupSave();
 };
 
 const handleCancel = () => {
-  // Reset form data or navigate away
-  router.push("/disbursement/listWithdraw");
+  openPopupCancle();
 };
 
-// เปิด/ปิด Popup บันทึก ผู้อนุมัติ
 const openPopupSave = () => {
   isPopupSaveOpen.value = true;
 };
@@ -172,7 +165,6 @@ const closePopupSave = () => {
   isPopupSaveOpen.value = false;
 };
 
-// เปิด/ปิด Popup ยกเลิก ผู้อนุมัติ
 const openPopupCancle = () => {
   isPopupCancleOpen.value = true;
 };
@@ -180,58 +172,90 @@ const closePopupCancle = () => {
   isPopupCancleOpen.value = false;
 };
 
-// เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
 const openPopupSubmit = () => {
   isPopupSubmitOpen.value = true;
 };
+
 const closePopupSubmit = () => {
   isPopupSubmitOpen.value = false;
 };
 
-// เปิด/ปิด Alert บันทึก
-const confirmSave = async () => {
+const confirmSave = async (event: Event) => {
+  event.preventDefault();
   // เปิด Popup Alert
   isAlertSaveOpen.value = true;
+  formData.value.rqStatus = "sketch";
+  formData.value.rqUsrId = user.value.usrId;
+  await requisitionStore.createExpense(formData.value);
+
   setTimeout(() => {
     isAlertSaveOpen.value = false; // ปิด Alert
-    closePopupSave(); // ปิด Popup แก้ไข
+     closePopupSave();
+    // ปิด Popup แก้ไข
+    router.push("/disbursement/listWithdraw");
   }, 1500); // 1.5 วินาที
+
 };
 
+// เปิด/ปิด Alert ยืนยัน
+const confirmSubmit = async (event:Event) => {
+  event.preventDefault();
+  // เปิด Popup Alert
+  isAlertSubmitOpen.value = true;
+  formData.value.rqStatus = "waiting";
+  formData.value.rqUsrId = user.value.usrId;
+
+  await requisitionStore.createExpense(formData.value);
+
+  setTimeout(() => {
+    isAlertSubmitOpen.value = false; // ปิด Alert
+    closePopupSubmit();
+    router.push("/disbursement/listWithdraw"); // ปิด Popup แก้ไข
+  }, 1500); // 1.5 วินาที
+
+};
 // เปิด/ปิด Alert ยกเลิก
-const confirmCancle = async () => {
+const confirmCancle = async (event:Event) => {
+  event.preventDefault();
   // เปิด Popup Alert
   isAlertCancleOpen.value = true;
   setTimeout(() => {
     isAlertCancleOpen.value = false; // ปิด Alert
     closePopupCancle(); // ปิด Popup แก้ไข
+    router.push("/disbursement/listWithdraw");
   }, 1500); // 1.5 วินาที
 };
 
-// เปิด/ปิด Alert ยืนยัน
-const confirmSubmit = async () => {
-  // เปิด Popup Alert
-  isAlertSubmitOpen.value = true;
-  setTimeout(() => {
-    isAlertSubmitOpen.value = false; // ปิด Alert
-    closePopupSubmit(); // ปิด Popup แก้ไข
-  }, 1500); // 1.5 วินาที
+const handleDateConfirm = (type: "start" | "end", confirmedDate: Date) => {
+  if (type === "start") {
+    // startDate.value = confirmedDate;
+    startPickerOpen.value = false;
+  } else {
+    startPickerOpen.value = false;
+  }
 };
+
+const handleDateCancel = (type: "start" | "end") => {
+  if (type === "start") {
+    startPickerOpen.value = false;
+  }
+};
+
 </script>
 <template>
-  <form @submit.prevent="handleSubmit" class="text-black text-sm">
+  <form class="text-black text-sm">
     <!-- btn -->
     <div class="flex justify-end gap-4">
-      <Button :type="'btn-save'" @click="openPopupSave"></Button>
-      <Button :type="'btn-cancleBorderGray'" @click="openPopupCancle"></Button>
-      <Button :type="'btn-summit'" @click="openPopupSubmit"></Button>
+      <Button :type="'btn-save'" @click="handleSave">บันทึก</Button>
+      <Button :type="'btn-cancleBorderGray'" @click="handleCancel">ยกเลิก</Button>
+      <Button :type="'btn-summit'" @click="handleSubmit">ยืนยัน</Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
       <!-- แบ่งเป็น 2 คอลัมน์ -->
-      <div class="flex flex-col md:flex-row justify-between gap-5">
+      <div class="flex flex-col md:flex-row justify-around">
         <!-- Form Left -->
-        <div class="w-1/2 rounded-[10px]">
+        <div class="w-2/5 rounded-[10px]">
           <!-- ช่อง "รหัสรายการเบิก *" -->
           <div class="m-4">
             <label for="rqCode" class="block text-sm font-medium py-1"
@@ -269,6 +293,17 @@ const confirmSubmit = async () => {
               placeholder="YYYY-MM-DD"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
+            <!-- <div class="relative h-[32px] w-[208px] date-picker-container">
+              <SingleDatePicker
+                v-model="formData.rqPayDate"
+                placeholder="yyyy-mm-dd"
+                :disabled="loading"
+                class="w-full"
+                :confirmedDate="startDate"
+                :isOpen="startPickerOpen"
+                @update:isOpen="startPickerOpen = $event"
+              />
+            </div> -->
           </div>
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
           <div class="m-4">
@@ -288,6 +323,7 @@ const confirmSubmit = async () => {
             <div class="text-xs">
               <select
                 id="projectName"
+                v-model="formData.rqPjId"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
                 <option disabled selected>เลือกโครงการ</option>
@@ -318,7 +354,7 @@ const confirmSubmit = async () => {
         <div class="border border-gray-200"></div>
 
         <!-- Form Right -->
-        <div class="w-1/2 rounded-[10px] place-items-end">
+        <div class="w-2/5 rounded-[10px] place-items-end">
           <div class="m-4">
             <label
               for="selectExpenseType"
@@ -328,7 +364,7 @@ const confirmSubmit = async () => {
             <div class="relative">
               <select
                 id="selectExpenseType"
-                v-model="rqRqtName"
+                v-model="formData.rqRqtId"
                 @change="handleSelectChange"
                 class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
               >
@@ -358,7 +394,7 @@ const confirmSubmit = async () => {
             </div>
           </div>
           <!-- ช่อง "ประเภทการเดินทาง" -->
-          <div class="m-4" v-if="rqRqtName === 2">
+          <div class="m-4" v-if="rqtId === 2">
             <label for="travelType" class="block text-sm font-medium py-1">
               ประเภทการเดินทาง
             </label>
@@ -384,7 +420,7 @@ const confirmSubmit = async () => {
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-          <div class="m-4" v-show="rqRqtName === 2">
+          <div class="m-4" v-show="rqtId === 2">
             <label for="vehicleType" class="block text-sm font-medium py-1">
               ประเภทรถ
             </label>
@@ -411,7 +447,7 @@ const confirmSubmit = async () => {
             </div>
           </div>
           <!-- ช่อง "สถานที่เริ่มต้น" -->
-          <div v-show="rqRqtName === 2" class="m-4">
+          <div v-show="rqtId === 2" class="m-4">
             <label for="rqStartLocation" class="block text-sm font-medium py-1"
               >สถานที่เริ่มต้น</label
             >
@@ -424,7 +460,7 @@ const confirmSubmit = async () => {
           </div>
 
           <!-- ช่อง "สถานที่สิ้นสุด" -->
-          <div v-show="rqRqtName === 2" class="m-4">
+          <div v-show="rqtId === 2" class="m-4">
             <label for="rqEndLocation" class="block text-sm font-medium py-1"
               >สถานที่สิ้นสุด</label
             >
@@ -437,7 +473,7 @@ const confirmSubmit = async () => {
           </div>
 
           <!-- ช่อง "ระยะทาง" -->
-          <div v-show="rqRqtName === 2" class="m-4">
+          <div v-show="rqtId === 2" class="m-4">
             <label for="rqEndLocation" class="block text-sm font-medium py-1"
               >ระยะทาง</label
             >
@@ -450,7 +486,7 @@ const confirmSubmit = async () => {
           </div>
 
           <!-- ช่อง "สถาน *" -->
-          <!-- <div v-if="rqRqtName !== 'ค่าเดินทาง'" class="m-4">
+          <!-- <div v-if="rqtId !== 'ค่าเดินทาง'" class="m-4">
             <label for="rqLocation" class="block text-sm font-medium py-1"
               >สถาน *</label
             >

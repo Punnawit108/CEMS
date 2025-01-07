@@ -145,7 +145,7 @@ const convertToBase64 = (file: File): Promise<string> => {
 };
 
 const handleSubmit = async () => {
-  formData.value.rqStatus = "accept";
+  formData.value.rqStatus = "waiting";
   try {
     // เรียกใช้งานฟังก์ชัน updateExpense เพื่ออัปเดตข้อมูล
     const data = await requisitionStore.updateExpense(id, formData.value);
@@ -234,7 +234,7 @@ const confirmSubmit = async () => {
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
       <!-- แบ่งเป็น 2 คอลัมน์ -->
-      <div class="flex flex-col md:flex-row justify-between gap-5">
+      <div class="flex flex-col md:flex-row justify-around gap-5">
         <!-- Form Left -->
         <div class="w-1/2 rounded-[10px]">
           <!-- ช่อง "รหัสรายการเบิก *" -->
@@ -299,12 +299,12 @@ const confirmSubmit = async () => {
                 <option disabled selected>เลือกโครงการ</option>
                 <option
                   v-for="project in requisitionStore.projects"
-                  :key="project.pjId"
-                  :value="project.pjId"
+                  :key="project.rqPjName"
+                  :value="project.PjId"
                 >
                   {{ project.pjName }}
                 </option>
-              </select>
+              </select>+
             </div>
           </div>
 
@@ -342,7 +342,7 @@ const confirmSubmit = async () => {
                 <option
                   v-for="requisitionTypeData in requisitionStore.requisitionType"
                   :key="requisitionTypeData.rqtId"
-                  :value="requisitionTypeData.rqtId"
+                  :value="requisitionTypeData.rqRqtName"
                 >
                   {{ requisitionTypeData.rqtName }}
                 </option>
