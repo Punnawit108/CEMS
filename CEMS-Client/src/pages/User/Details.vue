@@ -218,10 +218,10 @@ const confirmPrint = async (status: string) => {
   }, 1500);
 };
 
-// const approveCompleteDate = computed(() => {
-//   const lastAccepter = progressData.value.acceptor.slice(-1)[0];
-//   return lastAccepter.aprDate.split(' ')[0];
-// });
+const approveCompleteDate = computed(() => {
+  const lastAccepter = progressData.value.acceptor.slice().reverse().find((item:any) => item.aprDate);
+  return lastAccepter ? lastAccepter.aprDate.split(' ')[0] : null;
+});
 
 const editAprDate = computed(() => {
   const target = progressData.value.acceptor.find(
