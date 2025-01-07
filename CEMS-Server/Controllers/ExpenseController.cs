@@ -247,7 +247,7 @@ public class ExpenseController : ControllerBase
             ///หาข้อมูล AprId ตัวสุดท้าย
             var lastAprId = _context
                 .CemsApproverRequisitions.OrderByDescending(x => x.AprId)
-                .Select(x => new { x.ApId, x.ApUsrId })
+                .Select(x => x.AprId)
                 .FirstOrDefault();
 
             ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
@@ -256,7 +256,7 @@ public class ExpenseController : ControllerBase
             var approverIds = await _context
                 .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
                 .OrderBy(u => u.ApSequence)
-                .Select(x => x.ApId)
+                .Select(x => new { x.ApId, x.ApUsrId })
                 .ToListAsync();
 
             /// Loop สร้างข้อมูลผู้อนุมัติ
@@ -266,7 +266,7 @@ public class ExpenseController : ControllerBase
                 {
                     AprId = newAprId,
                     AprRqId = rqId,
-                    AprApId = approverId,
+                    AprApId = approverId.ApId,
                     AprName = null,
                     AprDate = null,
                     AprStatus = approverId == approverIds.First() ? "waiting" : null,
