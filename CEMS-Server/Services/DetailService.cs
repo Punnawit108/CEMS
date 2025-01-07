@@ -31,6 +31,71 @@ public class DetailService
         }
     }
 
+    public static class ThaiNumberConverter
+    {
+        private static readonly string[] Units = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+        private static readonly string[] Digits = { "", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
+
+        public static string ToText(long number)
+        {
+            if (number == 0)
+            {
+                return "ศูนย์";
+            }
+
+            List<string> parts = new List<string>();
+            int unitIndex = 0;
+            bool isTenOrGreater = false;
+
+            while (number > 0)
+            {
+                int digit = (int)(number % 10);
+                string digitText = "";
+
+                if (digit > 0)
+                {
+                    // กรณีเลขสิบ
+                    if (unitIndex == 1)
+                    {
+                        if (digit == 1)
+                        {
+                            digitText = "สิบ";
+                        }
+                        else if (digit == 2)
+                        {
+                            digitText = "ยี่สิบ";
+                        }
+                        else
+                        {
+                            digitText = Digits[digit] + "สิบ";
+                        }
+                    }
+
+                    else
+                    {
+                        digitText = Digits[digit] + Units[unitIndex];
+                    }
+
+                    parts.Insert(0, digitText);
+                }
+                else if (unitIndex == 1 && !isTenOrGreater)
+                {
+
+                    parts.Insert(0, "สิบ");
+                    isTenOrGreater = true;
+                }
+
+                number /= 10;
+                unitIndex++;
+            }
+
+            string result = string.Join("", parts);
+            result = result.Replace("หนึ่งสิบ", "สิบ");
+            result = result.Replace("ศูนย์", "");
+
+            return result;
+        }
+    }
     public byte[] GenerateDetail(string? expenseId)
     {
         var expense = (from e in _context.CemsRequisitions
@@ -120,7 +185,7 @@ public class DetailService
 
                     // ข้อความถัดไป
                     column.Item().Element(CellStyleHead).AlignCenter().Text("ใบเบิกค่าใช้จ่าย").Bold().FontSize(14).FontFamily(font);
-                    
+
 
                     // User Info Table
                     column.Item().Table(table =>
@@ -137,7 +202,7 @@ public class DetailService
                         table.Cell().ColumnSpan(2).Element(CellStyleOne).Text($"วัตถุประสงค์การเบิกค่าใช้จ่าย : {expense.RqPurpose ?? "-"}").FontFamily(font);
                     });
 
-                    
+
 
                     // Expense Details Table
                     column.Item().Table(table =>
@@ -158,11 +223,14 @@ public class DetailService
                         table.Cell().Element(CellStyleOne).Text($"สถานที่สิ้นสุด : {expense.RqEndLocation ?? "-"}").FontFamily(font);
 
                         table.Cell().Element(CellStyleOne).Text($"ระยะทาง (กม.) : {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}").FontFamily(font);
-                        table.Cell().Element(CellStyleOne).Text($"จำนวนเงิน (บาท) : {expense.RqExpenses.ToString("")}").FontFamily(font);
-                        table.Cell().ColumnSpan(2).Element(CellStyle).AlignCenter().Text($"รวม (    {expense.RqExpenses.ToString("")}    )   บาท").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($"อัตราค่าเดินทาง (บาท) : {expense.RqVhPayrate ?? 0}").FontFamily(font);
+                        
+                        table.Cell().Element(CellStyleOne).Text($"{ThaiNumberConverter.ToText((long)expense.RqExpenses)}บาทถ้วน").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($" {expense.RqExpenses.ToString("")}").FontFamily(font);
+
                     });
 
-                    
+
 
                     // Additional Rows for Approval
                     column.Item().Table(table =>
