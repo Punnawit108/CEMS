@@ -153,7 +153,7 @@ const emit = defineEmits(["click"]);
     class="btn-สร้างใบเบิกค่าใช้จ่าย bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center"
     @click="$emit('click')"
   >
-    <slot>ประเภทค่าใช้จ่าย</slot>
+    <slot>เพิ่มประเภทค่าใช้จ่าย</slot>
   </button>
 
   <!-- ประเภทค่าใช้จ่ายเทา -->
@@ -216,7 +216,7 @@ const emit = defineEmits(["click"]);
     @click="$emit('click')"
   >
     
-    <slot>ประเภทรถส่วนตัว</slot>
+    <slot>เพิ่มประเภทรถส่วนตัว</slot>
   </button>
 
   <button
@@ -225,7 +225,7 @@ const emit = defineEmits(["click"]);
     @click="$emit('click')"
   >
     
-    <slot>ประเภทรถสาธารณะ</slot>
+    <slot>เพิ่มประเภทรถสาธารณะ</slot>
   </button>
 
   <button

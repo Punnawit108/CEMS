@@ -11,8 +11,8 @@ using CEMS_Server.Models; // อ้างอิงถึงโมเดลฐา
 using Microsoft.AspNetCore.Mvc; // ใช้สำหรับการสร้าง API
 using Microsoft.EntityFrameworkCore; // ใช้สำหรับการดำเนินการกับฐานข้อมูล
 
-namespace CEMS_Server.Controllers
-{
+namespace CEMS_Server.Controllers ;
+
     // ระบุเส้นทางของ API และระบุว่าเป็น Controller สำหรับ API
     [Route("api/vehicle")]
     [ApiController]
@@ -159,6 +159,81 @@ namespace CEMS_Server.Controllers
             return NoContent();
         }
 
+        // PUT Private
+[HttpPut("update/private")]
+public async Task<IActionResult> UpdatePrivate(VehiclePrivateUpdateDTO vehicleDTO)
+{
+    // ตรวจสอบค่าที่ส่งมา
+    if (vehicleDTO == null || vehicleDTO.VhId == 0 || string.IsNullOrEmpty(vehicleDTO.VhVehicle))
+    {
+        return BadRequest(new { message = "Invalid data. Please provide VhId and VhVehicle." });
+    }
+
+    // ค้นหาข้อมูลเดิมจากฐานข้อมูล
+    var existingPrivateVehicle = await _context.CemsVehicles.FirstOrDefaultAsync(vh => vh.VhId == vehicleDTO.VhId);
+
+    if (existingPrivateVehicle == null)
+    {
+        return NotFound(new { message = "Private vehicle not found." });
+    }
+
+    // อัปเดตข้อมูล
+    existingPrivateVehicle.VhVehicle = vehicleDTO.VhVehicle;
+    existingPrivateVehicle.VhPayrate = vehicleDTO.VhPayrate;
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        return StatusCode(500, new { message = "Failed to update the private vehicle.", error = ex.Message });
+    }
+
+    return Ok(new { message = "Private vehicle updated successfully." });
+}
+
+// PUT Public
+[HttpPut("update/public")]
+public async Task<IActionResult> UpdatePublic(VehiclePublicUpdateDTO vehicleDTO)
+{
+    // ตรวจสอบค่าที่ส่งมา
+    if (vehicleDTO == null || vehicleDTO.VhId == 0 || string.IsNullOrEmpty(vehicleDTO.VhVehicle))
+    {
+        return BadRequest(new { message = "Invalid data. Please provide VhId and VhVehicle." });
+    }
+
+    // ค้นหาข้อมูลเดิมจากฐานข้อมูล
+    var existingPublicVehicle = await _context.CemsVehicles.FirstOrDefaultAsync(vh => vh.VhId == vehicleDTO.VhId);
+
+    if (existingPublicVehicle == null)
+    {
+        return NotFound(new { message = "Public vehicle not found." });
+    }
+
+    // อัปเดตข้อมูล
+    existingPublicVehicle.VhVehicle = vehicleDTO.VhVehicle;
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        return StatusCode(500, new { message = "Failed to update the public vehicle.", error = ex.Message });
+    }
+
+    return Ok(new { message = "Public vehicle updated successfully." });
+}
+
+
+    [HttpGet("validation/{VhId}")]
+    public async Task<IActionResult> CheckVehicleUsage(int VhId)
+    {
+        var isInUse = await _context.CemsRequisitions.AnyAsync(vh => vh.RqVhId == VhId);
+        return Ok(new { VhId, isInUse });
+    }
+
         // ลบข้อมูลรถ
         // DELETE: api/Vehicle/5
         [HttpDelete("{id}")]
@@ -178,5 +253,6 @@ namespace CEMS_Server.Controllers
             // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
             return NoContent();
         }
+
     }
-}
+
