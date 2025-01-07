@@ -9,24 +9,24 @@ import axios from "axios";
 import { defineStore } from "pinia";
 
 interface ExpenseReimbursementList {
-    rqId: number;
+    rqId: string;
     rqUsrName: string;
     rqName: string;
     rqWithDrawDate: string;
     rqExpenses: string;
-    rqStatus: number;
+    rqStatus: string;
     rqPjName: string;
     rqRqtName: string;
 
 }
 
 interface ExpenseReimbursementHistory {
-    rqId: number;
+    rqId: string;
     rqUsrName: string;
     rqName: string;
     rqWithDrawDate: string;
     rqExpenses: string;
-    rqStatus: number;
+    rqStatus: string;
     rqPjName: string;
     rqRqtName: string;
 }
@@ -44,28 +44,12 @@ export const useExpenseReimbursement = defineStore('expenseReimbursement', {
         * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
         * วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
         */
-        async getAllExpenseReimbursementList(id: string) {
+        async getAllExpenseReimbursementList(userId: string) {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list/${id}`)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list/${userId}`)
                 this.expenseReimbursementList = result.data;
             } catch (error) {
                 console.error("Failed to fetch ExpenseReimbursementList data:", error)
-            }
-        },
-        /*
-       * คำอธิบาย: ดึงข้อมูลรายการเบิกค่าใช้จ่ายตาม ID
-       * Input: ID
-       * Output: ข้อมูลรายการเบิกค่าใช้จ่าย
-       * ชื่อผู้เขียน/แก้ไข: นครียา วัฒนศรี
-       * วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-       */
-        async getExpenseReimbursementItemById(id: string) {
-            try {
-                const result = await axios.get(`https://66a40b0044aa6370458338c7.mockapi.io/api/UserSetting/${id}`);
-                return result.data;
-            } catch (error) {
-                console.error(`Error fetching ExpenseReimbursementList item with ID: ${id}`, error);
-                throw error;
             }
         },
         /*
@@ -75,13 +59,14 @@ export const useExpenseReimbursement = defineStore('expenseReimbursement', {
         * ชื่อผู้เขียน/แก้ไข: นครียา วัฒนศรี
         * วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
         */
-        async deleteExpenseReimbursementItem(id: number) {
+        async deleteExpenseReimbursementItem(userId:string,requisitionId: string) {
             try {
-                await axios.delete(`https://66a40b0044aa6370458338c7.mockapi.io/api/UserSetting/${id}`);
+                await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/expense/${requisitionId}`);
 
-                this.expenseReimbursementList = this.expenseReimbursementList.filter(item => item.rqId !== id);
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/list/${userId}`)
+                this.expenseReimbursementList = result.data;
             } catch (error) {
-                console.error(`Failed to delete item with id ${id}:`, error);
+                console.error(`Failed to delete item with id ${requisitionId}:`, error);
             }
         },
 
@@ -92,28 +77,13 @@ export const useExpenseReimbursement = defineStore('expenseReimbursement', {
                * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
                * วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
                */
-        async getAllExpenseReimbursementHistory(id: string) {
+        async getAllExpenseReimbursementHistory(userId: string) {
             try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/history/${id}`)
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/history/${userId}`)
                 this.expenseReimbursementHistory = result.data;
             } catch (error) {
                 console.error("Failed to fetch ExpenseReimbursementHistory data:", error)
             }
         },
-        /*
-       * คำอธิบาย: ดึงข้อมูลประวัติการเบิกค่าใช้จ่ายตาม ID
-       * Input: ID
-       * Output: ข้อมูลประวัติการเบิกค่าใช้จ่าย
-       * ชื่อผู้เขียน/แก้ไข: นครียา วัฒนศรี
-       * วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-       */
-        async getExpenseReimbursementHistoryById(id: string) { //
-            try {
-                const result = await axios.get(`http://localhost:5247/api/ExpenseReimbursementHistory/${id}`)
-                return result.data;
-            } catch (error) {
-                console.error("Error fetching ExpenseReimbursementHistory by ID:", error);
-            }
-        }
     }
 })

@@ -31,15 +31,15 @@ onMounted(async () => {
 });
 
 // ไปหน้า detail
-const toDetails = (id: number) => {
+const toDetails = (id: string) => {
     router.push(`/disbursement/listWithdraw/detail/${id}`);
 };
 
 const showModal = ref(false); // ควบคุมการแสดง Modal
-const selectedItemId = ref<number | null>(null); // เก็บ ID ของรายการที่กำลังลบ
+const selectedItemId = ref<string | null>(null); // เก็บ ID ของรายการที่กำลังลบ
 
 // ฟังก์ชันเปิด Modal ยืนยัน
-const openConfirmationModal = (id: number) => {
+const openConfirmationModal = (id: string) => {
     selectedItemId.value = id; // กำหนด ID ของรายการที่ต้องการลบ
     showModal.value = true; // เปิด Modal
 };
@@ -54,7 +54,7 @@ const closeModal = () => {
 const confirmDelete = async () => {
     if (selectedItemId.value !== null) {
         try {
-            await expenseReimbursementStore.deleteExpenseReimbursementItem(selectedItemId.value); // ลบรายการ
+            await expenseReimbursementStore.deleteExpenseReimbursementItem(user.value.usrId,selectedItemId.value); // ลบรายการ
         } catch (error) {
             console.error("Failed to delete item:", error);
         } finally {
@@ -175,7 +175,7 @@ const confirmDelete = async () => {
                         <th class="py-[10px] px-2 w-24 text-center">
                             <span class="flex justify-center">
                                 <Icon :icon="'viewDetails'" v-on:click="toDetails(expenseReimbursementList.rqId)"  />
-                                <Icon :icon="'bin'" @click="openConfirmationModal(expenseReimbursementList.rqId)" />
+                                <Icon v-if = "expenseReimbursementList.rqStatus === 'sketch'" :icon="'bin'" @click="openConfirmationModal(expenseReimbursementList.rqId)" />
                             </span>
                         </th>
                     </tr>

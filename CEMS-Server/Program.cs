@@ -20,6 +20,7 @@ builder.Services.AddSignalR();
 builder.Services.AddScoped<GetDataExport>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<PdfServiceProject>();
+builder.Services.AddScoped<DetailService>();
 
 // ตั้งค่า CORS
 builder.Services.AddCors(options =>

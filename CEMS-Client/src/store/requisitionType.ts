@@ -25,12 +25,13 @@ export const useRequisitionTypeStore = defineStore('requisitiontype', {
     */
     async getAllRequisitionTypes() {
       try {
-        const result = await axios.get(`${BASE_URL}/api/requisitiontype`);
+        const result = await axios.get(`${BASE_URL}/api/requisitiontype/list`);
         this.requisitionTypes = result.data;
       } catch (error) {
         console.error('Failed to fetch requisition types:', error);
         throw error;
       }
-    }
+    },
+    
   }
 });

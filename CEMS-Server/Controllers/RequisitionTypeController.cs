@@ -72,7 +72,11 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
         // สร้างออบเจ็กต์ใหม่จาก DTO
-        var newRequisitionType = new CemsRequisitionType { RqtName = requisitionTypeDto.RqtName,RqtVisible = 1 };
+        var newRequisitionType = new CemsRequisitionType
+        {
+            RqtName = requisitionTypeDto.RqtName,
+            RqtVisible = 1,
+        };
 
         _context.CemsRequisitionTypes.Add(newRequisitionType); // เพิ่มข้อมูลลงในบริบท
         await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
@@ -83,39 +87,90 @@ public class RequisitionTypeController : ControllerBase
 
     // แก้ไขข้อมูลที่มีอยู่
     // PUT: api/requisitiontype/{id}
-    [HttpPut("{id}")]
-    public async Task<ActionResult> Update(int id, RequisitionTypeDTO requisitionTypeDto)
+    [HttpPut]
+    public async Task<IActionResult> UpdateRequisitionType(
+        RequisitionTypeUpdateDTO requisitionTypeDto
+    )
     {
-        // ค้นหาข้อมูลที่ต้องการแก้ไข
-        var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
-        if (existingRequisitionType == null)
+        // ตรวจสอบค่าที่ส่งมา
+        if (
+            requisitionTypeDto == null
+            || requisitionTypeDto.RqtId == 0
+            || string.IsNullOrEmpty(requisitionTypeDto.RqtName)
+        )
         {
-            return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
+            return BadRequest(
+                new { message = "Invalid data. Please provide both RqtId and RqtName." }
+            );
         }
 
-        existingRequisitionType.RqtName = requisitionTypeDto.RqtName; // อัปเดตข้อมูลในออบเจ็กต์
+        // ค้นหาข้อมูลเดิมจากฐานข้อมูล
+        var existingRequisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(rt =>
+            rt.RqtId == requisitionTypeDto.RqtId
+        );
 
-        _context.CemsRequisitionTypes.Update(existingRequisitionType); // อัปเดตข้อมูลในบริบท
-        await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+        if (existingRequisitionType == null)
+        {
+            return NotFound(new { message = "Requisition Type not found." });
+        }
 
-        return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
+        // อัปเดตข้อมูล
+        existingRequisitionType.RqtName = requisitionTypeDto.RqtName;
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateConcurrencyException ex)
+        {
+            return StatusCode(
+                500,
+                new { message = "Failed to update the record.", error = ex.Message }
+            );
+        }
+
+        return Ok(new { message = "Requisition Type updated successfully." });
     }
 
     // ลบข้อมูล
     // DELETE: api/requisitiontype/{id}
+    // [HttpDelete("{id}")]
+    // public async Task<ActionResult> DeleteExpense(int id)
+    // {
+    //     // ค้นหาข้อมูลที่ต้องการลบ
+    //     var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
+    //     if (existingRequisitionType == null)
+    //     {
+    //         return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
+    //     }
+
+    //     _context.CemsRequisitionTypes.Remove(existingRequisitionType); // ลบข้อมูลออกจากบริบท
+    //     await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+
+    //     return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
+    // }
     [HttpDelete("{id}")]
-    public async Task<ActionResult> Delete(int id)
+    public IActionResult DeleteExpense(int id)
     {
         // ค้นหาข้อมูลที่ต้องการลบ
-        var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
-        if (existingRequisitionType == null)
+        var expense = _context.CemsRequisitionTypes.FirstOrDefault(v => v.RqtId == id);
+        if (expense == null)
         {
-            return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
+            return NotFound($"Expense with ID {id} not found."); // ส่งสถานะ 404
         }
 
-        _context.CemsRequisitionTypes.Remove(existingRequisitionType); // ลบข้อมูลออกจากบริบท
-        await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
+        // ลบข้อมูลออกจากบริบท
+        _context.CemsRequisitionTypes.Remove(expense);
+        _context.SaveChanges(); // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
 
-        return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
+        // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
+        return NoContent();
+    }
+
+    [HttpGet("validation/{rqtId}")]
+    public async Task<IActionResult> CheckRequisitionTypeUsage(int rqtId)
+    {
+        var isInUse = await _context.CemsRequisitions.AnyAsync(r => r.RqRqtId == rqtId);
+        return Ok(new { rqtId, isInUse });
     }
 }

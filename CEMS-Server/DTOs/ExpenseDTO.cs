@@ -36,9 +36,9 @@ namespace CEMS_Server.DTOs
 
         public string RqName { get; set; } = null!;
         public string RqUsrName { get; set; } = null!;
-        public DateOnly RqPayDate { get; set; }
+        public DateOnly? RqPayDate { get; set; }
 
-        public DateOnly RqWithDrawDate { get; set; }
+        public DateOnly? RqWithDrawDate { get; set; }
         public string? RqCode { get; set; }
 
         public string? RqInsteadEmail { get; set; }
