@@ -106,7 +106,7 @@ onMounted(async () => {
     } catch (error) {
         console.error("Error fetching expenses:", error);
     }
-    
+
     const barchart = document.getElementById("barChart") as HTMLCanvasElement;
     if (barchart) {
         new Chart(barchart, {
@@ -274,40 +274,60 @@ onMounted(async () => {
                 <!-- ปุ่มเปิด Modal -->
                 <Button :type="'btn-print2'" @click="showModal = true"
                     class="fixed right-0 mr-4 transform -translate-y-1/2 top-1/2">
-                    Export
+                    ส่งออก
                 </Button>
 
                 <!-- Modal -->
                 <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-                    <div class="p-6 bg-white rounded-lg shadow-lg w-80">
-                        <h2 class="mb-4 text-lg font-semibold">เลือกประเภทไฟล์ที่ต้องการ Export</h2>
+                    <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
+                        <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
 
                         <!-- ปุ่มเลือกประเภทไฟล์ -->
-                        <div class="flex mb-4 space-x-4">
+                        <div class="flex justify-center flex   space-x-6">
+                            <!-- ปุ่ม PDF -->
                             <button @click="selectedType = 'pdf'"
-                                :class="['px-4 py-2 rounded', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-200']">
-                                PDF
+                                :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                                <!-- ไอคอน PDF -->
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                    class="w-8 h-8 mr-2">
+                                    <path
+                                        d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
+                                </svg>
+                                
                             </button>
+                            
+                            <!-- ปุ่ม XLSX -->
                             <button @click="selectedType = 'xlsx'"
-                                :class="['px-4 py-2 rounded', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-200']">
-                                XLSX
+                                :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                                <!-- ไอคอน XLSX -->
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                    class="w-8 h-8 mr-2">
+                                    <path
+                                        d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
+                                </svg>
+                                
                             </button>
                         </div>
-
+                        <div class="flex justify-center space-x-20 mb-6 ">
+                        <h class="text-sm text-gray-600 mt-2">PDF</h>
+                        <h class="text-sm text-gray-600 mt-2">XLSX</h>
+                    </div>
                         <!-- ปุ่มยืนยันและยกเลิก -->
-                        <div class="flex justify-end space-x-2">
-                            <button @click="exportFile" :disabled="!selectedType"
-                                class="px-4 py-2 text-white bg-blue-500 rounded hover:bg-blue-600 disabled:bg-gray-300">
-                                ยืนยัน
-                            </button>
-                            <button @click="showModal = false" type="button"
-                                class="px-4 py-2 bg-gray-300 rounded hover:bg-gray-400">
+                        <div class="flex justify-center space-x-4">
+                            <Button :type = "'btn-cancleBorderGray'"@click="showModal = false" 
+                                class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
                                 ยกเลิก
                             </button>
+                            <Button :type = "'btn-summit'" @click="exportFile" :disabled="!selectedType"
+                                class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
+                                ยืนยัน
+                            </button>
+                            
                         </div>
                     </div>
                 </div>
             </div>
+
         </div>
         <!-- end::Filter -->
 
