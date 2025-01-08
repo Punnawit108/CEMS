@@ -32,70 +32,67 @@ public class DetailService
     }
 
     public static class ThaiNumberConverter
-    {
-        private static readonly string[] Units = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
-        private static readonly string[] Digits = { "", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
+{
+    private static readonly string[] Units = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+    private static readonly string[] Digits = { "", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
 
-        public static string ToText(long number)
+    public static string ToText(long number)
+    {
+        if (number == 0)
         {
-            if (number == 0)
+            return "ศูนย์";
+        }
+
+        string result = "";
+        int unitIndex = 0;
+        bool isMillion = false;
+
+        while (number > 0)
+        {
+            int digit = (int)(number % 10);
+
+            if (unitIndex == 6 && !isMillion) // ตำแหน่งหลักล้าน
             {
-                return "ศูนย์";
+                result = "ล้าน" + result;
+                isMillion = true;
+                unitIndex = 0;
             }
 
-            List<string> parts = new List<string>();
-            int unitIndex = 0;
-            bool isTenOrGreater = false;
-
-            while (number > 0)
+            if (digit > 0)
             {
-                int digit = (int)(number % 10);
-                string digitText = "";
-
-                if (digit > 0)
+                if (unitIndex == 1) // หลักสิบ
                 {
-                    // กรณีเลขสิบ
-                    if (unitIndex == 1)
+                    if (digit == 1)
                     {
-                        if (digit == 1)
-                        {
-                            digitText = "สิบ";
-                        }
-                        else if (digit == 2)
-                        {
-                            digitText = "ยี่สิบ";
-                        }
-                        else
-                        {
-                            digitText = Digits[digit] + "สิบ";
-                        }
+                        result = "สิบ" + result;
                     }
-
+                    else if (digit == 2)
+                    {
+                        result = "ยี่สิบ" + result;
+                    }
                     else
                     {
-                        digitText = Digits[digit] + Units[unitIndex];
+                        result = Digits[digit] + "สิบ" + result;
                     }
-
-                    parts.Insert(0, digitText);
                 }
-                else if (unitIndex == 1 && !isTenOrGreater)
+                else if (unitIndex == 0 && digit == 1 && number >= 10) // เลขหนึ่งหลักหน่วยที่ต่อท้ายหลังสิบ
                 {
-
-                    parts.Insert(0, "สิบ");
-                    isTenOrGreater = true;
+                    result = "เอ็ด" + result;
                 }
-
-                number /= 10;
-                unitIndex++;
+                else
+                {
+                    result = Digits[digit] + Units[unitIndex] + result;
+                }
             }
 
-            string result = string.Join("", parts);
-            result = result.Replace("หนึ่งสิบ", "สิบ");
-            result = result.Replace("ศูนย์", "");
-
-            return result;
+            number /= 10;
+            unitIndex++;
         }
+
+        return result;
     }
+}
+
     public byte[] GenerateDetail(string? expenseId)
     {
         var expense = (from e in _context.CemsRequisitions
@@ -225,8 +222,8 @@ public class DetailService
                         table.Cell().Element(CellStyleOne).Text($"ระยะทาง (กม.) : {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}").FontFamily(font);
                         table.Cell().Element(CellStyleOne).Text($"อัตราค่าเดินทาง (บาท) : {expense.RqVhPayrate ?? 0}").FontFamily(font);
                         
-                        table.Cell().Element(CellStyleOne).Text($"{ThaiNumberConverter.ToText((long)expense.RqExpenses)}บาทถ้วน").FontFamily(font);
-                        table.Cell().Element(CellStyleOne).Text($" {expense.RqExpenses.ToString("")}").FontFamily(font);
+                        table.Cell().Element(CellStyle).Text($"{ThaiNumberConverter.ToText((long)expense.RqExpenses)}บาทถ้วน").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($" จำนวนเงิน (บาท) : {expense.RqExpenses.ToString("")}").FontFamily(font);
 
                     });
 
