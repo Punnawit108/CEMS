@@ -150,7 +150,7 @@ const toDetails = async (data: Expense) => {
 
         
         <!-- ตาราง -->
-        <div class="w-full border mt-12">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
             <Ctable :table="'Table2-head'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
