@@ -143,7 +143,7 @@ const confirmDelete = async () => {
             </div>
         </div>
         <!-- Table -->
-        <div class="w-full h-fit border-2 border-b-grayDark items-start mt-12">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
             <Ctable :table="'Table9-head-New'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
