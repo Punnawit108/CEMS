@@ -5,6 +5,7 @@ using QuestPDF.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using QuestPDF.Helpers;
+using QuestPDF.Drawing;
 
 public class PdfService
 {
@@ -28,14 +29,19 @@ public class PdfService
                 e.RqPayDate,
                 e.RqExpenses
             })
-            // กรองข้อมูลตามเงื่อนไข
             .Where(e =>
                 (string.IsNullOrEmpty(projectName) || e.PjName == projectName) &&
                 (string.IsNullOrEmpty(requestType) || e.RqtName == requestType)
             )
             .ToList();
 
-        // ใช้ QuestPDF เพื่อสร้าง PDF (เหมือนเดิม)
+        var fontPath = "Fonts/THSarabunNew.ttf";
+        using (var fontStream = new FileStream(fontPath, FileMode.Open, FileAccess.Read))
+        {
+            FontManager.RegisterFont(fontStream);
+        }
+        var font = "TH Sarabun New";
+        // ใช้ QuestPDF เพื่อสร้าง PDF
         var document = Document.Create(container =>
         {
             container.Page(page =>
@@ -44,42 +50,42 @@ public class PdfService
                 page.Margin(20);
                 page.Content().AlignCenter().Column(column =>
                 {
-                    column.Item().Text("รายการเบิกค่าใช้จ่าย").FontSize(12).Bold().AlignLeft();
+                    column.Item().Text("รายการเบิกค่าใช้จ่าย").FontSize(18).Bold().AlignLeft().FontFamily(font);
 
                     column.Item().Table(table =>
                     {
                         table.ColumnsDefinition(columns =>
                         {
                             columns.ConstantColumn(30);
-                            columns.ConstantColumn(150);
-                            columns.ConstantColumn(75);
-                            columns.ConstantColumn(50);
-                            columns.ConstantColumn(75);
-                            columns.ConstantColumn(50);
-                            columns.ConstantColumn(80);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
+                            columns.RelativeColumn(1);
                         });
 
                         table.Header(header =>
                         {
-                            header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text("ลำดับ").FontSize(8).Bold().AlignCenter();
-                            header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text("ชื่อผู้ใช้").FontSize(8).Bold().AlignCenter();
-                            header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text("รายการเบิก").FontSize(8).Bold().AlignCenter();
-                            header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text("โครงการ").FontSize(8).Bold().AlignCenter();
-                            header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text("ประเภทค่าใช้จ่าย").FontSize(8).Bold().AlignCenter();
-                            header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text("วันที่ขอเบิก").FontSize(8).Bold().AlignCenter();
-                            header.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text("จำนวนเงิน(บาท)").FontSize(8).Bold().AlignCenter();
+                            header.Cell().Element(CellStyleOne).Text("ลำดับ").FontSize(13).Bold().AlignCenter().FontFamily(font);
+                            header.Cell().Element(CellStyleOne).Text("ชื่อผู้ใช้").FontSize(13).Bold().AlignLeft().FontFamily(font);
+                            header.Cell().Element(CellStyleOne).Text("รายการเบิก").FontSize(13).Bold().AlignLeft().FontFamily(font);
+                            header.Cell().Element(CellStyleOne).Text("โครงการ").FontSize(13).Bold().AlignLeft().FontFamily(font);
+                            header.Cell().Element(CellStyleOne).Text("ประเภทค่าใช้จ่าย").FontSize(13).Bold().AlignLeft().FontFamily(font);
+                            header.Cell().Element(CellStyleOne).Text("วันที่ขอเบิก").FontSize(13).Bold().AlignLeft().FontFamily(font);
+                            header.Cell().Element(CellStyleNum).Text("จำนวนเงิน (บาท)").FontSize(13).Bold().AlignRight().FontFamily(font);
                         });
 
                         int index = 1;
                         foreach (var expense in expenses)
                         {
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text(index.ToString()).FontSize(6).AlignLeft();
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text(expense.UserFullName).FontSize(6).AlignLeft();
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text(expense.RqName).FontSize(6).AlignLeft();
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text(expense.PjName).FontSize(6).AlignLeft();
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text(expense.RqtName).FontSize(6).AlignLeft();
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text(expense.RqPayDate.ToString("dd/MM/yyyy")).FontSize(6).AlignLeft();
-                            table.Cell().Border(1).BorderColor(Colors.Black).Padding(2).Text(expense.RqExpenses.ToString("C2")).FontSize(6).AlignLeft();
+                            table.Cell().Element(CellStyleOne).Text(index.ToString()).FontSize(11).AlignCenter().FontFamily(font);
+                            table.Cell().Element(CellStyleOne).Text(expense.UserFullName).FontSize(11).AlignLeft().FontFamily(font);
+                            table.Cell().Element(CellStyleOne).Text(expense.RqName).FontSize(11).AlignLeft().WrapAnywhere().FontFamily(font);
+                            table.Cell().Element(CellStyleOne).Text(expense.PjName).FontSize(11).AlignLeft().WrapAnywhere().FontFamily(font);
+                            table.Cell().Element(CellStyleOne).Text(expense.RqtName).FontSize(11).AlignLeft().WrapAnywhere().FontFamily(font);
+                            table.Cell().Element(CellStyleOne).Text(expense.RqPayDate.ToString("dd/MM/yyyy")).FontSize(11).AlignLeft().FontFamily(font);
+                            table.Cell().Element(CellStyleNum).Text(expense.RqExpenses.ToString("")).FontSize(11).AlignRight().FontFamily(font);
                             index++;
                         }
                     });
@@ -90,5 +96,23 @@ public class PdfService
         return document.GeneratePdf();
     }
 
+    private static IContainer CellStyleOne(IContainer container)
+    {
+        return container
+            .Padding(0)
+            .Border(1)
+            .PaddingLeft(2)
+            .Height(30)
+            .AlignMiddle();
+    }
 
+     private static IContainer CellStyleNum(IContainer container)
+    {
+        return container
+            .Padding(0)
+            .Border(1)
+            .PaddingRight(2)
+            .Height(30)
+            .AlignMiddle();
+    }
 }
