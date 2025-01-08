@@ -1,7 +1,7 @@
 /*
 * ชื่อไฟล์: ApprovalController.cs
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของการอนุมัติและผู้อนุมัติ
-* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล , นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
 */
 
@@ -266,7 +266,7 @@ public class ApprovalController : ControllerBase
 
                     if (nextApprover != null && string.IsNullOrEmpty(nextApprover.AprStatus))
                     {
-                        nextApprover.AprStatus = "waiting"; // เปลี่ยนสถานะเป็น waiting
+                        nextApprover.AprStatus = "waiting";
                         _context.CemsApproverRequisitions.Update(nextApprover);
                         await _context.SaveChangesAsync();
                     }
