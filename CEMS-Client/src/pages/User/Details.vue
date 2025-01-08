@@ -99,7 +99,7 @@ const colorStatus: { [key: string]: string } = {
   accept: "#12B669",
   waiting: "#1976D2",
   sketch: "#B6B7BA",
-  paying: "#1976D2",
+  paying: "#FFBE40",
   complete: "#12B669",
   accepting: "#B6B7BA",
   null: "#B6B7BA"
