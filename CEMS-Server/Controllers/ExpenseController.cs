@@ -155,6 +155,7 @@ public class ExpenseController : ControllerBase
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
+            .ThenInclude(u => u.UsrNp)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
@@ -163,7 +164,8 @@ public class ExpenseController : ControllerBase
             {
                 RqId = u.RqId,
                 RqUsrId = u.RqUsr.UsrId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqUsrName =
+                    u.RqUsr.UsrNp.NpPrefix + " " + u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqPjName = u.RqPj.PjName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqVhType = u.RqVh.VhType,
@@ -251,7 +253,7 @@ public class ExpenseController : ControllerBase
                 .FirstOrDefault();
 
             ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
-            int newAprId = lastAprId + 1;
+            int newAprId = (lastAprId ?? 0) + 1;
 
             var approverIds = await _context
                 .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ

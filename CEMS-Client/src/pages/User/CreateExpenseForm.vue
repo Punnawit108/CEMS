@@ -6,7 +6,7 @@
  * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
  */
 
-import { computed, onMounted, ref, watch } from "vue";
+import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
@@ -15,11 +15,11 @@ const user = ref<any>(null);
 const requisitionStore = useRequisitionStore();
 
 const rqtId = ref(2);
-const startPickerOpen = ref(false);
-const rqtName = ref("");
-const customExpenseType = ref("");
-const isOtherSelected = ref(false);
-const isCustomExpenseTypeAdded = ref(false);
+// const startPickerOpen = ref(false);
+// const rqtName = ref("");
+// const customExpenseType = ref("");
+// const isOtherSelected = ref(false);
+// const isCustomExpenseTypeAdded = ref(false);
 const isPopupSaveOpen = ref(false);
 const isPopupCancleOpen = ref(false);
 const isPopupSubmitOpen = ref(false);
@@ -32,24 +32,24 @@ const formData = ref({
   rqUsrId: "",
   rqPjId: "",
   rqRqtId: rqtId.value,
-  rqVhId: null,
+  rqVhId: "",
   rqPayDate: "",
-  rqWithdrawDate: null,
-  rqCode: null,
-  rqInsteadEmail: null,
-  rqExpenses: null,
-  rqStartLocation: null,
-  rqEndLocation: null,
-  rqDistance: null,
-  rqPurpose: null,
+  rqWithdrawDate: "",
+  rqCode: "",
+  rqInsteadEmail: "",
+  rqExpenses: "",
+  rqStartLocation: "",
+  rqEndLocation: "",
+  rqDistance: "",
+  rqPurpose: "",
   rqReason: "",
-  rqProof: null,
+  rqProof: "",
   rqStatus: "",
   rqProgress: "accepting",
   additionalInfo: "",
 });
 
-const selectedExpenseTypeId = ref("");
+// const selectedExpenseTypeId = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFile = ref<File | null>(null);
 const previewUrl = ref<string | null>(null);
@@ -72,35 +72,28 @@ onMounted(async () => {
   console.log("user", formData.value);
 });
 
-watch(
-  () => formData.value.rqRqtId,
-  (newValue) => {
-    if (newValue === "อื่นๆ") {
-      selectedExpenseTypeId.value =
-        customExpenseType.value || "กรุณาระบุประเภทค่าใช้จ่าย";
-    } else {
-      const selectedType = requisitionStore.requisitionType.find(
-        (type) => type.rqtId === newValue
-      );
-      selectedExpenseTypeId.value = selectedType ? selectedType.rqtName : "";
-    }
-  }
-);
+// watch(
+//   () => formData.value.rqRqtId,
+//   (newValue) => {
+//     if (newValue === "อื่นๆ") {
+//       selectedExpenseTypeId.value =
+//         customExpenseType.value || "กรุณาระบุประเภทค่าใช้จ่าย";
+//     } else {
+//       const selectedType = requisitionStore.requisitionType.find(
+//         (type) => type.rqtId === newValue
+//       );
+//       selectedExpenseTypeId.value = selectedType ? selectedType.rqtName : "";
+//     }
+//   }
+// );
 
-watch(
-  () => formData.value.rqRqtId,
-  (newValue) => {
-    if (newValue === "2") {
-      // Handle specific logic when rqRqtId is 2
-    }
-  }
-);
 
-const handleSelectChange = () => {
-  if (formData.value.rqRqtId !== "อื่นๆ") {
-    formData.value.additionalInfo = "";
-  }
-};
+
+// const handleSelectChange = () => {
+//   if (formData.value.rqRqtId !== "อื่นๆ") {
+//     formData.value.additionalInfo = "";
+//   }
+// };
 
 const triggerFileInput = () => {
   fileInput.value?.click();
@@ -235,19 +228,19 @@ const confirmCancle = async (event: Event) => {
   }, 1500);
 };
 
-const handleDateConfirm = (type: "start" | "end", confirmedDate: Date) => {
-  if (type === "start") {
-    startPickerOpen.value = false;
-  } else {
-    startPickerOpen.value = false;
-  }
-};
+// const handleDateConfirm = (type: "start" | "end", confirmedDate: Date) => {
+//   if (type === "start") {
+//     startPickerOpen.value = false;
+//   } else {
+//     startPickerOpen.value = false;
+//   }
+// };
 
-const handleDateCancel = (type: "start" | "end") => {
-  if (type === "start") {
-    startPickerOpen.value = false;
-  }
-};
+// const handleDateCancel = (type: "start" | "end") => {
+//   if (type === "start") {
+//     startPickerOpen.value = false;
+//   }
+// };
 </script>
 
 <template>
@@ -372,7 +365,7 @@ const handleDateCancel = (type: "start" | "end") => {
                 id="expenseType"
                 v-model="formData.rqRqtId"
                 class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                @change="handleSelectChange"
+                
               >
                 <option value="">กรุณาเลือกประเภท</option>
                 <option
@@ -382,11 +375,11 @@ const handleDateCancel = (type: "start" | "end") => {
                 >
                   {{ requisitionTypeData.rqtName }}
                 </option>
-                <option value="00">อื่นๆ</option>
+                <option value="999">อื่นๆ</option>
               </select>
 
               <!-- Input ที่จะแสดงเมื่อเลือก ID = 2 -->
-              <div v-show="formData.rqRqtId === '00'">
+              <div v-show="formData.rqRqtId === 999">
                 <label
                   for="additionalInfo"
                   class="block text-sm font-medium py-1"

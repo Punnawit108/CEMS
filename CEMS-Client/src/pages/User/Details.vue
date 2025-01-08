@@ -11,6 +11,7 @@ import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
+import axios from "axios";
 
 const route = useRoute();
 const router = useRouter();
@@ -22,10 +23,10 @@ const id = route.params.id.toString();
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
 
-
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
   expenseData.value = await detailStore.getRequisition(id);
+  console.log(progressData.value)
 })
 
 
@@ -40,7 +41,6 @@ const isPaymentPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list');
 });
 
-
 // FN ตรวจสอบว่ามีคำว่า 'payment' และ list ใน path หรือไม่
 const isPaymentOrHistoryPath = computed(() => {
   return route.path.includes('payment') && route.path.includes('list') || route.path.includes('history') && !route.path.includes('approval');
@@ -48,7 +48,7 @@ const isPaymentOrHistoryPath = computed(() => {
 
 const statusMapping = [
   {
-    condition: (data: any) => data.rqProgress === 'accepting',
+    condition: (data: any) => data.rqProgress === 'accepting' && data.rqStatus === 'waiting',
     label: 'รออนุมัติ',
     color: '#1976D2',
   },
@@ -68,6 +68,11 @@ const statusMapping = [
     color: '#E1032B',
   },
   {
+    condition: (data: any) => data.rqStatus === 'sketch',
+    label: 'แบบร่าง',
+    color: '#B6B7BA',
+  },
+  {
     condition: (data: any) => data.rqStatus === 'accept' && data.rqProgress === 'paying',
     label: 'รอนำจ่าย',
     color: '#FFBE40',
@@ -85,7 +90,7 @@ const statusInfo = computed(() => {
     const match = statusMapping.find((item) => item.condition(expenseData.value));
     return match || { label: 'ไม่ทราบสถานะ', color: '#000000' };
   }
-  return { label: 'กำลังโหลดข้อมูล...', color: '#CCCCCC' }; // กรณีที่ข้อมูลยังไม่โหลด
+  return { label: 'กำลังโหลดข้อมูล...', color: '##B6B7BA' }; // กรณีที่ข้อมูลยังไม่โหลด
 });
 
 const colorStatus: { [key: string]: string } = {
@@ -94,7 +99,7 @@ const colorStatus: { [key: string]: string } = {
   accept: "#12B669",
   waiting: "#1976D2",
   sketch: "#B6B7BA",
-  paying: "#1976D2",
+  paying: "#FFBE40",
   complete: "#12B669",
   accepting: "#B6B7BA",
   null: "#B6B7BA"
@@ -132,7 +137,6 @@ function findAprIdByFirstName(progressData: { disbursement: any[]; acceptor: any
   return match; // ส่งข้อมูล match และ status
 }
 
-
 // ประเภท popup เช่น 'reject', 'edit', 'approve'
 const isApproverPopup = ref("null");
 
@@ -159,11 +163,16 @@ const handleSummit = async (status: string) => {
       aprStatus: status,
       rqReason: formData.rqReason
     };
-    console.log(data);
     detailStore.updateApprove(data);
     handleHideApproverPopup();
     confirmPrint(status)
-    router.push(`/approval/list/`)
+    isAlertPrintOpen.value = true;
+    setTimeout(() => {
+      isAlertPrintOpen.value = false;
+      closePopupPrint();
+      router.push(`/approval/list/`)
+    }, 1500);
+    
   }
 };
 
@@ -208,8 +217,8 @@ const confirmPrint = async (status: string) => {
 };
 
 const approveCompleteDate = computed(() => {
-  const lastAccepter = progressData.value.acceptor.slice(-1)[0];
-  return lastAccepter.aprDate.split(' ')[0];
+  const lastAccepter = progressData.value.acceptor.slice().reverse().find((item:any) => item.aprDate);
+  return lastAccepter ? lastAccepter.aprDate.split(' ')[0] : null;
 });
 
 const editAprDate = computed(() => {
@@ -217,9 +226,34 @@ const editAprDate = computed(() => {
     (item: any) => item.aprStatus == "edit"
   )
   return target ? target.aprDate : "";
-})
+});
+
+// เรียกใช้ฟังก์ชัน export ไปยัง PDF
+const exportFile = async () => {
+  try {
+    const url = `http://localhost:5247/api/detail/export?expenseId=${id}`;
+
+    // เรียก API และกำหนด response เป็น blob
+    const response = await axios.get(url, { responseType: 'blob' });
+
+    // สร้าง Blob สำหรับดาวน์โหลดไฟล์
+    const blob = new Blob([response.data], { type: 'application/pdf' });
+
+    // สร้างลิงก์สำหรับดาวน์โหลด
+    const link = document.createElement('a');
+    link.href = window.URL.createObjectURL(blob);
+    link.setAttribute('download', `ExportedExpenseData.pdf`);
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+  } catch (error) {
+    console.error('Error exporting PDF:', error);
+    alert('เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์ PDF');
+  }
+};
 
 </script>
+
 
 <!-- path for test = /disbursement/listWithdraw/detailsExpenseForm/:id -->
 <!-- path for test = /disbursement/historyWithdraw/detail/:id -->
@@ -266,7 +300,7 @@ const editAprDate = computed(() => {
       <div class="left w-[85%]">
         <div class="flex items-center align-middle justify-between">
           <h3 class="text-base font-bold text-black ">
-            {{expenseData.rqName}}<span :class="`bg-[${statusInfo.color}]`"
+            {{ expenseData.rqName }}<span :class="`bg-[${statusInfo.color}]`"
               class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
@@ -278,7 +312,7 @@ const editAprDate = computed(() => {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">รหัสรายการเบิก</p>
-            <p class="item">{{ expenseData.rqCode }}</p>
+            <p class="item">{{ expenseData.rqCode || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">โครงการ</p>
@@ -290,14 +324,14 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqWithDrawDate }}</p>
+            <p class="item">{{ expenseData?.rqWithDrawDate || '-' }}</p>
           </div>
         </div>
 
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">ชื่อผู้เบิก</p>
-            <p class="item">{{ expenseData?.rqUsrName }}</p>
+            <p class="item">{{ expenseData?.rqUsrName || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
@@ -308,7 +342,7 @@ const editAprDate = computed(() => {
         <div class="flex flex-row">
           <div class="col">
             <p class="head">ประเภทค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqRqtName }}</p>
+            <p class="item">{{ expenseData?.rqRqtName || '-' }}</p>
           </div>
           <div v-if="isPaymentOrHistoryPath" class="col">
             <p class="head">วันที่อนุมัติ</p>
@@ -316,7 +350,7 @@ const editAprDate = computed(() => {
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
-            <p class="item">{{ expenseData?.rqExpenses }}</p>
+            <p class="item">{{ expenseData?.rqExpenses || '-' }}</p>
           </div>
           <div class="col"></div>
           <div v-if="!isPaymentOrHistoryPath" class="col"></div>
@@ -325,15 +359,15 @@ const editAprDate = computed(() => {
         <div class="travel row flex">
           <div class="col">
             <p class="head">ประเภทการเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhType }}</p>
+            <p class="item">{{ expenseData?.rqVhType || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ประเภทรถ</p>
-            <p class="item">{{ expenseData?.rqVhName }}</p>
+            <p class="item">{{ expenseData?.rqVhName || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ระยะทาง</p>
-            <p class="item">{{ expenseData?.rqDistance }}</p>
+            <p class="item">{{ expenseData?.rqDistance || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
@@ -345,17 +379,17 @@ const editAprDate = computed(() => {
         <div class="row flex justify-around">
           <div class="col">
             <p class="head">สถานที่เริ่มต้น</p>
-            <p class="item">{{ expenseData?.rqStartLocation }}</p>
+            <p class="item">{{ expenseData?.rqStartLocation || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">สถานที่สิ้นสุด</p>
-            <p class="item">{{ expenseData?.rqEndLocation }}</p>
+            <p class="item">{{ expenseData?.rqEndLocation || '-' }}</p>
           </div>
         </div>
 
         <div class="row">
           <p class="head">รายละเอียด</p>
-          <p class="item">{{ expenseData?.rqPurpose }}</p>
+          <p class="item">{{ expenseData?.rqPurpose || '-' }}</p>
         </div>
 
         <div class="row flex">
@@ -364,6 +398,7 @@ const editAprDate = computed(() => {
             <div>
             </div>
             <img :src="(expenseData?.rqProof)" alt="" class="w-[50%] h-auto cursor-pointer" />
+            <p v-if="expenseData.rqProof == null" class="item">-</p>
           </div>
           <div class="flex-1"></div>
         </div>
@@ -462,7 +497,7 @@ const editAprDate = computed(() => {
         class="flex overflow-hidden gap-1.5 items-start mb-4 px-2.5 pt-1.5 pb-7 w-full text-sm text-gray-500 bg-white rounded-md border-2 border-solid border-gray-200 min-h-[70px] focus:outline-none focus:border-gray-500"
         aria-label="ระบุเหตุผล" placeholder="ระบุเหตุผล">
       </textarea>
-      <div class="flex justify-center gap-5"> 
+      <div class="flex justify-center gap-5">
         <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup()"></Button>
         <Button :type="'btn-summit'" @click="handleSummit('edit')"></Button>
       </div>
@@ -522,6 +557,7 @@ const editAprDate = computed(() => {
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยกเลิก
         </button>
+
         <button @click="confirmPrint"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
@@ -542,7 +578,7 @@ const editAprDate = computed(() => {
             clip-rule="evenodd" />
         </svg>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">{{alertMessage}}</h2>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3">{{ alertMessage }}</h2>
     </div>
   </div>
 
