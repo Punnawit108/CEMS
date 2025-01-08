@@ -21,7 +21,7 @@ public class PdfProjectController : Controller
             byte[] pdf = _pdfServiceProject.GenerateExpenseProject();
 
             // ส่งไฟล์ PDF กลับไปให้ผู้ใช้
-            return File(pdf, "application/pdf", "ExportedExpenseData.pdf");
+            return File(pdf, "application/pdf", "ExportedProjectData.pdf");
         }
         catch (Exception ex)
         {

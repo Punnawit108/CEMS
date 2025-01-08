@@ -7,7 +7,7 @@ public partial class CemsNamePrefix
 {
     public int NpId { get; set; }
 
-    public string NpPrefix { get; set; } = null!;
+    public string? NpPrefix { get; set; } = null!;
 
     public virtual ICollection<CemsUser> CemsUsers { get; set; } = new List<CemsUser>();
 }

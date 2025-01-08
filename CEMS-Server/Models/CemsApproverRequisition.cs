@@ -5,7 +5,7 @@ namespace CEMS_Server.Models;
 
 public partial class CemsApproverRequisition
 {
-    public int AprId { get; set; }
+    public int? AprId { get; set; }
 
     public string AprRqId { get; set; } = null!;
 

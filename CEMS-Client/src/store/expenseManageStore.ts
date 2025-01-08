@@ -60,7 +60,7 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         return (this.vehiclePublic = result.data);
       } catch (error) {
         console.error("Failed to fetch expense data:", error);
-        throw new Error("ไม่สามารถดึงข้อมูลประเภทค่าใช้จ่ายได้");
+        throw new Error("ไม่สามารถดึงข้อมูลประเภทรถสาธารณะได้");
       }
     },
 
@@ -78,7 +78,7 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         return (this.vehiclePrivate = result.data);
       } catch (error) {
         console.error("Failed to fetch expense data:", error);
-        throw new Error("ไม่สามารถดึงข้อมูลประเภทค่าใช้จ่ายได้");
+        throw new Error("ไม่สามารถดึงข้อมูลประเภทรถส่วนตัวได้");
       }
     },
     //post vehicle
@@ -104,20 +104,90 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.log(error);
       }
     },
-    async changeRequisitionType(rqtId: number) {
+    async changeRequisitionType(rqtId : number) {
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/update/${rqtId}`
         );
-        this.getRequisitionType()
+        await this.getRequisitionType(); // เรียกข้อมูลใหม่เมื่อสำเร็จ
       } catch (err) {
-        console.log(err);
+        console.error("Error updating requisition type:", err);
+      }
+    },
+    async updateRequisitionType(data : any) {
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype`,
+          data // ส่งข้อมูลไปใน body
+        );
+        await this.getRequisitionType(); // เรียกข้อมูลใหม่เมื่อสำเร็จ
+      } catch (err) {
+        console.error("Error updating requisition type:", err);
       }
     },
     async changeVehicle(vhId: number) {
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async deleteVehicle(vhId: number) {
+      try {
+        const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`);
+        this.getVehiclePrivate(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
+
+        return result;
+
+      } catch (error) {
+        console.error("Error deleting disburse data:", error);
+      }
+    },
+    async deleteExpense(rqtId: number) {
+      try {
+        const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`);
+        //this.getRequisitionType(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
+
+        return result;
+
+      } catch (error) {
+        console.error("Error deleting disburse data:", error);
+      }
+    },
+    async validationRequisitionTypes(rqtId: number) {
+      try {
+        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/validation/${rqtId}`);
+        return result.data.isInUse;
+      } catch (error) {
+        console.error('Failed to fetch requisition types:', error);
+        throw error;
+      }
+    },
+    async validationVehicle(VhId: number) {
+      try {
+        console.log(VhId)
+        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/vehicle/validation/${VhId}`);
+        return result.data.isInUse;
+      } catch (error) {
+        console.error('Failed to fetch vehicle:', error);
+        throw error;
+      }
+    },
+    async changeVehiclePublic(data: any) {
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/public`,data
+        );
+      } catch (err) {
+        console.log(err);
+      }
+    },
+    async changeVehiclePrivate(data: any) {
+      try {
+        await axios.put(
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/private`,data
         );
       } catch (err) {
         console.log(err);

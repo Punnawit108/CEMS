@@ -33,7 +33,7 @@ onMounted(async() => {
     }
 })
 
-const toDetails = (id: number) => {
+const toDetails = (id:string) => {
     router.push(`/disbursement/historyWithdraw/detail/${id}`);
 }
 
