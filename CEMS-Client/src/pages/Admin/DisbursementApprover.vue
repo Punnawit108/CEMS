@@ -7,10 +7,12 @@ import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
 import { User } from '../../types';
 import { useLockStore } from '../../store/lock';
+import { useCheckExpenseStore } from '../../store/checkExpense';
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
 const lockStore = useLockStore();
+const checkExpenseStore = useCheckExpenseStore();
 
 // กำหนดตัวแปรควบคุมการแสดงผล
 const isEditPage = ref(false);
@@ -37,7 +39,11 @@ const route = useRoute();
 
 // เปิด PopupAdd ผู้อนุมัติ
 const openPopupAdd = () => {
-  isPopupAddOpen.value = true;
+  if (!checkExpenseStore.checkExpense) {
+    alert('ไม่สามารถทำรายการได้');
+  } else {
+    isPopupAddOpen.value = true;
+  }
 };
 const closePopupAdd = () => {
   isPopupAddOpen.value = false;
@@ -45,7 +51,11 @@ const closePopupAdd = () => {
 };
 // เปิด Popup edit ผู้อนุมัติ
 const openPopupEdit = () => {
-  isPopupEditOpen.value = true;
+  if (!checkExpenseStore.checkExpense) {
+    alert('ไม่สามารถทำรายการได้');
+  } else {
+    isPopupEditOpen.value = true;
+  }
 };
 const closePopupEdit = () => {
   isPopupEditOpen.value = false;
@@ -111,6 +121,7 @@ const confirmDelete = async () => {
 onMounted(async () => {
   await approvalStore.getApprovers();
   await userStore.getAllUsers();
+  await checkExpenseStore.fetchCheck();
 
   userNotRepeatWithApprovers.value = userStore.users.filter((user: any) => {
     return !approvalStore.approvers.map((approver) => approver.usrId).includes(user.usrId)
