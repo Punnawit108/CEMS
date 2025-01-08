@@ -46,6 +46,7 @@ public partial class CemsRequisition
     public string RqStatus { get; set; } = null!;
 
     public string RqProgress { get; set; } = null!;
+    public string? RqAny { get; set; }
 
     public virtual ICollection<CemsApproverRequisition> CemsApproverRequisitions { get; set; } =
         new List<CemsApproverRequisition>();

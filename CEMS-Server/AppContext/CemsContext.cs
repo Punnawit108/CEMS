@@ -254,6 +254,9 @@ public partial class CemsContext : DbContext
                 .HasColumnName("rq_usr_id");
             entity.Property(e => e.RqVhId).HasColumnName("rq_vh_id");
             entity.Property(e => e.RqWithdrawDate).HasColumnName("rq_withdraw_date");
+            entity.Property(e => e.RqAny)
+                .HasMaxLength(45)
+                .HasColumnName("rq_any");
 
             entity.HasOne(d => d.RqPj).WithMany(p => p.CemsRequisitions)
                 .HasForeignKey(d => d.RqPjId)
