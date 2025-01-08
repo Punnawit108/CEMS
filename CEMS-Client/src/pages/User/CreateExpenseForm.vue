@@ -206,6 +206,7 @@ const confirmSave = async (event: Event) => {
   setTimeout(() => {
     isAlertSaveOpen.value = false;
     closePopupSave();
+    router.push("/disbursement/listWithdraw");
   }, 1500);
 };
 
@@ -302,7 +303,7 @@ const handleDateCancel = (type: "start" | "end") => {
               placeholder="YYYY-MM-DD"
               class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
             />
-            <!-- <div class="relative h-[32px] w-[208px] date-picker-container">
+            <div class="relative h-[32px] w-[208px] date-picker-container">
               <SingleDatePicker
                 v-model="formData.rqPayDate"
                 placeholder="yyyy-mm-dd"
@@ -312,7 +313,7 @@ const handleDateCancel = (type: "start" | "end") => {
                 :isOpen="startPickerOpen"
                 @update:isOpen="startPickerOpen = $event"
               />
-            </div> -->
+            </div>
           </div>
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
           <div>
