@@ -3,6 +3,7 @@ using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 using QuestPDF.Helpers;
 using System.Linq;
+using QuestPDF.Drawing;
 
 public class PdfServiceProject
 {
@@ -26,6 +27,13 @@ public class PdfServiceProject
             })
             .ToList();
 
+         var fontPath = "Fonts/THSarabunNew.ttf";
+        using (var fontStream = new FileStream(fontPath, FileMode.Open, FileAccess.Read))
+        {
+            FontManager.RegisterFont(fontStream);
+        }
+        var font = "TH Sarabun New";
+        
         // สร้างเอกสาร PDF ด้วย QuestPDF
         var document = Document.Create(container =>
         {
@@ -37,7 +45,7 @@ public class PdfServiceProject
                     .Column(column =>
                     {
                         // ส่วนหัวเอกสาร
-                        column.Item().Text("รายงานโครงการ").FontSize(14).Bold().AlignLeft();
+                        column.Item().Text("รายงานโครงการ").FontSize(18).Bold().AlignLeft();
 
                         // ตารางแสดงข้อมูล
                         column.Item().Table(table =>
@@ -53,26 +61,26 @@ public class PdfServiceProject
                             // หัวตาราง
                             table.Header(header =>
                             {
-                                header.Cell().Border(1).BorderColor(Colors.Black).Padding(2)
-                                    .Text("ลำดับ").FontSize(8).Bold().AlignCenter();
-                                header.Cell().Border(1).BorderColor(Colors.Black).Padding(2)
-                                    .Text("ชื่อโครงการ").FontSize(8).Bold().AlignCenter();
-                                header.Cell().Border(1).BorderColor(Colors.Black).Padding(2)
-                                    .Text("จำนวนเงิน (บาท)").FontSize(8).Bold().AlignCenter();
+                                header.Cell().Border(1).BorderColor(Colors.Black).PaddingLeft(2)
+                                    .Text("ลำดับ").FontSize(13).Bold().AlignCenter().FontFamily(font);
+                                header.Cell().Border(1).BorderColor(Colors.Black).PaddingLeft(2)
+                                    .Text("ชื่อโครงการ").FontSize(13).Bold().AlignLeft    ().FontFamily(font);
+                                header.Cell().Border(1).BorderColor(Colors.Black).PaddingRight(2)
+                                    .Text("จำนวนเงิน (บาท)").FontSize(13).Bold().AlignRight().FontFamily(font);
                             });
 
                             // เพิ่มข้อมูลในตาราง
                             int index = 1;
                             foreach (var expense in expenses)
                             {
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(2)
-                                    .Text(index.ToString()).FontSize(6).AlignLeft(); // ลำดับ
+                                table.Cell().Border(1).BorderColor(Colors.Black).PaddingLeft(2)
+                                    .Text(index.ToString()).FontSize(11).AlignCenter().FontFamily(font); // ลำดับ
 
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(2)
-                                    .Text(expense.PjName).FontSize(6).AlignLeft(); // ชื่อโครงการ
+                                table.Cell().Border(1).BorderColor(Colors.Black).PaddingLeft(2)
+                                    .Text(expense.PjName).FontSize(11).AlignLeft().FontFamily(font); // ชื่อโครงการ
 
-                                table.Cell().Border(1).BorderColor(Colors.Black).Padding(2)
-                                    .Text($"{expense.RqExpenses:C2}").FontSize(6).AlignLeft(); // ค่าใช้จ่าย
+                                table.Cell().Border(1).BorderColor(Colors.Black).PaddingRight(2)
+                                    .Text($"{expense.RqExpenses}").FontSize(11).AlignRight().FontFamily(font); // ค่าใช้จ่าย
 
                                 index++; // เพิ่มลำดับ
                             }
@@ -83,5 +91,24 @@ public class PdfServiceProject
 
         // ส่งไฟล์ PDF กลับเป็น byte array
         return document.GeneratePdf();
+    }
+     private static IContainer CellStyleOne(IContainer container)
+    {
+        return container
+            .Padding(0)
+            .Border(1)
+            .PaddingLeft(2)
+            .Height(30)
+            .AlignMiddle();
+    }
+
+     private static IContainer CellStyleNum(IContainer container)
+    {
+        return container
+            .Padding(0)
+            .Border(1)
+            .PaddingRight(2)
+            .Height(30)
+            .AlignMiddle();
     }
 }
