@@ -12,7 +12,7 @@ import Ctable from '../../components/template/CTable.vue';
 import { useProjectsStore } from '../../store/projectsReport';
 import Button from "../../components/template/Button.vue";
 import ProjectReport from '../../types/index';
-import axios from 'axios';
+import { useExportProjectReportStore } from "../../store/exportProjectReport";
 import {
     Chart,
     BarController,
@@ -47,37 +47,14 @@ Chart.register(
 );
 
 const projectsStore = useProjectsStore();
-
+const exportProjectReportStore = useExportProjectReportStore();
+const downloadProjectReport = () => {
+  exportProjectReportStore.exportPdf();
+};
 // Bar chart setup
 // โครงการ
 const project: string[] = [];
 
-const downloadPdf = async () => {
-  try {
-    // เรียก API ด้วย Axios
-    const response = await axios.get('http://localhost:5247/api/pdf/exportProject', {
-      responseType: 'blob' // ระบุให้ตอบกลับเป็น Binary Blob
-    });
-
-    // สร้าง URL สำหรับ Blob
-    const blob = new Blob([response.data], { type: 'application/pdf' });
-    const url = window.URL.createObjectURL(blob);
-
-    // สร้างลิงก์เพื่อดาวน์โหลดไฟล์
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'ExportedProjectData.pdf'); // ชื่อไฟล์ที่ต้องการดาวน์โหลด
-    document.body.appendChild(link);
-    link.click();
-
-    // ทำความสะอาดลิงก์ที่ไม่ใช้แล้ว
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการดาวน์โหลด PDF:', error);
-    alert('ไม่สามารถดาวน์โหลดไฟล์ได้');
-  }
-};
 // จำนวนเงินของแต่ละโครงการ
 const amountMoney: number[] = [];
 
@@ -251,7 +228,7 @@ onMounted(async () => {
                 </div>
             </form>
         </div>
-        <Button :type="'btn-print2'"  @click="downloadPdf"
+        <Button :type="'btn-print2'"  @click="downloadProjectReport"
                     class="fixed right-0 mr-4 transform -translate-y-1/2 top-1/2">
                     ส่งออก
                 </Button>
