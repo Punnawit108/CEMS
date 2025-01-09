@@ -8,9 +8,11 @@
 using System.Globalization;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using CEMS_Server.Hubs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.SignalR;
 
 namespace CEMS_Server.Controllers;
 
@@ -19,10 +21,16 @@ namespace CEMS_Server.Controllers;
 public class ApprovalController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public ApprovalController(CemsContext context)
+    public ApprovalController(
+        CemsContext context,
+        IHubContext<NotificationHub> hubContext
+    )
     {
         _context = context;
+        _hubContext = hubContext;
+
     }
 
     /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
@@ -266,8 +274,16 @@ public class ApprovalController : ControllerBase
 
                     if (nextApprover != null && string.IsNullOrEmpty(nextApprover.AprStatus))
                     {
+                        var notification = new CemsNotification
+                        {
+                            NtDate = DateTime.Now,
+                            NtStatus = "unread",
+                            NtUsrId = nextApprover.AprAp.ApUsr.UsrId,
+                        };
+                        _context.CemsNotifications.Add(notification);
                         nextApprover.AprStatus = "waiting";
                         _context.CemsApproverRequisitions.Update(nextApprover);
+                        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
                         await _context.SaveChangesAsync();
                     }
                 }
