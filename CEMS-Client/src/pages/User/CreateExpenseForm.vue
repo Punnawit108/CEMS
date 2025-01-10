@@ -10,11 +10,12 @@ import { onMounted, ref } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
+import { createRequisition } from "../../types";
 
 const user = ref<any>(null);
 const requisitionStore = useRequisitionStore();
 
-const rqtId = ref(2);
+const rqtId = ref(0);
 // const startPickerOpen = ref(false);
 // const rqtName = ref("");
 // const customExpenseType = ref("");
@@ -27,12 +28,14 @@ const isAlertSaveOpen = ref(false);
 const isAlertCancleOpen = ref(false);
 const isAlertSubmitOpen = ref(false);
 
-const formData = ref({
+
+
+const formData = ref<createRequisition>({
   rqName: "",
   rqUsrId: "",
   rqPjId: "",
   rqRqtId: rqtId.value,
-  rqVhId: "",
+  rqVhId: 0,
   rqPayDate: "",
   rqWithdrawDate: "",
   rqCode: "",
@@ -47,6 +50,7 @@ const formData = ref({
   rqProgress: "accepting",
   rqAny: "",
 });
+
 
 // const selectedExpenseTypeId = ref("");
 const fileInput = ref<HTMLInputElement | null>(null);
@@ -200,11 +204,24 @@ const closePopupSubmit = () => {
   isPopupSubmitOpen.value = false;
 };
 
+function updateFormData() {
+  if (rqtName.value != 'ค่าเดินทาง') {
+    formData.value.rqVhId = null;
+    formData.value.rqStartLocation = null;
+    formData.value.rqEndLocation = null;
+    formData.value.rqDistance = null;
+  }
+  if (rqtName.value != 'อื่นๆ') {
+    formData.value.rqAny = null;
+  }
+}
+
 const confirmSave = async (event: Event) => {
   event.preventDefault();
   isAlertSaveOpen.value = true;
   formData.value.rqStatus = "sketch";
   formData.value.rqUsrId = user.value.usrId;
+  await updateFormData()
   await requisitionStore.createExpense(formData.value);
 
   setTimeout(() => {
@@ -219,15 +236,15 @@ const confirmSubmit = async (event: Event) => {
   isAlertSubmitOpen.value = true;
   formData.value.rqStatus = "waiting";
   formData.value.rqUsrId = user.value.usrId;
-  console.log(formData.value)
+  await updateFormData()
   isAlertSubmitOpen.value = false;
-  //await requisitionStore.createExpense(formData.value);
+  await requisitionStore.createExpense(formData.value);
 
-  // setTimeout(() => {
-  //   isAlertSubmitOpen.value = false;
-  //   closePopupSubmit();
-  //   router.push("/disbursement/listWithdraw");
-  // }, 1500);
+  setTimeout(() => {
+    isAlertSubmitOpen.value = false;
+    closePopupSubmit();
+    router.push("/disbursement/listWithdraw");
+  }, 1500);
 };
 
 const confirmCancle = async (event: Event) => {
