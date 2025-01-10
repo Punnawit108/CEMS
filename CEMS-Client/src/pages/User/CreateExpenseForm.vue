@@ -367,7 +367,7 @@ const confirmCancle = async (event: Event) => {
         <!-- Form Right -->
         <div class="w-2/5 rounded-[10px] place-items-end">
           <!-- ช่อง "ประเภทการเดินทาง" -->
-          <div v-show="formData.rqRqtId === 2">
+          <div v-show="rqtName === 'ค่าเดินทาง'">
             <label for="travelType" class="block text-sm font-medium py-1">
               ประเภทการเดินทาง
             </label>
@@ -389,7 +389,7 @@ const confirmCancle = async (event: Event) => {
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-          <div v-show="formData.rqRqtId === 2">
+          <div v-show="rqtName === 'ค่าเดินทาง'">
             <label for="vehicleType" class="block text-sm font-medium py-1">
               ประเภทรถ
             </label>
