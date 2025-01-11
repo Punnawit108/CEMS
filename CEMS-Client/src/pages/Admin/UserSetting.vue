@@ -4,13 +4,12 @@
 * ชื่อไฟล์: UserSetting.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าจอจัดการผู้ใช้ ซึ่งแสดงตารางผู้ใช้ภายในระบบ พร้อมฟังก์ชั่นค้นหาและกรองข้อมูล
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
+* วันที่จัดทำ/แก้ไข: 11 มกราคม 2568
 */
 
 import Icon from '../../components/template/CIcon.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, computed, watch } from 'vue';
-import Ctable from '../../components/template/CTable.vue';
 import Pagination from '../../components/template/Pagination.vue';
 import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
@@ -105,9 +104,21 @@ onMounted(async () => {
       :showSearchFilter="true" :showDepartmentFilter="true" :showDivisionFilter="true" :showRoleFilter="true"
       :showProjectFilter="false" :showRequisitionTypeFilter="false" :showDateFilter="false" />
 
-    <div class="w-full h-fit border-[2px] flex flex-col items-start">
-      <Ctable :table="'Table5-head'" />
+      <div class="w-full h-fit border-[2px] flex flex-col items-start">
       <table class="table-auto w-full text-center text-black">
+        <thead class="bg-[#F2F4F8]">
+          <tr class="text-[16px] border-b-2 border-[#BBBBBB]">
+            <th class="py-[11px] px-2 w-12 font-bold h-[46px]">ลำดับ</th>
+            <th class="py-[11px] px-2 text-center w-24 font-bold">รหัสพนักงาน</th>
+            <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
+            <th class="py-[11px] px-2 text-start w-20 font-bold">แผนก</th>
+            <th class="py-[11px] px-2 text-start w-24 font-bold">ฝ่าย</th>
+            <th class="py-[11px] px-2 text-start w-20 font-bold">บทบาท</th>
+            <th class="py-[11px] px-2 text-start w-24 font-bold">สถานะ</th>
+            <th class="py-[11px] px-2 text-center w-24 font-bold">ดูรายงาน</th>
+            <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
+          </tr>
+        </thead>
         <tbody>
           <tr v-if="loading">
             <td colspan="9" class="py-4">
@@ -130,7 +141,9 @@ onMounted(async () => {
             class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
             <th class="py-[12px] px-2 w-12 h-[46px]">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
             <th class="py-[12px] px-2 w-24">{{ user.usrEmployeeId }}</th>
-            <th class="py-[12px] px-2 w-52 text-start truncate">
+            <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                :title="`${user.usrFirstName} ${user.usrLastName}`">
               {{ user.usrFirstName }} {{ user.usrLastName }}
             </th>
             <th class="py-[12px] px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
