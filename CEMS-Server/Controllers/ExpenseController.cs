@@ -378,4 +378,19 @@ public class ExpenseController : ControllerBase
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
+
+    /// <summary>แสดงช้อมูลรายการคำขอเบิกที่กำลังรออนุมัติ</summary>
+    /// <returns>แสดงข้อมูลใบคำขอเบิกที่กำลังรออนุมัติทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 8 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
+
+    [HttpGet("check")]
+    public async Task<ActionResult> CheckExpense()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Where(u => u.RqStatus == "waiting")
+            .ToListAsync();
+
+        return Ok(requisition);
+    }
 }
