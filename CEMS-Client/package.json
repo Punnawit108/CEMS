@@ -26,6 +26,7 @@
     "@types/chart.js": "^2.9.41",
     "@vitejs/plugin-vue": "^5.1.4",
     "autoprefixer": "^10.4.20",
+    "cypress-xpath": "^2.0.1",
     "daisyui": "^4.12.12",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13",
