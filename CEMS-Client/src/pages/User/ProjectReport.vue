@@ -272,7 +272,7 @@ onMounted(async () => {
 
         <!-- begin::Table -->
         <!-- <div class="w-full h-fit border-[2px] flex flex-col items-start"> -->
-        <div class="w-full h-fit border-[2px] flex flex-col items-start">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
             <!-- Table Header -->
             <Ctable :table="'Table4-head'" />
             <!-- Table Data -->
