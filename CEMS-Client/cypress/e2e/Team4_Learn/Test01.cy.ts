@@ -19,8 +19,6 @@ describe('Test New Feature', () => {
         cy.url().should('include', '/disbursement/listWithdraw');   
 
         cy.wait(1500);
-        cy.get('th[data-v-9c67ba91] svg').eq(10).click();
-
-        
+        cy.get('th[data-v-9c67ba91] svg').eq(5).click();
     });
 });

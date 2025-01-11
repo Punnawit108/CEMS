@@ -45,7 +45,6 @@ Cypress.Commands.add('login', () => {
         }
         return true;
     });
-
     cy.get('.login button').should('be.visible');
     //cy.wait(1500);
     cy.get('.login button').click();
