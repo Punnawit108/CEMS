@@ -155,6 +155,7 @@ public class ExpenseController : ControllerBase
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
+            .ThenInclude(u => u.UsrNp)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
@@ -163,7 +164,8 @@ public class ExpenseController : ControllerBase
             {
                 RqId = u.RqId,
                 RqUsrId = u.RqUsr.UsrId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqUsrName =
+                    u.RqUsr.UsrNp.NpPrefix + " " + u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqPjName = u.RqPj.PjName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqVhType = u.RqVh.VhType,
@@ -374,5 +376,20 @@ public class ExpenseController : ControllerBase
 
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
+    }
+
+    /// <summary>แสดงช้อมูลรายการคำขอเบิกที่กำลังรออนุมัติ</summary>
+    /// <returns>แสดงข้อมูลใบคำขอเบิกที่กำลังรออนุมัติทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 8 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
+
+    [HttpGet("check")]
+    public async Task<ActionResult> CheckExpense()
+    {
+        var requisition = await _context
+            .CemsRequisitions
+            .Where(u => u.RqStatus == "waiting")
+            .ToListAsync();
+
+        return Ok(requisition);
     }
 }
