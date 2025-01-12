@@ -46,7 +46,7 @@ describe('ตรวจสอบข้อมูลหน้า details ของ�
                         .and('have.text', expectedTexts[index]);  // ตรวจสอบข้อความที่ถูกต้อง
                 }
             });
-        
+
         //ตรวจสอบสถานะ ระหว่างข้อความ และ progress
         cy.get('h3.text-base.font-bold.text-black')
             .eq(0)
@@ -62,5 +62,28 @@ describe('ตรวจสอบข้อมูลหน้า details ของ�
                 }
             });
 
+        //ตรวจสอบ font , font size , color 
+        cy.get('div.col').each(($div) => {
+            cy.wrap($div).then($el => {
+                if ($el.find('p.head').length > 0) {
+                    cy.wrap($div)
+                        .find('p.head')
+                        .and($head => {
+                            expect($head).to.have.css('color', 'rgb(128, 128, 128)')
+                            expect($head).to.have.css('font-family').to.contain('Sarabun')
+                            expect($head).to.have.css('font-size', '14px')
+                        })
+                }
+                if ($el.find('p.item').length > 0) {
+                    cy.wrap($div)
+                        .find('p.item')
+                        .and($item => {
+                            expect($item).to.have.css('color', 'rgb(0, 0, 0)')
+                            expect($item).to.have.css('font-family').to.contain('Sarabun')
+                            expect($item).to.have.css('font-size', '14px')
+                        })
+                }
+            })
+        })
     });
 });
