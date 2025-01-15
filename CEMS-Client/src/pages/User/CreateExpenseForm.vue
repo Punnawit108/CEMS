@@ -11,7 +11,7 @@ import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
 import { createRequisition } from "../../types";
-
+import SingleDatePicker from "../../components/template/SingleDatePicker.vue";
 const user = ref<any>(null);
 const requisitionStore = useRequisitionStore();
 
@@ -257,19 +257,20 @@ const confirmCancle = async (event: Event) => {
   }, 1500);
 };
 
-// const handleDateConfirm = (type: "start" | "end", confirmedDate: Date) => {
-//   if (type === "start") {
-//     startPickerOpen.value = false;
-//   } else {
-//     startPickerOpen.value = false;
-//   }
-// };
+const selectedDate = ref(new Date());
+const isDatePickerOpen = ref(false);
 
-// const handleDateCancel = (type: "start" | "end") => {
-//   if (type === "start") {
-//     startPickerOpen.value = false;
-//   }
-// };
+// ฟังก์ชันจัดการเมื่อยืนยันการเลือกวันที่
+const handleConfirm = (date: Date) => {
+  console.log('Confirmed date:', date);
+  // ทำอย่างอื่นเพิ่มเติมตามต้องการ
+};
+
+// ฟังก์ชันจัดการเมื่อยกเลิกการเลือกวันที่
+const handleDateCancel = () => {
+  console.log('Date selection cancelled');
+  // ทำอย่างอื่นเพิ่มเติมตามต้องการ
+};
 </script>
 
 <template>
@@ -283,43 +284,42 @@ const confirmCancle = async (event: Event) => {
     <!-- Fromประเภทค่าเดินทาง-->
     <div class="">
       <!-- แบ่งเป็น 2 คอลัมน์ -->
-      <div class="flex flex-col md:flex-row justify-around">
+      <div class="flex flex-col">
         <!-- Form Left -->
-        <div class="w-2/5 rounded-[10px]">
+        <div class="grid grid-cols-4 gap-4">
+
           <!-- ช่อง "รหัสรายการเบิก *" -->
           <div>
-            <label for="rqCode" class="block text-sm font-medium py-1">รหัสรายการเบิก *</label>
-            <input type="text" id="rqCode" v-model="formData.rqCode"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
+            <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก *</label>
+            <input type="text" id="rqCode" v-model="formData.rqCode" class="inputItem" />
           </div>
+
           <!-- ช่อง "ชื่อรายการเบิก" -->
           <div>
-            <label for="rqName" class="block text-sm font-medium py-1">ชื่อรายการเบิก *</label>
-            <input type="text" id="rqName" v-model="formData.rqName"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
+            <label for="rqName" class="block text-sm font-medium py-2">ชื่อรายการเบิก *</label>
+            <input type="text" id="rqName" v-model="formData.rqName" class="inputItem" />
           </div>
 
           <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
-          <div>
-            <label for="rqPayDate" class="block text-sm font-medium py-1">วันที่เกิดค่าใช้จ่าย *</label>
-            <input type="text" id="rqPayDate" v-model="formData.rqPayDate" placeholder="YYYY-MM-DD"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-            <div class="relative h-[32px] w-[208px] date-picker-container">
-              <SingleDatePicker v-model="formData.rqPayDate" placeholder="yyyy-mm-dd" :disabled="loading" class="w-full"
-                :confirmedDate="startDate" :isOpen="startPickerOpen" @update:isOpen="startPickerOpen = $event" />
-            </div>
+          <div class="">
+            <label for="rqPayDate" class="block text-sm font-medium py-2">วันที่เกิดค่าใช้จ่าย *</label>
+            <SingleDatePicker v-model="selectedDate" id="rqPayDate" :confirmedDate="selectedDate" :disabled="true"
+              class="date w-full h-[42px] " />
           </div>
+
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
           <div>
-            <label for="rqWithdrawDate" class="block text-sm font-medium py-1">วันที่ทำรายการเบิกค่าใช้จ่าย *</label>
-            <input type="text" id="rqWithdrawDate" placeholder="YYYY-MM-DD" v-model="formData.rqWithdrawDate"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
+            <label for="rqWithdrawDate" class="block text-sm font-medium py-2">วันที่ทำรายการเบิกค่าใช้จ่าย *</label>
+            <SingleDatePicker v-model="selectedDate" id="rqWithdrawDate" v-model:isOpen="isDatePickerOpen"
+              :confirmedDate="selectedDate" class="dateInput w-full h-[42px]" placeholder="เลือกวันที่"
+              @confirm="handleConfirm" @cancel="handleCancel" />
           </div>
-          <div class="content-center">
-            <label for="projectName" class="block text-sm font-medium py-1">โครงการ</label>
+
+
+          <div>
+            <label for="projectName" class="block text-sm font-medium py-2">โครงการ</label>
             <div class="text-xs">
-              <select id="projectName" v-model="formData.rqPjId"
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none">
+              <select id="projectName" v-model="formData.rqPjId" class="inputItem">
                 <option disabled selected>เลือกโครงการ</option>
                 <option v-for="project in requisitionStore.projects" :key="project.pjId" :value="project.pjId">
                   {{ project.pjName }}
@@ -329,52 +329,37 @@ const confirmCancle = async (event: Event) => {
           </div>
 
           <!-- ช่อง "อีเมลผู้ขอเบิกแทน *" -->
-          <div>
-            <label for="rqInsteadEmail" class="block text-sm font-medium py-1">อีเมลผู้ขอเบิกแทน *</label>
-            <input type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-          </div>
-          <div>
-            <div>
-              <!-- Dropdown -->
-              <label for="expenseType" class="block text-sm font-medium py-1">
-                ประเภทค่าใช้จ่าย
-              </label>
-              <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName"
-                class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none">
-                <option value="">กรุณาเลือกประเภท</option>
-                <option v-for="requisitionTypeData in requisitionStore.requisitionType" :key="requisitionTypeData.rqtId"
-                  :value="requisitionTypeData.rqtId">
-                  {{ requisitionTypeData.rqtName }}
-                </option>
-                <!-- <option value="999">อื่นๆ</option> -->
-              </select>
 
-              <!-- Input ที่จะแสดงเมื่อเลือก ID = 2 -->
-              <div v-show="rqtName == 'อื่นๆ'">
-                <label for="rqAny" class="block text-sm font-medium py-1">
-                  ระบุข้อมูลเพิ่มเติม
-                </label>
-                <input id="rqAny" v-model="formData.rqAny"
-                  class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                  type="text" placeholder="กรุณาระบุข้อมูลเพิ่มเติม" />
-              </div>
-            </div>
+          <div>
+            <!-- Dropdown -->
+            <label for="expenseType" class="block text-sm font-medium py-2">
+              ประเภทค่าใช้จ่าย
+            </label>
+            <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName" class="inputItem">
+              <option value="">กรุณาเลือกประเภท</option>
+              <option v-for="requisitionTypeData in requisitionStore.requisitionType" :key="requisitionTypeData.rqtId"
+                :value="requisitionTypeData.rqtId">
+                {{ requisitionTypeData.rqtName }}
+              </option>
+              <!-- <option value="999">อื่นๆ</option> -->
+            </select>
           </div>
-        </div>
-        <div class="border border-gray-200"></div>
 
-        <!-- Form Right -->
-        <div class="w-2/5 rounded-[10px] place-items-end">
+          <div v-show="rqtName == 'อื่นๆ'">
+            <label for="rqAny" class="block text-sm font-medium py-2">
+              ระบุข้อมูลเพิ่มเติม
+            </label>
+            <input id="rqAny" v-model="formData.rqAny" class="inputItem" type="text"
+              placeholder="กรุณาระบุข้อมูลเพิ่มเติม" />
+          </div>
+
           <!-- ช่อง "ประเภทการเดินทาง" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="travelType" class="block text-sm font-medium py-1">
+            <label for="travelType" class="block text-sm font-medium py-2">
               ประเภทการเดินทาง
             </label>
             <div class="text-xs">
-              <select id="travelType"
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                v-model="requisitionStore.selectedTravelType">
+              <select id="travelType" class="inputItem" v-model="requisitionStore.selectedTravelType">
                 <option value="null" disabled selected>
                   เลือกประเภทการเดินทาง
                 </option>
@@ -390,12 +375,11 @@ const confirmCancle = async (event: Event) => {
 
           <!-- ช่อง "ประเภทรถ" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="vehicleType" class="block text-sm font-medium py-1">
+            <label for="vehicleType" class="block text-sm font-medium py-2">
               ประเภทรถ
             </label>
             <div class="text-xs">
-              <select v-model="formData.rqVhId"
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none">
+              <select v-model="formData.rqVhId" class="inputItem">
                 <option value="null" selected disabled>เลือกประเภทรถ</option>
                 <option v-for="vehicle in requisitionStore.filteredVehicleType" :key="vehicle.vhId.toString()"
                   :value="vehicle.vhId.toString()">
@@ -408,29 +392,58 @@ const confirmCancle = async (event: Event) => {
                 class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2" />
             </div>
           </div>
+
           <!-- ช่อง "สถานที่เริ่มต้น" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqStartLocation" class="block text-sm font-medium py-1">สถานที่เริ่มต้น</label>
-            <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
+            <label for="rqStartLocation" class="block text-sm font-medium py-2">สถานที่เริ่มต้น</label>
+            <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation" class="inputItem" />
           </div>
 
           <!-- ช่อง "สถานที่สิ้นสุด" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-1">สถานที่สิ้นสุด</label>
-            <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
+            <label for="rqEndLocation" class="block text-sm font-medium py-2">สถานที่สิ้นสุด</label>
+            <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation" class="inputItem" />
           </div>
 
           <!-- ช่อง "ระยะทาง" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-1">ระยะทาง</label>
-            <input type="text" id="rqEndLocation" v-model="formData.rqDistance"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
+            <label for="rqEndLocation" class="block text-sm font-medium py-2">ระยะทาง</label>
+            <input type="text" id="rqEndLocation" v-model="formData.rqDistance" class="inputItem" />
           </div>
 
-          <!-- ช่อง "สถาน *" -->
-          <!-- <div v-if="rqtId !== 'ค่าเดินทาง'" class="m-4">
+          <div v-show="rqtName === 'ค่าเดินทาง'">
+            <label for="rqEndLocation" class="block text-sm font-medium py-2">อัตราค่าเดินทาง</label>
+            <input type="text" id="rqEndLocation" v-model="formData.rqDistance" class="inputItem" :disabled="true" />
+          </div>
+
+
+          <!-- ช่อง "จำนวนเงิน (บาท)" -->
+          <div>
+            <label for="rqExpenses" class="block text-sm font-medium py-2">จำนวนเงิน (บาท)</label>
+            <input type="number" id="rqExpenses" v-model="formData.rqExpenses" class="inputItem" />
+          </div>
+
+
+          <div>
+            <label for="rqInsteadEmail" class="block text-sm font-medium py-2">อีเมลผู้ขอเบิกแทน *</label>
+            <input type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem" />
+          </div>
+
+
+
+
+
+        </div>
+        <!-- <div class="border border-gray-200"></div> -->
+
+        <!-- Form Right -->
+        <!-- <div class="w-2/5 rounded-[10px] place-items-end"> -->
+
+
+
+
+        <!-- ช่อง "สถาน *" -->
+        <!-- <div v-if="rqtId !== 'ค่าเดินทาง'" class="m-4">
             <label for="rqLocation" class="block text-sm font-medium py-1"
               >สถาน *</label
             >
@@ -442,15 +455,8 @@ const confirmCancle = async (event: Event) => {
             />
           </div> -->
 
-          <div>
-            <!-- ช่อง "จำนวนเงิน (บาท)" -->
-            <div>
-              <label for="rqExpenses" class="block text-sm font-medium py-1">จำนวนเงิน (บาท)</label>
-              <input type="number" id="rqExpenses" v-model="formData.rqExpenses"
-                class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none" />
-            </div>
-          </div>
-        </div>
+
+
       </div>
       <!-- วัตถุประสงค์ -->
       <div class="text-sm m-[38px]">
@@ -624,3 +630,31 @@ const confirmCancle = async (event: Event) => {
     </div>
   </form>
 </template>
+<style>
+.inputItem {
+  padding: 8px 12px;
+  /* px-3 py-2 */
+  border: 1px solid #B8B8B8;
+  /* border-gray-400 */
+  background-color: white;
+  /* bg-white */
+  border-radius: 0.375rem;
+  /* rounded-md */
+  font-size: 0.875rem;
+  /* sm:text-sm */
+  width: 100%;
+  /* sm:w-full */
+  height: 40px;
+}
+
+.date input {
+  height: 40px;
+  border: 1px solid #B8B8B8;
+  background-color: #F7F7F7;
+}
+
+.dateInput input {
+  height: 40px;
+  border: 1px solid #B8B8B8;
+}
+</style>

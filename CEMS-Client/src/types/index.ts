@@ -37,7 +37,7 @@ export interface createRequisition {
     rqPjId: string;
     rqRqtId: number;
     rqVhId: number | null;
-    rqPayDate: string;
+    rqPayDate: Date;
     rqWithdrawDate: string;
     rqCode: string;
     rqInsteadEmail: string;
