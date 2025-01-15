@@ -293,9 +293,9 @@ onMounted(async () => {
                                     <path
                                         d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
                                 </svg>
-                                
+
                             </button>
-                            
+
                             <!-- ปุ่ม XLSX -->
                             <button @click="selectedType = 'xlsx'"
                                 :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
@@ -305,24 +305,24 @@ onMounted(async () => {
                                     <path
                                         d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
                                 </svg>
-                                
+
                             </button>
                         </div>
                         <div class="flex justify-center space-x-20 mb-6 ">
-                        <h class="text-sm text-gray-600 mt-2">PDF</h>
-                        <h class="text-sm text-gray-600 mt-2">XLSX</h>
-                    </div>
+                            <h class="text-sm text-gray-600 mt-2">PDF</h>
+                            <h class="text-sm text-gray-600 mt-2">XLSX</h>
+                        </div>
                         <!-- ปุ่มยืนยันและยกเลิก -->
                         <div class="flex justify-center space-x-4">
-                            <Button :type = "'btn-cancleBorderGray'"@click="showModal = false" 
+                            <Button :type="'btn-cancleBorderGray'" @click="showModal = false"
                                 class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
                                 ยกเลิก
                             </button>
-                            <Button :type = "'btn-summit'" @click="exportFile" :disabled="!selectedType"
+                            <Button :type="'btn-summit'" @click="exportFile" :disabled="!selectedType"
                                 class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
                                 ยืนยัน
                             </button>
-                            
+
                         </div>
                     </div>
                 </div>
@@ -345,7 +345,7 @@ onMounted(async () => {
             <!-- end::Bar chart -->
 
             <!-- begin::Table -->
-            <div class="w-full h-fit border-[2px] flex flex-col items-start">
+            <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
                 <!-- Table Header -->
                 <Ctable :table="'Table7-head'" />
                 <!-- Table Data -->
@@ -355,35 +355,38 @@ onMounted(async () => {
                         <tr v-for="(expense, index) in expensesListStore.expenses" :key="index"
                             class="text-[14px] border-b-2 border-[#BBBBBB]">
                             <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
+                            <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden" style="
                 max-width: 224px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-              " title="นายเทียนชัย คูเมือง">
+              " 
+              :title="expense.rqUsrName">
                                 {{ expense.rqUsrName }}
                             </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
+                            <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden" style="
                 max-width: 224px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-              " title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+              " 
+              :title="expense.rqName">
                                 {{ expense.rqName }}
                             </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
+                            <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden" style="
                 max-width: 224px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-              " title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+              " 
+              :title="expense.rqName">
                                 {{ expense.rqPjName }}
                             </th>
                             <th class="py-[12px] px-5 w-44 text-start">
                                 {{ expense.rqRqtName }}
                             </th>
-                            <th class="py-[12px] px-2 w-24 text-end">
-                                {{ expense.rqDatePay }}
+                            <th class="py-[12px] px-2 w-20 text-end">
+                                11/10/2564
                             </th>
                             <th class="py-[12px] px-2 w-40 text-end">
                                 {{ expense.rqExpenses }}
