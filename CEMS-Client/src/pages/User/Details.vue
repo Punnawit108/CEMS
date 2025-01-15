@@ -172,7 +172,7 @@ const handleSummit = async (status: string) => {
       closePopupPrint();
       router.push(`/approval/list/`)
     }, 1500);
-    
+
   }
 };
 
@@ -217,7 +217,7 @@ const confirmPrint = async (status: string) => {
 };
 
 const approveCompleteDate = computed(() => {
-  const lastAccepter = progressData.value.acceptor.slice().reverse().find((item:any) => item.aprDate);
+  const lastAccepter = progressData.value.acceptor.slice().reverse().find((item: any) => item.aprDate);
   return lastAccepter ? lastAccepter.aprDate.split(' ')[0] : null;
 });
 
@@ -304,7 +304,8 @@ const exportFile = async () => {
               class="!text-white px-7 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
-          <div class="pr-5">
+          <div class="pr-5 flex">
+            <button class="bg-yellow text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin mr-4">แก้ไขคำขอเบิก</button>
             <Button :type="'btn-print2'" @click="openPopupPrint"></Button>
           </div>
         </div>

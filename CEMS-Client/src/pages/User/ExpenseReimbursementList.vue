@@ -82,7 +82,7 @@ const confirmDelete = async () => {
 
 <template>
     <div>
-        <div class="flex justify-end mb-4" v-if="route.name === 'listWithdraw'">
+        <div class="flex justify-end mb-3" v-if="route.name === 'listWithdraw'">
             <RouterLink to="/disbursement/listWithdraw/createExpenseForm" v-if="!lockStore.isLocked">
                 <Button :type="'btn-expense'"></Button>
             </RouterLink>
@@ -90,7 +90,7 @@ const confirmDelete = async () => {
         </div>
         <div class="filter flex flex-nowrap justify-between">
 
-            <div class="ค้นหา">
+            <div class="ค้นหา mb-11">
                 <!-- Filter ค้นหา -->
                 <div class="h-[32px] w-[208px]">
                     <form class="grid">
@@ -210,8 +210,13 @@ const confirmDelete = async () => {
 
 
         </div>
+        <div class="flex justify-end text-[14px]">
+            <button class=" bg-white text-[#B67D12] border border[#B67D12] w-[95px] h-[32px] mr-[18px] rounded-md">ล้าง</button>
+            <button class=" bg-[#B67D12] text-white w-[95px] h-[32px] rounded-md">ค้นหา</button>
+        </div>
+
         <!-- Table -->
-        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-5">
             <Ctable :table="'Table9-head-New'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
