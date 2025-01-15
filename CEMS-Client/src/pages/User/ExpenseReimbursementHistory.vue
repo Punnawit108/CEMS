@@ -44,7 +44,7 @@ const toDetails = (id:string) => {
     <!-- content -->
     <div class="content">
         <div class="filter flex flex-nowrap ">
-            <div class="โครงการ mr-6">
+            <div class="โครงการ mr-6 mb-11">
                 <!-- Filter โครงการ -->
                 <div class="h-[32px] w-[266px]">
                     <form class="grid">
@@ -113,8 +113,14 @@ const toDetails = (id:string) => {
                 </div>
             </div>
         </div>
+        <div class="flex justify-end text-[14px]">
+            <button class=" bg-white text-[#B67D12] border border[#B67D12] w-[95px] h-[32px] mr-[18px] rounded-md">ล้าง</button>
+            <button class=" bg-[#B67D12] text-white w-[95px] h-[32px] rounded-md">ค้นหา</button>
+        </div>
+        
+        
 
-        <div class="w-full  border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
+        <div class="w-full  border-r-[2px] border-l-[2px] border-t-[2px] mt-5">
             <!-- ตาราง -->
             <div>
                 <Ctable :table="'Table9-head-New'" />
