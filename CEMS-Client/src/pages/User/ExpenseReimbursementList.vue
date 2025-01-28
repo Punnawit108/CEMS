@@ -143,18 +143,20 @@ const confirmDelete = async () => {
             </div>
         </div>
         <!-- Table -->
-        <div class="w-full h-fit border-2 border-b-grayDark items-start mt-12">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
             <Ctable :table="'Table9-head-New'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
                     <tr v-for="(expenseReimbursementList, index) in expenseReimbursementStore.expenseReimbursementList"
                         :key="expenseReimbursementList.rqId" class="text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
+                            style="max-width: 240px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="expenseReimbursementList.rqName">
                             {{ expenseReimbursementList.rqName }}
                         </th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
+                            style="max-width: 240px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="expenseReimbursementList.rqPjName">
                             {{ expenseReimbursementList.rqPjName }}
                         </th>
@@ -164,15 +166,15 @@ const confirmDelete = async () => {
                         <th class="py-[12px] px-2 w-20 text-end">
                             {{ expenseReimbursementList.rqWithDrawDate }}
                         </th>
-                        <th class="py-[12px] px-2 w-40 text-end">
+                        <th class="py-[12px] px-5 w-32 text-end">
                             {{ expenseReimbursementList.rqExpenses }}
                         </th>
-                        <th class="py-[12px] px-2 w-32 text-center">
+                        <th class="py-[12px] px-2 w-28 text-center">
                             <span>
                                 <StatusBudge :status="'sts-'+expenseReimbursementList.rqStatus" />
                             </span>
                         </th>
-                        <th class="py-[10px] px-2 w-24 text-center">
+                        <th class="py-[10px] px-2 w-20 text-center">
                             <span class="flex justify-center">
                                 <Icon :icon="'viewDetails'" v-on:click="toDetails(expenseReimbursementList.rqId)"  />
                                 <Icon v-if = "expenseReimbursementList.rqStatus === 'sketch'" :icon="'bin'" @click="openConfirmationModal(expenseReimbursementList.rqId)" />

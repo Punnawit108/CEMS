@@ -55,7 +55,9 @@ public class ExportExcelController : ControllerBase
             {
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            
                 headerRange.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                
             }
 
             // เขียนข้อมูล

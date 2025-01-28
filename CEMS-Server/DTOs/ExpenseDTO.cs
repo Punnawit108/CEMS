@@ -69,7 +69,6 @@ namespace CEMS_Server.DTOs
         public int RqPjId { get; set; }
         public int RqRqtId { get; set; }
         public int? RqVhId { get; set; }
-        public string? RqVht { get; set; }
         public string RqName { get; set; } = null!;
         public DateOnly RqPayDate { get; set; }
 
@@ -93,6 +92,7 @@ namespace CEMS_Server.DTOs
         public string RqStatus { get; set; } = null!;
 
         public string RqProgress { get; set; } = null!;
+        public string? RqAny { get; set; }
     }
 
     // Expense Report

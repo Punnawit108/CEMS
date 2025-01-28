@@ -217,7 +217,13 @@ public class ExpenseController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        string rqId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        string rqId;
+        do
+        {
+            rqId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        } while (await _context.CemsRequisitions.AnyAsync(r => r.RqId == rqId));
+
+        string newRqCode = await GenerateNextRqCodeAsync();
 
         var expense = new CemsRequisition
         {
@@ -229,7 +235,7 @@ public class ExpenseController : ControllerBase
             RqName = expenseDto.RqName,
             RqPayDate = expenseDto.RqPayDate,
             RqWithdrawDate = expenseDto.RqWithDrawDate,
-            RqCode = expenseDto.RqCode,
+            RqCode = newRqCode,
             RqInsteadEmail = expenseDto.RqInsteadEmail,
             RqExpenses = expenseDto.RqExpenses,
             RqStartLocation = expenseDto.RqStartLocation,
@@ -239,6 +245,7 @@ public class ExpenseController : ControllerBase
             RqProof = expenseDto.RqProof,
             RqStatus = expenseDto.RqStatus,
             RqProgress = expenseDto.RqProgress,
+            RqAny = expenseDto.RqAny,
         };
 
         _context.CemsRequisitions.Add(expense);
@@ -301,6 +308,28 @@ public class ExpenseController : ControllerBase
                 Id = expense.RqId,
             }
         );
+    }
+
+    private async Task<string> GenerateNextRqCodeAsync()
+    {
+        // ตรวจสอบและดึงข้อมูล rq_code ล่าสุดจากฐานข้อมูล
+        var lastCode = await _context
+            .CemsRequisitions.Where(r => r.RqCode.StartsWith("CN-"))
+            .OrderByDescending(r => r.RqCode)
+            .Select(r => r.RqCode)
+            .FirstOrDefaultAsync();
+
+        int nextNumber = 1;
+
+        if (!string.IsNullOrEmpty(lastCode) && lastCode.StartsWith("CN-"))
+        {
+            if (int.TryParse(lastCode.Substring(3), out int parsedNumber))
+            {
+                nextNumber = parsedNumber + 1;
+            }
+        }
+
+        return $"CN-{nextNumber:D6}";
     }
 
     /// <summary>เปลี่ยนแปลงข้อมูลคำขอเบิก</summary>
@@ -387,8 +416,7 @@ public class ExpenseController : ControllerBase
     public async Task<ActionResult> CheckExpense()
     {
         var requisition = await _context
-            .CemsRequisitions
-            .Where(u => u.RqStatus == "waiting")
+            .CemsRequisitions.Where(u => u.RqStatus == "waiting")
             .ToListAsync();
 
         return Ok(requisition);

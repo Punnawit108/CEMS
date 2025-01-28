@@ -11,17 +11,19 @@ import Progress from "../../components/template/Progress.vue";
 import Button from "../../components/template/Button.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
-import axios from "axios";
+import { useExportDetailStore } from "../../store/exportDetail";
 
 const route = useRoute();
 const router = useRouter();
 const detailStore = useDetailStore();
-
+const exportDetailStore = useExportDetailStore();
 const isPopupPrintOpen = ref(false); // สำหรับเปิด/ปิด Popup  ส่งออก
 const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
 const id = route.params.id.toString();
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
+
+
 
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
@@ -57,11 +59,6 @@ const statusMapping = [
     label: 'แก้ไข',
     color: '#FFBE40',
   },
-  // {
-  //   condition: (data: any) => data.rqStatus === 'accept',
-  //   label: 'อนุมัติ',
-  //   color: '#12B669',
-  // },
   {
     condition: (data: any) => data.rqStatus === 'reject',
     label: 'ไม่อนุมัติ',
@@ -216,6 +213,17 @@ const confirmPrint = async (status: string) => {
   }, 1500);
 };
 
+
+const handleExportFile = () => {
+  // Logic for handling export
+  exportDetailStore.exportFile(expenseData.value.rqId);
+  isPopupPrintOpen.value = false;  // ปิด popup การยืนยัน
+  isAlertPrintOpen.value = true;   // แสดง popup ที่แสดงผลลัพธ์
+  alertMessage.value = 'ส่งออกใบเบิกค่าใช้จ่ายสำเร็จ';  // กำหนดข้อความที่จะแสดง
+  setTimeout(() => {
+    isAlertPrintOpen.value = false; // ปิด popup หลังจาก 3 วินาที
+  }, 3000);
+};
 const approveCompleteDate = computed(() => {
   const lastAccepter = progressData.value.acceptor.slice().reverse().find((item:any) => item.aprDate);
   return lastAccepter ? lastAccepter.aprDate.split(' ')[0] : null;
@@ -228,31 +236,8 @@ const editAprDate = computed(() => {
   return target ? target.aprDate : "";
 });
 
-// เรียกใช้ฟังก์ชัน export ไปยัง PDF
-const exportFile = async () => {
-  try {
-    const url = `http://localhost:5247/api/detail/export?expenseId=${id}`;
-
-    // เรียก API และกำหนด response เป็น blob
-    const response = await axios.get(url, { responseType: 'blob' });
-
-    // สร้าง Blob สำหรับดาวน์โหลดไฟล์
-    const blob = new Blob([response.data], { type: 'application/pdf' });
-
-    // สร้างลิงก์สำหรับดาวน์โหลด
-    const link = document.createElement('a');
-    link.href = window.URL.createObjectURL(blob);
-    link.setAttribute('download', `ExportedExpenseData.pdf`);
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-  } catch (error) {
-    console.error('Error exporting PDF:', error);
-    alert('เกิดข้อผิดพลาดในการดาวน์โหลดไฟล์ PDF');
-  }
-};
-
 </script>
+
 
 
 <!-- path for test = /disbursement/listWithdraw/detailsExpenseForm/:id -->
@@ -535,8 +520,9 @@ const exportFile = async () => {
     </div>
   </div>
 
-  <!-- Popup ส่งออก -->
-  <div v-if="isPopupPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+ 
+   <!-- Popup สำหรับยืนยันการส่งออกคำขอเบิกค่าใช้จ่าย -->
+   <div v-if="isPopupPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
       <div class="flex justify-center mb-4">
         <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
@@ -558,7 +544,8 @@ const exportFile = async () => {
           ยกเลิก
         </button>
 
-        <button @click="confirmPrint"
+        <button @click="handleExportFile"
+
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
         </button>
@@ -566,8 +553,7 @@ const exportFile = async () => {
     </div>
   </div>
 
-
-  <!-- Alert ส่งออก-->
+  <!-- Popup สำหรับแสดงผลลัพธ์ -->
   <div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="mb-4">
@@ -581,7 +567,6 @@ const exportFile = async () => {
       <h2 class="text-[24px] font-bold text-center text-black mt-3">{{ alertMessage }}</h2>
     </div>
   </div>
-
   <!-- content -->
 </template>
 <style scoped>

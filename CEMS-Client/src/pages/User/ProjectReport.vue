@@ -6,13 +6,13 @@
 * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 // import Icon from '../../components/template/CIcon.vue';
-import { onMounted } from "vue";
+import { onMounted , ref } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from '../../components/template/CTable.vue';
 import { useProjectsStore } from '../../store/projectsReport';
 import Button from "../../components/template/Button.vue";
 import ProjectReport from '../../types/index';
-import axios from 'axios';
+import { useExportProjectReportStore } from "../../store/exportProjectReport";
 import {
     Chart,
     BarController,
@@ -47,37 +47,34 @@ Chart.register(
 );
 
 const projectsStore = useProjectsStore();
+const showModal = ref(false);
+const selectedType = ref<string | null>(null);
+const exportProjectReportStore = useExportProjectReportStore();
 
+const handleExport = (type: string) => {
+    selectedType.value = type; // อัปเดตประเภทที่เลือก
+};
+
+
+const exportFile = async () => {
+    if (!selectedType.value) return;
+
+    try {
+        await exportProjectReportStore.exportFile(selectedType.value);
+       
+        selectedType.value = null; 
+        showModal.value = false;
+    } catch (error) {
+        console.error("Error exporting file:", error);
+        if (selectedType.value) {
+            alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`);
+        }
+    }
+};
 // Bar chart setup
 // โครงการ
 const project: string[] = [];
 
-const downloadPdf = async () => {
-  try {
-    // เรียก API ด้วย Axios
-    const response = await axios.get('http://localhost:5247/api/pdf/exportProject', {
-      responseType: 'blob' // ระบุให้ตอบกลับเป็น Binary Blob
-    });
-
-    // สร้าง URL สำหรับ Blob
-    const blob = new Blob([response.data], { type: 'application/pdf' });
-    const url = window.URL.createObjectURL(blob);
-
-    // สร้างลิงก์เพื่อดาวน์โหลดไฟล์
-    const link = document.createElement('a');
-    link.href = url;
-    link.setAttribute('download', 'ExportedProjectData.pdf'); // ชื่อไฟล์ที่ต้องการดาวน์โหลด
-    document.body.appendChild(link);
-    link.click();
-
-    // ทำความสะอาดลิงก์ที่ไม่ใช้แล้ว
-    window.URL.revokeObjectURL(url);
-    document.body.removeChild(link);
-  } catch (error) {
-    console.error('เกิดข้อผิดพลาดในการดาวน์โหลด PDF:', error);
-    alert('ไม่สามารถดาวน์โหลดไฟล์ได้');
-  }
-};
 // จำนวนเงินของแต่ละโครงการ
 const amountMoney: number[] = [];
 
@@ -184,14 +181,14 @@ onMounted(async () => {
     <!-- path for test = /report/project -->
 
     <!-- begin::Filter -->
-    <div class="flex gap-6 w-full mb-8">
+    <div class="flex w-full gap-6 mb-8">
         <!-- Filter ค้นหา -->
         <div class="h-fit w-[266px] ">
             <form class="grid">
                 <label for="SearchBar" class="py-0.5 text-[14px] text-black text-start">ค้นหา</label>
                 <div class="relative h-[32px] w-[266px]  justify-center items-center">
 
-                    <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <div class="absolute transform -translate-y-1/2 pointer-events-none left-2 top-1/2">
                         <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -219,7 +216,7 @@ onMounted(async () => {
                         <option value="Type2">ประเภทที่ 2</option>
                     </select>
 
-                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
                         <svg width="13" height="8" viewBox="0 0 13 8" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -240,7 +237,7 @@ onMounted(async () => {
                         class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4"
                         placeholder="01/01/2567-31/12/2567" />
 
-                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
+                    <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
                         <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
                             xmlns="http://www.w3.org/2000/svg">
                             <path
@@ -251,10 +248,61 @@ onMounted(async () => {
                 </div>
             </form>
         </div>
-        <Button :type="'btn-print2'"  @click="downloadPdf"
+        <Button :type="'btn-print2'"  @click="showModal = true"
                     class="fixed right-0 mr-4 transform -translate-y-1/2 top-1/2">
                     ส่งออก
                 </Button>
+                <!-- Modal -->
+                <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+                    <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
+                        <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
+
+                        <!-- ปุ่มเลือกประเภทไฟล์ -->
+                        <div>
+                            <div class="flex justify-center space-x-6">
+                                <!-- ปุ่ม PDF -->
+                                <button @click="handleExport('pdf')"
+                                    :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                                    <!-- ไอคอน PDF -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                        class="w-8 h-8 mr-2">
+                                        <path
+                                            d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
+                                    </svg>
+                                </button>
+
+                                <!-- ปุ่ม XLSX -->
+                                <button @click="handleExport('xlsx')"
+                                    :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                                    <!-- ไอคอน XLSX -->
+                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                        class="w-8 h-8 mr-2">
+                                        <path
+                                            d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
+                                    </svg>
+                                </button>
+                            </div>
+
+                            <div class="flex justify-center mb-6 space-x-20">
+                                <span class="mt-2 text-sm text-gray-600">PDF</span>
+                                <span class="mt-2 text-sm text-gray-600">XLSX</span>
+                            </div>
+
+                            <!-- ปุ่มยืนยันและยกเลิก -->
+                            <div class="flex justify-center space-x-4">
+                                <button @click="showModal = false"
+                                    class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
+                                    ยกเลิก
+                                </button>
+                                <button @click="exportFile" :disabled="!selectedType"
+                                    class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
+                                    ยืนยัน
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
     </div>
     <!-- end::Filter -->
 
@@ -263,8 +311,8 @@ onMounted(async () => {
 
         <!-- begin::Bar chart -->
         <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-            <p class="font-bold text-black mb-10 text-center">ยอดการเบิกของค่าใช้จ่ายแต่ละโครงการ</p>
-            <div class=" h-full w-3/4">
+            <p class="mb-10 font-bold text-center text-black">ยอดการเบิกของค่าใช้จ่ายแต่ละโครงการ</p>
+            <div class="w-3/4 h-full ">
                 <canvas id="barChart"></canvas>
             </div>
         </div>
@@ -272,16 +320,16 @@ onMounted(async () => {
 
         <!-- begin::Table -->
         <!-- <div class="w-full h-fit border-[2px] flex flex-col items-start"> -->
-        <div class="w-full h-fit border-[2px] flex flex-col items-start">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
             <!-- Table Header -->
             <Ctable :table="'Table4-head'" />
             <!-- Table Data -->
-            <table class="table-auto w-full text-center text-black">
+            <table class="w-full text-center text-black table-auto">
                 <tbody>
                     <tr v-for="(project, index) in projectsStore.projects" :key="index"
                         class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
-                        <th class="py-3 px-2 w-14">{{ index + 1 }}</th>
-                        <th class="py-3 px-2 w-auto text-start truncate overflow-hidden"
+                        <th class="px-2 py-3 w-14">{{ index + 1 }}</th>
+                        <th class="w-auto px-2 py-3 overflow-hidden truncate text-start"
                             style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                             {{ project.pjName }}
