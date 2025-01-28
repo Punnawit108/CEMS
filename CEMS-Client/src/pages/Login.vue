@@ -15,6 +15,7 @@ const router = useRouter();
 
 onMounted(() => {
     userStore.getLocalUsers();
+
 })
 
 const selectUser = (user: any) => {
