@@ -53,7 +53,6 @@ public class UserController : ControllerBase
                 UsrIsSeeReport = u.UsrIsSeeReport,
                 UsrIsActive = u.UsrIsActive,
             })
-            
             .ToListAsync();
 
         var acceptorIds = await _context.CemsApprovers.Select(e => e.ApUsrId).ToListAsync();
@@ -70,46 +69,49 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("localUser")]
-public async Task<ActionResult<IEnumerable<UserLocalDto>>> GetLocalUser()
-{
-    var users = await _context
-        .CemsUsers.Include(e => e.UsrRol)
-        .Select(u => new UserLocalDto
-        {
-            UsrId = u.UsrId,
-            UsrRolName = u.UsrRol.RolName,
-            UsrFirstName = u.UsrFirstName,
-            UsrLastName = u.UsrLastName,
-            UsrIsSeeReport = u.UsrIsSeeReport,
-            UsrIsActive = u.UsrIsActive,
-            UsrIsApprover = 0,
-        })
-        .ToListAsync();
-
-    var approvers = await _context.CemsApprovers
-        .Where(e => e.ApSequence != null)
-        .Select(e => new { e.ApUsrId, e.ApSequence })
-        .ToListAsync();
-
-    foreach (var user in users)
+    public async Task<ActionResult<IEnumerable<UserLocalDto>>> GetLocalUser()
     {
-        if (approvers.Any(a => a.ApUsrId == user.UsrId))
-        {
-            user.UsrIsApprover = 1; // Set the desired role name
-        }
-    }
+        var users = await _context
+            .CemsUsers.Include(e => e.UsrRol)
+            .Select(u => new UserLocalDto
+            {
+                UsrId = u.UsrId,
+                UsrRolName = u.UsrRol.RolName,
+                UsrFirstName = u.UsrFirstName,
+                UsrLastName = u.UsrLastName,
+                UsrIsSeeReport = u.UsrIsSeeReport,
+                UsrIsActive = u.UsrIsActive,
+                UsrIsApprover = 0,
+            })
+            .ToListAsync();
 
-    return Ok(users);
-}
+        var approvers = await _context
+            .CemsApprovers.Where(e => e.ApSequence != null)
+            .Select(e => new { e.ApUsrId, e.ApSequence })
+            .ToListAsync();
+
+        foreach (var user in users)
+        {
+            if (approvers.Any(a => a.ApUsrId == user.UsrId))
+            {
+                user.UsrIsApprover = 1; // Set the desired role name
+            }
+        }
+
+        return Ok(users);
+    }
 
     /// <summary> เปลี่ยนแปลงข้อมูลผู้ใช้ </summary>
     /// <param name="id" > id ของผู้ใช้ </param>
     /// <param name="updateDto" > ข้อมูลของผู้ใช้ที่สามารถแก้ไขได้ </param>
     /// <returns> สิทธิ์การดูรายงานและบทบาท </returns>
     /// <remarks> แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย จิรภัทร มณีวงษ์ </remark>
-    /// 
+    ///
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUserRole(string id, [FromBody] UpdateUserRoleDto updateDto)
+    public async Task<IActionResult> UpdateUserRole(
+        string id,
+        [FromBody] UpdateUserRoleDto updateDto
+    )
     {
         if (updateDto == null)
         {
@@ -117,8 +119,8 @@ public async Task<ActionResult<IEnumerable<UserLocalDto>>> GetLocalUser()
         }
 
         // ใช้ Include เพื่อโหลด role data ด้วย
-        var user = await _context.CemsUsers
-            .Include(u => u.UsrRol)
+        var user = await _context
+            .CemsUsers.Include(u => u.UsrRol)
             .FirstOrDefaultAsync(u => u.UsrId == id);
 
         if (user == null)
@@ -127,8 +129,9 @@ public async Task<ActionResult<IEnumerable<UserLocalDto>>> GetLocalUser()
         }
 
         // หา Role จาก RoleName
-        var role = await _context.CemsRoles
-            .FirstOrDefaultAsync(r => r.RolName == updateDto.UsrRolName);
+        var role = await _context.CemsRoles.FirstOrDefaultAsync(r =>
+            r.RolName == updateDto.UsrRolName
+        );
 
         if (role == null)
         {
@@ -139,7 +142,7 @@ public async Task<ActionResult<IEnumerable<UserLocalDto>>> GetLocalUser()
         user.UsrRol = role;
         user.UsrIsSeeReport = (sbyte)updateDto.UsrIsSeeReport;
 
-        try 
+        try
         {
             _context.CemsUsers.Update(user);
             await _context.SaveChangesAsync();
