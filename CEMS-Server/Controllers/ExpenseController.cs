@@ -59,6 +59,7 @@ public class ExpenseController : ControllerBase
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
+                RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
             .ToListAsync();
@@ -86,6 +87,7 @@ public class ExpenseController : ControllerBase
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
                 RqWithDrawDate = u.RqWithdrawDate,
+                RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
             .ToListAsync();
@@ -153,6 +155,7 @@ public class ExpenseController : ControllerBase
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
+            .ThenInclude(u => u.UsrNp)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
@@ -161,7 +164,8 @@ public class ExpenseController : ControllerBase
             {
                 RqId = u.RqId,
                 RqUsrId = u.RqUsr.UsrId,
-                RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqUsrName =
+                    u.RqUsr.UsrNp.NpPrefix + " " + u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqPjName = u.RqPj.PjName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqVhType = u.RqVh.VhType,
@@ -213,7 +217,13 @@ public class ExpenseController : ControllerBase
             return BadRequest(ModelState);
         }
 
-        string rqId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        string rqId;
+        do
+        {
+            rqId = Guid.NewGuid().ToString("N").Substring(0, 8);
+        } while (await _context.CemsRequisitions.AnyAsync(r => r.RqId == rqId));
+
+        string newRqCode = await GenerateNextRqCodeAsync();
 
         var expense = new CemsRequisition
         {
@@ -225,7 +235,7 @@ public class ExpenseController : ControllerBase
             RqName = expenseDto.RqName,
             RqPayDate = expenseDto.RqPayDate,
             RqWithdrawDate = expenseDto.RqWithDrawDate,
-            RqCode = expenseDto.RqCode,
+            RqCode = newRqCode,
             RqInsteadEmail = expenseDto.RqInsteadEmail,
             RqExpenses = expenseDto.RqExpenses,
             RqStartLocation = expenseDto.RqStartLocation,
@@ -235,6 +245,7 @@ public class ExpenseController : ControllerBase
             RqProof = expenseDto.RqProof,
             RqStatus = expenseDto.RqStatus,
             RqProgress = expenseDto.RqProgress,
+            RqAny = expenseDto.RqAny,
         };
 
         _context.CemsRequisitions.Add(expense);
@@ -249,7 +260,7 @@ public class ExpenseController : ControllerBase
                 .FirstOrDefault();
 
             ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
-            int newAprId = lastAprId + 1;
+            int newAprId = (lastAprId ?? 0) + 1;
 
             var approverIds = await _context
                 .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
@@ -296,6 +307,28 @@ public class ExpenseController : ControllerBase
                 Id = expense.RqId,
             }
         );
+    }
+
+    private async Task<string> GenerateNextRqCodeAsync()
+    {
+        // ตรวจสอบและดึงข้อมูล rq_code ล่าสุดจากฐานข้อมูล
+        var lastCode = await _context
+            .CemsRequisitions.Where(r => r.RqCode.StartsWith("CN-"))
+            .OrderByDescending(r => r.RqCode)
+            .Select(r => r.RqCode)
+            .FirstOrDefaultAsync();
+
+        int nextNumber = 1;
+
+        if (!string.IsNullOrEmpty(lastCode) && lastCode.StartsWith("CN-"))
+        {
+            if (int.TryParse(lastCode.Substring(3), out int parsedNumber))
+            {
+                nextNumber = parsedNumber + 1;
+            }
+        }
+
+        return $"CN-{nextNumber:D6}";
     }
 
     /// <summary>เปลี่ยนแปลงข้อมูลคำขอเบิก</summary>
@@ -372,5 +405,19 @@ public class ExpenseController : ControllerBase
 
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
+    }
+
+    /// <summary>แสดงช้อมูลรายการคำขอเบิกที่กำลังรออนุมัติ</summary>
+    /// <returns>แสดงข้อมูลใบคำขอเบิกที่กำลังรออนุมัติทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 8 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
+
+    [HttpGet("check")]
+    public async Task<ActionResult> CheckExpense()
+    {
+        var requisition = await _context
+            .CemsRequisitions.Where(u => u.RqStatus == "waiting")
+            .ToListAsync();
+
+        return Ok(requisition);
     }
 }

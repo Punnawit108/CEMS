@@ -1,32 +1,36 @@
+# UserSetting.vue
 <script setup lang="ts">
 /**
 * ชื่อไฟล์: UserSetting.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าจอจัดการผู้ใช้ ซึ่งแสดงตารางผู้ใช้ภายในระบบ พร้อมฟังก์ชั่นค้นหาและกรองข้อมูล
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
+* วันที่จัดทำ/แก้ไข: 11 มกราคม 2568
 */
 
 import Icon from '../../components/template/CIcon.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, computed, watch } from 'vue';
-import Ctable from '../../components/template/CTable.vue';
+import Pagination from '../../components/template/Pagination.vue';
 import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
 import Filter from '../../components/template/Filter.vue';
 import { useProjectStore } from '../../store/project';
 import { useRequisitionTypeStore } from '../../store/requisitionType';
+import type { User } from '../../types';
 
 const projectStore = useProjectStore();
 const requisitionTypeStore = useRequisitionTypeStore();
-
 const router = useRouter();
 const store = useUserStore();
 const { users } = storeToRefs(store);
 const loading = ref(false);
 
+// Pagination state
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const paginatedUsers = ref<User[]>([]);
 
+// Filters
 const filters = ref({
   searchTerm: '',
   searchRqName: '',
@@ -38,11 +42,15 @@ const filters = ref({
   selectedRequisitionTypeId: ''
 });
 
+// Reset pagination when filters change
 watch(filters, () => {
   currentPage.value = 1;
 });
 
+// Filtered users computation
 const filteredUsers = computed(() => {
+  if (!users.value) return [];
+
   return users.value.filter(user => {
     const matchesSearch = filters.value.searchTerm === '' ||
       user.usrFirstName.toLowerCase().includes(filters.value.searchTerm.toLowerCase()) ||
@@ -66,31 +74,6 @@ const filteredUsers = computed(() => {
   }).sort((a, b) => a.usrEmployeeId.localeCompare(b.usrEmployeeId));
 });
 
-const totalPages = computed(() => Math.ceil(filteredUsers.value.length / itemsPerPage.value));
-
-const paginatedUsers = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredUsers.value.slice(start, end);
-});
-
-const remainingRows = computed(() => {
-  const currentRows = paginatedUsers.value.length;
-  return currentRows < itemsPerPage.value ? itemsPerPage.value - currentRows : 0;
-});
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
 const navigateToDetail = (userId: string) => {
   router.push(`/systemSettings/user/detail/${userId}`);
 };
@@ -102,6 +85,8 @@ onMounted(async () => {
       store.getAllUsers(),
       projectStore.getAllProjects(),
     ]);
+  } catch (error) {
+    console.error('Error in mounted:', error);
   } finally {
     loading.value = false;
   }
@@ -110,31 +95,30 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col text-center">
-    <!-- เรียกใช้ตามต้องการ -->
-    <Filter 
-      :loading="loading"
-      :users="users"
-      :projects="projectStore.projects"
-      :requisitionTypes="requisitionTypeStore.requisitionTypes"
-      v-model:searchTerm="filters.searchTerm"
-      v-model:searchRqName="filters.searchRqName"
-      v-model:selectedDepartment="filters.department" 
-      v-model:selectedDivision="filters.division"      
-      v-model:selectedRole="filters.role"
+    <Filter :loading="loading" :users="users" :projects="projectStore.projects"
+      :requisitionTypes="requisitionTypeStore.requisitionTypes" v-model:searchTerm="filters.searchTerm"
+      v-model:searchRqName="filters.searchRqName" v-model:selectedDepartment="filters.department"
+      v-model:selectedDivision="filters.division" v-model:selectedRole="filters.role"
       v-model:selectedProjectId="filters.projectId"
-      v-model:selectedRequisitionTypeId="filters.selectedRequisitionTypeId"
-      :showRqNameFilter="false"
-      :showSearchFilter="true"
-      :showDepartmentFilter="true" 
-      :showDivisionFilter="true"
-      :showRoleFilter="true"
-      :showProjectFilter="false"
-      :showRequisitionTypeFilter="false"
-      :showDateFilter="false"
-    />
-    <div class="w-full h-fit border-[2px] flex flex-col items-start">
-      <Ctable :table="'Table5-head'" />
+      v-model:selectedRequisitionTypeId="filters.selectedRequisitionTypeId" :showRqNameFilter="false"
+      :showSearchFilter="true" :showDepartmentFilter="true" :showDivisionFilter="true" :showRoleFilter="true"
+      :showProjectFilter="false" :showRequisitionTypeFilter="false" :showDateFilter="false" />
+
+      <div class="w-full h-fit border-[2px] flex flex-col items-start">
       <table class="table-auto w-full text-center text-black">
+        <thead class="bg-[#F2F4F8]">
+          <tr class="text-[16px] border-b-2 border-[#BBBBBB]">
+            <th class="py-[11px] px-2 w-12 font-bold h-[46px]">ลำดับ</th>
+            <th class="py-[11px] px-2 text-center w-24 font-bold">รหัสพนักงาน</th>
+            <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
+            <th class="py-[11px] px-2 text-start w-20 font-bold">แผนก</th>
+            <th class="py-[11px] px-2 text-start w-24 font-bold">ฝ่าย</th>
+            <th class="py-[11px] px-2 text-start w-20 font-bold">บทบาท</th>
+            <th class="py-[11px] px-2 text-start w-24 font-bold">สถานะ</th>
+            <th class="py-[11px] px-2 text-center w-24 font-bold">ดูรายงาน</th>
+            <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
+          </tr>
+        </thead>
         <tbody>
           <tr v-if="loading">
             <td colspan="9" class="py-4">
@@ -145,15 +129,21 @@ onMounted(async () => {
             </td>
           </tr>
 
+          <tr v-else-if="!users?.length">
+            <td colspan="9" class="py-4">ไม่มีข้อมูลผู้ใช้</td>
+          </tr>
+
           <tr v-else-if="filteredUsers.length === 0">
-            <td colspan="9" class="py-4">ไม่พบข้อมูล</td>
+            <td colspan="9" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
           </tr>
 
           <tr v-else v-for="(user, index) in paginatedUsers" :key="user.usrId"
             class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
             <th class="py-[12px] px-2 w-12 h-[46px]">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
             <th class="py-[12px] px-2 w-24">{{ user.usrEmployeeId }}</th>
-            <th class="py-[12px] px-2 w-52 text-start truncate">
+            <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                :title="`${user.usrFirstName} ${user.usrLastName}`">
               {{ user.usrFirstName }} {{ user.usrLastName }}
             </th>
             <th class="py-[12px] px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
@@ -174,37 +164,9 @@ onMounted(async () => {
               </span>
             </th>
           </tr>
-
-          <tr v-if="remainingRows > 0" v-for="index in remainingRows" :key="'empty-row' + index">
-            <td v-for="i in 9" :key="'empty-cell' + i" class="py-[12px] px-2 h-[46px]">&nbsp;</td>
-          </tr>
         </tbody>
-
-        <tfoot class="border-t">
-          <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
-            <th colspan="7"></th>
-            <th class="py-[5px] text-center">
-              {{ currentPage }} of {{ totalPages }}
-            </th>
-            <th class="py-[5px] flex justify-between text-[14px] font-bold">
-              <span class="text-[#A0A0A0]">
-                <button @click="prevPage"
-                  class="p-2 rounded-md justify-start transition-colors duration-200 hover:bg-gray-100"
-                  :class="{ 'text-[#BBBBBB] cursor-not-allowed hover:bg-transparent': currentPage === 1, 'text-black': currentPage !== 1 }"
-                  :disabled="currentPage === 1">
-                  <span class="text-sm">&lt;</span>
-                </button>
-              </span>
-              <span class="text-[#A0A0A0]">
-                <button @click="nextPage" class="p-2 rounded-md transition-colors duration-200 hover:bg-gray-100"
-                  :class="{ 'text-[#BBBBBB] cursor-not-allowed hover:bg-transparent': currentPage === totalPages, 'text-black': currentPage !== totalPages }"
-                  :disabled="currentPage === totalPages">
-                  <span class="text-sm">&gt;</span>
-                </button>
-              </span>
-            </th>
-          </tr>
-        </tfoot>
+        <Pagination :items="filteredUsers" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
+          v-model:paginatedItems="paginatedUsers" :showEmptyRows="true" />
       </table>
     </div>
   </div>

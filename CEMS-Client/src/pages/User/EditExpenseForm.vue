@@ -304,7 +304,7 @@ const confirmSubmit = async () => {
                 >
                   {{ project.pjName }}
                 </option>
-              </select>
+              </select>+
             </div>
           </div>
 

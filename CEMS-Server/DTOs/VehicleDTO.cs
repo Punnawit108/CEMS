@@ -13,4 +13,17 @@ namespace CEMS_Server.DTOs
         public string VhVehicle { get; set; } = null!;
         public double? VhPayrate { get; set; }
     }
+    
+    public class VehiclePrivateUpdateDTO
+    {
+        public int VhId { get; set; }
+        public string VhVehicle { get; set; } = null!;
+        public double? VhPayrate { get; set; }
+    }
+
+    public class VehiclePublicUpdateDTO
+    {
+        public int VhId { get; set; }
+        public string VhVehicle { get; set; } = null!;
+    }
 }
