@@ -7,12 +7,12 @@ using CEMS_Server.AppContext;
 using CEMS_Server.Models;
 
 [ApiController]
-[Route("api/excel")]
-public class ExportExcelController : ControllerBase
+[Route("api/excelproject")]
+public class ExportExcelProjectController : ControllerBase
 {
     private readonly CemsContext _dbContext;
 
-    public ExportExcelController(CemsContext dbContext)
+    public ExportExcelProjectController(CemsContext dbContext)
     {
         _dbContext = dbContext;
     }
@@ -43,21 +43,16 @@ public class ExportExcelController : ControllerBase
 
             // เขียน Header
             worksheet.Cells[1, 1].Value = "ลำดับ";
-            worksheet.Cells[1, 2].Value = "ชื่อผู้ใช้";
-            worksheet.Cells[1, 3].Value = "รายการเบิก";
-            worksheet.Cells[1, 4].Value = "โครงการ";
-            worksheet.Cells[1, 5].Value = "ประเภทค่าใช้จ่าย";
-            worksheet.Cells[1, 6].Value = "วันที่ขอเบิก";
-            worksheet.Cells[1, 7].Value = "จำนวนเงิน(บาท)";
+            worksheet.Cells[1, 2].Value = "โครงการ";
+            worksheet.Cells[1, 3].Value = "จำนวนเงิน (บาท)";
 
             // จัดรูปแบบ Header
-            using (var headerRange = worksheet.Cells[1, 1, 1, 7])
+            using (var headerRange = worksheet.Cells[1, 1, 1, 3])
             {
                 headerRange.Style.Font.Bold = true;
                 headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            
+                headerRange.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
                 headerRange.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
-                
             }
 
             // เขียนข้อมูล
@@ -66,20 +61,16 @@ public class ExportExcelController : ControllerBase
             foreach (var item in data)
             {
                 worksheet.Cells[row, 1].Value = index++;
-                worksheet.Cells[row, 2].Value = item.UserFullName;
-                worksheet.Cells[row, 3].Value = item.RqName;
-                worksheet.Cells[row, 4].Value = item.PjName;
-                worksheet.Cells[row, 5].Value = item.RqtName;
-                worksheet.Cells[row, 6].Value = item.RqPayDate.ToString("dd/MM/yyyy");
-                worksheet.Cells[row, 7].Value = item.RqExpenses;
-                worksheet.Cells[row, 7].Style.Numberformat.Format = "#,##0.00";
-
-                // เพิ่มเส้นขอบ
-                worksheet.Cells[row, 1, row, 7].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+                worksheet.Cells[row, 2].Value = item.PjName;
+                worksheet.Cells[row, 3].Value = item.RqExpenses;
+                worksheet.Cells[row, 3].Style.Numberformat.Format = "#,##0.00"; // จัดรูปแบบตัวเลข
                 row++;
             }
 
             // ปรับขนาดคอลัมน์
+            worksheet.Column(1).Width = 10; // ลำดับ
+            worksheet.Column(2).Width = 30; // โครงการ
+            worksheet.Column(3).Width = 20; // จำนวนเงิน (บาท)
             worksheet.Cells.AutoFitColumns();
 
             // บันทึกไฟล์ Excel ลงใน path
