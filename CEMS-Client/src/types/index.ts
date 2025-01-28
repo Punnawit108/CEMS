@@ -40,7 +40,7 @@ export interface createRequisition {
     rqPayDate: Date;
     rqWithdrawDate: string;
     rqCode: string;
-    rqInsteadEmail: string;
+    rqInsteadEmail: string | null;
     rqExpenses: number;
     rqStartLocation: string | null;
     rqEndLocation: string | null;
@@ -98,6 +98,12 @@ export interface User {
     usrEmail: string;
     usrIsSeeReport: number;
     usrIsActive: number;
+}
+
+export interface UserInstead {
+    usrId: string;
+    usrName: string;
+    usrEmail: string;
 }
 
 //ข้อมูลแสดงผลของกราฟ และตาราง project 

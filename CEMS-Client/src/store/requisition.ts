@@ -7,7 +7,7 @@
 
 import axios from "axios";
 import { defineStore } from "pinia";
-
+import { UserInstead } from "../types/index"
 import { Project, ExpenseManage, TravelManage, Expense } from "../types";
 
 
@@ -22,6 +22,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         filteredVehicles: null as any,
         selectedTravel: null as any,
         selectedVehicleType: null as string | null,
+        UserInstead: [] as UserInstead[],
         // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
     }),
     getters: {
@@ -106,7 +107,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         */
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
         async createExpense(CreateExpense: any) {
-             // ตรวจสอบข้อมูลที่ส่งไป
+            // ตรวจสอบข้อมูลที่ส่งไป
 
             console.log(CreateExpense)
             try {
@@ -149,6 +150,16 @@ export const useRequisitionStore = defineStore('dropdown', {
                     `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`);
                 console.log(result.data)
                 return result.data;
+
+            } catch (error) {
+                console.log(error)
+            }
+        },
+        async getUserEmail(usrId: string) {
+
+            try {
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/user/email/${usrId}`);
+                return this.UserInstead = result.data ;
 
             } catch (error) {
                 console.log(error)

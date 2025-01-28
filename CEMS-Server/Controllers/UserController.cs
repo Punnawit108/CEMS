@@ -154,4 +154,24 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+
+    /// <summary> ดึงข้อมูลผู้ใช้ทั้งหมด </summary>
+    /// <returns> ข้อมูลผู้ใช้ทั้งหมด </returns>
+    /// <remarks> แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย จิรภัทร มณีวงษ์ </remark>
+    [HttpGet("email/{id}")]
+    public async Task<ActionResult> GetUserToCreateRequisition(string id)
+    {
+        var users = await _context
+            .CemsUsers.Where(u => u.UsrId != id)
+            .OrderBy(e => e.UsrId)
+            .Select(u => new
+            {
+                u.UsrId,
+                UsrName = u.UsrFirstName + " " + u.UsrLastName,
+                u.UsrEmail,
+            })
+            .ToListAsync();
+
+        return Ok(users);
+    }
 }

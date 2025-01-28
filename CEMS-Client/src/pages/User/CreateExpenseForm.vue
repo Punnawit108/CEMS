@@ -36,7 +36,7 @@ const formData = ref<createRequisition>({
   rqPjId: "",
   rqRqtId: rqtId.value,
   rqVhId: 0,
-  rqPayDate: "",
+  rqPayDate: new Date(),
   rqWithdrawDate: "",
   rqCode: "",
   rqInsteadEmail: "",
@@ -68,6 +68,7 @@ onMounted(async () => {
   if (storedUser) {
     try {
       user.value = await JSON.parse(storedUser);
+      await requisitionStore.getUserEmail(user.value.usrId)
     } catch (error) {
       console.log("Error loading user:", error);
     }
@@ -260,6 +261,8 @@ const confirmCancle = async (event: Event) => {
 const selectedDate = ref(new Date());
 const isDatePickerOpen = ref(false);
 
+
+
 // ฟังก์ชันจัดการเมื่อยืนยันการเลือกวันที่
 const handleConfirm = (date: Date) => {
   console.log('Confirmed date:', date);
@@ -282,7 +285,7 @@ const handleDateCancel = () => {
       <Button :type="'btn-summit'" @click="handleSubmit">ยืนยัน</Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
-    <div class="">
+    <div class="mt-4">
       <!-- แบ่งเป็น 2 คอลัมน์ -->
       <div class="flex flex-col">
         <!-- Form Left -->
@@ -290,26 +293,30 @@ const handleDateCancel = () => {
 
           <!-- ช่อง "รหัสรายการเบิก *" -->
           <div>
-            <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก *</label>
-            <input type="text" id="rqCode" v-model="formData.rqCode" class="inputItem" />
+            <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก </label>
+            <p class="inputItem bg-[#F7F7F7]">CN-xxxxxx</p>
+            <!-- <input type="text" id="rqCode" v-model="formData.rqCode" class="inputItem " /> -->
           </div>
 
           <!-- ช่อง "ชื่อรายการเบิก" -->
           <div>
-            <label for="rqName" class="block text-sm font-medium py-2">ชื่อรายการเบิก *</label>
-            <input type="text" id="rqName" v-model="formData.rqName" class="inputItem" />
+            <label for="rqName" class="block text-sm font-medium py-2">ชื่อรายการเบิก <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="rqName" v-model="formData.rqName" class="inputItem" required />
           </div>
 
           <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
           <div class="">
-            <label for="rqPayDate" class="block text-sm font-medium py-2">วันที่เกิดค่าใช้จ่าย *</label>
+            <label for="rqPayDate" class="block text-sm font-medium py-2">วันที่เกิดค่าใช้จ่าย <span
+                class="text-red-500">*</span></label>
             <SingleDatePicker v-model="selectedDate" id="rqPayDate" :confirmedDate="selectedDate" :disabled="true"
               class="date w-full h-[42px] " />
           </div>
 
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
           <div>
-            <label for="rqWithdrawDate" class="block text-sm font-medium py-2">วันที่ทำรายการเบิกค่าใช้จ่าย *</label>
+            <label for="rqWithdrawDate" class="block text-sm font-medium py-2">วันที่ทำรายการเบิกค่าใช้จ่าย <span
+                class="text-red-500">*</span></label>
             <SingleDatePicker v-model="selectedDate" id="rqWithdrawDate" v-model:isOpen="isDatePickerOpen"
               :confirmedDate="selectedDate" class="dateInput w-full h-[42px]" placeholder="เลือกวันที่"
               @confirm="handleConfirm" @cancel="handleCancel" />
@@ -317,9 +324,10 @@ const handleDateCancel = () => {
 
 
           <div>
-            <label for="projectName" class="block text-sm font-medium py-2">โครงการ</label>
+            <label for="projectName" class="block text-sm font-medium py-2">โครงการ<span
+                class="text-red-500">*</span></label>
             <div class="text-xs">
-              <select id="projectName" v-model="formData.rqPjId" class="inputItem">
+              <select id="projectName" v-model="formData.rqPjId" class="inputItem" required>
                 <option disabled selected>เลือกโครงการ</option>
                 <option v-for="project in requisitionStore.projects" :key="project.pjId" :value="project.pjId">
                   {{ project.pjName }}
@@ -333,9 +341,9 @@ const handleDateCancel = () => {
           <div>
             <!-- Dropdown -->
             <label for="expenseType" class="block text-sm font-medium py-2">
-              ประเภทค่าใช้จ่าย
+              ประเภทค่าใช้จ่าย <span class="text-red-500">*</span>
             </label>
-            <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName" class="inputItem">
+            <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName" class="inputItem" required>
               <option value="">กรุณาเลือกประเภท</option>
               <option v-for="requisitionTypeData in requisitionStore.requisitionType" :key="requisitionTypeData.rqtId"
                 :value="requisitionTypeData.rqtId">
@@ -347,7 +355,7 @@ const handleDateCancel = () => {
 
           <div v-show="rqtName == 'อื่นๆ'">
             <label for="rqAny" class="block text-sm font-medium py-2">
-              ระบุข้อมูลเพิ่มเติม
+              ประเภทค่าใช้จ่ายอื่นๆ <span class="text-red-500">*</span>
             </label>
             <input id="rqAny" v-model="formData.rqAny" class="inputItem" type="text"
               placeholder="กรุณาระบุข้อมูลเพิ่มเติม" />
@@ -356,7 +364,7 @@ const handleDateCancel = () => {
           <!-- ช่อง "ประเภทการเดินทาง" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
             <label for="travelType" class="block text-sm font-medium py-2">
-              ประเภทการเดินทาง
+              ประเภทการเดินทาง <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
               <select id="travelType" class="inputItem" v-model="requisitionStore.selectedTravelType">
@@ -395,38 +403,45 @@ const handleDateCancel = () => {
 
           <!-- ช่อง "สถานที่เริ่มต้น" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqStartLocation" class="block text-sm font-medium py-2">สถานที่เริ่มต้น</label>
+            <label for="rqStartLocation" class="block text-sm font-medium py-2">สถานที่เริ่มต้น <span
+                class="text-red-500">*</span></label>
             <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation" class="inputItem" />
           </div>
 
           <!-- ช่อง "สถานที่สิ้นสุด" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-2">สถานที่สิ้นสุด</label>
+            <label for="rqEndLocation" class="block text-sm font-medium py-2">สถานที่สิ้นสุด <span
+                class="text-red-500">*</span></label>
             <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation" class="inputItem" />
           </div>
 
           <!-- ช่อง "ระยะทาง" -->
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-2">ระยะทาง</label>
+            <label for="rqEndLocation" class="block text-sm font-medium py-2">ระยะทาง <span
+                class="text-red-500">*</span></label>
             <input type="text" id="rqEndLocation" v-model="formData.rqDistance" class="inputItem" />
           </div>
 
           <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-2">อัตราค่าเดินทาง</label>
+            <label for="rqEndLocation" class="block text-sm font-medium py-2">อัตราค่าเดินทาง </label>
             <input type="text" id="rqEndLocation" v-model="formData.rqDistance" class="inputItem" :disabled="true" />
           </div>
 
 
           <!-- ช่อง "จำนวนเงิน (บาท)" -->
           <div>
-            <label for="rqExpenses" class="block text-sm font-medium py-2">จำนวนเงิน (บาท)</label>
+            <label for="rqExpenses" class="block text-sm font-medium py-2">จำนวนเงิน (บาท) <span
+                class="text-red-500">*</span></label>
             <input type="number" id="rqExpenses" v-model="formData.rqExpenses" class="inputItem" />
           </div>
 
 
           <div>
             <label for="rqInsteadEmail" class="block text-sm font-medium py-2">อีเมลผู้ขอเบิกแทน *</label>
-            <input type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem" />
+            <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem" >
+              <option :value="null" disabled selected>Select User</option>
+              <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead">{{ user.usrName }}</option>
+            </select>
           </div>
 
 
@@ -459,18 +474,15 @@ const handleDateCancel = () => {
 
       </div>
       <!-- วัตถุประสงค์ -->
-      <div class="text-sm m-[38px]">
-        <label class="block text-sm font-medium py-1">วัตถุประสงค์</label>
-        <div class="">
-          <textarea v-model="formData.rqPurpose"
-            class="py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full focus:border-gray-400 focus:ring-0 focus:outline-none"></textarea>
-        </div>
+      <div class="text-sm my-4">
+        <label class="block text-sm font-medium pb-2">วัตถุประสงค์</label>
+        <textarea v-model="formData.rqPurpose" class="inputItem h-[81px]"> </textarea>
       </div>
       <!-- upload -->
-      <div class="upload-container w-2/6 m-[38px]">
-        <label class="z-0 max-md:max-w-full"> อัปโหลดไฟล์ </label>
+      <div class="upload-container ">
+        <label class="z-0 max-md:max-w-full">อัปโหลดไฟล์ </label>
         <div
-          class="flex z-0 mt-1 w-full bg-white rounded-md border border-solid border-zinc-400 min-h-[395px] max-md:max-w-full cursor-pointer relative"
+          class="flex z-0 mt-1 h-[278px] w-full bg-white rounded-md border border-solid border-[#B8B8B8] min-h-[395px] max-md:max-w-full cursor-pointer relative"
           @click="triggerFileInput" @dragover.prevent @drop.prevent="handleDrop">
           <input type="file" ref="fileInput" @change="handleFileChange" accept="image/" style="display: none" />
           <div v-if="!selectedFile"
@@ -478,12 +490,29 @@ const handleDateCancel = () => {
             <img loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
               alt="Upload icon" class="object-contain w-16 aspect-[1.1]" />
-            <p class="mt-3">อัปโหลดไฟล์ที่นี่</p>
-            <p class="mt-3">SVG, PNG หรือ JPG (MAX 800 800 px)</p>
+            <p class="mt-3 text-[#B8B8B8]">คลิก หรือลากไฟล์มาที่นี่ เพื่ออัปโหลด</p>
+            <p class="mt-3 text-[#B8B8B8]">DOCS PNG หรือ PDF (MAX 2MB) </p>
           </div>
           <img v-else :src="previewUrl!" alt="Preview"
             class="max-w-full max-h-full object-contain absolute inset-0 m-auto" />
         </div>
+      </div>
+    </div>
+
+    <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between">
+      <div class="flex flex-row ml-4 my-2">
+        <div class="w-[50px] h-[50px] bg-white rounded-[5px]">
+          <img src="/docIcon.svg" alt="Doc Icon" class="w-full h-full">
+        </div>
+        <p class="ml-4 flex items-center">file name</p>
+      </div>
+
+      <div class="mr-5 flex items-center">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
+          <path
+            d="M1.78433 0.839844L8.00684 7.06235L14.2293 0.839844L16.0068 2.61734L9.78433 8.83984L16.0068 15.0623L14.2281 16.8398L8.00558 10.6173L1.78433 16.8398L0.00683594 15.0623L6.22934 8.83984L0.00683594 2.61734L1.78433 0.839844Z"
+            fill="black" />
+        </svg>
       </div>
     </div>
 
@@ -633,17 +662,11 @@ const handleDateCancel = () => {
 <style>
 .inputItem {
   padding: 8px 12px;
-  /* px-3 py-2 */
   border: 1px solid #B8B8B8;
-  /* border-gray-400 */
   background-color: white;
-  /* bg-white */
   border-radius: 0.375rem;
-  /* rounded-md */
   font-size: 0.875rem;
-  /* sm:text-sm */
   width: 100%;
-  /* sm:w-full */
   height: 40px;
 }
 
