@@ -1,20 +1,16 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : CIcon.vue
- * คำอธิบาย : ไฟล์นี้ข้อมูล icon
- * Input : -
- * Output : ข้อมูล icon
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
- */
-
+/*
+* ชื่อไฟล์: CIcon.vue
+* คำอธิบาย: ไฟล์นี้ข้อมูล icon
+* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
+* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+*/
 import { defineProps } from 'vue';
 
 const props = defineProps<{
     icon: String
     size?: number; // เพิ่ม props สำหรับขนาด
 }>();
-
 </script>
 
 

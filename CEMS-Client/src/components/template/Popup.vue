@@ -1,16 +1,93 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: Popup.vue
 * คำอธิบาย: ไฟล์นี้เป็นComponentสำหรับแสดงPopup
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายขุนแผน ไชยโชติ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
+
+import { defineProps, defineEmits, ref } from "vue";
+import Button from "./Button.vue";
+
+const props = defineProps({
+    type: String, // ประเภท popup เช่น 'reject', 'edit', 'approve'
+    data: Object, // ข้อมูลที่ต้องการส่งเข้ามา
+});
+
+const type = ref("approve");
+
+const emit = defineEmits(["close", "confirm"]); // สร้าง event สำหรับ close และ confirm
 </script>
 <template>
     <div class="flex flex-col items-center text-center ">
         <!-- content -->
+        <!-- popup approve -->
+        <div v-if="type === 'approve'" class="fixed inset-0 bg-black/50 flex justify-center items-center z-50">
+            <div class="bg-white rounded-lg shadow-lg p-6 w-[460px] h-[417px]">
+                <!-- Icon Section -->
+                <div class="flex justify-center mb-2 mt-12">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="61" viewBox="0 0 60 61" fill="none">
+                        <path
+                            d="M29.9999 0C37.9187 0 45.5131 3.19263 51.1126 8.87555C56.712 14.5585 59.8577 22.2662 59.8577 30.303C59.8577 38.3399 56.712 46.0476 51.1126 51.7305C45.5131 57.4134 37.9187 60.6061 29.9999 60.6061C22.0811 60.6061 14.4867 57.4134 8.88724 51.7305C3.28782 46.0476 0.14209 38.3399 0.14209 30.303C0.14209 22.2662 3.28782 14.5585 8.88724 8.87555C14.4867 3.19263 22.0811 0 29.9999 0ZM29.9999 12.987C29.4584 12.9865 28.9227 13.1007 28.4271 13.3222C27.9315 13.5437 27.4868 13.8677 27.1216 14.2735C26.7563 14.6792 26.4784 15.1578 26.3057 15.6787C26.133 16.1996 26.0692 16.7514 26.1184 17.2987L27.6753 34.6407C27.7356 35.2237 28.0066 35.7634 28.4358 36.1557C28.8651 36.548 29.4223 36.7651 29.9999 36.7651C30.5776 36.7651 31.1347 36.548 31.564 36.1557C31.9933 35.7634 32.2642 35.2237 32.3246 34.6407L33.8772 17.2987C33.9264 16.7517 33.8627 16.2004 33.6902 15.6797C33.5177 15.1591 33.2402 14.6807 32.8754 14.275C32.5106 13.8694 32.0665 13.5453 31.5714 13.3235C31.0763 13.1018 30.5411 12.9871 29.9999 12.987ZM29.9999 47.619C30.9049 47.619 31.7729 47.2542 32.4128 46.6047C33.0527 45.9552 33.4122 45.0743 33.4122 44.1558C33.4122 43.2373 33.0527 42.3565 32.4128 41.707C31.7729 41.0575 30.9049 40.6926 29.9999 40.6926C29.0949 40.6926 28.227 41.0575 27.587 41.707C26.9471 42.3565 26.5876 43.2373 26.5876 44.1558C26.5876 45.0743 26.9471 45.9552 27.587 46.6047C28.227 47.2542 29.0949 47.619 29.9999 47.619Z"
+                            fill="#FFBE40" />
+                    </svg>
+                </div>
+                <!-- Title Section -->
+                <h2 class="text-center text-[24px] text-black mb-4">
+                    ยืนยันการอนุมัติค่าใช้จ่าย
+                </h2>
+                <!-- Details Section -->
+                <p class="text-center text-black text-[18px] mb-4">
+                    นางสาว อลิสา ปะกังพลัง
+                    <br />
+                    วันที่ขอเบิก 11/9/2567
+                </p>
+                <!-- Confirmation Text -->
+                <p class="text-center text-gray-400 text-[18px] mb-8">
+                    คุณยืนยันการอนุมัติค่าใช้จ่ายหรือไม่ ?
+                </p>
+                <!-- Button Section -->
+                <div class="flex justify-center gap-5">
+                    <Button :type="'btn-cancleGray'"></Button>
+                    <Button :type="'btn-summit'"></Button>
+                </div>
+            </div>
+        </div>
+
+        <div v-if="type === 'reject'" class="fixed inset-0 bg-black/50 flex justify-center items-center z-50 ">
+            <div class="bg-white rounded-lg shadow-lg w-[460px] h-[417px] px-[75px] py-[69px] ">
+                <!-- Icon Section -->
+                <div class="flex justify-center mb-4  items-center align-middle gap-3">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 60 60" fill="none">
+                        <path
+                            d="M33.6873 7.875H29.9998H20.1665C16.0934 7.875 12.7915 11.1769 12.7915 15.25V44.75C12.7915 48.8232 16.0934 52.125 20.1665 52.125H27.5415M33.6873 7.875L47.2082 21.7031M33.6873 7.875V19.2448C33.6873 20.6025 34.7879 21.7031 36.1457 21.7031H47.2082M47.2082 21.7031V29.5391"
+                            stroke="#E63C3C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                        <path
+                            d="M37.375 39.833L43.5208 45.9788M43.5208 45.9788L49.6667 52.1247M43.5208 45.9788L49.6667 39.833M43.5208 45.9788L37.375 52.1247"
+                            stroke="#E63C3C" stroke-width="5" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                    <!-- Title Section -->
+                    <h2 class="text-center text-[24px] text-black ">
+                        ยืนยันการปฏิเสธคำขอ
+                    </h2>
+                </div>
+                <!-- Confirmation Text -->
+                <p class="text-center text-gray-400 text-[18px] mb-4">
+                    คุณยืนยันการปฏิเสธคำขอหรือไม่ ?
+                </p>
+                <p class="text-start text-gray-400 text-[18px] mb-4">ระบุเหตุผลการปฏิเสธ <span
+                        class="text-red-500">*</span></p>
+                <textarea id="rejectReason" required
+                    class="flex overflow-hidden gap-1.5 items-start mb-4 px-2.5 pt-1.5 pb-7 w-full text-sm text-gray-500 bg-white rounded-md border border-solid border-slate-200 min-h-[70px]"
+                    aria-label="ระบุเหตุผลการปฏิเสธ" />
+                <!-- Button Section -->
+                <div class="flex justify-center gap-5">
+                    <Button :type="'btn-cancleGray'"></Button>
+                    <Button :type="'btn-summit'"></Button>
+                </div>
+            </div>
+        </div>
+
         <!-- format1 -->
         <button class="btn" onclick="my_modal_1.showModal()">format1</button>
         <dialog id="my_modal_1" class="modal">
@@ -85,11 +162,12 @@
                     </div>
                 </div>
                 <p class="text-lg font-normal text-[#B6B7BA] mt-1">คุณยืนยันการปฏิเสธคำขอหรือไม่</p>
-                <label class="flex items-start ml-[42px] text-base font-normal text-black mb-2 mt-2">ระบุเหตุผล<span class="text-[#E63C3C] ml-1">*</span></label>
-                    <div class="flex justify-center">   
-                        <textarea placeholder="ระบุเหตุผล"
-                            class="textarea bg-white border-[#f2f4f8] border-solid border-2 textarea-sm w-full max-w-xs "></textarea>
-                    </div>
+                <label class="flex items-start ml-[42px] text-base font-normal text-black mb-2 mt-2">ระบุเหตุผล<span
+                        class="text-[#E63C3C] ml-1">*</span></label>
+                <div class="flex justify-center">
+                    <textarea placeholder="ระบุเหตุผล"
+                        class="textarea bg-white border-[#f2f4f8] border-solid border-2 textarea-sm w-full max-w-xs "></textarea>
+                </div>
                 <div class="modal-action flex justify-center">
                     <form method="dialog">
                         <!-- if there is a button in form, it will close the modal -->

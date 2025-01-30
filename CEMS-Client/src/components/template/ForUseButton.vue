@@ -1,14 +1,11 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : ForUseButton.vue
- * คำอธิบาย : ไฟล์นี้แสดงการใช้ปุ่ม
- * Input : -
- * Output : แสดงปุ่ม
- * ชื่อผู้เขียน / แก้ไข : นครียา วัฒนศรี และพงศธร บุญญามา
- * วันที่จัดทำ / วันที่แก้ไข : 13 พฤศจิกายน 2567
- */
+/*
+* ชื่อไฟล์: ForUseButton.vue
+* คำอธิบาย: ไฟล์นี้แสดงการใช้ปุ่ม
+* ชื่อผู้เขียน/แก้ไข: พงศธร บุญญามา
+* วันที่จัดทำ/แก้ไข: 13 พฤศจิกายน 2567
+*/
 import Button from './Button.vue';
-
 </script>
 
 <template>
@@ -88,6 +85,18 @@ import Button from './Button.vue';
             <Button :type="'btn-expenseTypeGray'"></Button>
             <p>btn-expenseTypeGray</p>
         </div>
+        <div>
+            <!-- สร้างประเภทค่าใช้จ่ายพื้นหลังเทา -->
+            <Button :type="'btn-expenseTypeGrayClick'"></Button>
+            <p>btn-expenseTypeGrayClick</p>
+        </div>
+        <div>
+            <!-- สร้างประเภทค่าเดินทางพื้นหลังเทา -->
+            <Button :type="'btn-transportClick'"></Button>
+            <p>btn-transportClick</p>
+        </div>
+
+        
         <div>
             <!-- นำจ่าย -->
             <Button :type="'btn-payment1'"></Button>

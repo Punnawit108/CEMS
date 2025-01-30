@@ -1,28 +1,37 @@
 <script setup lang="ts">
-/**
- * ชื่อไฟล์ : navbar.vue
- * คำอธิบาย : ไฟล์นี้ Component navbar หรือ Header
- * Input : -
- * Output : ข้อมูล Component navbar หรือ Header
- * ชื่อผู้เขียน / แก้ไข : อังคณา อุ่นเสียม
- * วันที่จัดทำ / วัยที่แก้ไข : 11 พฤศจิกายน 2567
- */
+/*
+* ชื่อไฟล์: Navbar.vue
+* คำอธิบาย: ไฟล์นี้ Component Navbar หรือ Header
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
+* วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
+*/
 import { useRoute } from 'vue-router';
-import { computed } from 'vue';
+import { computed, onMounted } from 'vue';
 import Icon from './CIcon.vue';
 import Button from './Button.vue';
+import { useLockStore } from '../../store/lockSystem';
+
 // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 const route = useRoute();
+const lockStore = useLockStore();
+
 
 // คำนวณข้อความของ navbar ตามเส้นทางปัจจุบัน
 let name_navbar: string = '';
 const navbarTitle = computed(() => {
-    name_navbar = route.name as string
-
-
-    return route.meta.breadcrumb
+    name_navbar = route.name as string;
+    return route.meta.breadcrumb;
 });
 
+onMounted(async () => {
+    await lockStore.fetchLockStatus();
+});
+
+const handleClick = () => {
+    if (lockStore.isLocked) {
+        alert('ไม่สามารถทำรายการเบิกได้ในขณะนี้');
+    }
+};
 </script>
 
 <template>
@@ -36,22 +45,24 @@ const navbarTitle = computed(() => {
                 <H1 class=" text-[24px] text-[#000000]">
                     {{ navbarTitle }}
                 </H1>
-                <!-- ถ้าเป็นหน้า expense จะแสดง -->
             </div>
         </div>
         <div class="mr-6 inline-flex h-9 ">
+            <!-- ปุ่มเมื่ออยู่ในหน้า listWithdraw -->
             <div class=" mr-6 items-end " v-if="route.name === 'listWithdraw'">
-                <RouterLink to="/disbursement/listWithdraw/createExpenseForm">
+                <RouterLink to="/disbursement/listWithdraw/createExpenseForm" v-if="!lockStore.isLocked">
                     <Button :type="'btn-expense'"></Button>
                 </RouterLink>
+                <Button v-else :type="'btn-expense'" @click="handleClick" :disabled="lockStore.isLocked"></Button>
             </div>
+            <!-- ปุ่มเมื่ออยู่ในหน้า listWithdrawDetail -->
             <div class=" mr-6 items-end " v-if="route.name === 'listWithdrawDetail'">
-                <RouterLink to="/disbursement/listWithdraw/detail/:id">
+                <RouterLink to="/disbursement/listWithdraw/detail/:id" v-if="!lockStore.isLocked">
                     <Button :type="'btn-print1'"></Button>
                 </RouterLink>
             </div>
             <div class=" mr-6 items-end " v-if="route.name === 'listWithdrawDetail'">
-                <RouterLink to="/disbursement/listWithdraw/detail/:id">
+                <RouterLink :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
                     <Button :type="'btn-editRequest'"></Button>
                 </RouterLink>
             </div>
@@ -60,5 +71,4 @@ const navbarTitle = computed(() => {
             </div>
         </div>
     </div>
-
 </template>

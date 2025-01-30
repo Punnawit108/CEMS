@@ -1,25 +1,61 @@
+using QuestPDF.Infrastructure;
 using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
+using CEMS_Server.Hubs;
+using Microsoft.OpenApi.Models;
+
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
+// ตั้งค่าลิขสิทธิ์ด้วย LicenseType
+QuestPDF.Settings.License = LicenseType.Community; // ใช้ LicenseType.Community แทน string
 
+// Add services to the container.
 builder.Services.AddControllers();
+
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "CEMS-WEBSITE",
+        Version = "v1.0.0",
+        Description = "An API for the CEMS Website, providing endpoints for managing content and services.",
 
+    });
+});
+// Add SignalR service
+builder.Services.AddSignalR();
+builder.Services.AddScoped<GetDataExport>();
+builder.Services.AddScoped<PdfService>();
+builder.Services.AddScoped<PdfServiceProject>();
+builder.Services.AddScoped<DetailService>();
+
+// ตั้งค่า CORS
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowSpecificOrigin", policy =>
+    {
+        policy.WithOrigins("http://localhost:5173") // กำหนด URL ที่อนุญาต
+              .AllowAnyHeader() // อนุญาตทุก header
+              .AllowAnyMethod() // อนุญาตทุก method (GET, POST, PUT, DELETE)
+              .AllowCredentials();
+    });
+});
+
+// ตั้งค่า MySQL connection
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 if (connectionString != null)
 {
-    builder.Services.AddDbContext<AppDbContext>(options =>
-    options.UseMySQL(connectionString));
+    builder.Services.AddDbContext<CemsContext>(options =>
+        options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
 var app = builder.Build();
 
-app.UseCors("AllowSpecificOrigin");
+// ใช้ CORS ก่อนการตั้งค่าอื่น ๆ
+app.UseCors("AllowSpecificOrigin"); // ใช้ policy ที่ได้ตั้งไว้
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
@@ -31,6 +67,9 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.UseAuthorization();
+
+// Map SignalR hub
+app.MapHub<NotificationHub>("/notificationHub");
 
 app.MapControllers();
 

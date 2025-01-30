@@ -1,15 +1,12 @@
 <script setup lang="ts">
-/**
+/*
 * ชื่อไฟล์: Table.vue
 * คำอธิบาย: ไฟล์นี้เป็น Component Table
-* Input: -
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-
 import { defineProps } from 'vue';
-import Ctable from './Ctable.vue';
+import Ctable from './CTable.vue';
 </script>
 <!-- ### -->
 <!-- วิธีเรียกใช้ตาราง -->
@@ -21,7 +18,7 @@ import Ctable from './Ctable.vue';
 <!-- ส่วนข้อมูล <Ctable :table="'Table3-data'" /> -->
 <!-- ส่วน footer <Ctable :table="'Table3-footer'" /> -->
 <!-- ###หมายเหตุ -->
- <!-- footerโค้ดเหมือนกันทุกอัน เรียกใช้อันไหนก็ได้ -->
+<!-- footerโค้ดเหมือนกันทุกอัน เรียกใช้อันไหนก็ได้ -->
 <template>
     <!-- Table1-รายการอัปเดตสถานะคำขอเบิก -->
     <h1 class="text-center text-[25px] text-rose-500"># table1-รายการอัปเดตสถานะคำขอเบิก</h1>
@@ -59,8 +56,8 @@ import Ctable from './Ctable.vue';
     </div>
 
 
-    <!-- Table5ดูแลระบบ-จัดการผู้ใช้งาน -->
-    <h1 class="text-center text-[25px] text-rose-500"># Table 5 ดูแลระบบ-จัดการผู้ใช้งาน</h1>
+    <!-- Table 5 ตั้งค่าผู้ใช้งาน -->
+    <h1 class="text-center text-[25px] text-rose-500"># Table 5 ตั้งค่าผู้ใช้งาน</h1>
     <div class="w-full h-fit border-[16px] items-start">
         <Ctable :table="'Table5-head'" /> <!-- Table5-หัวข้อ -->
         <Ctable :table="'Table5-data'" /> <!-- Table5-ข้อมูล -->
@@ -77,8 +74,8 @@ import Ctable from './Ctable.vue';
     </div>
 
 
-    <!-- Table7 = 7.1 and 7.2 -->
-    <h1 class="text-center text-[25px] text-rose-500"># Table7 = 7.1 and 7.2</h1>
+    <!-- Table7 รายงานเบิก และ รายการการนำจ่าย -->
+    <h1 class="text-center text-[25px] text-rose-500"># Table7 รายงานเบิก และ รายการการนำจ่าย</h1>
     <div class="w-full h-fit border-[16px] items-start">
         <Ctable :table="'Table7-head'" /> <!-- Table7-หัวข้อ -->
         <Ctable :table="'Table7-data'" /> <!-- Table7-ข้อมูล -->
@@ -86,8 +83,8 @@ import Ctable from './Ctable.vue';
     </div>
 
 
-    <!-- Table 8 ผู้มีสิทธิอนุมัติ-ประวัติอนุมัติคำขอเบิก -->
-    <h1 class="text-center text-[25px] text-rose-500"># Table 8 ผู้มีสิทธิอนุมัติ-ประวัติอนุมัติคำขอเบิก</h1>
+    <!-- Table 8 ประวัติการอนุมัติ -->
+    <h1 class="text-center text-[25px] text-rose-500"># Table 8 ประวัติการอนุมัติ</h1>
     <div class="w-full h-fit border-[16px] items-start">
         <Ctable :table="'Table8-head'" /> <!-- Table8-หัวข้อ -->
         <Ctable :table="'Table8-data'" /> <!-- Table8-ข้อมูล -->
@@ -95,8 +92,8 @@ import Ctable from './Ctable.vue';
     </div>
 
 
-    <!-- Table 9 ประวัติเบิกจ่าย -->
-    <h1 class="text-center text-[25px] text-rose-500"># Table 9 ประวัติเบิกจ่าย</h1>
+    <!-- Table 9 ประวัติการนำจ่าย -->
+    <h1 class="text-center text-[25px] text-rose-500"># Table 9 ประวัติการนำจ่าย</h1>
     <div class="w-full h-fit border-[16px] items-start">
         <Ctable :table="'Table9-head'" /> <!-- Table9-หัวข้อ -->
         <Ctable :table="'Table9-data'" /> <!-- Table9-ข้อมูล -->

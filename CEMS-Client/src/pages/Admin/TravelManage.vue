@@ -2,9 +2,7 @@
 /*
 * ชื่อไฟล์: TravelManage.vue
 * คำอธิบาย: ไฟล์นี้สามารถตั้งค่าประเภทการเดินทางต่างๆ ที่มีอยู่ในระบบ เพิ่ม แก้ไข หรือปิดการใช้งานได้
-* Input: ประเภทการเดินทาง
-* Output: ประเภทการเดินทาง
-* ชื่อผู้เขียน/ผู้แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 import { ref } from "vue";
@@ -229,6 +227,7 @@ function toggleGray3(index: number) {
   expenseRows.value[index].isIconChanged =
     !expenseRows.value[index].isIconChanged;
 }
+
 </script>
 
 <template>

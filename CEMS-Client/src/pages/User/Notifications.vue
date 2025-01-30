@@ -1,14 +1,117 @@
-<script>
-
-/**
+<script setup lang="ts">
+/*
 * ชื่อไฟล์: Notifications.vue
 * คำอธิบาย: ไฟล์นี้แสดงการแจ้งเตือนที่เข้ามาในระบบ
-* Input: ข้อมูลคำขอเบิก และสถานะคำขอเบิก
-* Output: -
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
 */
+import { ref, computed } from 'vue';
+import { useNotificationStore } from '../../store/notification';
+import { onMounted } from 'vue';
+import CardNotification from '../../components/template/CardNotification.vue';
+
+
+
+let filterNotification = ref("All")
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือน
+* Output: ข้อมูลแจ้งเตือน
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
+
+const notificationStore = useNotificationStore();
+
+// const user = ref<any>(null);
+// onMounted(async () => {
+//     const storedUser = localStorage.getItem("user");
+//     if (storedUser) {
+//         try {
+//             user.value = await JSON.parse(storedUser);
+//         } catch (error) {
+//             console.log("Error loading user:", error);
+//         }
+//     }
+//     if (user) {
+//         await paymentHistory.getAllPaymentHistory(user.value.usrId);
+//     }
+// }
+
+const user = ref<any>(null);
+onMounted(async () => {
+    const storedUser = localStorage.getItem("user");
+    if (storedUser) {
+        try {
+            user.value = await JSON.parse(storedUser);
+        } catch (error) {
+            console.log("Error loading user:", error);
+        }
+    }
+    if (user) {
+        user.value = await notificationStore.loadNotifications(user.value.usrId);
+        await notificationStore.initSignalR(user.value.usrId);    
+        console.log(user)
+    }
+})
+
+const clickAllNotification = ref(true);
+const clickReadedNotification = ref(false);
+const clickNotReadNotification = ref(false);
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนทั้งหมด
+* Output: ข้อมูลแจ้งเตือนทุกสถานะทั้งหมด
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
+const toggleAllNotification = () => {
+    resetAllToggles();
+    filterNotification.value = "All"
+    clickAllNotification.value = true;
+};
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะอ่านแล้ว
+* Output: ข้อมูลแจ้งเตือนสถานะอ่านแล้ว
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
+const toggleReadedNotification = () => {
+    resetAllToggles();
+    filterNotification.value = "read"
+    clickReadedNotification.value = true;
+};
+/*
+* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะยังไม่อ่าน
+* Output: ข้อมูลแจ้งเตือนสถานะยังไม่อ่าน
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
+const toggleNotReadNotification = () => {
+    resetAllToggles();
+    filterNotification.value = "unread"
+    clickNotReadNotification.value = true;
+};
+/*
+* คำอธิบาย: เปลี่ยนสถานะของตัวแปรเพื่อแสดงสถานะที่ต้องการ
+* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
+* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
+*/
+const resetAllToggles = () => {
+    clickAllNotification.value = false;
+    clickReadedNotification.value = false;
+    clickNotReadNotification.value = false;
+
+};
+
+const filteredNotifications = computed(() => {
+    if (filterNotification.value === 'read') {
+        return notificationStore.notifications?.filter((item: any) => item.ntStatus === 'read');
+    } else if (filterNotification.value === 'unread') {
+        return notificationStore.notifications.filter((item: any) => item.ntStatus === 'unread');
+    }
+    return notificationStore.notifications;
+});
 </script>
+
 <template>
     <div>
         <nav class="flex overflow-hidden items-center whitespace-nowrap" aria-label="Filter options">
@@ -56,53 +159,10 @@
 
                 </li>
             </ul>
+
         </nav>
         <article class="flex flex-col border border-solid border-zinc-400">
-            <!-- ลูปข้อมูลการแจ้งเตือน -->
-            <section class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400">
-                <div
-                    class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
-                    <h2 class="text-sm text-gray-800">
-                        <span>คำขอเบิกค่าใช้จ่าย </span>
-                        <strong>โครงการอบรมการบริหาร</strong>
-                    </h2>
-                    <p class="text-xs text-gray-500 max-md:max-w-full">
-                        รหัส : CNXXXXXX ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล
-                        และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง
-                    </p>
-                </div>
-                <time class=" text-sm font-medium text-gray-400   flex justify-end mr-4 items-center">
-                    เมื่อวานนี้ เวลา 11.12 น.
-                </time>
-            </section>
-            <section class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400">
-                <div
-                    class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
-                    <h2 class="text-sm text-gray-800">
-                        <span>คำขอเบิกค่าใช้จ่าย </span>
-                        <strong>โครงการอบรมการบริหาร</strong>
-                    </h2>
-                    <p class="text-xs text-gray-500 max-md:max-w-full">
-                        รหัส : CNXXXXXX ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล
-                        และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง
-                    </p>
-                </div>
-                <time class=" text-sm font-medium text-gray-400   flex justify-end mr-4 items-center">
-                    เมื่อวานนี้ เวลา 11.12 น.
-                </time>
-            </section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-            <section class="h-[84.8px]"></section>
-
-
-
-
-
+            <CardNotification v-if="filteredNotifications !== null" :notificationInfo="filteredNotifications" />
 
             <footer
                 class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-zinc-400 min-h-[56px] max-md:max-w-full">
@@ -135,39 +195,3 @@
         </article>
     </div>
 </template>
-
-<script setup lang="ts">
-import { ref } from 'vue';
-let filterNotification = "all"
-
-
-
-const clickAllNotification = ref(true);
-const clickReadedNotification = ref(false);
-const clickNotReadNotification = ref(false);
-
-const toggleAllNotification = () => {
-    resetAllToggles();
-    filterNotification = "all"
-    clickAllNotification.value = true;
-};
-
-const toggleReadedNotification = () => {
-    resetAllToggles();
-    filterNotification = "Readed"
-    clickReadedNotification.value = true;
-};
-
-const toggleNotReadNotification = () => {
-    resetAllToggles();
-    filterNotification = "NotRead"
-    clickNotReadNotification.value = true;
-};
-
-const resetAllToggles = () => {
-    clickAllNotification.value = false;
-    clickReadedNotification.value = false;
-    clickNotReadNotification.value = false;
-
-};
-</script>
