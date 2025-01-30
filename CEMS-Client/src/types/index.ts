@@ -46,7 +46,7 @@ export interface createRequisition {
     rqEndLocation: string | null;
     rqDistance: string | null;
     rqPurpose: string | null;
-    rqProof: string | null;
+    rqProof: File | null;
     rqStatus: string;
     rqProgress: string;
     rqAny: string | null;

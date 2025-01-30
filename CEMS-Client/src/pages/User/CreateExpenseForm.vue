@@ -12,6 +12,7 @@ import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
 import { createRequisition } from "../../types";
 import SingleDatePicker from "../../components/template/SingleDatePicker.vue";
+import FileDisplay from "../../components/template/FileDisplay.vue";
 const user = ref<any>(null);
 const requisitionStore = useRequisitionStore();
 
@@ -45,7 +46,7 @@ const formData = ref<createRequisition>({
   rqEndLocation: "",
   rqDistance: "",
   rqPurpose: "",
-  rqProof: "",
+  rqProof: null,
   rqStatus: "",
   rqProgress: "accepting",
   rqAny: "",
@@ -141,22 +142,30 @@ const checkImageDimensions = (file: File): Promise<boolean> => {
 };
 
 const uploadFile = async (file: File) => {
-  if (!["image/svg+xml", "image/png", "image/jpeg"].includes(file.type)) {
-    alert("กรุณาอัปโหลดไฟล์ SVG, PNG หรือ JPG เท่านั้น");
+  // ตรวจสอบประเภทไฟล์
+  const allowedFileTypes = ["application/pdf", "application/msword", "image/jpeg"];
+  if (!allowedFileTypes.includes(file.type)) {
+    alert("กรุณาอัปโหลดไฟล์ PDF, DOCS หรือ JPEG เท่านั้น");
     return;
   }
 
-  const isValidSize = await checkImageDimensions(file);
-  if (isValidSize) {
-    selectedFile.value = file;
-    previewUrl.value = URL.createObjectURL(file);
-    formData.value.rqProof = await convertToBase64(file);
-  } else {
-    alert(
-      `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
-    );
-    selectedFile.value = null;
-    previewUrl.value = null;
+  // ตรวจสอบขนาดไฟล์ (ไม่เกิน 2MB)
+  const maxFileSize = 2 * 1024 * 1024; // 2MB
+  if (file.size > maxFileSize) {
+    alert("กรุณาอัปโหลดไฟล์ที่มีขนาดไม่เกิน 2MB");
+    return;
+  }
+
+  // หากไฟล์ผ่านการตรวจสอบทั้งหมด
+  try {
+    //selectedFile.value = file;
+    //previewUrl.value = URL.createObjectURL(file);
+
+    // Convert file to base64 (optional)
+    formData.value.rqProof = file;
+  } catch (error) {
+    alert("เกิดข้อผิดพลาดในการอัปโหลดไฟล์ กรุณาลองใหม่อีกครั้ง");
+    console.error(error);
   }
 };
 
@@ -302,7 +311,7 @@ const handleDateCancel = () => {
           <div>
             <label for="rqName" class="block text-sm font-medium py-2">ชื่อรายการเบิก <span
                 class="text-red-500">*</span></label>
-            <input type="text" id="rqName" v-model="formData.rqName" class="inputItem" required />
+            <input type="text" id="rqName" v-model="formData.rqName" class="inputItem " required />
           </div>
 
           <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
@@ -438,7 +447,7 @@ const handleDateCancel = () => {
 
           <div>
             <label for="rqInsteadEmail" class="block text-sm font-medium py-2">อีเมลผู้ขอเบิกแทน *</label>
-            <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem" >
+            <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem">
               <option :value="null" disabled selected>Select User</option>
               <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead">{{ user.usrName }}</option>
             </select>
@@ -499,7 +508,8 @@ const handleDateCancel = () => {
       </div>
     </div>
 
-    <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between">
+    <FileDisplay v-if="formData.rqProof" :file = "formData.rqProof" />
+    <!-- <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between">
       <div class="flex flex-row ml-4 my-2">
         <div class="w-[50px] h-[50px] bg-white rounded-[5px]">
           <img src="/docIcon.svg" alt="Doc Icon" class="w-full h-full">
@@ -514,7 +524,7 @@ const handleDateCancel = () => {
             fill="black" />
         </svg>
       </div>
-    </div>
+    </div> -->
 
     <!-- Popup บันทึก -->
     <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
