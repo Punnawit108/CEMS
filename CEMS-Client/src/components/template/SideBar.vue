@@ -288,30 +288,21 @@ watch(clickSettingTypeWithdraw, (newVal) => {
   <nav class="flex flex-col bg-white max-w-[256px] relative drop-shadow-md">
     <header class="flex flex-col justify-center py-6 w-full">
       <div class="flex flex-col px-5 w-full">
-        <img
-          loading="lazy"
+        <img loading="lazy"
           src="https://cdn.builder.io/api/v1/image/assets/TEMP/7351532a9124e6dbb90e0396fe615c9c0fbd984007bb32abc87e5f05ddeefc8a?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-          class="object-contain z-10 -mb-2 aspect-[2.7] w-[216px]"
-          alt="Logo"
-        />
+          class="object-contain z-10 -mb-2 aspect-[2.7] w-[216px]" alt="Logo" />
       </div>
     </header>
 
     <ul class="flex flex-col w-full" v-if="userInfo != null">
       <!-- ปุ่มแดชบอร์ด -->
       <li
-        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap"
-      >
+        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
         <RouterLink to="/dashboard">
-          <button
-            @click="toggleDashboard"
-            :class="{ 'bg-red-100 rounded-xl': clickDashboard }"
+          <button @click="toggleDashboard" :class="{ 'bg-red-100 rounded-xl': clickDashboard }"
             class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-red-100 rounded-xl"
-            tabindex="0"
-          >
-            <div
-              class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-            ></div>
+            tabindex="0">
+            <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
             <Icon :icon="'dashboard'" class="ml-2" />
 
             <span class="self-stretch py-2.5 my-auto w-[174px] text-left">แดชบอร์ด</span>
@@ -321,112 +312,66 @@ watch(clickSettingTypeWithdraw, (newVal) => {
 
       <!-- การเบิกจ่าย dropdown -->
       <li
-        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap"
-      >
-        <button
-          @click="toggleWithdrawDropdown"
-          :class="{ 'bg-neutral-100 rounded-xl': isWithdrawDropdownOpen }"
-          class="flex relative gap-2.5 items-center w-56 max-w-full hover:bg-neutral-100 rounded-xl"
-          tabindex="0"
-        >
-          <div
-            class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-          ></div>
+        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
+        <button @click="toggleWithdrawDropdown" :class="{ 'bg-neutral-100 rounded-xl': isWithdrawDropdownOpen }"
+          class="flex relative gap-2.5 items-center w-56 max-w-full hover:bg-neutral-100 rounded-xl" tabindex="0">
+          <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
           <Icon :icon="'disbursement'" class="ml-2" />
           <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การเบิกจ่าย</span>
-          <img
-            loading="lazy"
+          <img loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]"
-            alt=""
-          />
+            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]" alt="" />
         </button>
 
         <!-- Dropdown content for การเบิกจ่าย -->
         <ul v-if="isWithdrawDropdownOpen" class="ml-8 mt-2 space-y-2">
-          <li
-            @click="toggleListWithdraw"
-            :class="{ 'bg-red-100 rounded-xl': clickListWithdraw }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleListWithdraw" :class="{ 'bg-red-100 rounded-xl': clickListWithdraw }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/disbursement/listWithdraw">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'listWithdraw'" />
-                <span class="self-stretch py-2.5 my-auto w-[124px]"
-                  >รายการเบิกค่าใช้จ่าย</span
-                >
+                <span class="self-stretch py-2.5 my-auto w-[124px]">รายการเบิกค่าใช้จ่าย</span>
               </a>
             </RouterLink>
           </li>
-          <li
-            @click="toggleHistoryWithdraw"
-            :class="{ 'bg-red-100 rounded-xl': clickHistoryWithdraw }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleHistoryWithdraw" :class="{ 'bg-red-100 rounded-xl': clickHistoryWithdraw }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/disbursement/historyWithdraw">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'historyWithdraw'" />
-                <span class="self-stretch py-2.5 my-auto w-[124px]"
-                  >ประวัติเบิกค่าใช้จ่าย</span
-                >
+                <span class="self-stretch py-2.5 my-auto w-[124px]">ประวัติเบิกค่าใช้จ่าย</span>
               </a>
             </RouterLink>
           </li>
         </ul>
       </li>
       <!-- รายงาน dropdown -->
-      <li
-        v-if="userInfo.usrIsSeeReport == 1"
-        class="flex overflow-hidden flex-col px-4 py-2.5 w-full"
-      >
-        <button
-          @click="toggleReportDropdown"
-          :class="{ 'bg-neutral-100 rounded-xl': isReportDropdownOpen }"
+      <li v-if="userInfo.usrIsSeeReport == 1" class="flex overflow-hidden flex-col px-4 py-2.5 w-full">
+        <button @click="toggleReportDropdown" :class="{ 'bg-neutral-100 rounded-xl': isReportDropdownOpen }"
           class="flex relative gap-2.5 items-center w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px] hover:bg-neutral-100 rounded-xl"
-          tabindex="0"
-        >
-          <div
-            class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-          ></div>
+          tabindex="0">
+          <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
           <Icon :icon="'report'" class="ml-2" />
           <span class="self-stretch py-2.5 my-auto w-[134px] text-left">รายงาน</span>
-          <img
-            loading="lazy"
+          <img loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]"
-            alt=""
-          />
+            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]" alt="" />
         </button>
 
         <!-- Dropdown content for รายงาน -->
         <ul v-if="isReportDropdownOpen" class="ml-8 mt-2 space-y-2">
-          <li
-            @click="toggleReportProject"
-            :class="{ 'bg-red-100 rounded-xl': clickReportProject }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleReportProject" :class="{ 'bg-red-100 rounded-xl': clickReportProject }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/report/project">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'reportProject'" />
 
@@ -434,24 +379,15 @@ watch(clickSettingTypeWithdraw, (newVal) => {
               </a>
             </RouterLink>
           </li>
-          <li
-            @click="toggleReportWithdraw"
-            :class="{ 'bg-red-100 rounded-xl': clickReportWithdraw }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleReportWithdraw" :class="{ 'bg-red-100 rounded-xl': clickReportWithdraw }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/report/expense">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'reportExpense'" />
-                <span class="self-stretch py-2.5 my-auto w-[124px]"
-                  >รายงานเบิกค่าใช้จ่าย</span
-                >
+                <span class="self-stretch py-2.5 my-auto w-[124px]">รายงานเบิกค่าใช้จ่าย</span>
               </a>
             </RouterLink>
           </li>
@@ -459,69 +395,43 @@ watch(clickSettingTypeWithdraw, (newVal) => {
       </li>
 
       <!-- การอนุมัติ dropdown -->
-      <li
-        v-if="userInfo.usrIsApprover == 1"
-        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap"
-      >
-        <button
-          @click="toggleApprovalDropdown"
-          :class="{ 'bg-neutral-100 rounded-xl': isApprovalDropdownOpen }"
+      <li v-if="userInfo.usrIsApprover == 1"
+        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
+        <button @click="toggleApprovalDropdown" :class="{ 'bg-neutral-100 rounded-xl': isApprovalDropdownOpen }"
           class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
-          tabindex="0"
-        >
-          <div
-            class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-          ></div>
+          tabindex="0">
+          <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
           <Icon :icon="'approval'" class="ml-2" />
           <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การอนุมัติ</span>
-          <img
-            loading="lazy"
+          <img loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]"
-            alt=""
-          />
+            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]" alt="" />
         </button>
         <!-- Dropdown content for  การอนุมัติ -->
 
         <ul v-if="isApprovalDropdownOpen" class="ml-8 mt-2 space-y-2">
-          <li
-            @click="toggleListApproval"
-            :class="{ 'bg-red-100 rounded-xl': clickListApproval }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleListApproval" :class="{ 'bg-red-100 rounded-xl': clickListApproval }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/approval/list">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'approvalList'" />
                 <span class="self-stretch py-2.5 my-auto w-[124px]">รายการอนุมัติ</span>
               </a>
             </RouterLink>
           </li>
-          <li
-            @click="toggleHistoryApproval"
-            :class="{ 'bg-red-100 rounded-xl': clickHistoryApproval }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleHistoryApproval" :class="{ 'bg-red-100 rounded-xl': clickHistoryApproval }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/approval/history">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'historyWithdraw'" />
 
-                <span class="self-stretch py-2.5 my-auto w-[124px]"
-                  >ประวัติการอนุมัติ</span
-                >
+                <span class="self-stretch py-2.5 my-auto w-[124px]">ประวัติการอนุมัติ</span>
               </a>
             </RouterLink>
           </li>
@@ -529,45 +439,28 @@ watch(clickSettingTypeWithdraw, (newVal) => {
       </li>
 
       <!-- การนำจ่าย dropdown -->
-      <li
-        v-if="userInfo.usrRolName == 'Accountant'"
-        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap"
-      >
-        <button
-          @click="toggleDeliverDropdown"
-          :class="{ 'bg-neutral-100 rounded-xl': isDeliverDropdownOpen }"
+      <li v-if="userInfo.usrRolName == 'Accountant'"
+        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
+        <button @click="toggleDeliverDropdown" :class="{ 'bg-neutral-100 rounded-xl': isDeliverDropdownOpen }"
           class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
-          tabindex="0"
-        >
-          <div
-            class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-          ></div>
+          tabindex="0">
+          <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
           <Icon :icon="'systemSettingsDisbursementTypeExpense'" class="ml-2" />
 
           <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การนำจ่าย</span>
-          <img
-            loading="lazy"
+          <img loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]"
-            alt=""
-          />
+            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]" alt="" />
         </button>
         <!-- Dropdown content for  การนำจ่าย -->
 
         <ul v-if="isDeliverDropdownOpen" class="ml-8 mt-2 space-y-2">
-          <li
-            @click="toggleListDeliverWithdraw"
-            :class="{ 'bg-red-100 rounded-xl': clickListDeliverWithdraw }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleListDeliverWithdraw" :class="{ 'bg-red-100 rounded-xl': clickListDeliverWithdraw }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/payment/list">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'listWithdraw'" />
 
@@ -575,25 +468,16 @@ watch(clickSettingTypeWithdraw, (newVal) => {
               </a>
             </RouterLink>
           </li>
-          <li
-            @click="toggleHistoryDeliverWithdraw"
-            :class="{ 'bg-red-100 rounded-xl': clickHistoryDeliverWithdraw }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleHistoryDeliverWithdraw" :class="{ 'bg-red-100 rounded-xl': clickHistoryDeliverWithdraw }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/payment/history">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'historyWithdraw'" />
 
-                <span class="self-stretch py-2.5 my-auto w-[124px]"
-                  >ประวัติการนำจ่าย</span
-                >
+                <span class="self-stretch py-2.5 my-auto w-[124px]">ประวัติการนำจ่าย</span>
               </a>
             </RouterLink>
           </li>
@@ -601,45 +485,28 @@ watch(clickSettingTypeWithdraw, (newVal) => {
       </li>
 
       <!-- ตั้งค่าระบบ dropdown -->
-      <li
-        v-if="userInfo.usrRolName == 'Admin'"
-        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap"
-      >
-        <button
-          @click="toggleSettingDropdown"
-          :class="{ 'bg-neutral-100 rounded-xl': isSettingDropdownOpen }"
+      <li v-if="userInfo.usrRolName == 'Admin'"
+        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
+        <button @click="toggleSettingDropdown" :class="{ 'bg-neutral-100 rounded-xl': isSettingDropdownOpen }"
           class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-neutral-100 rounded-xl"
-          tabindex="0"
-        >
-          <div
-            class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-          ></div>
+          tabindex="0">
+          <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
           <Icon :icon="'systemSettings'" class="ml-2" />
 
           <span class="self-stretch py-2.5 my-auto w-[134px] text-left">ตั้งค่าระบบ</span>
-          <img
-            loading="lazy"
+          <img loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
-            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]"
-            alt=""
-          />
+            class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]" alt="" />
         </button>
         <!-- Dropdown content for ตั้งค่าระบบ -->
 
         <ul v-if="isSettingDropdownOpen" class="ml-8 mt-2 space-y-2">
-          <li
-            @click="toggleSettingUser"
-            :class="{ 'bg-red-100 rounded-xl': clickSettingUser }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleSettingUser" :class="{ 'bg-red-100 rounded-xl': clickSettingUser }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/systemSettings/user">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'systemSettingsUser'" />
 
@@ -647,41 +514,25 @@ watch(clickSettingTypeWithdraw, (newVal) => {
               </a>
             </RouterLink>
           </li>
-          <li
-            @click="toggleSettingApprover"
-            :class="{ 'bg-red-100 rounded-xl': clickSettingApprover }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleSettingApprover" :class="{ 'bg-red-100 rounded-xl': clickSettingApprover }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/systemSettings/disbursementApprover">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'systemSettingsDisbursementApprover'" />
 
-                <span class="self-stretch py-2.5 my-auto w-[124px]"
-                  >ผู้อนุมัติการเบิกจ่าย</span
-                >
+                <span class="self-stretch py-2.5 my-auto w-[124px]">ผู้อนุมัติการเบิกจ่าย</span>
               </a>
             </RouterLink>
           </li>
-          <li
-            @click="toggleSettingTypeWithdraw"
-            :class="{ 'bg-red-100 rounded-xl': clickSettingTypeWithdraw }"
-            class="hover:bg-red-100 rounded-xl"
-          >
+          <li @click="toggleSettingTypeWithdraw" :class="{ 'bg-red-100 rounded-xl': clickSettingTypeWithdraw }"
+            class="hover:bg-red-100 rounded-xl">
             <RouterLink to="/systemSettings/disbursementType">
-              <a
-                href="#"
-                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]"
-              >
-                <div
-                  class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-                ></div>
+              <a href="#"
+                class="flex relative gap-2.5 items-center mt-2.5 w-56 max-w-full text-sm leading-snug text-black whitespace-nowrap min-h-[40px]">
+                <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
                 <div class="flex z-0 shrink-0 self-stretch my-auto"></div>
                 <Icon :icon="'systemSettingsDisbursementType'" />
 
@@ -694,24 +545,20 @@ watch(clickSettingTypeWithdraw, (newVal) => {
 
       <!-- ปุ่มแจ้งเตือน -->
       <li
-        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap"
-      >
+        class="flex overflow-hidden flex-col justify-center px-4 py-2.5 w-full text-sm leading-snug text-black whitespace-nowrap">
         <RouterLink to="/notification">
-          <button
-            @click="toggleNotification"
-            :class="{ 'bg-red-100 rounded-xl': clickNotification }"
+          <button @click="toggleNotification" :class="{ 'bg-red-100 rounded-xl': clickNotification }"
             class="flex relative gap-2.5 items-center w-56 max-w-full min-h-[40px] hover:bg-red-100 rounded-xl"
-            tabindex="0"
-          >
-            <div
-              class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"
-            ></div>
+            tabindex="0">
+            <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
             <Icon :icon="'notification'" class="ml-2" />
             <!-- ตัวเลข -->
             <span>{{ notificationStore.unreadCount }}</span>
-            <span class="self-stretch py-2.5 my-auto w-[174px] text-left"
-              >การแจ้งเตือน</span
-            >
+            <span class="self-stretch py-2.5 my-auto w-[174px] text-left">การแจ้งเตือน</span>
+            <div v-if="notificationStore.unreadCount > 0"
+              class="absolute right-2 flex items-center justify-center w-6 h-6 text-white bg-red-500 rounded-full text-xs">
+              {{ notificationStore.unreadCount }}
+            </div>
           </button>
         </RouterLink>
       </li>

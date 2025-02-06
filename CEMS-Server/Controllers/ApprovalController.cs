@@ -294,19 +294,15 @@ public class ApprovalController : ControllerBase
                         "paying",
                         null
                     );
-                    var notificationForAccoutant = new CemsNotification
-                    {
-                        NtDate = DateTime.Now,
-                        NtStatus = "unread",
-                        NtUsrId = approverId.ApUsrId,
-                    };
-                    _context.CemsNotifications.Add(notificationForAccoutant);
                     var notificationForUser = new CemsNotification
                     {
                         NtDate = DateTime.Now,
                         NtStatus = "unread",
-                        NtUsrId = approverId.ApUsrId,
+                        NtUsrId = requisition.RqUsrId,
                     };
+                        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+                        await _context.SaveChangesAsync();
+                
                     _context.CemsNotifications.Add(notificationForUser);
                     if (!updateSuccess)
                     {
