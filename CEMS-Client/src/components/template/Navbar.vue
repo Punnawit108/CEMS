@@ -15,6 +15,7 @@ import { useLockStore } from '../../store/lockSystem';
 const route = useRoute();
 const lockStore = useLockStore();
 
+
 // คำนวณข้อความของ navbar ตามเส้นทางปัจจุบัน
 let name_navbar: string = '';
 const navbarTitle = computed(() => {
