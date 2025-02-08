@@ -11,6 +11,12 @@ import Ctable from '../../components/template/CTable.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
 import { onMounted, ref } from 'vue';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
+import Pagination from '../../components/template/Pagination.vue';
+import type { Expense } from '../../types';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const paginatedItem = ref<Expense[]>([]);;
 
 const router = useRouter();
 const expenseReimbursementStore = useExpenseReimbursement();
@@ -147,7 +153,7 @@ const confirmDelete = async () => {
             <Ctable :table="'Table9-head-New'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(expenseReimbursementList, index) in expenseReimbursementStore.expenseReimbursementList"
+                    <tr v-for="(expenseReimbursementList, index) in paginatedItem"
                         :key="expenseReimbursementList.rqId" class="text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
@@ -182,8 +188,10 @@ const confirmDelete = async () => {
                         </th>
                     </tr>
                 </tbody>
+                <Pagination :items="expenseReimbursementStore.expenseReimbursementList" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
+                v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
             </table>
-            <Ctable :table="'Table3-footer'" />
+            
         </div>
 
         <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
