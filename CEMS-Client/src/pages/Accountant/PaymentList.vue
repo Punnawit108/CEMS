@@ -9,12 +9,19 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import Ctable from '../../components/template/CTable.vue';
 import { usePayment } from '../../store/paymentStore';
-import { onMounted } from 'vue';
-const paymentlist = usePayment();
+import { onMounted,ref } from 'vue';
+import { Expense } from '../../types';
+import Pagination from '../../components/template/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const paginatedItem = ref<Expense[]>([]);;
+
+const paymentStore = usePayment();
 const router = useRouter();
 
 onMounted(()=>{
-    paymentlist.getAllPaymentList()
+    paymentStore.getAllPaymentList()
 })
 
 const toDetails = (id: string) => {
@@ -134,7 +141,7 @@ const toDetails = (id: string) => {
             <div>
                 <table class="w-full">
                     <tbody>
-                        <tr v-for="(paymentlist, index) in paymentlist.expense" :key="paymentlist.rqId"
+                        <tr v-for="(paymentlist, index) in paginatedItem" :key="paymentlist.rqId"
                          class=" text-[14px] border-b-2 border-[#BBBBBB] ">
                             <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1}}</th>
                             <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
@@ -157,49 +164,11 @@ const toDetails = (id: string) => {
                             </th>
                         </tr>
                     </tbody>
+                    <Pagination :items="paymentStore.PaymentList" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
+                v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
                 </table>
-            </div>
-            <div>
-                <Ctable :table="'Table7-footer'" />
             </div>
         </div>
     </div>
     <!-- content -->
 </template>
-<style scoped>
-.custom-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: none;
-}
-
-.custom-select::-ms-expand {
-    display: none;
-}
-
-select,
-select option {
-    background-color: white;
-    color: #000000;
-}
-
-select:invalid,
-select option[value=""] {
-    color: #999999;
-}
-
-[hidden] {
-    display: none;
-}
-
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .custom-select {
-        background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position-x: 100%;
-        background-position-y: 5px;
-    }
-}
-</style>
