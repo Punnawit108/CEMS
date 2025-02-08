@@ -13,6 +13,8 @@ import { useExpensesListStore, useExpensesGraphStore } from '../../store/expense
 import ExpenseReportGraph from '../../types/index';
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/template/Button.vue";
+import { ExpenseReportList } from '../../types';
+import Pagination from '../../components/template/Pagination.vue';
 
 import {
     Chart,
@@ -29,6 +31,11 @@ import {
     Title,
     CategoryScale,
 } from "chart.js";
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const paginatedItem = ref<ExpenseReportList[]>([]);;
+
 // ตัวแปรแสดง/ซ่อน Modal
 const showModal = ref(false);
 const selectedType = ref<string | null>(null);
@@ -339,9 +346,9 @@ onMounted(async () => {
                     <!-- <Ctable :table="'Table7-data'" />    -->
                     <table class="w-full text-center text-black table-auto">
                         <tbody>
-                            <tr v-for="(expense, index) in expensesListStore.expenses" :key="index"
+                            <tr v-for="(expense, index) in paginatedItem" :key="index"
                                 class="text-[14px] border-b-2 border-[#BBBBBB]">
-                                <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                                <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
                                 <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
                 max-width: 224px;
                 white-space: nowrap;
@@ -382,9 +389,9 @@ onMounted(async () => {
                                 </th>
                             </tr>
                         </tbody>
+                        <Pagination :items="expensesListStore.expenses" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
+                        v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
                     </table>
-                    <!-- Table Footer -->
-                    <Ctable :table="'Table7-footer'" />
                 </div>
             </div>
             <!-- end::Content -->
