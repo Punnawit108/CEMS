@@ -10,10 +10,15 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/template/CIcon.vue';
 import StatusBudge from '../../components/template/StatusBudge.vue';
 import Ctable from '../../components/template/CTable.vue';
-
 import { onMounted, ref } from 'vue';
 //import { useExpense } from '../../store/ExpenseStore';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
+import Pagination from '../../components/template/Pagination.vue';
+import type { Expense } from '../../types';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const paginatedItem = ref<Expense[]>([]);;
 
 const expenseReimbursementStore = useExpenseReimbursement();
 const router = useRouter();
@@ -121,38 +126,37 @@ const toDetails = (id:string) => {
             </div>
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(expenseReimbursementHistory, index) in expenseReimbursementStore.expenseReimbursementHistory"
-                        :key="expenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
+                    <tr v-for="(expense, index) in paginatedItem"
+                        :key="expense.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            :title="expenseReimbursementHistory.rqName">
-                            {{ expenseReimbursementHistory.rqName }}
+                            >
+                            {{ expense.rqName }}
                         </th>
                         <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            :title="expenseReimbursementHistory.rqName">
-                            {{ expenseReimbursementHistory.rqPjName }}
+                            >
+                            {{ expense.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expenseReimbursementHistory.rqRqtName }}
+                        <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expense.rqRqtName }}
                         </th>
-                        <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqWithDrawDate }}</th>
-                        <th class="py-[12px] px-5 w-32 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
+                        <th class="py-[12px] px-2 w-20 text-end ">{{ expense.rqWithDrawDate }}</th>
+                        <th class="py-[12px] px-5 w-32 text-end ">{{ expense.rqExpenses }}</th>
                         <th class="py-[12px] px-2 w-28 text-center "><span>
-                                <StatusBudge :status="'sts-'+expenseReimbursementHistory.rqStatus"></StatusBudge>
+                                <StatusBudge :status="'sts-'+expense.rqStatus"></StatusBudge>
                             </span>
                         </th>
                         <th class="py-[10px] px-2 w-20 text-center ">
-                            <span v-on:click="toDetails(expenseReimbursementHistory.rqId)" class="flex justify-center ">
+                            <span v-on:click="toDetails(expense.rqId)" class="flex justify-center ">
                                 <Icon :icon="'viewDetails'" />
                             </span>
                         </th>
                     </tr>
                 </tbody>
+                <Pagination :items="expenseReimbursementStore.expenseReimbursementHistory" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
+                    v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
             </table>
-            <div>
-                <Ctable :table="'Table9-footer'" />
-            </div>
         </div>
     </div>
     <!-- content -->
