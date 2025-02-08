@@ -128,7 +128,7 @@ const toDetails = (id:string) => {
                 <tbody>
                     <tr v-for="(expenseReimbursementHistory, index) in paginatedItem"
                         :key="expenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
-                        <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
+                        <th class="py-[12px] px-2 w-14">{{ index + 1 + (currentPage - 1) * itemsPerPage}}</th>
                         <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="expenseReimbursementHistory.rqName">

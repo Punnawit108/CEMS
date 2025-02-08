@@ -158,7 +158,7 @@ const toDetails = async (data: Expense) => {
             <table class="table-auto w-full text-center text-black">
                 <tbody>
                     <tr v-for="(item, index) in paginatedItem" :key="item.rqId" class="border-b">
-                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage}}</th>
                         <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="Jakkawat Nguancharoen">
