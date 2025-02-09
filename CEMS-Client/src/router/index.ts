@@ -35,7 +35,6 @@ import Popup from '../components/template/Popup.vue';
 import UploadPicture from '../components/template/UploadPicture.vue';
 import ForUseButton from '../components/template/ForUseButton.vue';
 import ForUseStatus from '../components/template/ForUseStatus.vue';
-import test from '../pages/User/TestCreateForm.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -44,11 +43,6 @@ const router = createRouter({
       path: '/temp/icon',
       name: 'icon',
       component: icon
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: test
     },
     {
       path: '/temp/dropdown',

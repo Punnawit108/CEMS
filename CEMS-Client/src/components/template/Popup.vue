@@ -17,9 +17,6 @@ const props = defineProps({
 const type = ref("approve");
 
 const emit = defineEmits(["close", "confirm"]); // สร้าง event สำหรับ close และ confirm
-
-
-
 </script>
 <template>
     <div class="flex flex-col items-center text-center ">
