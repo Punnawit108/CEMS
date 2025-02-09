@@ -216,7 +216,9 @@ const handleSubmit = async () => {
 };
 
 const handleSave = async () => {
-  openPopupSave();
+  if (await validateForm()) {
+    openPopupSave();
+  }
 };
 
 const handleCancel = () => {
@@ -295,7 +297,7 @@ const validateForm = async () => {
       if (rqtName.value !== 'อื่นๆ' && field === 'rqAny') {
         continue;
       }
-      
+
       errors.value[field] = true;
     }
   }
@@ -319,26 +321,26 @@ function updateFormData() {
     formData.value.rqEndLocation = null;
     formData.value.rqDistance = null;
   }
-  if (rqtName.value == 'ค่าเดินทาง'){
+  if (rqtName.value == 'ค่าเดินทาง') {
     formData.value.rqVhId = vhId.value;
   }
   if (rqtName.value != 'อื่นๆ') {
     formData.value.rqAny = null;
   }
   formData.value.rqUsrId = user.value.usrId;
-  formData.value.rqPayDate = formatDateToThai(selectedDate.value) 
-  formData.value.rqWithdrawDate = formatDateToThai(currentDate.value) 
+  formData.value.rqPayDate = formatDateToThai(selectedDate.value)
+  formData.value.rqWithdrawDate = formatDateToThai(currentDate.value)
 }
 
 const confirmSave = async (event: Event) => {
   event.preventDefault();
-  isAlertSaveOpen.value = true;
   formData.value.rqStatus = "sketch";
-  formData.value.rqUsrId = user.value.usrId;
+  formData.value.rqProgress = "accepting"
   await updateFormData()
   const fd = await createFormData(formData.value, selectedFiles.value);
   await requisitionStore.createExpense(fd);
-
+  isAlertSaveOpen.value = true;
+  
   setTimeout(() => {
     isAlertSaveOpen.value = false;
     closePopupSave();
@@ -346,7 +348,7 @@ const confirmSave = async (event: Event) => {
   }, 1500);
 };
 
-const formatDateToThai = (date : Date) => {
+const formatDateToThai = (date: Date) => {
   if (!date) return null;
   const thaiYear = date.getFullYear() + 543;
   const formattedDate = `${thaiYear}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
