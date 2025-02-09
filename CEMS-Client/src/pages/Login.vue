@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<!-- <script setup lang="ts">
 /*
 * ชื่อไฟล์: Login.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าเข้าสู่ระบบ
@@ -86,9 +86,9 @@ const selectUser = (user: any) => {
             </main>
         </div>
     </div>
-</template>
+</template> -->
 
-<!-- <script setup lang="ts">
+<script setup lang="ts">
 /*
 * ชื่อไฟล์: Login.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าเข้าสู่ระบบ
@@ -105,7 +105,7 @@ const username = ref("");
 const password = ref("");
 
 
-const handleLogin = (e : Event) => {
+const handleLogin = async(e : Event) => {
 
     e.preventDefault();
     
@@ -113,11 +113,11 @@ const handleLogin = (e : Event) => {
     userStore.loginUser(username.value,password.value)
 
     if(userStore.token){
-        userStore.getUserById(username.value)
 
-        console.log(userStore.user)
+        await userStore.getUserById(username.value)
+
         localStorage.setItem('user', JSON.stringify(userStore.user));
-        // router.push({ path: '/dashboard' });
+        router.push({ path: '/dashboard' });
     }else{
         alert("Username or Password wrong !")
     }
@@ -177,4 +177,4 @@ const handleLogin = (e : Event) => {
             </main>
         </div>
     </div>
-</template> -->
+</template>

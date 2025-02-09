@@ -59,9 +59,9 @@ export const useUserStore = defineStore('users', {
     */
     async getUserById(userId : string) {
 
-      console.log(userId)
       try {
         const result = await axios.get(`${BASE_URL}/api/user/${userId}`);
+        console.log(result.data)
         this.user = result.data;
       } catch (error) {
         console.error('Failed to fetch users:', error);
