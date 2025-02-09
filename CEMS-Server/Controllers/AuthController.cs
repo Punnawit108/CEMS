@@ -27,7 +27,7 @@ public class AuthController : ControllerBase
 
 
     if (user == null)
-        return Unauthorized("Invalid username");
+        return NotFound("Invalid username");
 
         if(!BCrypt.Net.BCrypt.Verify(model.Password, user.UsrPassword)){
             return Unauthorized("Invalid password");
