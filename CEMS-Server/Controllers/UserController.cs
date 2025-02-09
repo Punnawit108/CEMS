@@ -154,4 +154,18 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpGet("{id}")]
+    public IActionResult GetUserByEmployeeId(string id)
+    {
+
+        var user = _context.CemsUsers.FirstOrDefault(u => u.UsrEmployeeId == id);
+
+
+        if (user == null)
+            return NotFound("Not found user");
+
+        return Ok(user);
+    }
+
 }

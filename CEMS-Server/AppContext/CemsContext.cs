@@ -378,6 +378,10 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.UsrRolId).HasColumnName("usr_rol_id");
             entity.Property(e => e.UsrStId).HasColumnName("usr_st_id");
 
+            entity.Property(e => e.UsrPassword)
+    .HasMaxLength(255)
+    .HasColumnName("usr_password");
+
             entity.HasOne(d => d.UsrCpn).WithMany(p => p.CemsUsers)
                 .HasForeignKey(d => d.UsrCpnId)
                 .OnDelete(DeleteBehavior.ClientSetNull)
