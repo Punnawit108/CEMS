@@ -173,29 +173,36 @@ const handleFileChange = async (event: Event) => {
 };
 
 const uploadFiles = async (files: File[]) => {
-  const allowedFileTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg"];
+  const allowedFileTypes = [
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/jpeg"
+  ];
   const maxFileSize = 2 * 1024 * 1024; // 2MB
   const validFiles: File[] = [];
 
   for (const file of files) {
     if (!allowedFileTypes.includes(file.type)) {
-      console.log(file.type)
-      alert(`ไฟล์ ${file.name} ไม่ได้รับอนุญาต อัปโหลดได้เฉพาะ PDF, DOCS หรือ JPEG เท่านั้น`);
+      console.log(file.type);
+      alert(`ไฟล์ ${file.name} ไม่ได้รับอนุญาต อัปโหลดได้เฉพาะ PDF, DOCX หรือ JPEG เท่านั้น`);
       continue;
     }
-
+    const fileName = file.name.toLowerCase();
+    if (file.type === "image/jpeg" && fileName.endsWith(".jpg")) {
+      alert(`ไฟล์ ${file.name} เป็นไฟล์ JPG ไม่อนุญาตให้อัปโหลด`);
+      continue;
+    }
     if (file.size > maxFileSize) {
       alert(`ไฟล์ ${file.name} มีขนาดเกิน 2MB`);
       continue;
     }
-
     validFiles.push(file);
   }
-
   if (validFiles.length > 0) {
     selectedFiles.value.push(...validFiles);
   }
 };
+
 
 
 
@@ -297,7 +304,6 @@ const validateForm = async () => {
       if (rqtName.value !== 'อื่นๆ' && field === 'rqAny') {
         continue;
       }
-
       errors.value[field] = true;
     }
   }
@@ -340,7 +346,7 @@ const confirmSave = async (event: Event) => {
   const fd = await createFormData(formData.value, selectedFiles.value);
   await requisitionStore.createExpense(fd);
   isAlertSaveOpen.value = true;
-  
+
   setTimeout(() => {
     isAlertSaveOpen.value = false;
     closePopupSave();
@@ -411,6 +417,26 @@ const handleDateCancel = () => {
   // ทำอย่างอื่นเพิ่มเติมตามต้องการ
 };
 
+
+const previewFile = (file: File) => {
+  const fileURL = URL.createObjectURL(file);
+
+  if (file.type === 'application/pdf') {
+    window.open(fileURL, '_blank');
+  } else if (file.type.startsWith('image/')) {
+    window.open(fileURL, '_blank');
+  } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    const link = document.createElement('a');
+    link.href = fileURL;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  else {
+    console.log('ไม่สามารถแสดงผลไฟล์ประเภทนี้ได้');
+  }
+};
 </script>
 
 <template>
@@ -639,7 +665,7 @@ const handleDateCancel = () => {
     </div>
 
     <FileDisplay v-for="file in selectedFiles" :key="file.name || file.lastModified" :file="file"
-      @remove="removeFile(file)" />
+      @remove="removeFile(file)" @preview="previewFile(file)" />
 
 
     <!-- <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between">

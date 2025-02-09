@@ -2,8 +2,8 @@
 import { defineProps, computed , defineEmits} from "vue";
 
 const props = defineProps(["file"]);
-const emit = defineEmits(['remove']);
-
+const emit = defineEmits(['remove', 'preview']) ;
+//@preview="previewFile(file)"
 const fileName = props.file.name ;
 const fileType = props.file.type.split("/")[1] ;
 console.log(fileType)
@@ -25,7 +25,7 @@ const fileIcon = computed(() => {
 </script>
 
 <template>
-    <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between">
+    <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between" @click="$emit('preview', file)"> 
         <div class="flex flex-row ml-4 my-2">
             <div class="w-[50px] h-[50px] bg-white rounded-[5px]">
                 <img :src="fileIcon" alt="File Icon" class="w-full h-full" />
