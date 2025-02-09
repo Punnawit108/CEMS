@@ -51,6 +51,7 @@ public partial class CemsRequisition
     public virtual ICollection<CemsApproverRequisition> CemsApproverRequisitions { get; set; } =
         new List<CemsApproverRequisition>();
 
+    public virtual ICollection<CemsFile> CemsFiles { get; set; } = new List<CemsFile>();
     public virtual CemsProject RqPj { get; set; } = null!;
 
     public virtual CemsRequisitionType RqRqt { get; set; } = null!;

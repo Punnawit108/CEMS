@@ -73,7 +73,6 @@ namespace CEMS_Server.DTOs
         public DateOnly RqPayDate { get; set; }
 
         public DateOnly RqWithDrawDate { get; set; }
-        public string? RqCode { get; set; }
 
         public string? RqInsteadEmail { get; set; }
 
@@ -87,12 +86,11 @@ namespace CEMS_Server.DTOs
 
         public string? RqPurpose { get; set; }
 
-        public string? RqProof { get; set; }
-
         public string RqStatus { get; set; } = null!;
 
         public string RqProgress { get; set; } = null!;
         public string? RqAny { get; set; }
+        public List<IFormFile> Files { get; set; } = new List<IFormFile>();
     }
 
     // Expense Report

@@ -6,17 +6,25 @@
  * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
  */
 
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import Button from "../../components/template/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
-import { createRequisition } from "../../types";
+import { createRequisition, TravelManage } from "../../types";
 import SingleDatePicker from "../../components/template/SingleDatePicker.vue";
 import FileDisplay from "../../components/template/FileDisplay.vue";
-const user = ref<any>(null);
-const requisitionStore = useRequisitionStore();
 
+const requisitionStore = useRequisitionStore();
+const user = ref<any>(null);
+const vehicleType = ref<any>(null);
+const selectedTravelType = ref<string>('');
 const rqtId = ref(0);
+const fileInput = ref<HTMLInputElement | null>(null);
+const previewUrl = ref<string | null>(null);
+const maxWidth = 800;
+const maxHeight = 800;
+const rqtName = ref('')
+const vhId = ref(0);
 // const startPickerOpen = ref(false);
 // const rqtName = ref("");
 // const customExpenseType = ref("");
@@ -30,44 +38,51 @@ const isAlertCancleOpen = ref(false);
 const isAlertSubmitOpen = ref(false);
 
 
-
 const formData = ref<createRequisition>({
   rqName: "",
   rqUsrId: "",
   rqPjId: "",
   rqRqtId: rqtId.value,
   rqVhId: 0,
-  rqPayDate: new Date(),
-  rqWithdrawDate: "",
-  rqCode: "",
+  rqPayDate: null,
+  rqWithdrawDate: null,
   rqInsteadEmail: "",
   rqExpenses: 0,
   rqStartLocation: "",
   rqEndLocation: "",
   rqDistance: "",
   rqPurpose: "",
-  rqProof: null,
   rqStatus: "",
-  rqProgress: "accepting",
+  rqProgress: "",
   rqAny: "",
 });
 
+// กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 0
+const filteredVehicleType = computed(() => {
+  return vehicleType.value
+    ? vehicleType.value.filter((vehicle: TravelManage) =>
+      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 0
+    )
+    : [];
+})
 
-// const selectedExpenseTypeId = ref("");
-const fileInput = ref<HTMLInputElement | null>(null);
-const selectedFile = ref<File | null>(null);
-const previewUrl = ref<string | null>(null);
+// กรองประเภทการเดินทางที่ไม่ซ้ำ
+const uniqueTravelTypes = computed(() => {
+  return vehicleType.value && vehicleType.value.length > 0
+    ? [...new Set(vehicleType.value.map((vehicle: TravelManage) => vehicle.vhType))]
+    : [];
+});
 
-const maxWidth = 800;
-const maxHeight = 800;
+
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
-  await requisitionStore.getAllvehicleType();
+  vehicleType.value = await requisitionStore.getAllvehicleType();
   const storedUser = localStorage.getItem("user");
   if (storedUser) {
     try {
+      console.log(vehicleType)
       user.value = await JSON.parse(storedUser);
       await requisitionStore.getUserEmail(user.value.usrId)
     } catch (error) {
@@ -100,7 +115,6 @@ onMounted(async () => {
 //   }
 // };
 
-const rqtName = ref('')
 
 function updateRqtName(event: Event) {
   const selectedId = (event.target as HTMLSelectElement).value;
@@ -112,22 +126,28 @@ function updateRqtName(event: Event) {
 
 
 
+// หา vhPayrate ของพาหนะที่ถูกเลือก
+const selectedPayrate = computed(() => {
+  const selectedVehicle = vehicleType.value.find(
+    (vehicle: any) => vehicle.vhId.toString() === vhId.value.toString()  // ใช้ vhId ที่เลือกเปรียบเทียบ
+  );
+
+  return selectedVehicle ? selectedVehicle.vhPayrate : '';  // คืนค่า vhPayrate หรือค่าว่าง
+});
+
 const triggerFileInput = () => {
   fileInput.value?.click();
 };
 
-const handleFileChange = (event: Event) => {
-  const target = event.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    const file = target.files[0];
-    uploadFile(file);
+const handleDrop = (event: DragEvent) => {
+  if (event.dataTransfer && event.dataTransfer.files) {
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    selectedFiles.value.push(...droppedFiles);
   }
 };
 
-const handleDrop = (event: DragEvent) => {
-  if (event.dataTransfer?.files.length) {
-    uploadFile(event.dataTransfer.files[0]);
-  }
+const removeFile = (fileToRemove: File) => {
+  selectedFiles.value = selectedFiles.value.filter(file => file !== fileToRemove);
 };
 
 const checkImageDimensions = (file: File): Promise<boolean> => {
@@ -141,33 +161,43 @@ const checkImageDimensions = (file: File): Promise<boolean> => {
   });
 };
 
-const uploadFile = async (file: File) => {
-  // ตรวจสอบประเภทไฟล์
-  const allowedFileTypes = ["application/pdf", "application/msword", "image/jpeg"];
-  if (!allowedFileTypes.includes(file.type)) {
-    alert("กรุณาอัปโหลดไฟล์ PDF, DOCS หรือ JPEG เท่านั้น");
-    return;
-  }
+const selectedFiles = ref<File[]>([]);
 
-  // ตรวจสอบขนาดไฟล์ (ไม่เกิน 2MB)
-  const maxFileSize = 2 * 1024 * 1024; // 2MB
-  if (file.size > maxFileSize) {
-    alert("กรุณาอัปโหลดไฟล์ที่มีขนาดไม่เกิน 2MB");
-    return;
-  }
+const handleFileChange = async (event: Event) => {
+  const target = event.target as HTMLInputElement;
 
-  // หากไฟล์ผ่านการตรวจสอบทั้งหมด
-  try {
-    //selectedFile.value = file;
-    //previewUrl.value = URL.createObjectURL(file);
-
-    // Convert file to base64 (optional)
-    formData.value.rqProof = file;
-  } catch (error) {
-    alert("เกิดข้อผิดพลาดในการอัปโหลดไฟล์ กรุณาลองใหม่อีกครั้ง");
-    console.error(error);
+  if (target.files) {
+    const newFiles = Array.from(target.files);
+    await uploadFiles(newFiles);
   }
 };
+
+const uploadFiles = async (files: File[]) => {
+  const allowedFileTypes = ["application/pdf", "application/vnd.openxmlformats-officedocument.wordprocessingml.document", "image/jpeg"];
+  const maxFileSize = 2 * 1024 * 1024; // 2MB
+  const validFiles: File[] = [];
+
+  for (const file of files) {
+    if (!allowedFileTypes.includes(file.type)) {
+      console.log(file.type)
+      alert(`ไฟล์ ${file.name} ไม่ได้รับอนุญาต อัปโหลดได้เฉพาะ PDF, DOCS หรือ JPEG เท่านั้น`);
+      continue;
+    }
+
+    if (file.size > maxFileSize) {
+      alert(`ไฟล์ ${file.name} มีขนาดเกิน 2MB`);
+      continue;
+    }
+
+    validFiles.push(file);
+  }
+
+  if (validFiles.length > 0) {
+    selectedFiles.value.push(...validFiles);
+  }
+};
+
+
 
 const convertToBase64 = (file: File): Promise<string> => {
   return new Promise((resolve, reject) => {
@@ -179,7 +209,10 @@ const convertToBase64 = (file: File): Promise<string> => {
 };
 
 const handleSubmit = async () => {
-  openPopupSubmit();
+  if (await validateForm()) {
+    openPopupSubmit();
+  }
+
 };
 
 const handleSave = async () => {
@@ -214,6 +247,71 @@ const closePopupSubmit = () => {
   isPopupSubmitOpen.value = false;
 };
 
+// ตัวแปรเก็บ error ของแต่ละฟิลด์
+const errors = ref<{ [key: string]: boolean }>({});
+
+// ฟิลด์ที่จำเป็นต้องกรอก
+const requiredFields = ['rqName', 'rqPjId', 'rqRqtId'
+  , 'rqExpenses', 'rqStartLocation'
+  , 'rqEndLocation', 'rqDistance', 'rqPurpose', 'rqAny'];
+
+
+watch(
+  [formData, selectedTravelType, vhId],
+  ([newFormData, newSelectedTravelType, newVhId]) => {
+
+    for (const field of requiredFields) {
+      if (newFormData[field as keyof createRequisition] !== "" && newFormData[field as keyof createRequisition] !== 0) {
+        delete errors.value[field];
+      }
+    }
+    if (newSelectedTravelType !== '') {
+      delete errors.value.selectedTravelType;
+    }
+    if (newVhId !== 0) {
+      delete errors.value.vhId;
+    }
+  },
+  { deep: true }
+);
+
+
+const displayRqExpenses = ref('');
+watch(displayRqExpenses, (newVal) => {
+  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+});
+
+
+// ฟังก์ชันตรวจสอบฟอร์มแบบ loop
+const validateForm = async () => {
+  errors.value = {};
+  for (const field of requiredFields) {
+    const value = formData.value[field as keyof createRequisition];
+    if (value === "" || value === undefined || value === 0) {
+      if (rqtName.value !== 'ค่าเดินทาง' &&
+        ['rqStartLocation', 'rqEndLocation', 'rqDistance', 'rqVhId'].includes(field)) {
+        continue;
+      }
+      if (rqtName.value !== 'อื่นๆ' && field === 'rqAny') {
+        continue;
+      }
+      
+      errors.value[field] = true;
+    }
+  }
+  if (rqtName.value === 'ค่าเดินทาง' && selectedTravelType.value === '') {
+    errors.value.selectedTravelType = true;
+  }
+  if (rqtName.value === 'ค่าเดินทาง' && vhId.value === 0) {
+    errors.value.vhId = true;
+  }
+  if (rqtName.value === 'อื่นๆ' && formData.value.rqAny === '') {
+    errors.value.vhId = true;
+  }
+  return Object.keys(errors.value).length === 0;
+};
+
+
 function updateFormData() {
   if (rqtName.value != 'ค่าเดินทาง') {
     formData.value.rqVhId = null;
@@ -221,9 +319,15 @@ function updateFormData() {
     formData.value.rqEndLocation = null;
     formData.value.rqDistance = null;
   }
+  if (rqtName.value == 'ค่าเดินทาง'){
+    formData.value.rqVhId = vhId.value;
+  }
   if (rqtName.value != 'อื่นๆ') {
     formData.value.rqAny = null;
   }
+  formData.value.rqUsrId = user.value.usrId;
+  formData.value.rqPayDate = formatDateToThai(selectedDate.value) 
+  formData.value.rqWithdrawDate = formatDateToThai(currentDate.value) 
 }
 
 const confirmSave = async (event: Event) => {
@@ -232,7 +336,8 @@ const confirmSave = async (event: Event) => {
   formData.value.rqStatus = "sketch";
   formData.value.rqUsrId = user.value.usrId;
   await updateFormData()
-  await requisitionStore.createExpense(formData.value);
+  const fd = await createFormData(formData.value, selectedFiles.value);
+  await requisitionStore.createExpense(fd);
 
   setTimeout(() => {
     isAlertSaveOpen.value = false;
@@ -241,15 +346,34 @@ const confirmSave = async (event: Event) => {
   }, 1500);
 };
 
+const formatDateToThai = (date : Date) => {
+  if (!date) return null;
+  const thaiYear = date.getFullYear() + 543;
+  const formattedDate = `${thaiYear}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+  return formattedDate;
+};
+
+const createFormData = (formData: createRequisition, selectedFiles: File[]): FormData => {
+  const fd = new FormData();
+  Object.entries(formData).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      fd.append(key, value.toString());
+    }
+  });
+  selectedFiles.forEach((file) => {
+    fd.append("Files", file);
+  });
+  return fd;
+};
+
 const confirmSubmit = async (event: Event) => {
   event.preventDefault();
-  isAlertSubmitOpen.value = true;
   formData.value.rqStatus = "waiting";
-  formData.value.rqUsrId = user.value.usrId;
+  formData.value.rqProgress = "accepting"
   await updateFormData()
-  isAlertSubmitOpen.value = false;
-  await requisitionStore.createExpense(formData.value);
-
+  const fd = await createFormData(formData.value, selectedFiles.value);
+  await requisitionStore.createExpense(fd);
+  isAlertSubmitOpen.value = true;
   setTimeout(() => {
     isAlertSubmitOpen.value = false;
     closePopupSubmit();
@@ -267,6 +391,7 @@ const confirmCancle = async (event: Event) => {
   }, 1500);
 };
 
+const currentDate = ref(new Date());
 const selectedDate = ref(new Date());
 const isDatePickerOpen = ref(false);
 
@@ -283,6 +408,7 @@ const handleDateCancel = () => {
   console.log('Date selection cancelled');
   // ทำอย่างอื่นเพิ่มเติมตามต้องการ
 };
+
 </script>
 
 <template>
@@ -301,34 +427,35 @@ const handleDateCancel = () => {
         <div class="grid grid-cols-4 gap-4">
 
           <!-- ช่อง "รหัสรายการเบิก *" -->
+
           <div>
             <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก </label>
-            <p class="inputItem bg-[#F7F7F7]">CN-xxxxxx</p>
-            <!-- <input type="text" id="rqCode" v-model="formData.rqCode" class="inputItem " /> -->
+            <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">CN-xxxxxx</p>
           </div>
 
           <!-- ช่อง "ชื่อรายการเบิก" -->
           <div>
             <label for="rqName" class="block text-sm font-medium py-2">ชื่อรายการเบิก <span
                 class="text-red-500">*</span></label>
-            <input type="text" id="rqName" v-model="formData.rqName" class="inputItem " required />
-          </div>
-
-          <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
-          <div class="">
-            <label for="rqPayDate" class="block text-sm font-medium py-2">วันที่เกิดค่าใช้จ่าย <span
-                class="text-red-500">*</span></label>
-            <SingleDatePicker v-model="selectedDate" id="rqPayDate" :confirmedDate="selectedDate" :disabled="true"
-              class="date w-full h-[42px] " />
+            <input type="text" id="rqName" v-model="formData.rqName"
+              :class="['inputItem', { 'error': errors.rqName }]" />
           </div>
 
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
-          <div>
+          <div class="">
             <label for="rqWithdrawDate" class="block text-sm font-medium py-2">วันที่ทำรายการเบิกค่าใช้จ่าย <span
                 class="text-red-500">*</span></label>
-            <SingleDatePicker v-model="selectedDate" id="rqWithdrawDate" v-model:isOpen="isDatePickerOpen"
-              :confirmedDate="selectedDate" class="dateInput w-full h-[42px]" placeholder="เลือกวันที่"
-              @confirm="handleConfirm" @cancel="handleCancel" />
+            <SingleDatePicker v-model="currentDate" id="rqWithdrawDate" :confirmedDate="currentDate" :disabled="true"
+              class="date w-full h-[42px] text-[#BABBBE] " />
+          </div>
+
+          <!-- ช่อง "วันที่ทำการเบิกค่าใช้จ่าย *" -->
+          <div>
+            <label for="rqPayDate" class="block text-sm font-medium py-2">วันที่ทำการเบิกค่าใช้จ่าย <span
+                class="text-red-500">*</span></label>
+            <SingleDatePicker v-model="selectedDate" id="rqPayDate" v-model:isOpen="isDatePickerOpen"
+              :confirmedDate="selectedDate" class="dateInput w-full h-[42px] text-black" placeholder="เลือกวันที่"
+              @confirm="handleConfirm" @cancel="handleDateCancel" />
           </div>
 
 
@@ -336,7 +463,8 @@ const handleDateCancel = () => {
             <label for="projectName" class="block text-sm font-medium py-2">โครงการ<span
                 class="text-red-500">*</span></label>
             <div class="text-xs">
-              <select id="projectName" v-model="formData.rqPjId" class="inputItem" required>
+              <select id="projectName" v-model="formData.rqPjId" :class="['inputItem', { 'error': errors.rqPjId }]"
+                required>
                 <option disabled selected>เลือกโครงการ</option>
                 <option v-for="project in requisitionStore.projects" :key="project.pjId" :value="project.pjId">
                   {{ project.pjName }}
@@ -352,8 +480,9 @@ const handleDateCancel = () => {
             <label for="expenseType" class="block text-sm font-medium py-2">
               ประเภทค่าใช้จ่าย <span class="text-red-500">*</span>
             </label>
-            <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName" class="inputItem" required>
-              <option value="">กรุณาเลือกประเภท</option>
+            <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName"
+              :class="['inputItem', { 'error': errors.rqRqtId }]" required>
+              <option value="" selected disabled>กรุณาเลือกประเภท</option>
               <option v-for="requisitionTypeData in requisitionStore.requisitionType" :key="requisitionTypeData.rqtId"
                 :value="requisitionTypeData.rqtId">
                 {{ requisitionTypeData.rqtName }}
@@ -366,87 +495,85 @@ const handleDateCancel = () => {
             <label for="rqAny" class="block text-sm font-medium py-2">
               ประเภทค่าใช้จ่ายอื่นๆ <span class="text-red-500">*</span>
             </label>
-            <input id="rqAny" v-model="formData.rqAny" class="inputItem" type="text"
+            <input id="rqAny" v-model="formData.rqAny" :class="['inputItem', { 'error': errors.rqAny }]" type="text"
               placeholder="กรุณาระบุข้อมูลเพิ่มเติม" />
           </div>
 
           <!-- ช่อง "ประเภทการเดินทาง" -->
-          <div v-show="rqtName === 'ค่าเดินทาง'">
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <!-- Dropdown เลือกประเภทการเดินทาง -->
             <label for="travelType" class="block text-sm font-medium py-2">
               ประเภทการเดินทาง <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
-              <select id="travelType" class="inputItem" v-model="requisitionStore.selectedTravelType">
-                <option value="null" disabled selected>
-                  เลือกประเภทการเดินทาง
+              <select id="travelType" v-model="selectedTravelType"
+                :class="['inputItem', { 'error': errors.selectedTravelType }]">
+                <option value="" disabled>เลือกประเภทการเดินทาง</option>
+                <!-- ใช้ uniqueTravelTypes ที่กรองแล้ว -->
+                <option v-for="type in uniqueTravelTypes" :value="type">
+                  {{ type === 'private' ? 'ประเภทส่วนตัว' : 'ประเภทสาธารณะ' }}
                 </option>
-                <option value="private">ประเภทส่วนตัว</option>
-                <option value="public">ประเภทสาธารณะ</option>
               </select>
-              <img loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-                alt=""
-                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2" />
             </div>
           </div>
 
           <!-- ช่อง "ประเภทรถ" -->
-          <div v-show="rqtName === 'ค่าเดินทาง'">
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <!-- Dropdown เลือกประเภทรถ (กรองตามประเภทการเดินทางที่เลือก) -->
             <label for="vehicleType" class="block text-sm font-medium py-2">
-              ประเภทรถ
+              ประเภทรถ <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
-              <select v-model="formData.rqVhId" class="inputItem">
-                <option value="null" selected disabled>เลือกประเภทรถ</option>
-                <option v-for="vehicle in requisitionStore.filteredVehicleType" :key="vehicle.vhId.toString()"
+              <select v-model="vhId" :class="['inputItem', { 'error': errors.vhId }]">
+                <option value="" selected disabled>เลือกประเภทรถ</option>
+                <!-- ใช้ filteredVehicleType ที่กรองแล้ว -->
+                <option v-for="vehicle in filteredVehicleType" :key="vehicle.vhId.toString()"
                   :value="vehicle.vhId.toString()">
                   {{ vehicle.vhVehicle }}
                 </option>
               </select>
-              <img loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-                alt=""
-                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2" />
             </div>
           </div>
 
           <!-- ช่อง "สถานที่เริ่มต้น" -->
-          <div v-show="rqtName === 'ค่าเดินทาง'">
+          <div v-if="rqtName === 'ค่าเดินทาง'">
             <label for="rqStartLocation" class="block text-sm font-medium py-2">สถานที่เริ่มต้น <span
                 class="text-red-500">*</span></label>
-            <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation" class="inputItem" />
+            <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation"
+              :class="['inputItem', { 'error': errors.rqStartLocation }]" />
           </div>
-
           <!-- ช่อง "สถานที่สิ้นสุด" -->
-          <div v-show="rqtName === 'ค่าเดินทาง'">
+          <div v-if="rqtName === 'ค่าเดินทาง'">
             <label for="rqEndLocation" class="block text-sm font-medium py-2">สถานที่สิ้นสุด <span
                 class="text-red-500">*</span></label>
-            <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation" class="inputItem" />
+            <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation"
+              :class="['inputItem', { 'error': errors.rqEndLocation }]" />
           </div>
 
           <!-- ช่อง "ระยะทาง" -->
-          <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-2">ระยะทาง <span
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <label for="rqDistance" class="block text-sm font-medium py-2">ระยะทาง <span
                 class="text-red-500">*</span></label>
-            <input type="text" id="rqEndLocation" v-model="formData.rqDistance" class="inputItem" />
+            <input type="text" id="rqDistance" v-model="formData.rqDistance"
+              :class="['inputItem', { 'error': errors.rqDistance }]" />
           </div>
 
-          <div v-show="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-2">อัตราค่าเดินทาง </label>
-            <input type="text" id="rqEndLocation" v-model="formData.rqDistance" class="inputItem" :disabled="true" />
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <label for="rqPayrate" class="block text-sm font-medium py-2">อัตราค่าเดินทาง </label>
+            <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ selectedPayrate }}</p>
           </div>
-
 
           <!-- ช่อง "จำนวนเงิน (บาท)" -->
           <div>
             <label for="rqExpenses" class="block text-sm font-medium py-2">จำนวนเงิน (บาท) <span
                 class="text-red-500">*</span></label>
-            <input type="number" id="rqExpenses" v-model="formData.rqExpenses" class="inputItem" />
+            <input type="number" id="rqExpenses" v-model="displayRqExpenses"
+              :class="['inputItem', { 'error': errors.rqExpenses }]" />
           </div>
 
 
           <div>
-            <label for="rqInsteadEmail" class="block text-sm font-medium py-2">อีเมลผู้ขอเบิกแทน *</label>
+            <label for="rqInsteadEmail" class="block text-sm font-medium py-2">ชื่อผู้ขอเบิกแทน </label>
             <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem">
               <option :value="null" disabled selected>Select User</option>
               <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead">{{ user.usrName }}</option>
@@ -484,31 +611,35 @@ const handleDateCancel = () => {
       </div>
       <!-- วัตถุประสงค์ -->
       <div class="text-sm my-4">
-        <label class="block text-sm font-medium pb-2">วัตถุประสงค์</label>
-        <textarea v-model="formData.rqPurpose" class="inputItem h-[81px]"> </textarea>
+        <label class="block text-sm font-medium pb-2">รายละเอียด</label>
+        <textarea v-model="formData.rqPurpose" class="h-[81px]"
+          :class="['inputItem', { 'error': errors.rqPurpose }]"> </textarea>
       </div>
       <!-- upload -->
-      <div class="upload-container ">
-        <label class="z-0 max-md:max-w-full">อัปโหลดไฟล์ </label>
+      <div class="upload-container">
+        <label class="z-0 max-md:max-w-full">อัปโหลดไฟล์</label>
         <div
           class="flex z-0 mt-1 h-[278px] w-full bg-white rounded-md border border-solid border-[#B8B8B8] min-h-[395px] max-md:max-w-full cursor-pointer relative"
           @click="triggerFileInput" @dragover.prevent @drop.prevent="handleDrop">
-          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/" style="display: none" />
-          <div v-if="!selectedFile"
-            class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[color:var(--,#B8B8B8)]">
+          <!-- Input สำหรับอัปโหลดหลายไฟล์ -->
+          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/jpeg,application/pdf,.doc,.docx"
+            multiple style="display: none" />
+
+          <div class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[#B8B8B8]">
             <img loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
               alt="Upload icon" class="object-contain w-16 aspect-[1.1]" />
-            <p class="mt-3 text-[#B8B8B8]">คลิก หรือลากไฟล์มาที่นี่ เพื่ออัปโหลด</p>
-            <p class="mt-3 text-[#B8B8B8]">DOCS PNG หรือ PDF (MAX 2MB) </p>
+            <p class="mt-3">คลิก หรือลากไฟล์มาที่นี่ เพื่ออัปโหลด</p>
+            <p class="mt-3">DOCS PNG หรือ PDF (MAX 2MB)</p>
           </div>
-          <img v-else :src="previewUrl!" alt="Preview"
-            class="max-w-full max-h-full object-contain absolute inset-0 m-auto" />
         </div>
       </div>
     </div>
 
-    <FileDisplay v-if="formData.rqProof" :file = "formData.rqProof" />
+    <FileDisplay v-for="file in selectedFiles" :key="file.name || file.lastModified" :file="file"
+      @remove="removeFile(file)" />
+
+
     <!-- <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between">
       <div class="flex flex-row ml-4 my-2">
         <div class="w-[50px] h-[50px] bg-white rounded-[5px]">
@@ -678,6 +809,8 @@ const handleDateCancel = () => {
   font-size: 0.875rem;
   width: 100%;
   height: 40px;
+  line-height: 24px;
+  transition: border-color 0.3s ease;
 }
 
 .date input {
@@ -689,5 +822,14 @@ const handleDateCancel = () => {
 .dateInput input {
   height: 40px;
   border: 1px solid #B8B8B8;
+}
+
+.inputItem.error,
+.date input.error,
+.dateInput input.error {
+  border-color: red !important;
+  /* ใช้ !important เพื่อให้แน่ใจว่าขอบสีแดงถูกใช้ */
+  background-color: #FFF5F5;
+  /* เพิ่มสีพื้นหลังจาง ๆ เพื่อให้ดูชัดเจน */
 }
 </style>
