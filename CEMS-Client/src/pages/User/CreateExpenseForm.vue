@@ -73,11 +73,12 @@ const uniqueTravelTypes = computed(() => {
     : [];
 });
 
-
+const rqCode = ref('')
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
+  rqCode.value = await requisitionStore.getRqCode()
   vehicleType.value = await requisitionStore.getAllvehicleType();
   const storedUser = localStorage.getItem("user");
   if (storedUser) {
@@ -458,7 +459,7 @@ const previewFile = (file: File) => {
 
           <div>
             <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก </label>
-            <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">CN-xxxxxx</p>
+            <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ rqCode }}</p>
           </div>
 
           <!-- ช่อง "ชื่อรายการเบิก" -->

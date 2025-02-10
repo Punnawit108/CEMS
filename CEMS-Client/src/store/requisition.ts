@@ -170,6 +170,18 @@ export const useRequisitionStore = defineStore('dropdown', {
             } catch (error) {
                 console.log(error)
             }
+        }, 
+        async getRqCode() {
+            try {
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/next-rq-code`);
+                return result.data.nextRqCode;
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.error('Error fetching todos:', error.message);
+                } else {
+                    console.error('Unexpected error:', error);
+                }
+            }
         },
 
     }

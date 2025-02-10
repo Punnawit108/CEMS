@@ -330,6 +330,13 @@ public class ExpenseController : ControllerBase
         );
     }
 
+    [HttpGet("next-rq-code")]
+    public async Task<IActionResult> GetNextRqCode()
+    {
+        var nextRqCode = await GenerateNextRqCodeAsync();
+        return Ok(new { nextRqCode });
+    }
+
     private async Task<string> GenerateNextRqCodeAsync()
     {
         // ตรวจสอบและดึงข้อมูล rq_code ล่าสุดจากฐานข้อมูล
