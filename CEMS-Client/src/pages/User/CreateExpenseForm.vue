@@ -25,11 +25,10 @@ const maxWidth = 800;
 const maxHeight = 800;
 const rqtName = ref('')
 const vhId = ref(0);
-// const startPickerOpen = ref(false);
-// const rqtName = ref("");
-// const customExpenseType = ref("");
-// const isOtherSelected = ref(false);
-// const isCustomExpenseTypeAdded = ref(false);
+const rqCode = ref('')
+const currentDate = ref(new Date());
+const selectedDate = ref(new Date());
+const isDatePickerOpen = ref(false);
 const isPopupSaveOpen = ref(false);
 const isPopupCancleOpen = ref(false);
 const isPopupSubmitOpen = ref(false);
@@ -57,23 +56,6 @@ const formData = ref<createRequisition>({
   rqAny: "",
 });
 
-// กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 0
-const filteredVehicleType = computed(() => {
-  return vehicleType.value
-    ? vehicleType.value.filter((vehicle: TravelManage) =>
-      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 0
-    )
-    : [];
-})
-
-// กรองประเภทการเดินทางที่ไม่ซ้ำ
-const uniqueTravelTypes = computed(() => {
-  return vehicleType.value && vehicleType.value.length > 0
-    ? [...new Set(vehicleType.value.map((vehicle: TravelManage) => vehicle.vhType))]
-    : [];
-});
-
-const rqCode = ref('')
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
@@ -93,30 +75,23 @@ onMounted(async () => {
   console.log("user", formData.value);
 });
 
-// watch(
-//   () => formData.value.rqRqtId,
-//   (newValue) => {
-//     if (newValue === "อื่นๆ") {
-//       selectedExpenseTypeId.value =
-//         customExpenseType.value || "กรุณาระบุประเภทค่าใช้จ่าย";
-//     } else {
-//       const selectedType = requisitionStore.requisitionType.find(
-//         (type) => type.rqtId === newValue
-//       );
-//       selectedExpenseTypeId.value = selectedType ? selectedType.rqtName : "";
-//     }
-//   }
-// );
+// กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 0
+const filteredVehicleType = computed(() => {
+  return vehicleType.value
+    ? vehicleType.value.filter((vehicle: TravelManage) =>
+      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 0
+    )
+    : [];
+})
 
+// กรองประเภทการเดินทางที่ไม่ซ้ำ
+const uniqueTravelTypes = computed(() => {
+  return vehicleType.value && vehicleType.value.length > 0
+    ? [...new Set(vehicleType.value.map((vehicle: TravelManage) => vehicle.vhType))]
+    : [];
+});
 
-
-// const handleSelectChange = () => {
-//   if (formData.value.rqRqtId !== "อื่นๆ") {
-//     formData.value.additionalInfo = "";
-//   }
-// };
-
-
+//fn ตรวจสอบการเลือกประเภทค่าใช้จ่าย
 function updateRqtName(event: Event) {
   const selectedId = (event.target as HTMLSelectElement).value;
   const selectedType = requisitionStore.requisitionType.find(
@@ -125,9 +100,7 @@ function updateRqtName(event: Event) {
   rqtName.value = selectedType ? selectedType.rqtName : '';
 }
 
-
-
-// หา vhPayrate ของพาหนะที่ถูกเลือก
+//fn หา vhPayrate ของพาหนะที่ถูกเลือก
 const selectedPayrate = computed(() => {
   const selectedVehicle = vehicleType.value.find(
     (vehicle: any) => vehicle.vhId.toString() === vhId.value.toString()  // ใช้ vhId ที่เลือกเปรียบเทียบ
@@ -136,10 +109,14 @@ const selectedPayrate = computed(() => {
   return selectedVehicle ? selectedVehicle.vhPayrate : '';  // คืนค่า vhPayrate หรือค่าว่าง
 });
 
+//fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
   fileInput.value?.click();
 };
 
+const selectedFiles = ref<File[]>([]);
+
+//fn เมื่อมีการลากไฟล์ทำการอัพโหลด
 const handleDrop = (event: DragEvent) => {
   if (event.dataTransfer && event.dataTransfer.files) {
     const droppedFiles = Array.from(event.dataTransfer.files);
@@ -147,32 +124,21 @@ const handleDrop = (event: DragEvent) => {
   }
 };
 
-const removeFile = (fileToRemove: File) => {
-  selectedFiles.value = selectedFiles.value.filter(file => file !== fileToRemove);
-};
-
-const checkImageDimensions = (file: File): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(img.src);
-      resolve(img.width <= maxWidth && img.height <= maxHeight);
-    };
-    img.src = URL.createObjectURL(file);
-  });
-};
-
-const selectedFiles = ref<File[]>([]);
-
+//fn เมื่อมีการเลือกไฟล์
 const handleFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement;
-
   if (target.files) {
     const newFiles = Array.from(target.files);
     await uploadFiles(newFiles);
   }
 };
 
+//fn ลบข้อมูลไฟล์
+const removeFile = (fileToRemove: File) => {
+  selectedFiles.value = selectedFiles.value.filter(file => file !== fileToRemove);
+};
+
+//fn ตัวตรวจสอบไฟล์
 const uploadFiles = async (files: File[]) => {
   const allowedFileTypes = [
     "application/pdf",
@@ -204,23 +170,10 @@ const uploadFiles = async (files: File[]) => {
   }
 };
 
-
-
-
-const convertToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
-};
-
 const handleSubmit = async () => {
   if (await validateForm()) {
     openPopupSubmit();
   }
-
 };
 
 const handleSave = async () => {
@@ -266,6 +219,14 @@ const requiredFields = ['rqName', 'rqPjId', 'rqRqtId'
   , 'rqEndLocation', 'rqDistance', 'rqPurpose', 'rqAny'];
 
 
+const displayRqExpenses = ref('');
+
+//ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
+watch(displayRqExpenses, (newVal) => {
+  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+});
+
+//ตรวจสอบสถานะของแต่ละฟิวว่ามีการแก้ไขหรือไม่ 
 watch(
   [formData, selectedTravelType, vhId],
   ([newFormData, newSelectedTravelType, newVhId]) => {
@@ -286,13 +247,7 @@ watch(
 );
 
 
-const displayRqExpenses = ref('');
-watch(displayRqExpenses, (newVal) => {
-  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
-});
-
-
-// ฟังก์ชันตรวจสอบฟอร์มแบบ loop
+// ฟังก์ชันตรวจสอบฟอร์มเมื่อมีการกดส่ง
 const validateForm = async () => {
   errors.value = {};
   for (const field of requiredFields) {
@@ -339,22 +294,6 @@ function updateFormData() {
   formData.value.rqWithdrawDate = formatDateToThai(currentDate.value)
 }
 
-const confirmSave = async (event: Event) => {
-  event.preventDefault();
-  formData.value.rqStatus = "sketch";
-  formData.value.rqProgress = "accepting"
-  await updateFormData()
-  const fd = await createFormData(formData.value, selectedFiles.value);
-  await requisitionStore.createExpense(fd);
-  isAlertSaveOpen.value = true;
-
-  setTimeout(() => {
-    isAlertSaveOpen.value = false;
-    closePopupSave();
-    router.push("/disbursement/listWithdraw");
-  }, 1500);
-};
-
 const formatDateToThai = (date: Date) => {
   if (!date) return null;
   const thaiYear = date.getFullYear() + 543;
@@ -373,6 +312,22 @@ const createFormData = (formData: createRequisition, selectedFiles: File[]): For
     fd.append("Files", file);
   });
   return fd;
+};
+
+const confirmSave = async (event: Event) => {
+  event.preventDefault();
+  formData.value.rqStatus = "sketch";
+  formData.value.rqProgress = "accepting"
+  await updateFormData()
+  const fd = await createFormData(formData.value, selectedFiles.value);
+  await requisitionStore.createExpense(fd);
+  isAlertSaveOpen.value = true;
+
+  setTimeout(() => {
+    isAlertSaveOpen.value = false;
+    closePopupSave();
+    router.push("/disbursement/listWithdraw");
+  }, 1500);
 };
 
 const confirmSubmit = async (event: Event) => {
@@ -400,23 +355,7 @@ const confirmCancle = async (event: Event) => {
   }, 1500);
 };
 
-const currentDate = ref(new Date());
-const selectedDate = ref(new Date());
-const isDatePickerOpen = ref(false);
 
-
-
-// ฟังก์ชันจัดการเมื่อยืนยันการเลือกวันที่
-const handleConfirm = (date: Date) => {
-  console.log('Confirmed date:', date);
-  // ทำอย่างอื่นเพิ่มเติมตามต้องการ
-};
-
-// ฟังก์ชันจัดการเมื่อยกเลิกการเลือกวันที่
-const handleDateCancel = () => {
-  console.log('Date selection cancelled');
-  // ทำอย่างอื่นเพิ่มเติมตามต้องการ
-};
 
 
 const previewFile = (file: File) => {
@@ -484,7 +423,7 @@ const previewFile = (file: File) => {
                 class="text-red-500">*</span></label>
             <SingleDatePicker v-model="selectedDate" id="rqPayDate" v-model:isOpen="isDatePickerOpen"
               :confirmedDate="selectedDate" class="dateInput w-full h-[42px] text-black" placeholder="เลือกวันที่"
-              @confirm="handleConfirm" @cancel="handleDateCancel" />
+              />
           </div>
 
 
@@ -667,25 +606,7 @@ const previewFile = (file: File) => {
 
     <FileDisplay v-for="file in selectedFiles" :key="file.name || file.lastModified" :file="file"
       @remove="removeFile(file)" @preview="previewFile(file)" />
-
-
-    <!-- <div class="mt-4 bg-[#F7F7F7] border rounded-[5px] border-[#B8B8B8] w-full h-[66px] flex justify-between">
-      <div class="flex flex-row ml-4 my-2">
-        <div class="w-[50px] h-[50px] bg-white rounded-[5px]">
-          <img src="/docIcon.svg" alt="Doc Icon" class="w-full h-full">
-        </div>
-        <p class="ml-4 flex items-center">file name</p>
-      </div>
-
-      <div class="mr-5 flex items-center">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17" fill="none">
-          <path
-            d="M1.78433 0.839844L8.00684 7.06235L14.2293 0.839844L16.0068 2.61734L9.78433 8.83984L16.0068 15.0623L14.2281 16.8398L8.00558 10.6173L1.78433 16.8398L0.00683594 15.0623L6.22934 8.83984L0.00683594 2.61734L1.78433 0.839844Z"
-            fill="black" />
-        </svg>
-      </div>
-    </div> -->
-
+      
     <!-- Popup บันทึก -->
     <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
