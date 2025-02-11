@@ -154,4 +154,29 @@ public class UserController : ControllerBase
 
         return NoContent();
     }
+
+    [HttpGet("{id}")]
+    public IActionResult GetUserByEmployeeId(string id)
+    {
+
+        Console.WriteLine(id);
+        var user = _context.CemsUsers.Include(u => u.UsrRol).FirstOrDefault(u => u.UsrEmployeeId == id);
+
+        if (user == null)
+            return NotFound("Not found user");
+
+        var userLocal = new UserLocalDto
+        {
+            UsrId = user.UsrId,
+            UsrRolName = user.UsrRol.RolName,
+            UsrFirstName = user.UsrFirstName,
+            UsrLastName = user.UsrLastName,
+            UsrIsSeeReport = user.UsrIsSeeReport,
+            UsrIsActive = user.UsrIsActive,
+            UsrIsApprover = 0,
+        };
+
+        return Ok(userLocal);
+    }
+
 }
