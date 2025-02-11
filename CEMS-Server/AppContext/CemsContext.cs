@@ -39,6 +39,7 @@ public partial class CemsContext : DbContext
     public virtual DbSet<CemsUser> CemsUsers { get; set; }
 
     public virtual DbSet<CemsVehicle> CemsVehicles { get; set; }
+    public virtual DbSet<CemsFile> CemsFiles { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
