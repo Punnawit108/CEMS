@@ -7,7 +7,7 @@
 
 import axios from "axios";
 import { defineStore } from "pinia";
-
+import { UserInstead } from "../types/index"
 import { Project, ExpenseManage, TravelManage, Expense } from "../types";
 
 
@@ -22,14 +22,18 @@ export const useRequisitionStore = defineStore('dropdown', {
         filteredVehicles: null as any,
         selectedTravel: null as any,
         selectedVehicleType: null as string | null,
+        UserInstead: [] as UserInstead[],
         // เพิ่ม state สำหรับเก็บประเภทการเดินทางที่เลือก
     }),
     getters: {
         // Getter สำหรับกรอง vehicleType
 
         filteredVehicleType: (state) => {
-            return state.vehicleType.filter(vehicle => vehicle.vhType === state.selectedTravelType);
+            return state.vehicleType.filter(vehicle =>
+                vehicle.vhType === state.selectedTravelType && vehicle.vhVisible !== 1
+            );
         },
+
     },
     /*
     * คำอธิบาย: requisition.ts
@@ -105,13 +109,16 @@ export const useRequisitionStore = defineStore('dropdown', {
         * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
         */
         // ฟังก์ชันสำหรับการโพสต์ค่าใช้จ่ายใหม่
-        async createExpense(CreateExpense: any) {
-             // ตรวจสอบข้อมูลที่ส่งไป
+        async createExpense(CreateExpense: FormData) {
+            // ตรวจสอบข้อมูลที่ส่งไป
 
             console.log(CreateExpense)
             try {
-                const result = await axios.post(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense`, CreateExpense);
+                const result = await axios.post(`${import.meta.env.VITE_BASE_URL}/api/expense`, CreateExpense, {
+                    headers: {
+                        "Content-Type": "multipart/form-data",
+                    },
+                });
                 console.log(result);
                 console.log(CreateExpense);
                 return result.data;
@@ -152,6 +159,28 @@ export const useRequisitionStore = defineStore('dropdown', {
 
             } catch (error) {
                 console.log(error)
+            }
+        },
+        async getUserEmail(usrId: string) {
+
+            try {
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/user/email/${usrId}`);
+                return this.UserInstead = result.data;
+
+            } catch (error) {
+                console.log(error)
+            }
+        }, 
+        async getRqCode() {
+            try {
+                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/next-rq-code`);
+                return result.data.nextRqCode;
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.error('Error fetching todos:', error.message);
+                } else {
+                    console.error('Unexpected error:', error);
+                }
             }
         },
 
