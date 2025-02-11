@@ -2,7 +2,7 @@
 /*
  * ชื่อไฟล์: CreateExpenseForm.vue
  * คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
+ * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ , อังคณา อุ่นเสียม , พงศธร บุญญามา
  * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
  */
 
@@ -18,16 +18,14 @@ const requisitionStore = useRequisitionStore();
 const user = ref<any>(null);
 const vehicleType = ref<any>(null);
 const selectedTravelType = ref<string>('');
-const rqtId = ref(0);
 const fileInput = ref<HTMLInputElement | null>(null);
-const previewUrl = ref<string | null>(null);
-const maxWidth = 800;
-const maxHeight = 800;
+
 const rqtName = ref('')
 const vhId = ref(0);
 const rqCode = ref('')
 const currentDate = ref(new Date());
 const selectedDate = ref(new Date());
+
 const isDatePickerOpen = ref(false);
 const isPopupSaveOpen = ref(false);
 const isPopupCancleOpen = ref(false);
@@ -41,7 +39,7 @@ const formData = ref<createRequisition>({
   rqName: "",
   rqUsrId: "",
   rqPjId: "",
-  rqRqtId: rqtId.value,
+  rqRqtId: 0,
   rqVhId: 0,
   rqPayDate: null,
   rqWithdrawDate: null,
@@ -68,6 +66,11 @@ onMounted(async () => {
       console.log(vehicleType)
       user.value = await JSON.parse(storedUser);
       await requisitionStore.getUserEmail(user.value.usrId)
+      const travelType = requisitionStore.requisitionType.find(type => type.rqtName === "ค่าเดินทาง");
+      if (travelType) {
+        formData.value.rqRqtId = travelType?.rqtId ?? 0;
+        rqtName.value = "ค่าเดินทาง"
+      }
     } catch (error) {
       console.log("Error loading user:", error);
     }
@@ -103,18 +106,18 @@ function updateRqtName(event: Event) {
 //fn หา vhPayrate ของพาหนะที่ถูกเลือก
 const selectedPayrate = computed(() => {
   const selectedVehicle = vehicleType.value.find(
-    (vehicle: any) => vehicle.vhId.toString() === vhId.value.toString()  // ใช้ vhId ที่เลือกเปรียบเทียบ
+    (vehicle: any) => vehicle.vhId.toString() === vhId.value.toString()
   );
 
-  return selectedVehicle ? selectedVehicle.vhPayrate : '';  // คืนค่า vhPayrate หรือค่าว่าง
+  return selectedVehicle ? selectedVehicle.vhPayrate : '';
 });
+
+const selectedFiles = ref<File[]>([]);
 
 //fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
   fileInput.value?.click();
 };
-
-const selectedFiles = ref<File[]>([]);
 
 //fn เมื่อมีการลากไฟล์ทำการอัพโหลด
 const handleDrop = (event: DragEvent) => {
@@ -210,6 +213,13 @@ const closePopupSubmit = () => {
   isPopupSubmitOpen.value = false;
 };
 
+const displayRqExpenses = ref('');
+
+//ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
+watch(displayRqExpenses, (newVal) => {
+  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+});
+
 // ตัวแปรเก็บ error ของแต่ละฟิลด์
 const errors = ref<{ [key: string]: boolean }>({});
 
@@ -217,14 +227,6 @@ const errors = ref<{ [key: string]: boolean }>({});
 const requiredFields = ['rqName', 'rqPjId', 'rqRqtId'
   , 'rqExpenses', 'rqStartLocation'
   , 'rqEndLocation', 'rqDistance', 'rqPurpose', 'rqAny'];
-
-
-const displayRqExpenses = ref('');
-
-//ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
-watch(displayRqExpenses, (newVal) => {
-  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
-});
 
 //ตรวจสอบสถานะของแต่ละฟิวว่ามีการแก้ไขหรือไม่ 
 watch(
@@ -338,6 +340,7 @@ const confirmSubmit = async (event: Event) => {
   const fd = await createFormData(formData.value, selectedFiles.value);
   await requisitionStore.createExpense(fd);
   isAlertSubmitOpen.value = true;
+  console.log(formData)
   setTimeout(() => {
     isAlertSubmitOpen.value = false;
     closePopupSubmit();
@@ -354,8 +357,6 @@ const confirmCancle = async (event: Event) => {
     router.push("/disbursement/listWithdraw");
   }, 1500);
 };
-
-
 
 
 const previewFile = (file: File) => {
@@ -394,17 +395,17 @@ const previewFile = (file: File) => {
         <!-- Form Left -->
         <div class="grid grid-cols-4 gap-4">
 
-          <!-- ช่อง "รหัสรายการเบิก *" -->
+          <!-- ช่อง "รหัสรายการเบิก " -->
 
           <div>
             <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก </label>
             <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ rqCode }}</p>
           </div>
 
-          <!-- ช่อง "ชื่อรายการเบิก" -->
+          <!-- ช่อง "ชื่อรายการเบิก *" -->
           <div>
-            <label for="rqName" class="block text-sm font-medium py-2">ชื่อรายการเบิก <span
-                class="text-red-500">*</span></label>
+            <label for="rqName" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqName }">ชื่อรายการเบิก <span class="text-red-500">*</span></label>
             <input type="text" id="rqName" v-model="formData.rqName"
               :class="['inputItem', { 'error': errors.rqName }]" />
           </div>
@@ -419,17 +420,18 @@ const previewFile = (file: File) => {
 
           <!-- ช่อง "วันที่ทำการเบิกค่าใช้จ่าย *" -->
           <div>
-            <label for="rqPayDate" class="block text-sm font-medium py-2">วันที่ทำการเบิกค่าใช้จ่าย <span
+            <label for="rqPayDate" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.selectedDate }">วันที่ทำการเบิกค่าใช้จ่าย <span
                 class="text-red-500">*</span></label>
             <SingleDatePicker v-model="selectedDate" id="rqPayDate" v-model:isOpen="isDatePickerOpen"
               :confirmedDate="selectedDate" class="dateInput w-full h-[42px] text-black" placeholder="เลือกวันที่"
-              />
+              :class="['dateInput', { 'error': errors.selectedDate }]" />
           </div>
 
-
+          <!-- ช่อง "โครงการ *" -->
           <div>
-            <label for="projectName" class="block text-sm font-medium py-2">โครงการ<span
-                class="text-red-500">*</span></label>
+            <label for="projectName" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqPjId }">โครงการ<span class="text-red-500">*</span></label>
             <div class="text-xs">
               <select id="projectName" v-model="formData.rqPjId" :class="['inputItem', { 'error': errors.rqPjId }]"
                 required>
@@ -441,11 +443,11 @@ const previewFile = (file: File) => {
             </div>
           </div>
 
-          <!-- ช่อง "อีเมลผู้ขอเบิกแทน *" -->
+          <!-- ช่อง "ประเภทค่าใช้จ่าย *" -->
 
           <div>
             <!-- Dropdown -->
-            <label for="expenseType" class="block text-sm font-medium py-2">
+            <label for="expenseType" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.rqRqtId }">
               ประเภทค่าใช้จ่าย <span class="text-red-500">*</span>
             </label>
             <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName"
@@ -459,25 +461,26 @@ const previewFile = (file: File) => {
             </select>
           </div>
 
+          <!-- ช่อง "ประเภทค่าใช้จ่ายอื่นๆ *" -->
           <div v-show="rqtName == 'อื่นๆ'">
-            <label for="rqAny" class="block text-sm font-medium py-2">
+            <label for="rqAny" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.rqAny }">
               ประเภทค่าใช้จ่ายอื่นๆ <span class="text-red-500">*</span>
             </label>
             <input id="rqAny" v-model="formData.rqAny" :class="['inputItem', { 'error': errors.rqAny }]" type="text"
               placeholder="กรุณาระบุข้อมูลเพิ่มเติม" />
           </div>
 
-          <!-- ช่อง "ประเภทการเดินทาง" -->
+          <!-- ช่อง "ประเภทการเดินทาง *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <!-- Dropdown เลือกประเภทการเดินทาง -->
-            <label for="travelType" class="block text-sm font-medium py-2">
+            <label for="travelType" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.selectedTravelType }">
               ประเภทการเดินทาง <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
               <select id="travelType" v-model="selectedTravelType"
                 :class="['inputItem', { 'error': errors.selectedTravelType }]">
                 <option value="" disabled>เลือกประเภทการเดินทาง</option>
-                <!-- ใช้ uniqueTravelTypes ที่กรองแล้ว -->
                 <option v-for="type in uniqueTravelTypes" :value="type">
                   {{ type === 'private' ? 'ประเภทส่วนตัว' : 'ประเภทสาธารณะ' }}
                 </option>
@@ -485,10 +488,10 @@ const previewFile = (file: File) => {
             </div>
           </div>
 
-          <!-- ช่อง "ประเภทรถ" -->
+          <!-- ช่อง "ประเภทรถ *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <!-- Dropdown เลือกประเภทรถ (กรองตามประเภทการเดินทางที่เลือก) -->
-            <label for="vehicleType" class="block text-sm font-medium py-2">
+            <label for="vehicleType" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.vhId }">
               ประเภทรถ <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
@@ -503,43 +506,46 @@ const previewFile = (file: File) => {
             </div>
           </div>
 
-          <!-- ช่อง "สถานที่เริ่มต้น" -->
+          <!-- ช่อง "สถานที่เริ่มต้น *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
-            <label for="rqStartLocation" class="block text-sm font-medium py-2">สถานที่เริ่มต้น <span
+            <label for="rqStartLocation" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqStartLocation }">สถานที่เริ่มต้น <span
                 class="text-red-500">*</span></label>
             <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation"
               :class="['inputItem', { 'error': errors.rqStartLocation }]" />
           </div>
-          <!-- ช่อง "สถานที่สิ้นสุด" -->
+          <!-- ช่อง "สถานที่สิ้นสุด *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
-            <label for="rqEndLocation" class="block text-sm font-medium py-2">สถานที่สิ้นสุด <span
+            <label for="rqEndLocation" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqEndLocation }">สถานที่สิ้นสุด <span
                 class="text-red-500">*</span></label>
             <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation"
               :class="['inputItem', { 'error': errors.rqEndLocation }]" />
           </div>
 
-          <!-- ช่อง "ระยะทาง" -->
+          <!-- ช่อง "ระยะทาง *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
-            <label for="rqDistance" class="block text-sm font-medium py-2">ระยะทาง <span
-                class="text-red-500">*</span></label>
+            <label for="rqDistance" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqDistance }">ระยะทาง <span class="text-red-500">*</span></label>
             <input type="text" id="rqDistance" v-model="formData.rqDistance"
               :class="['inputItem', { 'error': errors.rqDistance }]" />
           </div>
 
+          <!-- ช่อง "อัตราค่าเดินทาง" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <label for="rqPayrate" class="block text-sm font-medium py-2">อัตราค่าเดินทาง </label>
             <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ selectedPayrate }}</p>
           </div>
 
-          <!-- ช่อง "จำนวนเงิน (บาท)" -->
+          <!-- ช่อง "จำนวนเงิน (บาท) *" -->
           <div>
-            <label for="rqExpenses" class="block text-sm font-medium py-2">จำนวนเงิน (บาท) <span
-                class="text-red-500">*</span></label>
+            <label for="rqExpenses" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqExpenses }">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
             <input type="number" id="rqExpenses" v-model="displayRqExpenses"
               :class="['inputItem', { 'error': errors.rqExpenses }]" />
           </div>
 
-
+          <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->
           <div>
             <label for="rqInsteadEmail" class="block text-sm font-medium py-2">ชื่อผู้ขอเบิกแทน </label>
             <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem">
@@ -547,42 +553,17 @@ const previewFile = (file: File) => {
               <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead">{{ user.usrName }}</option>
             </select>
           </div>
-
-
-
-
-
         </div>
-        <!-- <div class="border border-gray-200"></div> -->
-
-        <!-- Form Right -->
-        <!-- <div class="w-2/5 rounded-[10px] place-items-end"> -->
-
-
-
-
-        <!-- ช่อง "สถาน *" -->
-        <!-- <div v-if="rqtId !== 'ค่าเดินทาง'" class="m-4">
-            <label for="rqLocation" class="block text-sm font-medium py-1"
-              >สถาน *</label
-            >
-            <input
-              type="text"
-              id="rqLocation"
-              v-model="formData.rqLocation"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
-          </div> -->
-
-
 
       </div>
-      <!-- วัตถุประสงค์ -->
+      <!-- ช่อง "รายละเอียด *" -->
       <div class="text-sm my-4">
-        <label class="block text-sm font-medium pb-2">รายละเอียด</label>
+        <label class="block text-sm font-medium pb-2" :class="{ 'text-red-500': errors.rqPurpose }">รายละเอียด <span
+            class="text-red-500">*</span></label>
         <textarea v-model="formData.rqPurpose" class="h-[81px]"
           :class="['inputItem', { 'error': errors.rqPurpose }]"> </textarea>
       </div>
+
       <!-- upload -->
       <div class="upload-container">
         <label class="z-0 max-md:max-w-full">อัปโหลดไฟล์</label>
@@ -606,7 +587,7 @@ const previewFile = (file: File) => {
 
     <FileDisplay v-for="file in selectedFiles" :key="file.name || file.lastModified" :file="file"
       @remove="removeFile(file)" @preview="previewFile(file)" />
-      
+
     <!-- Popup บันทึก -->
     <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
@@ -750,6 +731,7 @@ const previewFile = (file: File) => {
     </div>
   </form>
 </template>
+
 <style>
 .inputItem {
   padding: 8px 12px;
@@ -778,8 +760,6 @@ const previewFile = (file: File) => {
 .date input.error,
 .dateInput input.error {
   border-color: red !important;
-  /* ใช้ !important เพื่อให้แน่ใจว่าขอบสีแดงถูกใช้ */
-  background-color: #FFF5F5;
-  /* เพิ่มสีพื้นหลังจาง ๆ เพื่อให้ดูชัดเจน */
+
 }
 </style>
