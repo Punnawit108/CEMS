@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
-import StatusBudge from './StatusBudge.vue'; // นำเข้าคอมโพเนนต์สำหรับแสดงสถานะ
+import StatusBudge from '../Status/StatusBudge.vue'; // นำเข้าคอมโพเนนต์สำหรับแสดงสถานะ
 </script>
 
 <template>

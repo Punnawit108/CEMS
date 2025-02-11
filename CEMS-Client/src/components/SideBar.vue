@@ -6,8 +6,8 @@
  * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
  */
 import { ref, onMounted, watch } from "vue";
-import Icon from "./CIcon.vue";
-import { useNotificationStore } from "../../store/notification";
+import Icon from "./Icon/CIcon.vue";
+import { useNotificationStore } from "../store/notification";
 
 const notificationStore = useNotificationStore();
 

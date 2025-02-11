@@ -7,7 +7,7 @@
  */
 
 import { onMounted, ref, computed } from "vue";
-import Button from "../../components/template/Button.vue";
+import Button from "../../components/Buttons/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
 import { useRoute } from "vue-router";
