@@ -19,8 +19,9 @@ onMounted(() => {
 })
 
 const selectUser = (user: any) => {
+    console.log(user)
     localStorage.setItem('user', JSON.stringify(user));
-    router.push({ path: '/dashboard' });
+    // router.push({ path: '/dashboard' });
 };
 
 </script>

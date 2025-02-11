@@ -156,10 +156,9 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetUserByEmployeeId(string id)
+    public async Task<IActionResult> GetUserByEmployeeId(string id)
     {
 
-        Console.WriteLine(id);
         var user = _context.CemsUsers.Include(u => u.UsrRol).FirstOrDefault(u => u.UsrEmployeeId == id);
 
         if (user == null)
@@ -175,6 +174,17 @@ public class UserController : ControllerBase
             UsrIsActive = user.UsrIsActive,
             UsrIsApprover = 0,
         };
+
+                var approvers = await _context
+            .CemsApprovers.Where(e => e.ApSequence != null)
+            .Select(e => new { e.ApUsrId, e.ApSequence })
+            .ToListAsync();
+
+        foreach(var approver in approvers){
+            if(userLocal.UsrId.Equals(approver.ApUsrId)){
+                userLocal.UsrIsApprover = 1;
+            }
+        }
 
         return Ok(userLocal);
     }
