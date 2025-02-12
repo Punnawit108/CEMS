@@ -7,9 +7,9 @@
 */
 import { useRoute } from 'vue-router';
 import { computed, onMounted } from 'vue';
-import Icon from './CIcon.vue';
-import Button from './Button.vue';
-import { useLockStore } from '../../store/lockSystem';
+import Icon from './Icon/CIcon.vue';
+import Button from './Buttons/Button.vue';
+import { useLockStore } from '../store/lockSystem';
 
 // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 const route = useRoute();

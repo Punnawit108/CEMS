@@ -6,6 +6,7 @@
 */
 
 using System;
+using System.Text.Json;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Hubs;
@@ -205,7 +206,7 @@ public class ExpenseController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 14 ธันวาคม 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
-    public async Task<ActionResult> CreateExpense([FromBody] ExpenseManageDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
+    public async Task<ActionResult> CreateExpense([FromForm] ExpenseManageDto expenseDto)
     {
         if (expenseDto == null)
         {
@@ -242,7 +243,6 @@ public class ExpenseController : ControllerBase
             RqEndLocation = expenseDto.RqEndLocation,
             RqDistance = expenseDto.RqDistance,
             RqPurpose = expenseDto.RqPurpose,
-            RqProof = expenseDto.RqProof,
             RqStatus = expenseDto.RqStatus,
             RqProgress = expenseDto.RqProgress,
             RqAny = expenseDto.RqAny,
@@ -250,6 +250,27 @@ public class ExpenseController : ControllerBase
 
         _context.CemsRequisitions.Add(expense);
         await _context.SaveChangesAsync();
+
+        if (expenseDto.Files != null && expenseDto.Files.Count > 0)
+        {
+            foreach (var file in expenseDto.Files)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var fileData = memoryStream.ToArray();
+
+                var cemsFile = new CemsFile
+                {
+                    FRqId = rqId,
+                    FName = file.FileName,
+                    FFileType = file.ContentType,
+                    FFile = fileData,
+                    FSize = (int)file.Length,
+                };
+                _context.CemsFiles.Add(cemsFile);
+            }
+            await _context.SaveChangesAsync();
+        }
 
         if (expenseDto.RqStatus != "sketch")
         {
@@ -310,6 +331,13 @@ public class ExpenseController : ControllerBase
         );
     }
 
+    [HttpGet("next-rq-code")]
+    public async Task<IActionResult> GetNextRqCode()
+    {
+        var nextRqCode = await GenerateNextRqCodeAsync();
+        return Ok(new { nextRqCode });
+    }
+
     private async Task<string> GenerateNextRqCodeAsync()
     {
         // ตรวจสอบและดึงข้อมูล rq_code ล่าสุดจากฐานข้อมูล
@@ -362,14 +390,13 @@ public class ExpenseController : ControllerBase
         expense.RqName = expenseDto.RqName;
         expense.RqPayDate = expenseDto.RqPayDate;
         expense.RqWithdrawDate = expenseDto.RqWithDrawDate;
-        expense.RqCode = expenseDto.RqCode;
         expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
         expense.RqExpenses = expenseDto.RqExpenses;
         expense.RqStartLocation = expenseDto.RqStartLocation;
         expense.RqEndLocation = expenseDto.RqEndLocation;
         expense.RqDistance = expenseDto.RqDistance;
         expense.RqPurpose = expenseDto.RqPurpose;
-        expense.RqProof = expenseDto.RqProof;
+        //expense.RqProof = expenseDto.RqProof;
         expense.RqStatus = expenseDto.RqStatus;
         expense.RqProgress = expenseDto.RqProgress;
 

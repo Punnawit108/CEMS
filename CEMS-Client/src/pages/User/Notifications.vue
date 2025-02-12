@@ -8,7 +8,7 @@
 import { ref, computed } from 'vue';
 import { useNotificationStore } from '../../store/notification';
 import { onMounted } from 'vue';
-import CardNotification from '../../components/template/CardNotification.vue';
+import CardNotification from '../../components/CardNotification.vue';
 
 
 

@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
 */
-import { useNotification } from '../../store/notification';
+import { useNotification } from '../store/notification';
 import { defineProps, computed } from 'vue';
 import { useRouter } from 'vue-router'; // นำเข้า useRouter
 

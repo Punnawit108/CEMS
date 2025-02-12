@@ -2,7 +2,9 @@ using QuestPDF.Infrastructure;
 using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
 using CEMS_Server.Hubs;
-using Microsoft.OpenApi.Models;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,6 +54,24 @@ if (connectionString != null)
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // ใช้ CORS ก่อนการตั้งค่าอื่น ๆ
@@ -66,6 +86,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Map SignalR hub

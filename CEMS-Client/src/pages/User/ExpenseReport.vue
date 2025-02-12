@@ -5,14 +5,14 @@
  * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
  * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
  */
-import Icon from '../../components/template/CIcon.vue';
+import Icon from '../../components/Icon/CIcon.vue';
 import { onMounted, ref } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/template/CTable.vue';
+import Ctable from '../../components/Table/CTable.vue';
 import { useExpensesListStore, useExpensesGraphStore } from '../../store/expensesReport';
 import ExpenseReportGraph from '../../types/index';
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
-import Button from "../../components/template/Button.vue";
+import Button from "../../components/Buttons/Button.vue";
 
 import {
     Chart,

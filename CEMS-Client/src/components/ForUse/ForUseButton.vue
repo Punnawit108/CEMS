@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: พงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 13 พฤศจิกายน 2567
 */
-import Button from './Button.vue';
+import Button from '../Buttons/Button.vue';
 </script>
 
 <template>

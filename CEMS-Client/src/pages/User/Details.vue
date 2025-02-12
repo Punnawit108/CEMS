@@ -7,8 +7,8 @@
 */
 
 import { ref, computed, onMounted, reactive } from "vue";
-import Progress from "../../components/template/Progress.vue";
-import Button from "../../components/template/Button.vue";
+import Progress from "../../components/Progress.vue";
+import Button from "../../components/Buttons/Button.vue";
 import { useRoute, useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
 import { useExportDetailStore } from "../../store/exportDetail";

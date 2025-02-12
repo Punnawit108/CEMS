@@ -6,7 +6,7 @@
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 import { ref } from "vue";
-import Button from "../../components/template/Button.vue";
+import Button from "../../components/Buttons/Button.vue";
 
 
 // State สำหรับแถวส่วนตัว

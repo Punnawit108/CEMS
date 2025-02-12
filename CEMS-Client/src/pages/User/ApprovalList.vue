@@ -7,8 +7,8 @@
 */
 
 import { useRouter } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/CTable.vue';
+import Icon from '../../components/Icon/CIcon.vue';
+import Ctable from '../../components/Table/CTable.vue';
 import { useApprovalStore } from '../../store/approvalList';
 import { onMounted, ref } from 'vue';
 import { Expense } from '../../types';

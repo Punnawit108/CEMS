@@ -8,9 +8,9 @@
 // import Icon from '../../components/template/CIcon.vue';
 import { onMounted , ref } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/template/CTable.vue';
+import Ctable from '../../components/Table/CTable.vue';
 import { useProjectsStore } from '../../store/projectsReport';
-import Button from "../../components/template/Button.vue";
+import Button from "../../components/Buttons/Button.vue";
 import ProjectReport from '../../types/index';
 import { useExportProjectReportStore } from "../../store/exportProjectReport";
 import {
