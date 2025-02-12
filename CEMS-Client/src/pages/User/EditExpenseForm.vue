@@ -66,6 +66,21 @@ const parseDate = (dateStr: string): Date => {
   return new Date(year - 543, month - 1, day); // แปลง พ.ศ. เป็น ค.ศ.
 };
 
+const base64ToBlob = (base64: string, mimeType: string): Blob => {
+  const byteCharacters = atob(base64); // แปลง Base64 ให้เป็น string ของ byte
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+    const slice = byteCharacters.slice(offset, offset + 1024);
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+    byteArrays.push(new Uint8Array(byteNumbers));
+  }
+
+  return new Blob(byteArrays, { type: mimeType });
+};
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
@@ -93,8 +108,12 @@ onMounted(async () => {
         selectedDate.value = parseDate(data.rqPayDate);
 
         selectedFiles.value = data.files.map((file: any) => {
-          const blob = new Blob([file.fFile], { type: file.fFileType });
-          return new File([blob], file.fName, { type: file.fFileType });
+          const blob = base64ToBlob(file.fFile, file.fFileType);
+          const fileObject = new File([blob], file.fName, { type: file.fFileType });
+          return {
+            file: fileObject,
+            fId: file.fId, 
+          };
         });
         console.log(selectedFiles)
         console.log(data)
@@ -620,7 +639,7 @@ const previewFile = (file: File) => {
       </div>
     </div>
 
-    <FileDisplay v-for="file in selectedFiles" :key="file.name || file.lastModified" :file="file"
+    <FileDisplay v-for="file in selectedFiles.file" :key="file.name || file.lastModified" :file="file"
       @remove="removeFile(file)" @preview="previewFile(file)" />
 
     <!-- Popup บันทึก -->
