@@ -6,7 +6,7 @@ const emit = defineEmits(['remove', 'preview']) ;
 //@preview="previewFile(file)"
 const fileName = props.file.name ;
 const fileType = props.file.type.split("/")[1] ;
-console.log(fileType)
+console.log(props.file)
 const fileIcon = computed(() => {
 
     switch (fileType) {

@@ -167,15 +167,18 @@ public class ExpenseController : ControllerBase
                 RqUsrId = u.RqUsr.UsrId,
                 RqUsrName =
                     u.RqUsr.UsrNp.NpPrefix + " " + u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqPjId = u.RqPj.PjId,
                 RqPjName = u.RqPj.PjName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqVhType = u.RqVh.VhType,
                 RqVhPayrate = u.RqVh.VhPayrate,
+                RqRqtId = u.RqRqt.RqtId,
                 RqRqtName = u.RqRqt.RqtName,
                 RqName = u.RqName,
                 RqPayDate = u.RqPayDate,
                 RqWithDrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
+
                 RqInsteadEmail = _context
                     .CemsUsers.Where(user => user.UsrEmail == u.RqInsteadEmail)
                     .Select(user => user.UsrFirstName + " " + user.UsrLastName)
@@ -189,6 +192,17 @@ public class ExpenseController : ControllerBase
                 RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqProgress = u.RqProgress,
+
+                Files = u
+                    .CemsFiles.Select(f => new CemsFile
+                    {
+                        FId = f.FId,
+                        FName = f.FName,
+                        FFileType = f.FFileType,
+                        FSize = f.FSize,
+                        FFile = f.FFile,
+                    })
+                    .ToList(),
             })
             .FirstOrDefaultAsync();
 

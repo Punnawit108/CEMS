@@ -119,8 +119,6 @@ export const useRequisitionStore = defineStore('dropdown', {
                         "Content-Type": "multipart/form-data",
                     },
                 });
-                console.log(result);
-                console.log(CreateExpense);
                 return result.data;
 
             } catch (error) {
