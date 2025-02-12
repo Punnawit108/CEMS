@@ -13,7 +13,6 @@ public partial class CemsNotification
 
     public string NtStatus { get; set; } = null!;
     public string? NtUsrId { get; set; }
-    public string? NtUsrApId { get; set; }
 
     public virtual CemsApproverRequisition NtApr { get; set; } = null!;
 }

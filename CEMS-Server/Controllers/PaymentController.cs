@@ -188,16 +188,7 @@ public class PaymentController : ControllerBase
         expense.RqStatus = expenseDto.RqStatus;
         expense.RqProgress = expenseDto.RqProgress;
 
-        var notification = new CemsNotification
-        {
-            NtDate = DateTime.Now,
-            NtStatus = "unread",
-            NtUsrId = expense.RqUsrId,
-        };
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
-        _context.CemsNotifications.Add(notification);
-        await _context.SaveChangesAsync();
-
+        
         // บันทึกการเปลี่ยนแปลง
         _context.CemsRequisitions.Update(expense);
         await _context.SaveChangesAsync();

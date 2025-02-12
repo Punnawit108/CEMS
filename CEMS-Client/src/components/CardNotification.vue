@@ -29,13 +29,16 @@ const formatDateTime = (dateTime: string): string => {
     return `${day}/${month}/${year} เวลา ${hours}.${minutes} น.`;
 };
 
-const getStatusMessage = (status: string, progress: string): string => {
-    if (status === "accept") return "ได้รับการอนุมัติเรียบร้อยแล้ว";
-    if (status === "edit") return "แก้ไขเพิ่มเติม กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
-    if (status === "reject") return "ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
-    if (status === "waiting") return "รอดำเนินการอนุมัติ";
-    if (progress === "paying") return "รอนำจ่าย";
-    if (progress === "complete") return "ได้รับการนำจ่ายเรียบร้อยแล้ว";
+const getStatusMessage = (rqStatus: string, rqProgress: string): string => {
+    //สำหรับผู้อนุมัติ
+    if (rqStatus === "waiting"||rqStatus === "accept") return "รอดำเนินการอนุมัติ";
+    //สำหรับผู้สร้างใบเบิก
+    if (rqStatus == "accept"&& rqProgress == "paying") return "ได้รับการอนุมัติเรียบร้อยแล้ว";
+    if (rqStatus === "edit") return "แก้ไขเพิ่มเติม กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
+    if (rqStatus === "reject") return "ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
+    if (rqStatus == "accept"&& rqProgress === "complete") return "ได้รับการนำจ่ายเรียบร้อยแล้ว";
+    //นักบัญชี
+    if (rqProgress === "paying" && rqStatus == "accept") return "รอนำจ่าย";
     return "";
 };
 
@@ -49,12 +52,14 @@ const sortedNotifications = computed(() => {
 
 // ฟังก์ชันนำทางเมื่อคลิกที่แจ้งเตือน
 const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: string) => {
-    if (ntAprStatus === "reject" || ntAprRqProgress === "complete") {
-        router.push(`/approval/list/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
+    if (ntAprStatus === "reject" || ntAprRqProgress === "complete"||ntAprRqProgress === "paying") {
+        router.push(`/disbursement/historyWithdraw/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
+    }else if(ntAprStatus === "edit"){
+        router.push(`/disbursement/listWithdraw/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
     }else if(ntAprStatus === "waiting" || ntAprRqProgress === "accepting"){
         router.push(`/approval/list/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
-
     }
+    
 };
 </script>
 

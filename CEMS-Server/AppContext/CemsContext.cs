@@ -147,9 +147,7 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.NtUsrId)
                 .HasMaxLength(10)
                 .HasColumnName("nt_usr_id"); 
-            entity.Property(e => e.NtUsrApId)
-                .HasMaxLength(10)
-                .HasColumnName("nt_usr_ap_id");
+            
 
             entity
                 .HasOne(d => d.NtApr)

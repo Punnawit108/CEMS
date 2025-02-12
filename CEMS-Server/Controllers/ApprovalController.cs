@@ -298,13 +298,13 @@ public class ApprovalController : ControllerBase
                     var notificationForUser = new CemsNotification
                     {
                         NtDate = DateTime.Now,
+                        NtAprId = approverUpdate.AprId,
                         NtStatus = "unread",
                         NtUsrId = requisition.RqUsrId,
                     };
-                        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
-                        await _context.SaveChangesAsync();
-                
                     _context.CemsNotifications.Add(notificationForUser);
+                    await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+                    await _context.SaveChangesAsync();
                     if (!updateSuccess)
                     {
                         return NotFound();
@@ -321,6 +321,16 @@ public class ApprovalController : ControllerBase
                 "accepting",
                 approverUpdate.RqReason
             );
+            var notificationForUser = new CemsNotification
+            {
+                NtDate = DateTime.Now,
+                NtAprId = approverUpdate.AprId,
+                NtStatus = "unread",
+                NtUsrId = requisition.RqUsrId,
+            };
+            _context.CemsNotifications.Add(notificationForUser);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+            await _context.SaveChangesAsync();
 
             if (!updateEdit)
             {
@@ -335,6 +345,17 @@ public class ApprovalController : ControllerBase
                 "complete",
                 approverUpdate.RqReason
             );
+            var notificationForUser = new CemsNotification
+            {
+                NtDate = DateTime.Now,
+                NtAprId = approverUpdate.AprId,
+                NtStatus = "unread",
+                NtUsrId = requisition.RqUsrId,
+            };
+            _context.CemsNotifications.Add(notificationForUser);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+            await _context.SaveChangesAsync();
+
             if (!updateReject)
             {
                 return NotFound();
@@ -438,7 +459,17 @@ public class ApprovalController : ControllerBase
         requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
 
+        var notification = new CemsNotification
+        {
+            NtDate = DateTime.Now,
+            NtStatus = "unread",
+            NtUsrId = requisition.RqUsrId,
+        };
+        _context.CemsNotifications.Add(notification);
+        await _context.SaveChangesAsync();
+
         _context.CemsRequisitions.Update(requisition);
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
         return NoContent();
     }

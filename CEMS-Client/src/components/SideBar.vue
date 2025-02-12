@@ -553,7 +553,6 @@ watch(clickSettingTypeWithdraw, (newVal) => {
             <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
             <Icon :icon="'notification'" class="ml-2" />
             <!-- ตัวเลข -->
-            <span>{{ notificationStore.unreadCount }}</span>
             <span class="self-stretch py-2.5 my-auto w-[174px] text-left">การแจ้งเตือน</span>
             <div v-if="notificationStore.unreadCount > 0"
               class="absolute right-2 flex items-center justify-center w-6 h-6 text-white bg-red-500 rounded-full text-xs">
