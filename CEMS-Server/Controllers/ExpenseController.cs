@@ -149,7 +149,7 @@ public class ExpenseController : ControllerBase
     /// <summary>แสดงข้อมูลรายละเอียดคำขอเบิก</summary>
     /// <param name="id"> id รายการคำขอเบิก</param>
     /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกตาม id ที่รับ</returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ExpenseGetByIdDto>> GetExpenseById(string id)
@@ -217,7 +217,7 @@ public class ExpenseController : ControllerBase
     /// <summary>สร้างข้อมูลคำขอเบิก</summary>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก /param>
     /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก /returns>
-    /// <remarks>แก้ไขล่าสุด: 14 ธันวาคม 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
     public async Task<ActionResult> CreateExpense([FromForm] ExpenseManageDto expenseDto)
@@ -298,12 +298,11 @@ public class ExpenseController : ControllerBase
             int newAprId = (lastAprId ?? 0) + 1;
 
             var approverIds = await _context
-                .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
+                .CemsApprovers.Where(u => u.ApSequence != null)
                 .OrderBy(u => u.ApSequence)
                 .Select(x => new { x.ApId, x.ApUsrId })
                 .ToListAsync();
 
-            /// Loop สร้างข้อมูลผู้อนุมัติ
             foreach (var approverId in approverIds)
             {
                 var approverRequisition = new CemsApproverRequisition
@@ -344,6 +343,10 @@ public class ExpenseController : ControllerBase
         );
     }
 
+    /// <summary>หาค่า RqCode ล่าสุด</summary>
+    /// <returns>ค่า RqCode index ถัดไป</returns>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+
     [HttpGet("next-rq-code")]
     public async Task<IActionResult> GetNextRqCode()
     {
@@ -351,6 +354,9 @@ public class ExpenseController : ControllerBase
         return Ok(new { nextRqCode });
     }
 
+    /// <summary>หาค่า RqCode ล่าสุด</summary>
+    /// <returns>ค่า RqCode index ถัดไป</returns>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
     private async Task<string> GenerateNextRqCodeAsync()
     {
         // ตรวจสอบและดึงข้อมูล rq_code ล่าสุดจากฐานข้อมูล
@@ -377,7 +383,7 @@ public class ExpenseController : ControllerBase
     /// <param name="id"> id ของรายการคำขอเบิก </param>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก </param>
     /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก</returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateExpense(
@@ -454,27 +460,22 @@ public class ExpenseController : ControllerBase
     /// <summary>ลบข้อมูลคำขอเบิก</summary>
     /// <param name="id"> id ของรายการคำขอเบิก </param>
     /// <returns>สถานะการลบข้อมูลคำขอเบิก </returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(string id)
     {
-        // ค้นหา id ในตาราง
         var expense = await _context.CemsRequisitions.FindAsync(id);
 
-        // ไม่พบข้อมูลส่ง NotFound
         if (expense == null)
         {
             return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
         }
 
-        // ลบข้อมูลออกจาก Context
         _context.CemsRequisitions.Remove(expense);
 
-        // บันทึกการเปลี่ยนแปลง
         await _context.SaveChangesAsync();
 
-        // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
 
@@ -492,6 +493,10 @@ public class ExpenseController : ControllerBase
         return Ok(requisition);
     }
 
+    /// <summary>ลบข้อมูลไฟล์ตามคำขอเบิก</summary>
+    /// <param name="id"> id ของ file ที่ต้องการลบ </param>
+    /// <returns>สถานะการลบข้อมูลไฟล์ </returns>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
     [HttpDelete("file/{id}")]
     public async Task<IActionResult> DeleteFile(int id)
     {

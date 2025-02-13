@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /*
- * ชื่อไฟล์: CreateExpenseForm.vue
+ * ชื่อไฟล์: EditExpenseForm.vue
  * คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
  * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ , อังคณา อุ่นเสียม , พงศธร บุญญามา
  * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
@@ -14,11 +14,6 @@ import { createRequisition, TravelManage } from "../../types";
 import SingleDatePicker from "../../components/template/SingleDatePicker.vue";
 import FileDisplay from "../../components/template/FileDisplay.vue";
 import { useRoute } from "vue-router";
-
-interface SelectedFile {
-  file: File;
-  fId: number | null;
-}
 
 
 const requisitionStore = useRequisitionStore();
@@ -120,7 +115,7 @@ onMounted(async () => {
             file: fileObject,
             fId: file.fId,
           };
-        }); console.log(selectedFiles)
+        });
       }
     } catch (error) {
       console.log("Error loading user:", error);
@@ -170,15 +165,12 @@ const triggerFileInput = () => {
 };
 
 //fn เมื่อมีการลากไฟล์ทำการอัพโหลด
-const handleDrop = (event: DragEvent) => {
+const handleDrop = async (event: DragEvent) => {
+  event.preventDefault();
+
   if (event.dataTransfer && event.dataTransfer.files) {
     const droppedFiles = Array.from(event.dataTransfer.files);
-    const formattedFiles = droppedFiles.map((file) => ({
-      file,
-      fId: null  // สร้าง fId จาก timestamp หรือวิธีที่คุณต้องการ
-    }));
-    uploadFiles
-    selectedFiles.value.push(...formattedFiles);
+    await uploadFiles(droppedFiles); // เรียกใช้ uploadFiles แทนการ push ตรงๆ
   }
 };
 
@@ -192,11 +184,13 @@ const handleFileChange = async (event: Event) => {
 };
 
 //fn ลบข้อมูลไฟล์
-const removeFile = async (fIdToRemove: number | null) => {
-  if (fIdToRemove != null) { 
-    //await requisitionStore.deleteFile(fIdToRemove)
+const removeFile = async (fIdToRemove: number | null, fileNameToRemove?: string) => {
+  if (fIdToRemove !== null) {
+    await requisitionStore.deleteFile(fIdToRemove);
+    selectedFiles.value = selectedFiles.value.filter(item => item.fId !== fIdToRemove);
+  } else if (fileNameToRemove) {
+    selectedFiles.value = selectedFiles.value.filter(item => item.file.name !== fileNameToRemove);
   }
-  selectedFiles.value = selectedFiles.value.filter(item => item.fId !== fIdToRemove);
 };
 
 
@@ -354,7 +348,7 @@ const validateForm = async () => {
   return Object.keys(errors.value).length === 0;
 };
 
-
+// ปรับเปลี่ยนค่าของข้อมูล เมื่อเป็นค่าใช้จ่ายทั่วไป ค่าเดินทาง และค่าใช้จ่ายอื่นๆ
 function updateFormData() {
   if (rqtName.value != 'ค่าเดินทาง') {
     formData.value.rqVhId = null;
@@ -373,6 +367,7 @@ function updateFormData() {
   formData.value.rqWithdrawDate = formatDateToThai(currentDate.value)
 }
 
+// ปรับรูปแบบวันเดือนปี
 const formatDateToThai = (date: Date) => {
   if (!date) return null;
   const thaiYear = date.getFullYear() + 543;
@@ -380,6 +375,7 @@ const formatDateToThai = (date: Date) => {
   return formattedDate;
 };
 
+// ปรับรูปแบบค่าที่ส่งเข้า db
 const createFormData = (formData: createRequisition, selectedFiles: File[]): FormData => {
   const fd = new FormData();
   Object.entries(formData).forEach(([key, value]) => {
@@ -393,6 +389,7 @@ const createFormData = (formData: createRequisition, selectedFiles: File[]): For
   return fd;
 };
 
+//เมื่อกดปุ่มบันทึก
 const confirmSave = async (event: Event) => {
   event.preventDefault();
   formData.value.rqStatus = "sketch";
@@ -400,7 +397,7 @@ const confirmSave = async (event: Event) => {
   await updateFormData()
   const filesOnly = selectedFiles.value.filter(item => item.fId === null).map(item => item.file);
   const fd = await createFormData(formData.value, filesOnly);
-  //await requisitionStore.createExpense(fd);
+  await requisitionStore.updateExpense(id, fd);
   isAlertSaveOpen.value = true;
 
   setTimeout(() => {
@@ -410,6 +407,7 @@ const confirmSave = async (event: Event) => {
   }, 1500);
 };
 
+//เมื่อกดปุ่มยืนยัน
 const confirmSubmit = async (event: Event) => {
   event.preventDefault();
   formData.value.rqStatus = "waiting";
@@ -417,9 +415,9 @@ const confirmSubmit = async (event: Event) => {
   await updateFormData()
   const filesOnly = selectedFiles.value.filter(item => item.fId === null).map(item => item.file);
   const fd = await createFormData(formData.value, filesOnly);
-  await requisitionStore.updateExpense(id,fd);
+  await requisitionStore.updateExpense(id, fd);
   isAlertSubmitOpen.value = true;
-  console.log(fd)
+
   setTimeout(() => {
     isAlertSubmitOpen.value = false;
     closePopupSubmit();
@@ -427,6 +425,7 @@ const confirmSubmit = async (event: Event) => {
   }, 1500);
 };
 
+//เมื่อกดปุ่มยกเลิก
 const confirmCancle = async (event: Event) => {
   event.preventDefault();
   isAlertCancleOpen.value = true;
@@ -437,19 +436,16 @@ const confirmCancle = async (event: Event) => {
   }, 1500);
 };
 
+//ดูข้อมูลใน file
 const previewFile = (file: File) => {
-  // สร้าง Blob URL จากไฟล์
   const fileURL = URL.createObjectURL(file);
 
-  // ถ้าเป็นไฟล์ PDF
   if (file.type === 'application/pdf') {
     window.open(fileURL, '_blank');
   }
-  // ถ้าเป็นไฟล์ภาพ
   else if (file.type.startsWith('image/')) {
     window.open(fileURL, '_blank');
   }
-  // ถ้าเป็นไฟล์เอกสาร Word
   else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
     const link = document.createElement('a');
     link.href = fileURL;
