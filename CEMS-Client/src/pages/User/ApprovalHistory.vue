@@ -13,6 +13,11 @@ import StatusBudge from '../../components/Status/StatusBudge.vue';
 import { useApprovalStore } from '../../store/approvalList';
 import { onMounted, ref } from 'vue';
 import { Expense } from '../../types';
+import Pagination from '../../components/template/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const paginatedItem = ref<Expense[]>([]);;
 
 // เรียกใช้ ApprovalStore
 const approvalStore = useApprovalStore();
@@ -152,8 +157,8 @@ const toDetails = async (data: Expense) => {
             <Ctable :table="'Table8-head'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(item, index) in approvalStore.approvalHistory" :key="item.rqId" class="border-b">
-                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                    <tr v-for="(item, index) in paginatedItem" :key="item.rqId" class="border-b">
+                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage}}</th>
                         <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="Jakkawat Nguancharoen">
@@ -177,8 +182,9 @@ const toDetails = async (data: Expense) => {
                         </th>
                     </tr>
                 </tbody>
+                <Pagination :items="approvalStore.approvalHistory" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
+                v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
             </table>
-            <Ctable :table="'Table8-footer'" />
         </div>
     </div>
 </template>

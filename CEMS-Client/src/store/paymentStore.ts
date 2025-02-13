@@ -6,10 +6,10 @@
 */
 import axios from "axios";
 import { defineStore } from "pinia";
-import { Expense } from "../types";
 export const usePayment = defineStore('expense', {
     state: () => ({
-        expense: [] as Expense[]
+        PaymentList: [] as any[],
+        PaymentHistory: [] as any[]
     }),
     actions:{
         /*
@@ -22,7 +22,7 @@ export const usePayment = defineStore('expense', {
         async getAllPaymentList(){
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/payment/list`)
-                this.expense = result.data;
+                this.PaymentList = result.data;
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
             }
@@ -52,7 +52,7 @@ export const usePayment = defineStore('expense', {
         async getAllPaymentHistory(id:string){
             try{
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/payment/History/${id}`)
-                this.expense = result.data;
+                this.PaymentHistory = result.data;
             }catch (error){
                 console.error("Failed to fetch payment data:", error)
             }

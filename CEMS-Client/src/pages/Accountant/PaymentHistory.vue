@@ -10,42 +10,16 @@ import Ctable from '../../components/Table/CTable.vue';
 import Icon from '../../components/Icon/CIcon.vue';
 import { usePayment } from '../../store/paymentStore';
 import { ref, computed, onMounted } from 'vue';
-const paymentHistory = usePayment();
+const paymentStore = usePayment();
 const router = useRouter();
+
+import { Expense } from '../../types';
+import Pagination from '../../components/template/Pagination.vue';
+
 const currentPage = ref(1);
-const itemsPerPage = ref(15);
-const table = ref("Table1-footer");
+const itemsPerPage = ref(10);
+const paginatedItem = ref<Expense[]>([]);;
 
-const totalPages = computed(() => {
-  return Math.ceil(paymentHistory.expense.length / itemsPerPage.value);
-});
-
-const paginated = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return paymentHistory.expense.slice(start, end);
-});
-
-// Calculate remaining rows to fill the table
-const remainingRows = computed(() => {
-  const totalRows = itemsPerPage.value;
-  const rowsOnPage = paginated.value.length;
-  return totalRows - rowsOnPage;
-});
-
-
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
 
 const user = ref<any>(null);
 onMounted(async() => {
@@ -58,7 +32,7 @@ onMounted(async() => {
         }
     }
     if (user) {
-        await paymentHistory.getAllPaymentHistory(user.value.usrId); 
+        await paymentStore.getAllPaymentHistory(user.value.usrId); 
     }
 }
 )
@@ -179,13 +153,9 @@ const toDetails = (id: string) => {
             </div>
             <table class="w-full">
                 <tbody>
-                    <tr  v-for="(history, index) in paginated"
-                    :key="history.rqId"
-                    class="border-t"
-                    :class="{
-                      'border-b border-gray': index === paginated.length - 1,
-                    }">
-                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                    <tr  v-for="(history, index) in paginatedItem":key="history.rqId"
+                    class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                        <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage}}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             >
@@ -210,94 +180,11 @@ const toDetails = (id: string) => {
                             </span>
                         </th>
                     </tr>
-                    <!-- Show empty rows if there are less than 15 items -->
-          <tr v-if="paginated.length < itemsPerPage">
-            <td v-for="index in 7" :key="'empty' + index" class="px-4 py-2">
-              &nbsp;
-              <!-- Empty cell for spacing -->
-            </td>
-          </tr>
-          <!-- Fill remaining rows with empty cells for consistent row height -->
-          <tr v-for="index in remainingRows" :key="'empty-row' + index">
-            <td v-for="i in 7" :key="'empty-cell' + i" class="px-4 py-2">
-              &nbsp;
-              <!-- Empty cell for spacing -->
-            </td>
-          </tr>
                 </tbody>
-                <!-- Table2-footer -->
-        <tfoot class="border-t" v-if="table === 'Table1-footer'">
-            <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-  
-              <th class="py-[12px] text-end">
-                {{ currentPage }} of {{ totalPages }}
-              </th>
-              <th class="py-[12px] flex justify-evenly text-[14px] font-bold">
-                <span class="ml-6 text-[#A0A0A0]">
-                  <button
-                    @click="prevPage"
-                    :disabled="currentPage === 1"
-                    class="px-3 py-1 rounded"
-                  >
-                    <span class="text-sm">&lt;</span>
-                  </button>
-                </span>
-                <span class="mr-6">
-                  <button
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages"
-                    class="px-3 py-1 rounded"
-                  >
-                    <span class="text-sm">&gt;</span>
-                  </button>
-                </span>
-              </th>
-            </tr>
-          </tfoot>
+                <Pagination :items="paymentStore.PaymentHistory" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
+                v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
             </table>
         </div>
     </div>
     <!-- content -->
 </template>
-<style scoped>
-.custom-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: none;
-}
-
-.custom-select::-ms-expand {
-    display: none;
-}
-
-select,
-select option {
-    background-color: white;
-    color: #000000;
-}
-
-select:invalid,
-select option[value=""] {
-    color: #999999;
-}
-
-[hidden] {
-    display: none;
-}
-
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .custom-select {
-        background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position-x: 100%;
-        background-position-y: 5px;
-    }
-}
-</style>

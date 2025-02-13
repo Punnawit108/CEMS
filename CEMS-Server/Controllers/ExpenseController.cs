@@ -323,6 +323,7 @@ public class ExpenseController : ControllerBase
                         NtAprId = newAprId,
                         NtDate = DateTime.Now,
                         NtStatus = "unread",
+                        NtUsrId = approverId.ApUsrId,
                     };
                     _context.CemsNotifications.Add(notification);
                 }

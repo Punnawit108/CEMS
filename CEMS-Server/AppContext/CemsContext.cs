@@ -144,6 +144,10 @@ public partial class CemsContext : DbContext
                 .Property(e => e.NtStatus)
                 .HasColumnType("enum('read','unread')")
                 .HasColumnName("nt_status");
+            entity.Property(e => e.NtUsrId)
+                .HasMaxLength(10)
+                .HasColumnName("nt_usr_id"); 
+            
 
             entity
                 .HasOne(d => d.NtApr)
