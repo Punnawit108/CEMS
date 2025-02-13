@@ -6,13 +6,35 @@
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
-import { defineProps } from 'vue'; // นำเข้า defineProps เพื่อจัดการพร็อพของคอมโพเนนต์
-
+import { defineProps, onMounted, shallowRef } from "vue"; // นำเข้า defineProps เพื่อจัดการพร็อพของคอมโพเนนต์
+import StatusAccept from "./StatusAccept.vue";
 // กำหนดพร็อพที่คอมโพเนนต์นี้รับเข้ามา
+
+const currentComponent = shallowRef();
+
 const props = defineProps<{
     status: String // รับค่า status ซึ่งใช้กำหนดสถานะที่จะถูกแสดง
 }>();
 
+onMounted (() => {
+    switch(props.status){
+    //อนุมัติ
+        case "sts-accept" :currentComponent.value =StatusAccept;
+        break;
+    //รออนุมัติ
+        case "sts-waiting" :currentComponent.value =StatusAccept;
+        break;
+    //ไม่อนุมัติ
+        case "sts-reject" :currentComponent.value =StatusAccept;
+        break;
+    //แก้ไข
+        case "sts-edit" :currentComponent.value =StatusAccept;
+        break;
+    //แก้ไข
+        case "sts-sketch" :currentComponent.value =StatusAccept;
+        break;
+    }
+}) 
 </script>
 
 <template>
@@ -21,20 +43,7 @@ const props = defineProps<{
         <!-- content -->
         <div
             class="flex gap-4 justify-center items-center px-2 text-xs leading-snug text-center text-white whitespace-nowrap bg-emerald-500 rounded-3xl">
-            <!-- อนุมัติ -->
-            <span v-if="status==='sts-accept'" class="!text-white rounded-[28px] bg-[#12B669] w-[82px] h-[24px] flex justify-center items-center font-sarabun">อนุมัติ</span>
-            <!-- รออนุมัติ -->
-            <span v-if="status==='sts-waiting'" class="!text-white rounded-[28px] bg-[#1976D2] w-[75px] h-[24px] flex justify-center items-center font-sarabun">รออนุมัติ</span>
-            <!-- ไม่อนุมัติ -->
-            <span v-if="status==='sts-reject'" class="!text-white rounded-[28px] bg-[#E1032B] w-[74px] h-[24px] flex justify-center items-center font-sarabun">ไม่อนุมัติ</span>
-            <!-- แก้ไข -->
-            <span v-if="status==='sts-edit'" class="!text-white rounded-[28px] bg-[#FFBE40] w-[58px] h-[24px] flex justify-center items-center font-sarabun">แก้ไข</span>
-            <!-- แบบร่าง -->
-            <span v-if="status==='sts-sketch'" class="!text-white rounded-[28px] bg-[#B6B7BA] w-[72px] h-[24px] flex justify-center items-center font-sarabun">แบบร่าง</span>
-            <!-- accept -->
-            <!-- <span v-if="status==='sts-accept'" class="!text-white rounded-[28px] bg-[#12B669] w-[72px] h-[24px] flex justify-center items-center font-sarabun">accept</span> -->
-            <!-- reject -->
-            <!-- <span v-if="status==='sts-reject'" class="!text-white rounded-[28px] bg-[#E1032B] w-[72px] h-[24px] flex justify-center items-center font-sarabun">reject</span> -->
+            <component :is="currentComponent"></component>
         </div>
         <!-- content -->
     </div>
