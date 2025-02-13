@@ -6,7 +6,7 @@
 * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 import { defineProps } from 'vue';
-import Icon from './CIcon.vue';
+import Icon from '../Icon/CIcon.vue';
 
 const props = defineProps<{
     table: String;

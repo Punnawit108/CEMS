@@ -6,6 +6,7 @@
 */
 
 using System;
+using System.Text.Json;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Hubs;
@@ -148,7 +149,7 @@ public class ExpenseController : ControllerBase
     /// <summary>แสดงข้อมูลรายละเอียดคำขอเบิก</summary>
     /// <param name="id"> id รายการคำขอเบิก</param>
     /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกตาม id ที่รับ</returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("{id}")]
     public async Task<ActionResult<ExpenseGetByIdDto>> GetExpenseById(string id)
@@ -166,15 +167,18 @@ public class ExpenseController : ControllerBase
                 RqUsrId = u.RqUsr.UsrId,
                 RqUsrName =
                     u.RqUsr.UsrNp.NpPrefix + " " + u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
+                RqPjId = u.RqPj.PjId,
                 RqPjName = u.RqPj.PjName,
                 RqVhName = u.RqVh.VhVehicle,
                 RqVhType = u.RqVh.VhType,
                 RqVhPayrate = u.RqVh.VhPayrate,
+                RqRqtId = u.RqRqt.RqtId,
                 RqRqtName = u.RqRqt.RqtName,
                 RqName = u.RqName,
                 RqPayDate = u.RqPayDate,
                 RqWithDrawDate = u.RqWithdrawDate,
                 RqCode = u.RqCode,
+
                 RqInsteadEmail = _context
                     .CemsUsers.Where(user => user.UsrEmail == u.RqInsteadEmail)
                     .Select(user => user.UsrFirstName + " " + user.UsrLastName)
@@ -188,6 +192,17 @@ public class ExpenseController : ControllerBase
                 RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqProgress = u.RqProgress,
+
+                Files = u
+                    .CemsFiles.Select(f => new CemsFile
+                    {
+                        FId = f.FId,
+                        FName = f.FName,
+                        FFileType = f.FFileType,
+                        FSize = f.FSize,
+                        FFile = f.FFile,
+                    })
+                    .ToList(),
             })
             .FirstOrDefaultAsync();
 
@@ -202,10 +217,10 @@ public class ExpenseController : ControllerBase
     /// <summary>สร้างข้อมูลคำขอเบิก</summary>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก /param>
     /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก /returns>
-    /// <remarks>แก้ไขล่าสุด: 14 ธันวาคม 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPost]
-    public async Task<ActionResult> CreateExpense([FromBody] ExpenseManageDto expenseDto) //parameter รับค่า จาก Body และประกาศ Attribute class เป็น DTO ตามด้วยชื่อ
+    public async Task<ActionResult> CreateExpense([FromForm] ExpenseManageDto expenseDto)
     {
         if (expenseDto == null)
         {
@@ -242,7 +257,6 @@ public class ExpenseController : ControllerBase
             RqEndLocation = expenseDto.RqEndLocation,
             RqDistance = expenseDto.RqDistance,
             RqPurpose = expenseDto.RqPurpose,
-            RqProof = expenseDto.RqProof,
             RqStatus = expenseDto.RqStatus,
             RqProgress = expenseDto.RqProgress,
             RqAny = expenseDto.RqAny,
@@ -250,6 +264,27 @@ public class ExpenseController : ControllerBase
 
         _context.CemsRequisitions.Add(expense);
         await _context.SaveChangesAsync();
+
+        if (expenseDto.Files != null && expenseDto.Files.Count > 0)
+        {
+            foreach (var file in expenseDto.Files)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var fileData = memoryStream.ToArray();
+
+                var cemsFile = new CemsFile
+                {
+                    FRqId = rqId,
+                    FName = file.FileName,
+                    FFileType = file.ContentType,
+                    FFile = fileData,
+                    FSize = (int)file.Length,
+                };
+                _context.CemsFiles.Add(cemsFile);
+            }
+            await _context.SaveChangesAsync();
+        }
 
         if (expenseDto.RqStatus != "sketch")
         {
@@ -263,19 +298,18 @@ public class ExpenseController : ControllerBase
             int newAprId = (lastAprId ?? 0) + 1;
 
             var approverIds = await _context
-                .CemsApprovers.Where(u => u.ApSequence != null) // เพิ่มเงื่อนไขที่ต้องการ
+                .CemsApprovers.Where(u => u.ApSequence != null)
                 .OrderBy(u => u.ApSequence)
-                .Select(x => x.ApId)
+                .Select(x => new { x.ApId, x.ApUsrId })
                 .ToListAsync();
 
-            /// Loop สร้างข้อมูลผู้อนุมัติ
             foreach (var approverId in approverIds)
             {
                 var approverRequisition = new CemsApproverRequisition
                 {
                     AprId = newAprId,
                     AprRqId = rqId,
-                    AprApId = approverId,
+                    AprApId = approverId.ApId,
                     AprName = null,
                     AprDate = null,
                     AprStatus = approverId == approverIds.First() ? "waiting" : null,
@@ -309,6 +343,20 @@ public class ExpenseController : ControllerBase
         );
     }
 
+    /// <summary>หาค่า RqCode ล่าสุด</summary>
+    /// <returns>ค่า RqCode index ถัดไป</returns>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+
+    [HttpGet("next-rq-code")]
+    public async Task<IActionResult> GetNextRqCode()
+    {
+        var nextRqCode = await GenerateNextRqCodeAsync();
+        return Ok(new { nextRqCode });
+    }
+
+    /// <summary>หาค่า RqCode ล่าสุด</summary>
+    /// <returns>ค่า RqCode index ถัดไป</returns>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
     private async Task<string> GenerateNextRqCodeAsync()
     {
         // ตรวจสอบและดึงข้อมูล rq_code ล่าสุดจากฐานข้อมูล
@@ -335,12 +383,12 @@ public class ExpenseController : ControllerBase
     /// <param name="id"> id ของรายการคำขอเบิก </param>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก </param>
     /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก</returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateExpense(
         string id,
-        [FromBody] ExpenseManageDto expenseDto
+        [FromForm] ExpenseManageDto expenseDto
     )
     {
         if (expenseDto == null)
@@ -361,49 +409,73 @@ public class ExpenseController : ControllerBase
         expense.RqName = expenseDto.RqName;
         expense.RqPayDate = expenseDto.RqPayDate;
         expense.RqWithdrawDate = expenseDto.RqWithDrawDate;
-        expense.RqCode = expenseDto.RqCode;
         expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
         expense.RqExpenses = expenseDto.RqExpenses;
         expense.RqStartLocation = expenseDto.RqStartLocation;
         expense.RqEndLocation = expenseDto.RqEndLocation;
         expense.RqDistance = expenseDto.RqDistance;
         expense.RqPurpose = expenseDto.RqPurpose;
-        expense.RqProof = expenseDto.RqProof;
         expense.RqStatus = expenseDto.RqStatus;
         expense.RqProgress = expenseDto.RqProgress;
+        expense.RqAny = expenseDto.RqAny;
+        expense.RqReason = null;
 
-        // บันทึกการเปลี่ยนแปลง
-        _context.CemsRequisitions.Update(expense);
+        if (expenseDto.Files != null && expenseDto.Files.Count > 0)
+        {
+            foreach (var file in expenseDto.Files)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var fileData = memoryStream.ToArray();
+
+                var cemsFile = new CemsFile
+                {
+                    FRqId = id,
+                    FName = file.FileName,
+                    FFileType = file.ContentType,
+                    FFile = fileData,
+                    FSize = (int)file.Length,
+                };
+                _context.CemsFiles.Add(cemsFile);
+            }
+        }
+
+        if (expenseDto.RqStatus == "waiting")
+        {
+            var approvers = await _context
+                .CemsApproverRequisitions.Where(a => a.AprRqId == id && a.AprStatus == "edit")
+                .ToListAsync();
+
+            foreach (var approver in approvers)
+            {
+                approver.AprStatus = "waiting";
+                approver.AprName = null;
+                approver.AprDate = null;
+            }
+        }
         await _context.SaveChangesAsync();
-
-        // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
 
     /// <summary>ลบข้อมูลคำขอเบิก</summary>
     /// <param name="id"> id ของรายการคำขอเบิก </param>
     /// <returns>สถานะการลบข้อมูลคำขอเบิก </returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpDelete("{id}")]
     public async Task<IActionResult> DeleteExpense(string id)
     {
-        // ค้นหา id ในตาราง
         var expense = await _context.CemsRequisitions.FindAsync(id);
 
-        // ไม่พบข้อมูลส่ง NotFound
         if (expense == null)
         {
             return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
         }
 
-        // ลบข้อมูลออกจาก Context
         _context.CemsRequisitions.Remove(expense);
 
-        // บันทึกการเปลี่ยนแปลง
         await _context.SaveChangesAsync();
 
-        // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
 
@@ -419,5 +491,24 @@ public class ExpenseController : ControllerBase
             .ToListAsync();
 
         return Ok(requisition);
+    }
+
+    /// <summary>ลบข้อมูลไฟล์ตามคำขอเบิก</summary>
+    /// <param name="id"> id ของ file ที่ต้องการลบ </param>
+    /// <returns>สถานะการลบข้อมูลไฟล์ </returns>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+    [HttpDelete("file/{id}")]
+    public async Task<IActionResult> DeleteFile(int id)
+    {
+        var file = await _context.CemsFiles.FindAsync(id);
+        if (file == null)
+        {
+            return NotFound(new { message = "ไม่พบไฟล์ที่ต้องการลบ" });
+        }
+
+        _context.CemsFiles.Remove(file);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "ลบไฟล์สำเร็จ" });
     }
 }

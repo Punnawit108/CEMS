@@ -9,6 +9,7 @@ using System.Globalization;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -207,8 +208,13 @@ public class ApprovalController : ControllerBase
         return Ok("Sequences updated successfully.");
     }
 
+    /// <summary>การอนุมัติ</summary>
+    /// <returns>สถานะการอนุมัติ</returns>
+    /// <param name="approverUpdate">ข้อมูลการอนุมัติ</param>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+
     [HttpPut("approve")]
-    public async Task<ActionResult> updateApprove([FromBody] ApproverUpdateDto approverUpdate)
+    public async Task<ActionResult> UpdateApprove([FromBody] ApproverUpdateDto approverUpdate)
     {
         if (approverUpdate == null)
         {
@@ -276,7 +282,6 @@ public class ApprovalController : ControllerBase
                 }
             }
         }
-        //if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept") { }
         if (approverUpdate.AprStatus == "edit")
         {
             var updateEdit = await UpdateRequisitionsStatus(
@@ -306,6 +311,13 @@ public class ApprovalController : ControllerBase
         return NoContent();
     }
 
+    /// <summary>เปลี่ยนสถานะคำขอ ตามการอนุมัติ</summary>
+    /// <returns>true or false</returns>
+    /// <param name="rqId">รหัสคำขอเบิก</param>
+    /// <param name="rqStatus">สถานะคำขอเบิก</param>
+    /// <param name="rqProgress">สถานะ progress คำขอเบิก</param>
+    /// <param name="rqReason">เหตุผลการไม่อนุมัติของคำขอเบิก</param>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
     private async Task<bool> UpdateRequisitionsStatus(
         string rqId,
         string rqStatus,
@@ -330,6 +342,7 @@ public class ApprovalController : ControllerBase
     /// <param name="approverId">รหัสผู้อนุมัติ</param>
     /// <returns>ผลลัพธ์การลบข้อมูลผู้อนุมัติ</returns>
     /// <remarks>แก้ไขล่าสุด: วันที่ 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
+
     [HttpDelete("{approverId:int}")]
     public async Task<ActionResult> DeleteApprover(int approverId)
     {
@@ -385,8 +398,13 @@ public class ApprovalController : ControllerBase
         return Ok($"ลบผู้อนุมัติที่มี ID {approverId}");
     }
 
+    /// <summary>ลบข้อมูลผู้อนุมัติ</summary>
+    /// <param name="disburseUpdate">ข้อมูลการนำจ่าย</param>
+    /// <returns>สถานะการเปลี่ยนแปลงข้อมูลนำจ่าย</returns>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+
     [HttpPut("disburse")]
-    public async Task<ActionResult> updateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
+    public async Task<ActionResult> UpdateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
     {
         var requisition = await _context.CemsRequisitions.FindAsync(disburseUpdate.RqId);
 

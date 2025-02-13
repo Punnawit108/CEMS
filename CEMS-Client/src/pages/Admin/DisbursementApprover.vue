@@ -7,8 +7,8 @@
 */
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import Button from '../../components/template/Button.vue';
+import Icon from '../../components/Icon/CIcon.vue';
+import Button from '../../components/Buttons/Button.vue';
 import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
 import { User } from '../../types';
