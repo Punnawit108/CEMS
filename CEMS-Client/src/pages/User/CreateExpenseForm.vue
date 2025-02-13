@@ -111,8 +111,6 @@ const selectedPayrate = computed(() => {
   return selectedVehicle ? selectedVehicle.vhPayrate : '';
 });
 
-//const selectedFiles = ref<File[]>([]);
-
 //fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
   fileInput.value?.click();

@@ -7,12 +7,12 @@
  */
 
 import { onMounted, ref, computed, watch } from "vue";
-import Button from "../../components/template/Button.vue";
+import Button from "../../components/Buttons/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
 import { createRequisition, TravelManage } from "../../types";
-import SingleDatePicker from "../../components/template/SingleDatePicker.vue";
-import FileDisplay from "../../components/template/FileDisplay.vue";
+import SingleDatePicker from "../../components/SingleDatePicker.vue";
+import FileDisplay from "../../components/FileDisplay.vue";
 import { useRoute } from "vue-router";
 
 
