@@ -12,6 +12,7 @@ public partial class CemsNotification
     public DateTime NtDate { get; set; }
 
     public string NtStatus { get; set; } = null!;
+    public string? NtUsrId { get; set; }
 
     public virtual CemsApproverRequisition NtApr { get; set; } = null!;
 }

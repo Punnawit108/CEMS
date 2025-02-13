@@ -8,9 +8,11 @@
 using System.Globalization;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using CEMS_Server.Hubs;
 using CEMS_Server.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
@@ -20,10 +22,12 @@ namespace CEMS_Server.Controllers;
 public class ApprovalController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public ApprovalController(CemsContext context)
+    public ApprovalController(CemsContext context, IHubContext<NotificationHub> hubContext)
     {
         _context = context;
+        _hubContext = hubContext;
     }
 
     /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
@@ -244,10 +248,21 @@ public class ApprovalController : ControllerBase
         _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
 
+        var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r =>
+            r.RqId == approver.AprRqId
+        );
+
+        if (requisition == null)
+        {
+            return BadRequest("");
+        }
+
         if (approverUpdate.AprStatus == "accept")
         {
             var approvers = await _context
                 .CemsApproverRequisitions.Where(a => a.AprRqId == approver.AprRqId)
+                .Include(a => a.AprAp) // โหลดข้อมูลของ AprAp
+                .ThenInclude(ap => ap.ApUsr) // โหลดข้อมูลของ ApUsr
                 .OrderBy(a => a.AprId)
                 .ToListAsync();
 
@@ -260,10 +275,20 @@ public class ApprovalController : ControllerBase
                 if (currentApproverIndex + 1 < approvers.Count)
                 {
                     var nextApprover = approvers[currentApproverIndex + 1];
+
                     if (nextApprover != null && string.IsNullOrEmpty(nextApprover.AprStatus))
                     {
+                        var notification = new CemsNotification
+                        {
+                            NtDate = DateTime.Now,
+                            NtAprId = approverUpdate.AprId,
+                            NtStatus = "unread",
+                            NtUsrId = nextApprover.AprAp.ApUsr.UsrId,
+                        };
+                        _context.CemsNotifications.Add(notification);
                         nextApprover.AprStatus = "waiting";
                         _context.CemsApproverRequisitions.Update(nextApprover);
+                        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
                         await _context.SaveChangesAsync();
                     }
                 }
@@ -275,6 +300,16 @@ public class ApprovalController : ControllerBase
                         "paying",
                         null
                     );
+                    var notificationForUser = new CemsNotification
+                    {
+                        NtDate = DateTime.Now,
+                        NtAprId = approverUpdate.AprId,
+                        NtStatus = "unread",
+                        NtUsrId = requisition.RqUsrId,
+                    };
+                    _context.CemsNotifications.Add(notificationForUser);
+                    await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+                    await _context.SaveChangesAsync();
                     if (!updateSuccess)
                     {
                         return NotFound();
@@ -290,6 +325,17 @@ public class ApprovalController : ControllerBase
                 "accepting",
                 approverUpdate.RqReason
             );
+            var notificationForUser = new CemsNotification
+            {
+                NtDate = DateTime.Now,
+                NtAprId = approverUpdate.AprId,
+                NtStatus = "unread",
+                NtUsrId = requisition.RqUsrId,
+            };
+            _context.CemsNotifications.Add(notificationForUser);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+            await _context.SaveChangesAsync();
+
             if (!updateEdit)
             {
                 return NotFound();
@@ -303,11 +349,23 @@ public class ApprovalController : ControllerBase
                 "complete",
                 approverUpdate.RqReason
             );
+            var notificationForUser = new CemsNotification
+            {
+                NtDate = DateTime.Now,
+                NtAprId = approverUpdate.AprId,
+                NtStatus = "unread",
+                NtUsrId = requisition.RqUsrId,
+            };
+            _context.CemsNotifications.Add(notificationForUser);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+            await _context.SaveChangesAsync();
+
             if (!updateReject)
             {
                 return NotFound();
             }
         }
+
         return NoContent();
     }
 
@@ -418,7 +476,17 @@ public class ApprovalController : ControllerBase
         requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
 
+        var notification = new CemsNotification
+        {
+            NtDate = DateTime.Now,
+            NtStatus = "unread",
+            NtUsrId = requisition.RqUsrId,
+        };
+        _context.CemsNotifications.Add(notification);
+        await _context.SaveChangesAsync();
+
         _context.CemsRequisitions.Update(requisition);
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
         return NoContent();
     }
