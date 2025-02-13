@@ -384,6 +384,7 @@ const previewFile = (file: File) => {
   <form class="text-black text-sm m-4">
     <!-- btn -->
     <div class="flex justify-end gap-4">
+
       <Button :type="'btn-save'" @click="handleSave">บันทึก</Button>
       <Button :type="'btn-cancleBorderGray'" @click="handleCancel">ยกเลิก</Button>
       <Button :type="'btn-summit'" @click="handleSubmit">ยืนยัน</Button>
