@@ -133,17 +133,20 @@ export const useRequisitionStore = defineStore('dropdown', {
         * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
         */
         // ฟังก์ชันสำหรับกการputต์ค่าใช้จ่ายใหม่
-        async updateExpense(id: string, UpdateExpense: any) {
-            //  CreateExpense.rqStatus = "accept";
-
+        async updateExpense(id: string, updateExpense: FormData) {
             try {
                 const result = await axios.put(
-                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`, UpdateExpense);
+                    `${import.meta.env.VITE_BASE_URL}/api/expense/${id}`,
+                    updateExpense,
+                    {
+                        headers: {
+                            "Content-Type": "multipart/form-data",
+                        },
+                    }
+                );
                 return result.data;
-
             } catch (error) {
-
-                console.log(error)
+                console.error(error);
             }
         },
         async getExpenseById(id: string) {
@@ -168,7 +171,7 @@ export const useRequisitionStore = defineStore('dropdown', {
             } catch (error) {
                 console.log(error)
             }
-        }, 
+        },
         async getRqCode() {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/expense/next-rq-code`);
@@ -181,6 +184,18 @@ export const useRequisitionStore = defineStore('dropdown', {
                 }
             }
         },
+        async deleteFile(fId: number) {
+            try {
+                const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/expense/file/${fId}`);
+                return result.data;
+            } catch (error) {
+                if (axios.isAxiosError(error)) {
+                    console.error('Error deleting file:', error.message);
+                } else {
+                    console.error('Unexpected error:', error);
+                }
+            }
+        }
 
     }
 });

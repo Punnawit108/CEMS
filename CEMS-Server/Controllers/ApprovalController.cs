@@ -386,7 +386,7 @@ public class ApprovalController : ControllerBase
     }
 
     [HttpPut("disburse")]
-    public async Task<ActionResult> updateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
+    public async Task<ActionResult> UpdateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
     {
         var requisition = await _context.CemsRequisitions.FindAsync(disburseUpdate.RqId);
 
@@ -399,7 +399,8 @@ public class ApprovalController : ControllerBase
         requisition.RqDisburser = disburseUpdate.UsrId;
         requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
-
+        
+        
         _context.CemsRequisitions.Update(requisition);
         await _context.SaveChangesAsync();
         return NoContent();

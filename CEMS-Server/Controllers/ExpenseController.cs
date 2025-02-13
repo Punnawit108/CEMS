@@ -382,7 +382,7 @@ public class ExpenseController : ControllerBase
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateExpense(
         string id,
-        [FromBody] ExpenseManageDto expenseDto
+        [FromForm] ExpenseManageDto expenseDto
     )
     {
         if (expenseDto == null)
@@ -409,15 +409,45 @@ public class ExpenseController : ControllerBase
         expense.RqEndLocation = expenseDto.RqEndLocation;
         expense.RqDistance = expenseDto.RqDistance;
         expense.RqPurpose = expenseDto.RqPurpose;
-        //expense.RqProof = expenseDto.RqProof;
         expense.RqStatus = expenseDto.RqStatus;
         expense.RqProgress = expenseDto.RqProgress;
+        expense.RqAny = expenseDto.RqAny;
+        expense.RqReason = null;
 
-        // บันทึกการเปลี่ยนแปลง
-        _context.CemsRequisitions.Update(expense);
+        if (expenseDto.Files != null && expenseDto.Files.Count > 0)
+        {
+            foreach (var file in expenseDto.Files)
+            {
+                using var memoryStream = new MemoryStream();
+                await file.CopyToAsync(memoryStream);
+                var fileData = memoryStream.ToArray();
+
+                var cemsFile = new CemsFile
+                {
+                    FRqId = id,
+                    FName = file.FileName,
+                    FFileType = file.ContentType,
+                    FFile = fileData,
+                    FSize = (int)file.Length,
+                };
+                _context.CemsFiles.Add(cemsFile);
+            }
+        }
+
+        if (expenseDto.RqStatus == "waiting")
+        {
+            var approvers = await _context
+                .CemsApproverRequisitions.Where(a => a.AprRqId == id && a.AprStatus == "edit")
+                .ToListAsync();
+
+            foreach (var approver in approvers)
+            {
+                approver.AprStatus = "waiting";
+                approver.AprName = null;
+                approver.AprDate = null;
+            }
+        }
         await _context.SaveChangesAsync();
-
-        // ส่งคืนสถานะ 204 No Content
         return NoContent();
     }
 
@@ -460,5 +490,20 @@ public class ExpenseController : ControllerBase
             .ToListAsync();
 
         return Ok(requisition);
+    }
+
+    [HttpDelete("file/{id}")]
+    public async Task<IActionResult> DeleteFile(int id)
+    {
+        var file = await _context.CemsFiles.FindAsync(id);
+        if (file == null)
+        {
+            return NotFound(new { message = "ไม่พบไฟล์ที่ต้องการลบ" });
+        }
+
+        _context.CemsFiles.Remove(file);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "ลบไฟล์สำเร็จ" });
     }
 }
