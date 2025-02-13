@@ -508,17 +508,17 @@ public class ApprovalController : ControllerBase
         _context.CemsRequisitions.Update(requisition);
         _context.CemsProjects.Update(project);
 
-        var notification = new CemsNotification
-        {
-            NtDate = DateTime.Now,
-            NtStatus = "unread",
-            NtUsrId = requisition.RqUsrId,
-        };
-        _context.CemsNotifications.Add(notification);
-        await _context.SaveChangesAsync();
+        // var notification = new CemsNotification
+        // {
+        //     NtDate = DateTime.Now,
+        //     NtStatus = "unread",
+        //     NtUsrId = requisition.RqUsrId,
+        // };
+        // _context.CemsNotifications.Add(notification);
+        // await _context.SaveChangesAsync();
 
-        _context.CemsRequisitions.Update(requisition);
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        // _context.CemsRequisitions.Update(requisition);
+        // await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
 
         return NoContent();
