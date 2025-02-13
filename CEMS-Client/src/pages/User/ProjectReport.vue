@@ -13,7 +13,6 @@ import { useProjectsStore } from '../../store/projectsReport';
 import Button from "../../components/Buttons/Button.vue";
 import ProjectReport from '../../types/index';
 import { useExportProjectReportStore } from "../../store/exportProjectReport";
-import Pagination from '../../components/template/Pagination.vue';
 import {
     Chart,
     BarController,
@@ -29,10 +28,6 @@ import {
     Title,
     CategoryScale,
 } from "chart.js";
-
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const paginatedItem = ref<ProjectReport[]>([]);;
 
 // Register Chart.js components, including for the bar chart
 Chart.register(
@@ -331,9 +326,9 @@ onMounted(async () => {
             <!-- Table Data -->
             <table class="w-full text-center text-black table-auto">
                 <tbody>
-                    <tr v-for="(project, index) in paginatedItem" :key="index"
+                    <tr v-for="(project, index) in projectsStore.projects" :key="index"
                         class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
-                        <th class="px-2 py-3 w-14">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                        <th class="px-2 py-3 w-14">{{ index + 1 }}</th>
                         <th class="w-auto px-2 py-3 overflow-hidden truncate text-start"
                             style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
@@ -342,9 +337,9 @@ onMounted(async () => {
                         <th class="py-3 px-2 w-60 text-end font-[100]">{{ project.pjSumAmountExpenses }}</th>
                     </tr>
                 </tbody>
-                <Pagination :items="projectsStore.projects" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
-                v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
             </table>
+            <!-- Table Footer -->
+            <Ctable :table="'Table4-footer'" />
         </div>
         <!-- end::Table -->
 

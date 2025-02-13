@@ -7,19 +7,13 @@
 */
 
 import { useRouter } from 'vue-router';
-
 import Icon from '../../components/Icon/CIcon.vue';
 import StatusBudge from '../../components/Status/StatusBudge.vue';
 import Ctable from '../../components/Table/CTable.vue';
+
 import { onMounted, ref } from 'vue';
 //import { useExpense } from '../../store/ExpenseStore';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
-import Pagination from '../../components/template/Pagination.vue';
-import type { Expense } from '../../types';
-
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const paginatedItem = ref<Expense[]>([]);;
 
 const expenseReimbursementStore = useExpenseReimbursement();
 const router = useRouter();
@@ -127,9 +121,9 @@ const toDetails = (id:string) => {
             </div>
             <table class="table-auto w-full text-center text-black">
                 <tbody>
-                    <tr v-for="(expenseReimbursementHistory, index) in paginatedItem"
+                    <tr v-for="(expenseReimbursementHistory, index) in expenseReimbursementStore.expenseReimbursementHistory"
                         :key="expenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
-                        <th class="py-[12px] px-2 w-14">{{ index + 1 + (currentPage - 1) * itemsPerPage}}</th>
+                        <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
                         <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="expenseReimbursementHistory.rqName">
@@ -155,9 +149,10 @@ const toDetails = (id:string) => {
                         </th>
                     </tr>
                 </tbody>
-                <Pagination :items="expenseReimbursementStore.expenseReimbursementHistory" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
-                    v-model:paginatedItems="paginatedItem" :showEmptyRows="true" />
             </table>
+            <div>
+                <Ctable :table="'Table9-footer'" />
+            </div>
         </div>
     </div>
     <!-- content -->
