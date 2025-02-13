@@ -464,17 +464,49 @@ public class ApprovalController : ControllerBase
     [HttpPut("disburse")]
     public async Task<ActionResult> UpdateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
     {
-        var requisition = await _context.CemsRequisitions.FindAsync(disburseUpdate.RqId);
+        var requisition = await _context
+            .CemsRequisitions.Where(r => r.RqId == disburseUpdate.RqId)
+            .FirstOrDefaultAsync();
 
         if (requisition == null)
         {
-            return NotFound();
+            return NotFound("Requisition not found.");
         }
-        var now = DateTime.Now;
 
+        if (requisition.RqPjId == ' ')
+        {
+            return BadRequest("Requisition does not have a valid Project ID.");
+        }
+
+        var project = await _context
+            .CemsProjects.Where(p => p.PjId == requisition.RqPjId)
+            .FirstOrDefaultAsync();
+
+        if (project == null)
+        {
+            return NotFound($"Project with ID {requisition.RqPjId} not found.");
+        }
+
+        var now = DateTime.Now;
         requisition.RqDisburser = disburseUpdate.UsrId;
         requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
+
+        // Debug ก่อนอัปเดตค่า pj_amount_expenses
+        Console.WriteLine(
+            $"[Before] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
+        );
+
+        // อัปเดตค่า pj_amount_expenses
+        project.PjAmountExpenses += requisition.RqExpenses;
+
+        // Debug หลังจากอัปเดตค่า pj_amount_expenses
+        Console.WriteLine(
+            $"[After] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
+        );
+
+        _context.CemsRequisitions.Update(requisition);
+        _context.CemsProjects.Update(project);
 
         var notification = new CemsNotification
         {
@@ -488,6 +520,7 @@ public class ApprovalController : ControllerBase
         _context.CemsRequisitions.Update(requisition);
         await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
+
         return NoContent();
     }
 }
