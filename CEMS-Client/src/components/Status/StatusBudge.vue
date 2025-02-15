@@ -8,6 +8,12 @@
 
 import { defineProps, onMounted, shallowRef } from "vue"; // นำเข้า defineProps เพื่อจัดการพร็อพของคอมโพเนนต์
 import StatusAccept from "./StatusAccept.vue";
+import StatusWaiting from "./StatusWaiting.vue";
+import StatusReject from "./StatusReject.vue";
+import StatusEdit from "./StatusEdit.vue";
+import StatusSketch from "./StatusSketch.vue";
+
+
 // กำหนดพร็อพที่คอมโพเนนต์นี้รับเข้ามา
 
 const currentComponent = shallowRef();
@@ -22,16 +28,16 @@ onMounted (() => {
         case "sts-accept" :currentComponent.value =StatusAccept;
         break;
     //รออนุมัติ
-        case "sts-waiting" :currentComponent.value =StatusAccept;
+        case "sts-waiting" :currentComponent.value =StatusWaiting;
         break;
     //ไม่อนุมัติ
-        case "sts-reject" :currentComponent.value =StatusAccept;
+        case "sts-reject" :currentComponent.value =StatusReject;
         break;
     //แก้ไข
-        case "sts-edit" :currentComponent.value =StatusAccept;
+        case "sts-edit" :currentComponent.value =StatusEdit;
         break;
     //แก้ไข
-        case "sts-sketch" :currentComponent.value =StatusAccept;
+        case "sts-sketch" :currentComponent.value =StatusSketch;
         break;
     }
 }) 
