@@ -483,7 +483,7 @@ const confirmCancle = async (event: Event) => {
 
     <!-- Popup บันทึก -->
     <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-2 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
           <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
@@ -493,10 +493,10 @@ const confirmCancle = async (event: Event) => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
-          ยืนยันการบันทึกคำขอเบิกค่าใช้จ่าย
+          ยืนยันการบันทึกแบบร่างรายการเบิกค่าใช้จ่าย
         </h2>
         <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+          คุณยืนยันการบันทึกแบบร่างรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
           <button @click="closePopupSave"
@@ -584,7 +584,10 @@ const confirmCancle = async (event: Event) => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mt-3">
-          บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ
+          ยืนยันการบันทึกแบบร่าง
+        </h2>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">
+          รายการเบิกค่าใช้จ่ายสำเร็จ
         </h2>
       </div>
     </div>
