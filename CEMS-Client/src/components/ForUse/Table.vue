@@ -6,7 +6,7 @@
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 import { defineProps } from 'vue';
-import Ctable from './CTable.vue';
+import Ctable from '../Table/CTable.vue';
 </script>
 <!-- ### -->
 <!-- วิธีเรียกใช้ตาราง -->

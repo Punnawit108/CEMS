@@ -7,6 +7,8 @@
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
+using Microsoft.AspNetCore.SignalR;
+using CEMS_Server.Hubs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -18,8 +20,13 @@ public class PaymentController : ControllerBase
 {
     private readonly CemsContext _context;
 
-    public PaymentController(CemsContext context)
+    private readonly IHubContext<NotificationHub> _hubContext;
+
+
+
+    public PaymentController(CemsContext context, IHubContext<NotificationHub> hubContext)
     {
+        _hubContext = hubContext;
         _context = context;
     }
     /// <summary>แสดงช้อมูลรายการรอนำจ่าย</summary>
@@ -33,7 +40,7 @@ public class PaymentController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqStatus == "accept" && u.RqProgress =="paying") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "paying") // เพิ่มเงื่อนไข Where
             .Select(u => new PaymentGetDto
             {
                 RqId = u.RqId,
@@ -71,7 +78,7 @@ public class PaymentController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqDisburser == id && u.RqStatus == "accept" && u.RqProgress =="complete") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqDisburser == id && u.RqStatus == "accept" && u.RqProgress == "complete") // เพิ่มเงื่อนไข Where
             .Select(u => new PaymentGetDto
             {
                 RqId = u.RqId,
@@ -90,7 +97,7 @@ public class PaymentController : ControllerBase
                 RqDistance = u.RqDistance,
                 RqPurpose = u.RqPurpose,
                 RqReason = u.RqReason,
-                RqDisburser= u.RqDisburser,
+                RqDisburser = u.RqDisburser,
                 RqProof = u.RqProof,
                 RqStatus = u.RqStatus,
                 RqProgress = u.RqProgress,
@@ -181,11 +188,12 @@ public class PaymentController : ControllerBase
         expense.RqStatus = expenseDto.RqStatus;
         expense.RqProgress = expenseDto.RqProgress;
 
+        
         // บันทึกการเปลี่ยนแปลง
         _context.CemsRequisitions.Update(expense);
         await _context.SaveChangesAsync();
 
         // ส่งคืนสถานะ 204 No Content
         return NoContent();
-    } 
+    }
 }

@@ -37,16 +37,14 @@ export interface createRequisition {
     rqPjId: string;
     rqRqtId: number;
     rqVhId: number | null;
-    rqPayDate: string;
-    rqWithdrawDate: string;
-    rqCode: string;
-    rqInsteadEmail: string;
+    rqPayDate: string | null;
+    rqWithdrawDate: string | null;
+    rqInsteadEmail: string | null;
     rqExpenses: number;
     rqStartLocation: string | null;
     rqEndLocation: string | null;
     rqDistance: string | null;
     rqPurpose: string | null;
-    rqProof: string | null;
     rqStatus: string;
     rqProgress: string;
     rqAny: string | null;
@@ -82,6 +80,7 @@ export interface TravelManage {
     vhType: string;
     vhVehicle: string;
     vhPayrate?: number | null;
+    vhVisible:number ;
 }
 //ตัวแปรผู้ใช้
 export interface User {
@@ -98,6 +97,12 @@ export interface User {
     usrEmail: string;
     usrIsSeeReport: number;
     usrIsActive: number;
+}
+
+export interface UserInstead {
+    usrId: string;
+    usrName: string;
+    usrEmail: string;
 }
 
 //ข้อมูลแสดงผลของกราฟ และตาราง project 

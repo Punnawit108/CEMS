@@ -7,8 +7,8 @@
 */
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import Button from '../../components/template/Button.vue';
+import Icon from '../../components/Icon/CIcon.vue';
+import Button from '../../components/Buttons/Button.vue';
 import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
 import { User } from '../../types';
@@ -183,15 +183,17 @@ onMounted(async () => {
             </form>
           </div>
           <div>
-            <Button :type="'btn-editProject'" class="" @click="lockSystem">
+            <button
+              class=" bg-yellow text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center"
+              @click="lockSystem">
               {{ lockStore.isLocked ? 'เปิดรับคำขอ' : 'ปิดรับคำขอ' }}
-            </Button>
+            </button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
         <div class="flex space-x-4 my-5 justify-end">
           <Button :type="'btn-editProject'" @click="openPopupEdit" class="my-5">แก้ไขลำดับ</Button>
-          <Button :type="'btn-expense'" @click="openPopupAdd" class="my-5">ผู้มีสิทธิ์อนุมัติ</Button>
+          <button @click="openPopupAdd" class="my-5 bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center">ผู้มีสิทธิ์อนุมัติ</button>
         </div>
       </div>
     </div>
