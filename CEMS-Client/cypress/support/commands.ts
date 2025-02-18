@@ -54,3 +54,21 @@ Cypress.Commands.add('login', () => {
     //cy.wait(1500);
     cy.get('button.btn').click();
 });
+
+Cypress.Commands.add('ExpenseManage', () => {
+    cy.visit('http://localhost:5173/systemSettings/disbursementType/expense');
+    Cypress.on('uncaught:exception', (err) => {
+        if (err.message.includes('lockSystem.ts') || err.message.includes('AxiosError') || err.message.includes("Cannot read properties of null (reading 'usrId')")) {
+            return false;
+        }
+        return true;
+    });
+    cy.get('.login button').should('be.visible');
+    //cy.wait(1500);
+    cy.get('.login button').click();
+    cy.get('.modal-action').should('be.visible');
+    //cy.wait(1500);
+    cy.get('select.select.select-bordered').select(12);
+    //cy.wait(1500);
+    cy.get('button.btn').click();
+});
