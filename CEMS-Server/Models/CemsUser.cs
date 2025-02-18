@@ -33,6 +33,8 @@ public partial class CemsUser
 
     public sbyte UsrIsActive { get; set; }
 
+    public string UsrPassword { get; set; } = null!;
+
     public virtual ICollection<CemsApprover> CemsApprovers { get; set; } = new List<CemsApprover>();
 
     public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; } = new List<CemsRequisition>();

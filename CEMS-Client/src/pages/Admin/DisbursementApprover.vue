@@ -7,8 +7,8 @@
 */
 import { ref, onMounted, reactive } from 'vue';
 import { useRoute } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import Button from '../../components/template/Button.vue';
+import Icon from '../../components/Icon/CIcon.vue';
+import Button from '../../components/Buttons/Button.vue';
 import { useApprovalStore } from '../../store/approval';
 import { useUserStore } from '../../store/user';
 import { User } from '../../types';
@@ -42,29 +42,46 @@ const selectedApproverId = ref<number>(0);
 // ใช้ Vue Router
 const route = useRoute();
 
-
-// เปิด PopupAdd ผู้อนุมัติ
+// เปิด Popup Add ผู้อนุมัติ
 const openPopupAdd = () => {
   if (!checkExpenseStore.checkExpense) {
-    alert('ไม่สามารถทำรายการได้');
+    alert('ไม่สามารถเพิ่มได้');
   } else {
     isPopupAddOpen.value = true;
   }
 };
+
 const closePopupAdd = () => {
   isPopupAddOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
-// เปิด Popup edit ผู้อนุมัติ
+
+// เปิด Popup  Edit ผู้อนุมัติ
 const openPopupEdit = () => {
   if (!checkExpenseStore.checkExpense) {
-    alert('ไม่สามารถทำรายการได้');
+    alert('ไม่สามารถแก้ไขได้');
   } else {
     isPopupEditOpen.value = true;
   }
 };
+
 const closePopupEdit = () => {
   isPopupEditOpen.value = false;
+  newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
+};
+
+// เปิด Popup Delete ผู้อนุมัติ
+const openPopupDelete = (approverId: number) => {
+  if (!checkExpenseStore.checkExpense) {
+    alert('ไม่สามารถลบได้');
+  } else {
+    selectedApproverId.value = approverId;
+    isPopupDeleteOpen.value = true;
+  }
+};
+
+const closePopupDelete = () => {
+  isPopupDeleteOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
 
@@ -77,7 +94,7 @@ const closePopupConfirmAdd = () => {
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
 
-// เปิด PopupConfirmAdd ผู้อนุมัติ
+// เปิด PopupConfirmEdit ผู้อนุมัติ
 const openPopupConfirmEdit = () => {
   isPopupConfirmEditOpen.value = true;
 };
@@ -86,41 +103,36 @@ const closePopupConfirmEdit = () => {
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
 
-// เปิด Popup Delete
-const openPopupDelete = (approverId: number) => {
-  selectedApproverId.value = approverId;
-  isPopupDeleteOpen.value = true;
-};
-
-const closePopupDelete = () => {
-  isPopupDeleteOpen.value = false;
-};
-
-
 const confirmAdd = async () => {
-
   await approvalStore.addApprovers(selectUserId.value);
-  closePopupAdd();
   closePopupConfirmAdd();
+  isAddAlertOpen.value = true;
+
+  setTimeout(() => {
+    isAddAlertOpen.value = false;
+    closePopupAdd();
+  }, 1500);
 };
 
 const confirmEdit = async () => {
   await approvalStore.changeSequence(approverSequence);
-  closePopupEdit(); // ปิด Popup แก้ไข
-  closePopupConfirmEdit(); 
+  closePopupConfirmEdit();
+  isEditAlertOpen.value = true;
+
+  setTimeout(() => {
+    isEditAlertOpen.value = false;
+    closePopupEdit();
+  }, 1500);
 };
 
 const confirmDelete = async () => {
-  // เปิด Popup Alert
   await approvalStore.deleteApprover(selectedApproverId.value);
-  // เปิด Popup Alert
   isDeleteAlertOpen.value = true;
 
-  // ตั้งเวลาให้ Alert ปิดอัตโนมัติใน 1.5 วินาที
   setTimeout(() => {
-    isDeleteAlertOpen.value = false; // ปิด Alert
-    closePopupDelete(); // ปิด Popup Delete
-  }, 1500); // 1.5 วินาที
+    isDeleteAlertOpen.value = false;
+    closePopupDelete();
+  }, 1500);
 };
 
 // ฟังก์ชันล็อคระบบ
@@ -171,15 +183,17 @@ onMounted(async () => {
             </form>
           </div>
           <div>
-            <Button :type="'btn-editProject'" class="" @click="lockSystem">
+            <button
+              class=" bg-yellow text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center"
+              @click="lockSystem">
               {{ lockStore.isLocked ? 'เปิดรับคำขอ' : 'ปิดรับคำขอ' }}
-            </Button>
+            </button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
         <div class="flex space-x-4 my-5 justify-end">
           <Button :type="'btn-editProject'" @click="openPopupEdit" class="my-5">แก้ไขลำดับ</Button>
-          <Button :type="'btn-expense'" @click="openPopupAdd" class="my-5">ผู้มีสิทธิ์อนุมัติ</Button>
+          <button @click="openPopupAdd" class="my-5 bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center">ผู้มีสิทธิ์อนุมัติ</button>
         </div>
       </div>
     </div>
@@ -225,10 +239,10 @@ onMounted(async () => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
-          ยืนยันลบผู้มีสิทธิ์อนุมัติ
+          ยืนยันการลบผู้มีสิทธิ์อนุมัติ
         </h2>
         <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันลบผู้มีสิทธิ์อนุมัติหรือไม่ ?
+          คุณยืนยันการลบผู้มีสิทธิ์อนุมัติหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
           <button @click="closePopupDelete"
@@ -422,7 +436,7 @@ onMounted(async () => {
               clip-rule="evenodd" />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันลบผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
       </div>
     </div>
 

@@ -7,13 +7,13 @@
 * วันที่จัดทำ/แก้ไข: 11 มกราคม 2568
 */
 
-import Icon from '../../components/template/CIcon.vue';
+import Icon from '../../components/Icon/CIcon.vue';
 import { useRouter } from 'vue-router';
 import { ref, onMounted, computed, watch } from 'vue';
-import Pagination from '../../components/template/Pagination.vue';
+import Pagination from '../../components/Pagination.vue';
 import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
-import Filter from '../../components/template/Filter.vue';
+import Filter from '../../components/Filter.vue';
 import { useProjectStore } from '../../store/project';
 import { useRequisitionTypeStore } from '../../store/requisitionType';
 import type { User } from '../../types';
