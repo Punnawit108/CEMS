@@ -38,7 +38,7 @@ public class NotificationController : ControllerBase
             .CemsNotifications.Include(e => e.NtApr) //เชื่อมตาราง Noti
             .Include(e => e.NtApr.AprRq)             //เชื่อมตาราง approver_requisition
             .Include(e => e.NtApr.AprRq.RqPj)        //เชื่อมตาราง requisition
-            .Where(e => e.NtApr.AprRq.RqUsrId == usr_id)
+            .Where(e => usr_id == e.NtUsrId  )
             .Select(u => new NotificationGetDto
             {
                 NtId = u.NtId,                              //รหัสแจ้งเตือน

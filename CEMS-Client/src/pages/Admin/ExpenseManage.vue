@@ -6,9 +6,9 @@
  * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
  */
 import { onMounted, ref, reactive } from "vue";
-import Button from "../../components/template/Button.vue";
+import Button from "../../components/Buttons/Button.vue";
 import { useExpenseManageStore } from "../../store/expenseManageStore";
-import Icon from '../../components/template/CIcon.vue';
+import Icon from '../../components/Icon/CIcon.vue';
 
 const expenseManageType = useExpenseManageStore();
 

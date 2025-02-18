@@ -1,0 +1,20 @@
+[
+    {
+        "usrId": "10002",
+        "usrRolName": "Accountant",
+        "usrFirstName": "Khunpaen",
+        "usrLastName": "Chaiyoet",
+        "usrIsSeeReport": 1,
+        "usrIsActive": 1,
+        "usrIsApprover": 0
+      },
+      {
+        "usrId": "10001",
+        "usrRolName": "Accountant",
+        "usrFirstName": "Pornchai",
+        "usrLastName": "Phoempoonkit",
+        "usrIsSeeReport": 1,
+        "usrIsActive": 1,
+        "usrIsApprover": 0
+      }
+]

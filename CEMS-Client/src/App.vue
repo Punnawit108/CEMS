@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { RouterView , useRoute} from "vue-router";
-import Breadcrumb from "./components/template/Breadcrumb.vue";
-import SideBar from "./components/template/SideBar.vue";
-import Navbar from "./components/template/Navbar.vue";
+import Breadcrumb from "./components/Breadcrumb.vue";
+import SideBar from "./components/SideBar.vue";
+import Navbar from "./components/Navbar.vue";
 import Login from "./pages/Login.vue";
 import { computed ,ref,onMounted} from "vue";
 import connection from './services/signalr';

@@ -2,6 +2,9 @@ using QuestPDF.Infrastructure;
 using CEMS_Server.AppContext;
 using Microsoft.EntityFrameworkCore;
 using CEMS_Server.Hubs;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,12 +17,22 @@ builder.Services.AddControllers();
 
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "CEMS-WEBSITE",
+        Version = "v1.0.0",
+        Description = "An API for the CEMS Website, providing endpoints for managing content and services.",
+
+    });
+});
 // Add SignalR service
 builder.Services.AddSignalR();
 builder.Services.AddScoped<GetDataExport>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<PdfServiceProject>();
+builder.Services.AddScoped<DetailService>();
 
 // ตั้งค่า CORS
 builder.Services.AddCors(options =>
@@ -41,6 +54,24 @@ if (connectionString != null)
         options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString)));
 }
 
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(options =>
+    {
+        options.TokenValidationParameters = new TokenValidationParameters
+        {
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ValidateIssuerSigningKey = true,
+            ValidIssuer = builder.Configuration["Jwt:Issuer"],
+            ValidAudience = builder.Configuration["Jwt:Audience"],
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(builder.Configuration["Jwt:Key"]))
+        };
+    });
+
+builder.Services.AddAuthorization();
+builder.Services.AddControllers();
+
 var app = builder.Build();
 
 // ใช้ CORS ก่อนการตั้งค่าอื่น ๆ
@@ -55,6 +86,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 // Map SignalR hub

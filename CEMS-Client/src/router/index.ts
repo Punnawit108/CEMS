@@ -26,16 +26,14 @@ import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
 import ApprovalList from '../pages/User/ApprovalList.vue';
 import Login from '../pages/Login.vue'
 //template
-import icon from '../components/template/Icon.vue';
-import DropDown from '../components/template/Dropdown.vue';
-import Filter from '../components/template/Filter.vue';
-import Progress from '../components/template/Progress.vue';
-import Table from '../components/template/Table.vue';
-import Popup from '../components/template/Popup.vue';
-import UploadPicture from '../components/template/UploadPicture.vue';
-import ForUseButton from '../components/template/ForUseButton.vue';
-import ForUseStatus from '../components/template/ForUseStatus.vue';
-import test from '../pages/User/TestCreateForm.vue';
+import icon from '../components/ForUse/Icon.vue';
+import DropDown from '../components/Dropdown.vue';
+import Filter from '../components/Filter.vue';
+import Progress from '../components/Progress.vue';
+import Table from '../components/ForUse/Table.vue';
+import UploadPicture from '../components/UploadPicture.vue';
+import ForUseButton from '../components/ForUse/ForUseButton.vue';
+import ForUseStatus from '../components/ForUse/ForUseStatus.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -44,11 +42,6 @@ const router = createRouter({
       path: '/temp/icon',
       name: 'icon',
       component: icon
-    },
-    {
-      path: '/test',
-      name: 'test',
-      component: test
     },
     {
       path: '/temp/dropdown',
@@ -79,11 +72,6 @@ const router = createRouter({
       path: '/temp/table',
       name: 'table',
       component: Table
-    },
-    {
-      path: '/temp/popup',
-      name: 'popup',
-      component: Popup
     },
     //button
     {

@@ -7,9 +7,9 @@
 */
 
 import { useRouter } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import StatusBudge from '../../components/template/StatusBudge.vue';
-import Ctable from '../../components/template/CTable.vue';
+import Icon from '../../components/Icon/CIcon.vue';
+import StatusBudge from '../../components/Status/StatusBudge.vue';
+import Ctable from '../../components/Table/CTable.vue';
 
 import { onMounted, ref } from 'vue';
 //import { useExpense } from '../../store/ExpenseStore';
@@ -124,25 +124,25 @@ const toDetails = (id:string) => {
                     <tr v-for="(expenseReimbursementHistory, index) in expenseReimbursementStore.expenseReimbursementHistory"
                         :key="expenseReimbursementHistory.rqId" class=" text-[14px] border-b-2 border-[#BBBBBB]">
                         <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="นายเทียนชัย คูเมือง">
+                            :title="expenseReimbursementHistory.rqName">
                             {{ expenseReimbursementHistory.rqName }}
                         </th>
-                        <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                        <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                            :title="expenseReimbursementHistory.rqName">
                             {{ expenseReimbursementHistory.rqPjName }}
                         </th>
                         <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expenseReimbursementHistory.rqRqtName }}
                         </th>
                         <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqWithDrawDate }}</th>
-                        <th class="py-[12px] px-2 w-40 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
-                        <th class="py-[12px] px-2 w-32 text-center "><span>
+                        <th class="py-[12px] px-5 w-32 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
+                        <th class="py-[12px] px-2 w-28 text-center "><span>
                                 <StatusBudge :status="'sts-'+expenseReimbursementHistory.rqStatus"></StatusBudge>
                             </span>
                         </th>
-                        <th class="py-[10px] px-2 w-24 text-center ">
+                        <th class="py-[10px] px-2 w-20 text-center ">
                             <span v-on:click="toDetails(expenseReimbursementHistory.rqId)" class="flex justify-center ">
                                 <Icon :icon="'viewDetails'" />
                             </span>

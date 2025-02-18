@@ -6,7 +6,7 @@
 */
 
 //ตัวแปรคำขอเบิก
-export interface Expense{
+export interface Expense {
     rqId: string;
     rqName: number;
     rqUsrName: string;
@@ -31,26 +31,45 @@ export interface Expense{
     rqProgress: string;
 }
 
+export interface createRequisition {
+    rqName: string;
+    rqUsrId: string;
+    rqPjId: string;
+    rqRqtId: number;
+    rqVhId: number | null;
+    rqPayDate: string | null;
+    rqWithdrawDate: string | null;
+    rqInsteadEmail: string | null;
+    rqExpenses: number;
+    rqStartLocation: string | null;
+    rqEndLocation: string | null;
+    rqDistance: string | null;
+    rqPurpose: string | null;
+    rqStatus: string;
+    rqProgress: string;
+    rqAny: string | null;
+}
+
 export interface Approval {
-    aprId: number;           
-    usrFirstName: string;    
-    usrLastName: string;     
-    aprName: string | null;  
+    aprId: number;
+    usrFirstName: string;
+    usrLastName: string;
+    aprName: string | null;
     aprDate: Date;
-    aprStatus: string;         
+    aprStatus: string;
 }
 
 export interface ApproverRequisition {
     aprId: number;
-    aprApId: number ;
-    aprName: string ;
+    aprApId: number;
+    aprName: string;
     aprDate: Date;
     aprStatus: string;
-    rqReason : string ;
+    rqReason: string;
 }
 
 //ตัวแปรประเภทค่าใช้จ่าย
-export interface ExpenseManage{
+export interface ExpenseManage {
     rqtId?: number;
     rqtName: string;
     rqtVisible: number
@@ -61,6 +80,7 @@ export interface TravelManage {
     vhType: string;
     vhVehicle: string;
     vhPayrate?: number | null;
+    vhVisible:number ;
 }
 //ตัวแปรผู้ใช้
 export interface User {
@@ -79,8 +99,14 @@ export interface User {
     usrIsActive: number;
 }
 
+export interface UserInstead {
+    usrId: string;
+    usrName: string;
+    usrEmail: string;
+}
+
 //ข้อมูลแสดงผลของกราฟ และตาราง project 
-export interface ProjectReport{
+export interface ProjectReport {
     pjId: number;
     pjName: string;
     pjSumAmountExpenses: string;
@@ -129,18 +155,18 @@ export interface DashboardForUser {
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Accountant
 export interface DashboardForAccountant {
-    totalRqPay: number ;
-    totalRqComplete: number ;
-    totalRequisition: number ;
-    totalRqExpense: number ;
+    totalRqPay: number;
+    totalRqComplete: number;
+    totalRequisition: number;
+    totalRqExpense: number;
 }
 
 //ข้อมูล dashboard ตรงสี่เหลี่ยม 4 อัน ของ Admin
 export interface DashboardForAdmin {
-    totalUser: number ;
-    totalRqAccept: number ;
-    totalProject: number ;
-    totalRqAcceptExpense: number ;
+    totalUser: number;
+    totalRqAccept: number;
+    totalProject: number;
+    totalRqAcceptExpense: number;
 }
 
 export interface DashboardProject {
@@ -161,7 +187,7 @@ export interface DashboardRequisitionTypeMonth {
     rqtId: number;
     rqtUsrId: number;
     totalRqt: number;
-    
+
 }
 
 export interface DashboardPayment {
@@ -170,24 +196,24 @@ export interface DashboardPayment {
 }
 
 export interface Project {
-    pjId : number ;
-    pjName : string ;
-    pjAmountExpenses : number ;
+    pjId: number;
+    pjName: string;
+    pjAmountExpenses: number;
 }
 
 //ข้อมูล notification
-export interface Notification{
-    NtId:number,
-    NtStatus:"read" | "unread",
-    NtAprRqPjName:string,
-    NtAprRqId:number,
-    NtAprStatus:"waiting"|"accept"|"edit"|"reject",
-    NtAprDate:string,
-    NtAprRqUsrId:number,
-    NtAprRqProgress: "accepting"|"paying "|"complete",
+export interface Notification {
+    NtId: number,
+    NtStatus: "read" | "unread",
+    NtAprRqPjName: string,
+    NtAprRqId: number,
+    NtAprStatus: "waiting" | "accept" | "edit" | "reject",
+    NtAprDate: string,
+    NtAprRqUsrId: number,
+    NtAprRqProgress: "accepting" | "paying " | "complete",
 }
 
-export interface ApproverSequence{
-    apId:number,
-    apSequence:number
+export interface ApproverSequence {
+    apId: number,
+    apSequence: number
 }

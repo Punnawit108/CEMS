@@ -69,6 +69,7 @@ public class DataTypeController : ControllerBase
                 v.VhType,
                 v.VhVehicle,
                 v.VhPayrate,
+                v.VhVisible,
             })
             .ToList();
         return Ok(vehicles);

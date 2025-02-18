@@ -7,9 +7,9 @@
 */
 
 import { useRouter } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/CTable.vue';
-import StatusBudge from '../../components/template/StatusBudge.vue';
+import Icon from '../../components/Icon/CIcon.vue';
+import Ctable from '../../components/Table/CTable.vue';
+import StatusBudge from '../../components/Status/StatusBudge.vue';
 import { useApprovalStore } from '../../store/approvalList';
 import { onMounted, ref } from 'vue';
 import { Expense } from '../../types';
@@ -148,7 +148,7 @@ const toDetails = async (data: Expense) => {
         </div>
 
         <!-- ตาราง -->
-        <div class="w-full border mt-12">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
             <Ctable :table="'Table8-head'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
