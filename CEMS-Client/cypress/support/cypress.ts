@@ -6,6 +6,6 @@ declare namespace Cypress {
        * Custom command to perform login
        * @example cy.login()
        */
-      login(): Chainable<void>;
+      login(id: string, password: string): Chainable<void>;
     }
   }
