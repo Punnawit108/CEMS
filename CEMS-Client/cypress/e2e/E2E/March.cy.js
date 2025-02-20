@@ -26,7 +26,7 @@ describe('Test New Feature', () => {
                 .should('be.visible')
                 .and('have.css', 'font-family', 'Sarabun') // ตรวจสอบฟอนต์เป็น Sarabun
                 .and('have.css', 'font-size', '14px') // ตรวจสอบ font-size = 14px
-                .and('have.css', 'font-weight', '700'); // ตรวจสอบ font-weight = bold
+                .and('have.css', 'font-weight', '700') // ตรวจสอบ font-weight = bold
                 .and('have.css', 'color', 'rgb(0, 0, 0)'); 
         }
         cy.wait(1000);
@@ -40,7 +40,7 @@ describe('Test New Feature', () => {
                         cy.xpath(`//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table[11]/tbody/tr[${row}]/th[${col}]`)
                             .should('be.visible')
                             .and('have.css', 'font-family', 'Sarabun') // ตรวจสอบฟอนต์เป็น Sarabun
-                            .and('have.css', 'font-size', '14px'); // ตรวจสอบ font-size = 14px
+                            .and('have.css', 'font-size', '14px') // ตรวจสอบ font-size = 14px
                             .and('have.css', 'color', 'rgb(0, 0, 0)'); 
                     }
                 }
