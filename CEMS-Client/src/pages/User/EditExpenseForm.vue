@@ -1,555 +1,682 @@
 <script setup lang="ts">
 /*
- * ชื่อไฟล์: CreateExpenseForm.vue
+ * ชื่อไฟล์: EditExpenseForm.vue
  * คำอธิบาย: ไฟล์นี้แสดงฟอร์มเบิกค่าใช้จ่าย
- * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
- * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+ * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ , อังคณา อุ่นเสียม , พงศธร บุญญามา
+ * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
  */
 
-import { onMounted, ref, computed } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import Button from "../../components/Buttons/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
+import { createRequisition, TravelManage } from "../../types";
+import SingleDatePicker from "../../components/SingleDatePicker.vue";
+import FileDisplay from "../../components/FileDisplay.vue";
 import { useRoute } from "vue-router";
 
+
 const requisitionStore = useRequisitionStore();
+const user = ref<any>(null);
+const vehicleType = ref<any>(null);
+const selectedTravelType = ref<string>('');
+const fileInput = ref<HTMLInputElement | null>(null);
+
 const route = useRoute();
-const id = String(route.params.id);
+const id = route.params.id.toString();
 
-const rqtName = ref(""); // ค่าเริ่มต้นสำหรับประเภทค่าใช้จ่าย
-const customExpenseType = ref(""); // ค่าเริ่มต้นสำหรับประเภทที่กำหนดเอง
-const isOtherSelected = ref(false); // เช็คว่าเลือก 'อื่นๆ' หรือไม่
-const isCustomExpenseTypeAdded = ref(false); // เช็คว่าได้เพิ่มประเภทใหม่หรือยัง
-const isPopupSaveOpen = ref(false); // สำหรับเปิด/ปิด Popup  บันทึก
-const isPopupSubmitOpen = ref(false); // สำหรับเปิด/ปิด Popup  ยืนยัน
-const isAlertSaveOpen = ref(false); // ควบคุมการแสดง Alert บันทึก
-const isAlertSubmitOpen = ref(false); // ควบคุมการแสดง Alert ยืนยัน
+const rqtName = ref('')
+const vhId = ref(0);
+const currentDate = ref(new Date());
+const selectedDate = ref(new Date());
+const rqCode = ref('')
+const selectedFiles = ref<{ file: File; fId: number | null }[]>([]);
 
-let formData: any = ref({});
+const isDatePickerOpen = ref(false);
+const isPopupSaveOpen = ref(false);
+const isPopupCancleOpen = ref(false);
+const isPopupSubmitOpen = ref(false);
+const isAlertSaveOpen = ref(false);
+const isAlertCancleOpen = ref(false);
+const isAlertSubmitOpen = ref(false);
+
+
+const formData = ref<createRequisition>({
+  rqName: "",
+  rqUsrId: "",
+  rqPjId: "",
+  rqRqtId: 0,
+  rqVhId: 0,
+  rqPayDate: null,
+  rqWithdrawDate: null,
+  rqInsteadEmail: "",
+  rqExpenses: 0,
+  rqStartLocation: "",
+  rqEndLocation: "",
+  rqDistance: "",
+  rqPurpose: "",
+  rqStatus: "",
+  rqProgress: "",
+  rqAny: "",
+});
+
+const parseDate = (dateStr: string): Date => {
+  if (!dateStr) return new Date();
+
+  const [year, month, day] = dateStr.split("-").map(Number);
+  return new Date(year - 543, month - 1, day); // แปลง พ.ศ. เป็น ค.ศ.
+};
+
+const base64ToBlob = (base64: string, mimeType: string): Blob => {
+  const byteCharacters = atob(base64); // แปลง Base64 ให้เป็น string ของ byte
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
+    const slice = byteCharacters.slice(offset, offset + 1024);
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+    byteArrays.push(new Uint8Array(byteNumbers));
+  }
+
+  return new Blob(byteArrays, { type: mimeType });
+};
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
-  await requisitionStore.getAllvehicleType();
-  formData.value = await requisitionStore.getExpenseById(id);
+  vehicleType.value = await requisitionStore.getAllvehicleType();
+  const storedUser = localStorage.getItem("user");
+
+  if (storedUser) {
+    try {
+      user.value = await JSON.parse(storedUser);
+      await requisitionStore.getUserEmail(user.value.usrId)
+      const data = await requisitionStore.getExpenseById(id);
+      if (data) {
+        Object.assign(formData.value, data);
+        vhId.value = data.rqVhId;
+
+        selectedTravelType.value = data.vehicleType?.vhType || "";
+        rqCode.value = data.rqCode
+        displayRqExpenses.value = data.rqExpenses;
+        const user = requisitionStore.UserInstead.find((u) => u.usrName === data.rqInsteadEmail);
+        if (user) {
+          formData.value.rqInsteadEmail = user.usrEmail; // ตั้งค่าเป็น email
+        }
+        currentDate.value = parseDate(data.rqWithdrawDate);
+        selectedDate.value = parseDate(data.rqPayDate);
+
+        selectedFiles.value = data.files.map((file: any) => {
+          const blob = base64ToBlob(file.fFile, file.fFileType);
+          const fileObject = new File([blob], file.fName, { type: file.fFileType });
+          return {
+            file: fileObject,
+            fId: file.fId,
+          };
+        });
+      }
+    } catch (error) {
+      console.log("Error loading user:", error);
+    }
+  }
 });
 
-const fileInput = ref<HTMLInputElement | null>(null); // อ้างอิงถึง input element
-const selectedFile = ref<File | null>(null); // เก็บไฟล์ที่ผู้ใช้เลือก
-const previewUrl = ref<string | null>(null); // URL สำหรับแสดงตัวอย่างรูปภาพ
+// กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 0
+const filteredVehicleType = computed(() => {
+  return vehicleType.value
+    ? vehicleType.value.filter((vehicle: TravelManage) =>
+      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 0
+    )
+    : [];
+})
 
-// ค่าคงที่สำหรับกำหนดขนาดสูงสุดของรูปภาพ
-const maxWidth = 800; // ความกว้างสูงสุดที่ยอมรับ (พิกเซล)
-const maxHeight = 800; // ความสูงสูงสุดที่ยอมรับ (พิกเซล)
+// กรองประเภทการเดินทางที่ไม่ซ้ำ
+const uniqueTravelTypes = computed(() => {
+  return vehicleType.value && vehicleType.value.length > 0
+    ? [...new Set(vehicleType.value.map((vehicle: TravelManage) => vehicle.vhType))]
+    : [];
+});
 
-// ฟังก์ชันสำหรับเปิด file input dialog
+//fn ตรวจสอบการเลือกประเภทค่าใช้จ่าย
+function updateRqtName(event: Event) {
+  const selectedId = (event.target as HTMLSelectElement).value;
+  const selectedType = requisitionStore.requisitionType.find(
+    (type) => type.rqtId === Number(selectedId)
+  );
+  rqtName.value = selectedType ? selectedType.rqtName : '';
+}
+
+//fn หา vhPayrate ของพาหนะที่ถูกเลือก
+const selectedPayrate = computed(() => {
+  const selectedVehicle = vehicleType.value.find(
+    (vehicle: any) => vehicle.vhId.toString() === vhId.value.toString()
+  );
+
+  return selectedVehicle ? selectedVehicle.vhPayrate : '';
+});
+
+//const selectedFiles = ref<File[]>([]);
+
+//fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
   fileInput.value?.click();
 };
 
-// ฟังก์ชันจัดการเมื่อมีการเลือกไฟล์ผ่าน file input
+//fn เมื่อมีการลากไฟล์ทำการอัพโหลด
+const handleDrop = async (event: DragEvent) => {
+  event.preventDefault();
+
+  if (event.dataTransfer && event.dataTransfer.files) {
+    const droppedFiles = Array.from(event.dataTransfer.files);
+    await uploadFiles(droppedFiles); // เรียกใช้ uploadFiles แทนการ push ตรงๆ
+  }
+};
+
+//fn เมื่อมีการเลือกไฟล์
 const handleFileChange = async (event: Event) => {
   const target = event.target as HTMLInputElement;
-  if (target.files && target.files.length > 0) {
-    const file = target.files[0]; // เลือกไฟล์แรก
-    await uploadFile(file); // ส่งไฟล์ไปประมวลผล
+  if (target.files) {
+    const newFiles = Array.from(target.files);
+    await uploadFiles(newFiles);
   }
 };
 
-// ฟังก์ชันจัดการเมื่อมีการลากไฟล์มาวาง (drag & drop)
-// const handleDrop = async (event: DragEvent) => {
-//   if (event.dataTransfer?.files.length) {
-//     const file = event.dataTransfer.files[0];
-//     await uploadFile(file);
-//   }
-// };
-// ฟังก์ชันจัดการเมื่อมีการลากไฟล์มาวาง (drag & drop)
-const handleDrop = (event: DragEvent) => {
-  if (event.dataTransfer?.files.length) {
-    uploadFile(event.dataTransfer.files[0]); // ส่งไฟล์แรกที่ถูกลากมาวางไปประมวลผล
+//fn ลบข้อมูลไฟล์
+const removeFile = async (fIdToRemove: number | null, fileNameToRemove?: string) => {
+  if (fIdToRemove !== null) {
+    await requisitionStore.deleteFile(fIdToRemove);
+    selectedFiles.value = selectedFiles.value.filter(item => item.fId !== fIdToRemove);
+  } else if (fileNameToRemove) {
+    selectedFiles.value = selectedFiles.value.filter(item => item.file.name !== fileNameToRemove);
   }
 };
 
-// ฟังก์ชันตรวจสอบขนาดของรูปภาพ
-const checkImageDimensions = (file: File): Promise<boolean> => {
-  return new Promise((resolve) => {
-    const img = new Image();
-    img.onload = () => {
-      URL.revokeObjectURL(img.src); // จัดการหน่วยความจำ
-      resolve(img.width <= maxWidth && img.height <= maxHeight);
-    };
-    img.src = URL.createObjectURL(file); // สร้าง URL สำหรับตรวจสอบขนาด
-  });
-};
 
-const resetFile = () => {
-  if (formData.rqProof) {
-    URL.revokeObjectURL(formData.rqProof.value); // ลบ URL เก่า
-  }
-  formData.rqProof = null; // รีเซ็ตตัวแปรเป็นค่าว่าง
-};
+//fn ตัวตรวจสอบไฟล์
+const uploadFiles = async (files: File[]) => {
+  const allowedFileTypes = new Set([
+    "application/pdf",
+    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    "image/jpeg"
+  ]);
+  const maxFileSize = 2 * 1024 * 1024; // 2MB
+  const validFiles: { file: File; fId: number | null }[] = [];
+  const errors: string[] = [];
 
-// ฟังก์ชันหลักในการจัดการไฟล์ที่อัปโหลด
-const uploadFile = async (file: File) => {
-  // ตรวจสอบประเภทไฟล์
-  if (!["image/svg+xml", "image/png", "image/jpeg"].includes(file.type)) {
-    alert("กรุณาอัปโหลดไฟล์ SVG, PNG หรือ JPG เท่านั้น");
-    return;
-  }
-  // ตรวจสอบขนาดรูปภาพ
-  const isValidSize = await checkImageDimensions(file);
-  if (isValidSize) {
-    selectedFile.value = file; // เก็บไฟล์ที่ผ่านการตรวจสอบ
-    previewUrl.value = URL.createObjectURL(file); // สร้าง URL สำหรับแสดงตัวอย่าง
-    formData.value.rqProof = await convertToBase64(file);
-  } else {
-    alert(
-      `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
-    );
-    // รีเซ็ตค่าเมื่อไฟล์ไม่ถูกต้อง
-    selectedFile.value = null;
-    previewUrl.value = null;
-  }
-};
-// const isValidSize = await checkImageDimensions(file);
-// if (!isValidSize) {
-//   alert(
-//     `กรุณาอัปโหลดรูปภาพที่มีขนาดไม่เกิน ${maxWidth} x ${maxHeight} พิกเซล`
-//   );
-//   resetFile(); // ล้างข้อมูลเก่า
-//   return;
-// }
+  const existingFiles = new Set(selectedFiles.value.map(item => `${item.file.name}-${item.file.size}`));
 
-// รีเซ็ต URL เก่าหากมี
-//   if (formData.rqProof) {
-//     URL.revokeObjectURL(formData.rqProof.value); // ปลดปล่อย URL เดิม
-//   }
+  for (const file of files) {
+    const fileKey = `${file.name}-${file.size}`;
 
-//   // อัปเดต URL ใหม่
-//   formData.rqProof = URL.createObjectURL(file); // สร้าง URL ใหม่สำหรับรูปภาพ
-// };
-const handleSelectChange = () => {
-  if (rqtName.value === "อื่นๆ") {
-    isOtherSelected.value = true; // แสดงช่องกรอกข้อมูลเมื่อเลือก "อื่นๆ"
-  } else {
-    isOtherSelected.value = false; // ซ่อนช่องกรอกข้อมูลเมื่อเลือกประเภทอื่น
+    if (existingFiles.has(fileKey)) {
+      errors.push(`ไฟล์ ${file.name} ถูกเพิ่มไปแล้ว`);
+      continue;
+    }
+
+    if (!allowedFileTypes.has(file.type)) {
+      errors.push(`ไฟล์ ${file.name} ไม่ได้รับอนุญาต (อัปโหลดได้เฉพาะ PDF, DOCX หรือ JPEG)`);
+      continue;
+    }
+
+    if (file.type === "image/jpeg" && file.name.toLowerCase().endsWith(".jpg")) {
+      errors.push(`ไฟล์ ${file.name} เป็นไฟล์ .JPG ไม่อนุญาตให้อัปโหลด`);
+      continue;
+    }
+
+    if (file.size > maxFileSize) {
+      errors.push(`ไฟล์ ${file.name} มีขนาดเกิน 2MB`);
+      continue;
+    }
+
+    // กำหนด fId เป็น null
+    validFiles.push({ file, fId: null });
+    existingFiles.add(fileKey);
   }
-};
-const convertToBase64 = (file: File): Promise<string> => {
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.readAsDataURL(file);
-    reader.onload = () => resolve(reader.result as string);
-    reader.onerror = (error) => reject(error);
-  });
+
+  if (validFiles.length > 0) {
+    selectedFiles.value.push(...validFiles);
+  }
+
+  if (errors.length > 0) {
+    alert(errors.join("\n"));
+  }
 };
 
 const handleSubmit = async () => {
-  formData.value.rqStatus = "waiting";
-  try {
-    // เรียกใช้งานฟังก์ชัน updateExpense เพื่ออัปเดตข้อมูล
-    const data = await requisitionStore.updateExpense(id, formData.value);
-
-    // ตรวจสอบว่า data ที่ได้รับจาก API ไม่เป็น null หรือ undefined
-
-    // router.push("/disbursement/listWithdraw");
-  } catch (error) {
-    console.log("Error occurred during form submission:", error); // แสดงข้อผิดพลาด
-    alert("There was an error while submitting the form.");
+  if (await validateForm()) {
+    openPopupSubmit();
   }
 };
 
 const handleSave = async () => {
-  formData.value.rqStatus = "sketch";
-  const data = await requisitionStore.updateExpense(id, formData.value);
-  if (data) {
-    router.push("/disbursement/listWithdraw");
-  } else {
-    alert("Something went wrong");
+  if (await validateForm()) {
+    openPopupSave();
   }
 };
 
 const handleCancel = () => {
-  // Reset form data or navigate away
-  router.push("/disbursement/listWithdraw");
+  openPopupCancle();
 };
 
-const filteredVehicleType = computed(() => {
-  if (formData.value.rqVht === "private") {
-    return requisitionStore.vehicleType.filter(
-      (vehicle) => vehicle.vhType === "private"
-    );
-  } else if (formData.value.rqVht === "public") {
-    return requisitionStore.vehicleType.filter(
-      (vehicle) => vehicle.vhType === "public"
-    );
-  }
-  return [];
-});
-
-// เปิด/ปิด Popup บันทึก ผู้อนุมัติ
 const openPopupSave = () => {
   isPopupSaveOpen.value = true;
 };
+
 const closePopupSave = () => {
   isPopupSaveOpen.value = false;
 };
 
-// เปิด/ปิด Popup ยืนยัน ผู้อนุมัติ
+const openPopupCancle = () => {
+  isPopupCancleOpen.value = true;
+};
+
+const closePopupCancle = () => {
+  isPopupCancleOpen.value = false;
+};
+
 const openPopupSubmit = () => {
   isPopupSubmitOpen.value = true;
 };
+
 const closePopupSubmit = () => {
   isPopupSubmitOpen.value = false;
 };
 
-// เปิด/ปิด Alert บันทึก
-const confirmSave = async () => {
-  // เปิด Popup Alert
-  isAlertSaveOpen.value = true;
-  setTimeout(() => {
-    isAlertSaveOpen.value = false; // ปิด Alert
-    closePopupSave(); // ปิด Popup แก้ไข
-  }, 1500); // 1.5 วินาที
+const displayRqExpenses = ref('');
+
+//ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
+watch(displayRqExpenses, (newVal) => {
+  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+});
+
+// ตัวแปรเก็บ error ของแต่ละฟิลด์
+const errors = ref<{ [key: string]: boolean }>({});
+
+// ฟิลด์ที่จำเป็นต้องกรอก
+const requiredFields = ['rqName', 'rqPjId', 'rqRqtId'
+  , 'rqExpenses', 'rqStartLocation'
+  , 'rqEndLocation', 'rqDistance', 'rqPurpose', 'rqAny'];
+
+//ตรวจสอบสถานะของแต่ละฟิวว่ามีการแก้ไขหรือไม่ 
+watch(
+  [formData, selectedTravelType, vhId],
+  ([newFormData, newSelectedTravelType, newVhId]) => {
+
+    for (const field of requiredFields) {
+      if (newFormData[field as keyof createRequisition] !== "" && newFormData[field as keyof createRequisition] !== 0) {
+        delete errors.value[field];
+      }
+    }
+    if (newSelectedTravelType !== '') {
+      delete errors.value.selectedTravelType;
+    }
+    if (newVhId !== 0) {
+      delete errors.value.vhId;
+    }
+  },
+  { deep: true }
+);
+
+
+// ฟังก์ชันตรวจสอบฟอร์มเมื่อมีการกดส่ง
+const validateForm = async () => {
+  errors.value = {};
+  for (const field of requiredFields) {
+    const value = formData.value[field as keyof createRequisition];
+    if (value === "" || value === undefined || value === 0) {
+      if (rqtName.value !== 'ค่าเดินทาง' &&
+        ['rqStartLocation', 'rqEndLocation', 'rqDistance', 'rqVhId'].includes(field)) {
+        continue;
+      }
+      if (rqtName.value !== 'อื่นๆ' && field === 'rqAny') {
+        continue;
+      }
+      errors.value[field] = true;
+    }
+  }
+  if (rqtName.value === 'ค่าเดินทาง' && selectedTravelType.value === '') {
+    errors.value.selectedTravelType = true;
+  }
+  if (rqtName.value === 'ค่าเดินทาง' && vhId.value === 0) {
+    errors.value.vhId = true;
+  }
+  if (rqtName.value === 'อื่นๆ' && formData.value.rqAny === '') {
+    errors.value.vhId = true;
+  }
+  return Object.keys(errors.value).length === 0;
 };
 
-// เปิด/ปิด Alert ยืนยัน
-const confirmSubmit = async () => {
-  // เปิด Popup Alert
-  isAlertSubmitOpen.value = true;
+// ปรับเปลี่ยนค่าของข้อมูล เมื่อเป็นค่าใช้จ่ายทั่วไป ค่าเดินทาง และค่าใช้จ่ายอื่นๆ
+function updateFormData() {
+  if (rqtName.value != 'ค่าเดินทาง') {
+    formData.value.rqVhId = null;
+    formData.value.rqStartLocation = null;
+    formData.value.rqEndLocation = null;
+    formData.value.rqDistance = null;
+  }
+  if (rqtName.value == 'ค่าเดินทาง') {
+    formData.value.rqVhId = vhId.value;
+  }
+  if (rqtName.value != 'อื่นๆ') {
+    formData.value.rqAny = null;
+  }
+  formData.value.rqUsrId = user.value.usrId;
+  formData.value.rqPayDate = formatDateToThai(selectedDate.value)
+  formData.value.rqWithdrawDate = formatDateToThai(currentDate.value)
+}
+
+// ปรับรูปแบบวันเดือนปี
+const formatDateToThai = (date: Date) => {
+  if (!date) return null;
+  const thaiYear = date.getFullYear() + 543;
+  const formattedDate = `${thaiYear}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
+  return formattedDate;
+};
+
+// ปรับรูปแบบค่าที่ส่งเข้า db
+const createFormData = (formData: createRequisition, selectedFiles: File[]): FormData => {
+  const fd = new FormData();
+  Object.entries(formData).forEach(([key, value]) => {
+    if (value !== null && value !== undefined) {
+      fd.append(key, value.toString());
+    }
+  });
+  selectedFiles.forEach((file) => {
+    fd.append("Files", file);
+  });
+  return fd;
+};
+
+//เมื่อกดปุ่มบันทึก
+const confirmSave = async (event: Event) => {
+  event.preventDefault();
+  formData.value.rqStatus = "sketch";
+  formData.value.rqProgress = "accepting"
+  await updateFormData()
+  const filesOnly = selectedFiles.value.filter(item => item.fId === null).map(item => item.file);
+  const fd = await createFormData(formData.value, filesOnly);
+  await requisitionStore.updateExpense(id, fd);
+  isAlertSaveOpen.value = true;
+
   setTimeout(() => {
-    isAlertSubmitOpen.value = false; // ปิด Alert
-    closePopupSubmit(); // ปิด Popup แก้ไข
-  }, 1500); // 1.5 วินาที
+    isAlertSaveOpen.value = false;
+    closePopupSave();
+    router.push("/disbursement/listWithdraw");
+  }, 1500);
+};
+
+//เมื่อกดปุ่มยืนยัน
+const confirmSubmit = async (event: Event) => {
+  event.preventDefault();
+  formData.value.rqStatus = "waiting";
+  formData.value.rqProgress = "accepting"
+  await updateFormData()
+  const filesOnly = selectedFiles.value.filter(item => item.fId === null).map(item => item.file);
+  const fd = await createFormData(formData.value, filesOnly);
+  await requisitionStore.updateExpense(id, fd);
+  isAlertSubmitOpen.value = true;
+
+  setTimeout(() => {
+    isAlertSubmitOpen.value = false;
+    closePopupSubmit();
+    router.push("/disbursement/listWithdraw");
+  }, 1500);
+};
+
+//เมื่อกดปุ่มยกเลิก
+const confirmCancle = async (event: Event) => {
+  event.preventDefault();
+  isAlertCancleOpen.value = true;
+  setTimeout(() => {
+    isAlertCancleOpen.value = false;
+    closePopupCancle();
+    router.push("/disbursement/listWithdraw");
+  }, 1500);
+};
+
+//ดูข้อมูลใน file
+const previewFile = (file: File) => {
+  const fileURL = URL.createObjectURL(file);
+
+  if (file.type === 'application/pdf') {
+    window.open(fileURL, '_blank');
+  }
+  else if (file.type.startsWith('image/')) {
+    window.open(fileURL, '_blank');
+  }
+  else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+    const link = document.createElement('a');
+    link.href = fileURL;
+    link.download = file.name;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  }
+  else {
+    console.log('ไม่สามารถแสดงผลไฟล์ประเภทนี้ได้');
+  }
 };
 </script>
+
 <template>
-  <form @submit.prevent="handleSubmit" class="text-black text-sm">
+  <form class="text-black text-sm m-4">
     <!-- btn -->
     <div class="flex justify-end gap-4">
-      <Button :type="'btn-save'" @click="openPopupSave"></Button>
-      <Button :type="'btn-cancleBorderGray'" @click="handleCancel"></Button>
-      <Button :type="'btn-summit'" @click="openPopupSubmit"></Button>
+      <Button :type="'btn-save'" @click="handleSave">บันทึก</Button>
+      <Button :type="'btn-cancleBorderGray'" @click="handleCancel">ยกเลิก</Button>
+      <Button :type="'btn-summit'" @click="handleSubmit">ยืนยัน</Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
-    <div class="">
+    <div class="mt-4">
       <!-- แบ่งเป็น 2 คอลัมน์ -->
-      <div class="flex flex-col md:flex-row justify-around gap-5">
+      <div class="flex flex-col">
         <!-- Form Left -->
-        <div class="w-1/2 rounded-[10px]">
-          <!-- ช่อง "รหัสรายการเบิก *" -->
-          <div class="m-4">
-            <label for="rqCode" class="block text-sm font-medium py-1"
-              >รหัสรายการเบิก *</label
-            >
-            <input
-              type="text"
-              id="rqCode"
-              v-model="formData.rqCode"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
-          </div>
-          <!-- ช่อง "ชื่อรายการเบิก" -->
-          <div class="m-4">
-            <label for="rqName" class="block text-sm font-medium py-1"
-              >ชื่อรายการเบิก *</label
-            >
-            <input
-              type="text"
-              id="rqName"
-              v-model="formData.rqName"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
+        <div class="grid grid-cols-4 gap-4">
+
+          <!-- ช่อง "รหัสรายการเบิก " -->
+
+          <div>
+            <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก </label>
+            <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ rqCode }}</p>
           </div>
 
-          <!-- ช่อง "วันที่เกิดค่าใช้จ่าย *" -->
-          <div class="m-4">
-            <label for="rqPayDate" class="block text-sm font-medium py-1"
-              >วันที่เกิดค่าใช้จ่าย *</label
-            >
-            <input
-              type="text"
-              id="rqPayDate"
-              v-model="formData.rqPayDate"
-              placeholder="YYYY-MM-DD"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
+          <!-- ช่อง "ชื่อรายการเบิก *" -->
+          <div>
+            <label for="rqName" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqName }">ชื่อรายการเบิก <span class="text-red-500">*</span></label>
+            <input type="text" id="rqName" v-model="formData.rqName"
+              :class="['inputItem', { 'error': errors.rqName }]" />
           </div>
+
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
-          <div class="m-4">
-            <label for="rqWithdrawDate" class="block text-sm font-medium py-1"
-              >วันที่ทำรายการเบิกค่าใช้จ่าย *</label
-            >
-            <input
-              type="text"
-              id="rqWithDrawDate"
-              placeholder="YYYY-MM-DD"
-              v-model="formData.rqWithDrawDate"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
+          <div class="">
+            <label for="rqWithdrawDate" class="block text-sm font-medium py-2">วันที่ทำรายการเบิกค่าใช้จ่าย <span
+                class="text-red-500">*</span></label>
+            <SingleDatePicker v-model="currentDate" id="rqWithdrawDate" :confirmedDate="currentDate" :disabled="true"
+              class="date w-full h-[42px] text-[#BABBBE] " />
           </div>
-          <div class="content-center m-4">
-            <label for="projectName" class="self-start text-sm">โครงการ</label>
+
+          <!-- ช่อง "วันที่ทำการเบิกค่าใช้จ่าย *" -->
+          <div>
+            <label for="rqPayDate" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.selectedDate }">วันที่ทำการเบิกค่าใช้จ่าย <span
+                class="text-red-500">*</span></label>
+            <SingleDatePicker v-model="selectedDate" id="rqPayDate" v-model:isOpen="isDatePickerOpen"
+              :confirmedDate="selectedDate" class="dateInput w-full h-[42px] text-black" placeholder="เลือกวันที่"
+              :class="['dateInput', { 'error': errors.selectedDate }]" />
+          </div>
+
+          <!-- ช่อง "โครงการ *" -->
+          <div>
+            <label for="projectName" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqPjId }">โครงการ<span class="text-red-500">*</span></label>
             <div class="text-xs">
-              <select
-                id="projectName"
-                v-model="formData.rqPjId"
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-              >
+              <select id="projectName" v-model="formData.rqPjId" :class="['inputItem', { 'error': errors.rqPjId }]"
+                required>
                 <option disabled selected>เลือกโครงการ</option>
-                <option
-                  v-for="project in requisitionStore.projects"
-                  :key="project.rqPjName"
-                  :value="project.PjId"
-                >
+                <option v-for="project in requisitionStore.projects" :key="project.pjId" :value="project.pjId">
                   {{ project.pjName }}
                 </option>
-              </select>+
-            </div>
-          </div>
-
-          <!-- ช่อง "อีเมลผู้ขอเบิกแทน *" -->
-          <div class="m-4">
-            <label for="rqInsteadEmail" class="block text-sm font-medium py-1"
-              >อีเมลผู้ขอเบิกแทน *</label
-            >
-            <input
-              type="text"
-              id="rqInsteadEmail"
-              v-model="formData.rqInsteadEmail"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
-          </div>
-        </div>
-        <div class="border border-gray-200"></div>
-
-        <!-- Form Right -->
-        <div class="w-1/2 rounded-[10px] place-items-end">
-          <div class="m-4">
-            <label
-              for="selectExpenseType"
-              class="block text-sm font-medium py-1"
-              >ประเภทค่าใช้จ่าย</label
-            >
-            <div class="relative">
-              <select
-                id="selectExpenseType"
-                v-model="formData.rqRqtId"
-                @change="handleSelectChange"
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-              >
-                <option disabled selected>เลือกประเภทค่าใช้จ่าย</option>
-                <option
-                  v-for="requisitionTypeData in requisitionStore.requisitionType"
-                  :key="requisitionTypeData.rqtId"
-                  :value="requisitionTypeData.rqRqtName"
-                >
-                  {{ requisitionTypeData.rqtName }}
-                </option>
-
-                <!-- Option for custom expense type -->
-                <option value="อื่นๆ" v-if="!isCustomExpenseTypeAdded">
-                  อื่นๆ
-                </option>
               </select>
-
-              <!-- Input for custom expense type when "อื่นๆ" is selected -->
-              <input
-                v-if="isOtherSelected"
-                v-model="customExpenseType"
-                placeholder="กรุณาระบุประเภทค่าใช้จ่าย"
-                class="absolute top-0 left-1 mt-[1.5px] px-3 py-3 border-1 border-grayDark bg-white rounded-md sm:text-sm text-sm focus:border-gray-400 focus:ring-0 focus:outline-none"
-                style="width: calc(50% - 16px)"
-              />
             </div>
           </div>
-          <!-- ช่อง "ประเภทการเดินทาง" -->
-          <div class="m-4" v-if="formData.rqRqtId === 2">
-            <label for="travelType" class="block text-sm font-medium py-1">
-              ประเภทการเดินทาง
+
+          <!-- ช่อง "ประเภทค่าใช้จ่าย *" -->
+
+          <div>
+            <!-- Dropdown -->
+            <label for="expenseType" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.rqRqtId }">
+              ประเภทค่าใช้จ่าย <span class="text-red-500">*</span>
+            </label>
+            <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName"
+              :class="['inputItem', { 'error': errors.rqRqtId }]" required>
+              <option value="" selected disabled>กรุณาเลือกประเภท</option>
+              <option v-for="requisitionTypeData in requisitionStore.requisitionType" :key="requisitionTypeData.rqtId"
+                :value="requisitionTypeData.rqtId">
+                {{ requisitionTypeData.rqtName }}
+              </option>
+              <!-- <option value="999">อื่นๆ</option> -->
+            </select>
+          </div>
+
+          <!-- ช่อง "ประเภทค่าใช้จ่ายอื่นๆ *" -->
+          <div v-show="rqtName == 'อื่นๆ'">
+            <label for="rqAny" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.rqAny }">
+              ประเภทค่าใช้จ่ายอื่นๆ <span class="text-red-500">*</span>
+            </label>
+            <input id="rqAny" v-model="formData.rqAny" :class="['inputItem', { 'error': errors.rqAny }]" type="text"
+              placeholder="กรุณาระบุข้อมูลเพิ่มเติม" />
+          </div>
+
+          <!-- ช่อง "ประเภทการเดินทาง *" -->
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <!-- Dropdown เลือกประเภทการเดินทาง -->
+            <label for="travelType" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.selectedTravelType }">
+              ประเภทการเดินทาง <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
-              <select
-                id="travelType"
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                v-model="formData.rqVht"
-              >
-                <option value="null" disabled selected>
-                  เลือกประเภทการเดินทาง
+              <select id="travelType" v-model="selectedTravelType"
+                :class="['inputItem', { 'error': errors.selectedTravelType }]">
+                <option value="" disabled>เลือกประเภทการเดินทาง</option>
+                <option v-for="type in uniqueTravelTypes" :value="type">
+                  {{ type === 'private' ? 'ประเภทส่วนตัว' : 'ประเภทสาธารณะ' }}
                 </option>
-                <option value="private">ประเภทส่วนตัว</option>
-                <option value="public">ประเภทสาธารณะ</option>
               </select>
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-                alt=""
-                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
-              />
             </div>
           </div>
 
-          <!-- ช่อง "ประเภทรถ" -->
-          <div class="m-4" v-if="formData.rqRqtId === 2">
-            <label for="travelType" class="block text-sm font-medium py-1">
-              ประเภทรถ
+          <!-- ช่อง "ประเภทรถ *" -->
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <!-- Dropdown เลือกประเภทรถ (กรองตามประเภทการเดินทางที่เลือก) -->
+            <label for="vehicleType" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.vhId }">
+              ประเภทรถ <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
-              <select
-                class="px-3 py-3 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-                v-model="formData.rqVhId"
-              >
-                <option value="null" selected disabled>เลือกประเภทรถ</option>
-                <option
-                  v-for="vehicle in filteredVehicleType"
-                  :key="vehicle.vhId"
-                  :value="vehicle.vhId"
-                >
+              <select v-model="vhId" :class="['inputItem', { 'error': errors.vhId }]">
+                <option value="" selected disabled>เลือกประเภทรถ</option>
+                <!-- ใช้ filteredVehicleType ที่กรองแล้ว -->
+                <option v-for="vehicle in filteredVehicleType" :key="vehicle.vhId.toString()"
+                  :value="vehicle.vhId.toString()">
                   {{ vehicle.vhVehicle }}
                 </option>
               </select>
-              <img
-                loading="lazy"
-                src="https://cdn.builder.io/api/v1/image/assets/TEMP/f20eda30529a1c8726efb4a2b005d3a5b8c664e952cac725d871bbe2133f6684?placeholderIfAbsent=true&apiKey=e768e888ed824b2ebad298dfac1054a5"
-                alt=""
-                class="object-contain shrink-0 self-start w-4 aspect-[0.7] pointer-events-none absolute right-4 top-1/2 transform -translate-y-1/2"
-              />
             </div>
           </div>
 
-          <!-- ช่อง "สถานที่เริ่มต้น" -->
-          <div v-show="formData.rqRqtId === 2" class="m-4">
-            <label for="rqStartLocation" class="block text-sm font-medium py-1"
-              >สถานที่เริ่มต้น</label
-            >
-            <input
-              type="text"
-              id="rqStartLocation"
-              v-model="formData.rqStartLocation"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
+          <!-- ช่อง "สถานที่เริ่มต้น *" -->
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <label for="rqStartLocation" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqStartLocation }">สถานที่เริ่มต้น <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation"
+              :class="['inputItem', { 'error': errors.rqStartLocation }]" />
+          </div>
+          <!-- ช่อง "สถานที่สิ้นสุด *" -->
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <label for="rqEndLocation" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqEndLocation }">สถานที่สิ้นสุด <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation"
+              :class="['inputItem', { 'error': errors.rqEndLocation }]" />
           </div>
 
-          <!-- ช่อง "สถานที่สิ้นสุด" -->
-          <div v-show="formData.rqRqtId === 2" class="m-4">
-            <label for="rqEndLocation" class="block text-sm font-medium py-1"
-              >สถานที่สิ้นสุด</label
-            >
-            <input
-              type="text"
-              id="rqEndLocation"
-              v-model="formData.rqEndLocation"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
+          <!-- ช่อง "ระยะทาง *" -->
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <label for="rqDistance" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqDistance }">ระยะทาง <span class="text-red-500">*</span></label>
+            <input type="text" id="rqDistance" v-model="formData.rqDistance"
+              :class="['inputItem', { 'error': errors.rqDistance }]" />
           </div>
 
-          <!-- ช่อง "ระยะทาง" -->
-          <div v-show="formData.rqRqtId === 2" class="m-4">
-            <label for="rqEndLocation" class="block text-sm font-medium py-1"
-              >ระยะทาง</label
-            >
-            <input
-              type="text"
-              id="rqEndLocation"
-              v-model="formData.rqDistance"
-              class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-            />
+          <!-- ช่อง "อัตราค่าเดินทาง" -->
+          <div v-if="rqtName === 'ค่าเดินทาง'">
+            <label for="rqPayrate" class="block text-sm font-medium py-2">อัตราค่าเดินทาง </label>
+            <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ selectedPayrate }}</p>
           </div>
 
-          <div class="m-4">
-            <!-- ช่อง "จำนวนเงิน (บาท)" -->
-            <div>
-              <label for="rqExpenses" class="block text-sm font-medium py-1"
-                >จำนวนเงิน (บาท)</label
-              >
-              <input
-                type="text"
-                id="rqExpenses"
-                v-model="formData.rqExpenses"
-                class="px-3 py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full md:w-[400px] focus:border-gray-400 focus:ring-0 focus:outline-none"
-              />
-            </div>
+          <!-- ช่อง "จำนวนเงิน (บาท) *" -->
+          <div>
+            <label for="rqExpenses" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqExpenses }">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
+            <input type="number" id="rqExpenses" v-model="displayRqExpenses"
+              :class="['inputItem', { 'error': errors.rqExpenses }]" />
+          </div>
+
+          <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->
+          <div>
+            <label for="rqInsteadEmail" class="block text-sm font-medium py-2">ชื่อผู้ขอเบิกแทน </label>
+            <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem">
+              <option :value="null" disabled selected>Select User</option>
+              <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead">{{ user.usrName }}</option>
+            </select>
           </div>
         </div>
-      </div>
-    </div>
-    <!-- วัตถุประสงค์ -->
-    <div class="text-sm m-5">
-      <label class="block text-sm font-medium py-1">วัตถุประสงค์</label>
-      <div class="">
-        <textarea
-          v-model="formData.rqPurpose"
-          class="py-2 border border-gray-400 bg-white rounded-md sm:text-sm sm:w-full focus:border-gray-400 focus:ring-0 focus:outline-none"
-        ></textarea>
-      </div>
-    </div>
 
-    <!-- upload -->
-    <div class="upload-container w-2/6 m-5">
-      <label class="z-0 max-md:max-w-full"> อัปโหลดไฟล์ </label>
-      <div
-        class="flex z-0 mt-1 w-full bg-white rounded-md border border-solid border-zinc-400 min-h-[395px] max-md:max-w-full cursor-pointer relative"
-        @click="triggerFileInput"
-        @dragover.prevent
-        @drop.prevent="handleDrop"
-      >
-        <input
-          type="file"
-          ref="fileInput"
-          @change="handleFileChange"
-          accept="image/"
-          style="display: none"
-        />
+      </div>
+      <!-- ช่อง "รายละเอียด *" -->
+      <div class="text-sm my-4">
+        <label class="block text-sm font-medium pb-2" :class="{ 'text-red-500': errors.rqPurpose }">รายละเอียด <span
+            class="text-red-500">*</span></label>
+        <textarea v-model="formData.rqPurpose" class="h-[81px]"
+          :class="['inputItem', { 'error': errors.rqPurpose }]"> </textarea>
+      </div>
+
+      <!-- upload -->
+      <div class="upload-container">
+        <label class="z-0 max-md:max-w-full">อัปโหลดไฟล์</label>
         <div
-          v-if="!selectedFile"
-          class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[color:var(--,#B8B8B8)]"
-        >
-          <img
-            loading="lazy"
-            src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
-            alt="Upload icon"
-            class="object-contain w-16 aspect-[1.1]"
-          />
-          <p class="mt-3">อัปโหลดไฟล์ที่นี่</p>
-          <p class="mt-3">SVG, PNG หรือ JPG (MAX 800 800 px)</p>
+          class="flex z-0 mt-1 h-[278px] w-full bg-white rounded-md border border-solid border-[#B8B8B8] min-h-[395px] max-md:max-w-full cursor-pointer relative"
+          @click="triggerFileInput" @dragover.prevent @drop.prevent="handleDrop">
+          <!-- Input สำหรับอัปโหลดหลายไฟล์ -->
+          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/jpeg,application/pdf,.doc,.docx"
+            multiple style="display: none" />
+
+          <div class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[#B8B8B8]">
+            <img loading="lazy"
+              src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
+              alt="Upload icon" class="object-contain w-16 aspect-[1.1]" />
+            <p class="mt-3">คลิก หรือลากไฟล์มาที่นี่ เพื่ออัปโหลด</p>
+            <p class="mt-3">DOCS PNG หรือ PDF (MAX 2MB)</p>
+          </div>
         </div>
-        <div
-          v-if="selectedFile"
-          class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[color:var(--,#B8B8B8)]"
-        >
-          <img :src="formData.rqProof" />
-        </div>
-        <img
-          v-else
-          :src="formData.rqProof!"
-          alt="Preview"
-          class="max-w-full max-h-full object-contain absolute inset-0 m-auto"
-        />
       </div>
     </div>
+
+    <FileDisplay v-for="fileObj in selectedFiles" :key="fileObj.file.name || fileObj.file.lastModified"
+      :file="fileObj.file" @remove="removeFile(fileObj.fId)" @preview="previewFile(fileObj.file)" />
+
     <!-- Popup บันทึก -->
-    <div
-      v-if="isPopupSaveOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
-      >
+    <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg
-            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#FFBE40"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
@@ -559,16 +686,42 @@ const confirmSubmit = async () => {
           คุณยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button
-            @click="closePopupSave"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="closePopupSave"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button
-            @click="confirmSave"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="confirmSave"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup ยกเลิก -->
+    <div v-if="isPopupCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยกเลิกการทำรายการเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยกเลิกการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="closePopupCancle"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+          <button @click="confirmCancle"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
         </div>
@@ -576,47 +729,29 @@ const confirmSubmit = async () => {
     </div>
 
     <!-- Popup ยืนยัน -->
-    <div
-      v-if="isPopupSubmitOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
-      >
+    <div v-if="isPopupSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg
-            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#FFBE40"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
-          ยืนยันการแก้ไขคำขอเบิกค่าใช้จ่าย
+          ยืนยันการทำรายการเบิกค่าใช้จ่าย
         </h2>
         <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันการแก้ไขคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+          คุณยืนยันการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button
-            @click="closePopupSubmit"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="closePopupSubmit"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button
-            @click="confirmSubmit"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="confirmSubmit"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
         </div>
@@ -624,64 +759,87 @@ const confirmSubmit = async () => {
     </div>
 
     <!-- Alert -->
-    <div
-      v-if="isAlertSaveOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <div v-if="isAlertSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
-      >
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="mb-4">
-          <svg
-            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="green"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mt-3">
-          ยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายสำเร็จ
+          บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ
         </h2>
       </div>
     </div>
 
-    <div
-      v-if="isAlertSubmitOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <div v-if="isAlertCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
-      >
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="mb-4">
-          <svg
-            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="green"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-3">
-          ยืนยันการแก้ไขคำขอเบิกค่าใช้จ่ายสำเร็จ
+          ยกเลิกการทำรายการเบิกค่าใช้จ่ายสำเร็จ
+        </h2>
+      </div>
+    </div>
+
+    <div v-if="isAlertSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+        <div class="mb-4">
+          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-3">
+          ยืนยันการทำรายการเบิกค่าใช้จ่ายสำเร็จ
         </h2>
       </div>
     </div>
   </form>
 </template>
+
+<style>
+.inputItem {
+  padding: 8px 12px;
+  border: 1px solid #B8B8B8;
+  background-color: white;
+  border-radius: 0.375rem;
+  font-size: 0.875rem;
+  width: 100%;
+  height: 40px;
+  line-height: 24px;
+  transition: border-color 0.3s ease;
+}
+
+.date input {
+  height: 40px;
+  border: 1px solid #B8B8B8;
+  background-color: #F7F7F7;
+}
+
+.dateInput input {
+  height: 40px;
+  border: 1px solid #B8B8B8;
+}
+
+.inputItem.error,
+.date input.error,
+.dateInput input.error {
+  border-color: red !important;
+
+}
+</style>

@@ -249,7 +249,7 @@ onMounted(async () => {
             </form>
         </div>
         <Button :type="'btn-print2'"  @click="showModal = true"
-                    class="fixed right-0 mr-4 transform -translate-y-1/2 top-1/2">
+                    class=" right-0 mr-4 transform -translate-y-1/2 top-1/2">
                     ส่งออก
                 </Button>
                 <!-- Modal -->
