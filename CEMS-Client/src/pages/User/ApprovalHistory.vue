@@ -13,6 +13,7 @@ import StatusBudge from '../../components/Status/StatusBudge.vue';
 import { useApprovalStore } from '../../store/approvalList';
 import { onMounted, ref } from 'vue';
 import { Expense } from '../../types';
+import Decimal from 'decimal.js';
 
 // เรียกใช้ ApprovalStore
 const approvalStore = useApprovalStore();
@@ -166,7 +167,7 @@ const toDetails = async (data: Expense) => {
                         </th>
                         <th class="py-[11px] px-2 text-start w-48">{{ item.pjName }}</th>
                         <th class="py-[11px] px-5 text-start w-32">{{ item.rqtName }}</th>
-                        <th class="py-[11px] px-5 text-end w-32">{{ item.rqExpenses }}</th>
+                        <th class="py-[11px] px-5 text-end w-32">{{new Decimal(item.rqExpenses ?? 0).toFixed(2)  }}</th>
                         <th class="py-[11px] px-2 text-center w-28 ">
                             <span>
                                 <StatusBudge :status="'sts-' + item.rqStatus"></StatusBudge>

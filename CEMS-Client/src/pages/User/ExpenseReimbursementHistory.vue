@@ -10,7 +10,7 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/Icon/CIcon.vue';
 import StatusBudge from '../../components/Status/StatusBudge.vue';
 import Ctable from '../../components/Table/CTable.vue';
-
+import Decimal from 'decimal.js';
 import { onMounted, ref } from 'vue';
 //import { useExpense } from '../../store/ExpenseStore';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
@@ -137,7 +137,7 @@ const toDetails = (id:string) => {
                         <th class="py-[12px] px-5 w-32 text-start font-[100]">{{ expenseReimbursementHistory.rqRqtName }}
                         </th>
                         <th class="py-[12px] px-2 w-20 text-end ">{{ expenseReimbursementHistory.rqWithDrawDate }}</th>
-                        <th class="py-[12px] px-5 w-32 text-end ">{{ expenseReimbursementHistory.rqExpenses }}</th>
+                        <th class="py-[12px] px-5 w-32 text-end ">{{new Decimal(expenseReimbursementHistory.rqExpenses ?? 0).toFixed(2) }}</th>
                         <th class="py-[12px] px-2 w-28 text-center "><span>
                                 <StatusBudge :status="'sts-'+expenseReimbursementHistory.rqStatus"></StatusBudge>
                             </span>
