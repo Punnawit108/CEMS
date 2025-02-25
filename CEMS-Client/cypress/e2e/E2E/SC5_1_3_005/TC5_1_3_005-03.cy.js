@@ -1,3 +1,9 @@
+/*
+ * ชื่อไฟล์: TC5_1_3_005-03.cy
+ * คำอธิบาย: E2E
+ * ชื่อผู้เขียน/แก้ไข: นางสาวอังคณา อุ่นเสียม
+ * วันที่จัดทำ/แก้ไข: 24/03/2564
+ */
 describe("รายงานโครงการ Tests", () => {
   beforeEach(() => {
     cy.login("65160341", "admin");
@@ -8,5 +14,6 @@ describe("รายงานโครงการ Tests", () => {
     cy.get(".text-lg").click();
     cy.get('[href="/report/project"] > .relative > .absolute').click();
     const searchKeyword = "งานเลี้ยง";
-    cy.get("#SearchBar").type(searchKeyword);  });
+    cy.get("#SearchBar").type(searchKeyword);
+  });
 });
