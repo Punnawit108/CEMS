@@ -14,8 +14,8 @@ describe("รายงานโครงการ Tests", () => {
     cy.get(
       '[href="/disbursement/listWithdraw"] > .relative > .absolute'
     ).click();
-    cy.get(
-      ':nth-child(1) > .py-[10px] > .flex > [data-v-9c67ba91=""] > :nth-child(1) > div > svg'
+    cy.xpath(
+      '//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table/tbody/tr[1]/th[8]/span/div/div/div'
     ).click();
   });
 });
