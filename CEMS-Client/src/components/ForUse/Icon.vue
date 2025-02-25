@@ -7,7 +7,7 @@
 */
 
 import { defineProps } from 'vue';
-import Icon from './CIcon.vue';
+import Icon from '../Icon/CIcon.vue';
 // import Dashboard from '../../pages/User/Dashboard.vue';
 // // ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
 </script>

@@ -156,10 +156,9 @@ public class UserController : ControllerBase
     }
 
     [HttpGet("{id}")]
-    public IActionResult GetUserByEmployeeId(string id)
+    public async Task<IActionResult> GetUserByEmployeeId(string id)
     {
 
-        Console.WriteLine(id);
         var user = _context.CemsUsers.Include(u => u.UsrRol).FirstOrDefault(u => u.UsrEmployeeId == id);
 
         if (user == null)
@@ -176,7 +175,37 @@ public class UserController : ControllerBase
             UsrIsApprover = 0,
         };
 
+                var approvers = await _context
+            .CemsApprovers.Where(e => e.ApSequence != null)
+            .Select(e => new { e.ApUsrId, e.ApSequence })
+            .ToListAsync();
+
+        foreach(var approver in approvers){
+            if(userLocal.UsrId.Equals(approver.ApUsrId)){
+                userLocal.UsrIsApprover = 1;
+            }
+        }
+
         return Ok(userLocal);
     }
 
+    /// <summary> ดึงข้อมูลผู้ใช้ทั้งหมด </summary>
+    /// <returns> ข้อมูลผู้ใช้ทั้งหมด </returns>
+    /// <remarks> แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย จิรภัทร มณีวงษ์ </remark>
+    [HttpGet("email/{id}")]
+    public async Task<ActionResult> GetUserToCreateRequisition(string id)
+    {
+        var users = await _context
+            .CemsUsers.Where(u => u.UsrId != id)
+            .OrderBy(e => e.UsrId)
+            .Select(u => new
+            {
+                u.UsrId,
+                UsrName = u.UsrFirstName + " " + u.UsrLastName,
+                u.UsrEmail,
+            })
+            .ToListAsync();
+
+        return Ok(users);
+    }
 }

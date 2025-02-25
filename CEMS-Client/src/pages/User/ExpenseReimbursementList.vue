@@ -6,9 +6,9 @@
 * วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
 */
 import { useRouter } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/CTable.vue';
-import StatusBudge from '../../components/template/StatusBudge.vue';
+import Icon from '../../components/Icon/CIcon.vue';
+import Ctable from '../../components/Table/CTable.vue';
+import StatusBudge from '../../components/Status/StatusBudge.vue';
 import { onMounted, ref } from 'vue';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
 

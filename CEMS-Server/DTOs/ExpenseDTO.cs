@@ -4,6 +4,8 @@
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
 * วันที่จัดทำ/แก้ไข: 25 พฤศจิกายน 2567
 */
+using CEMS_Server.Models;
+
 namespace CEMS_Server.DTOs
 {
     //ตัวแปรของเส้น Get
@@ -28,7 +30,9 @@ namespace CEMS_Server.DTOs
     {
         public required string RqId { get; set; }
         public required string RqUsrId { get; set; }
+        public int? RqPjId { get; set; }
         public string? RqPjName { get; set; }
+        public int? RqRqtId { get; set; }
         public string? RqRqtName { get; set; }
         public string? RqVhName { get; set; }
         public string? RqVhType { get; set; }
@@ -60,6 +64,8 @@ namespace CEMS_Server.DTOs
         public string RqStatus { get; set; } = null!;
 
         public string RqProgress { get; set; } = null!;
+
+        public List<CemsFile> Files { get; set; }
     }
 
     //ตัวแปรของเส้น post และ put
@@ -73,7 +79,6 @@ namespace CEMS_Server.DTOs
         public DateOnly RqPayDate { get; set; }
 
         public DateOnly RqWithDrawDate { get; set; }
-        public string? RqCode { get; set; }
 
         public string? RqInsteadEmail { get; set; }
 
@@ -87,12 +92,11 @@ namespace CEMS_Server.DTOs
 
         public string? RqPurpose { get; set; }
 
-        public string? RqProof { get; set; }
-
         public string RqStatus { get; set; } = null!;
 
         public string RqProgress { get; set; } = null!;
         public string? RqAny { get; set; }
+        public List<IFormFile> Files { get; set; } = new List<IFormFile>();
     }
 
     // Expense Report

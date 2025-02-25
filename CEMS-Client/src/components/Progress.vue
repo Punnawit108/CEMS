@@ -57,19 +57,19 @@ console.log(props.progressInfo.disbursement[0]?.rqStatus)
         <p v-if="item.aprId == null" class="w-fit font-bold">ผู้อนุมัติคนที่ {{ index + 1 }}</p>
         <p v-if="item.aprName == null && item.aprId != null" class="w-fit font-bold">{{ item.usrFirstName + " " +
           item.usrLastName }}</p>
-        <p v-if="item.aprName != null" class="w-fit font-bold">{{ item.aprName }}</p>
+        <p v-if="item.aprName != null" class="w-fit text-black ">{{ item.aprName }}</p>
         <div v-if="item.aprStatus === 'accept'">
-          <p class="text-[11px] text-gray-400 font-bold">
+          <p class="text-[11px] text-gray-400 ">
             อนุมัติเมื่อ :{{ item.aprDate }}
           </p>
         </div>
         <div v-else-if="item.aprStatus === 'reject'">
-          <p class="text-[11px] text-gray-400 font-bold">
+          <p class="text-[11px] text-gray-400 ">
             ไม่อนุมัติเมื่อ :{{ item.aprDate }}
           </p>
         </div>
         <div v-else-if="item.aprStatus === 'edit'">
-          <p class="text-[11px] text-gray-400 font-bold">
+          <p class="text-[11px] text-gray-400 ">
             ส่งกลับเมื่อ :{{ item.aprDate }}
           </p>
         </div>
@@ -135,5 +135,6 @@ console.log(props.progressInfo.disbursement[0]?.rqStatus)
 
 p {
   font-size: 14px;
+  font: normal;
 }
 </style>
