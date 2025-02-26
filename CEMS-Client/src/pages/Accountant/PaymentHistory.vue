@@ -15,7 +15,7 @@ const router = useRouter();
 const currentPage = ref(1);
 const itemsPerPage = ref(15);
 const table = ref("Table1-footer");
-
+import Decimal from 'decimal.js';
 const totalPages = computed(() => {
   return Math.ceil(paymentHistory.expense.length / itemsPerPage.value);
 });
@@ -203,7 +203,7 @@ const toDetails = (id: string) => {
                         </th>
                         <th class="py-[12px] px-5 w-32 text-start ">{{history.rqRqtName}}</th>
                         <th class="py-[12px] px-2 w-24 text-end ">{{history.rqDateWithdraw}}</th>
-                        <th class="py-[12px] px-2 w-32 text-center ">{{history.rqExpenses}}</th>
+                        <th class="py-[12px] px-2 w-32 text-center ">{{ new Decimal(history.rqExpenses ?? 0).toFixed(2)}}</th>
                         <th class="py-[10px] px-2 w-[90px] text-center ">
                             <span class="flex justify-center" @click="() => toDetails(history.rqId.toString())">
                                 <Icon :icon="'viewDetails'" />

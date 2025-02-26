@@ -12,7 +12,7 @@ import Ctable from '../../components/Table/CTable.vue';
 import { useApprovalStore } from '../../store/approvalList';
 import { onMounted, ref } from 'vue';
 import { Expense } from '../../types';
-
+import Decimal from 'decimal.js';
 // เรียกใช้ ApprovalStore
 const approvalStore = useApprovalStore();
 
@@ -169,7 +169,7 @@ const toDetails = async (data: Expense) => {
                         <th class="py-[11px] px-9 text-start w-56">{{ item.pjName }}</th>
                         <th class="py-[11px] px-8 text-start w-44">{{ item.rqtName }}</th>
                         <th class="py-[11px] px-4 text-end w-24">{{ item.rqWithdrawDate }}</th>
-                        <th class="py-[11px] px-7 text-end w-40">{{ item.rqExpenses }}</th>
+                        <th class="py-[11px] px-7 text-end w-40">{{new Decimal(item.rqExpenses ?? 0).toFixed(2)  }}</th>
                         <th @click="toDetails(item)" class="py-[11px] px-10 w-20">
                             <Icon :icon="'viewDetails'" />
                         </th>
