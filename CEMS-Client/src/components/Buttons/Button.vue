@@ -35,6 +35,7 @@ const componentMap = new Map<string, Component>([
   ['btn-transport', defineAsyncComponent(() => import("./ButtonTransport.vue"))],
   ['btn-transportClick', defineAsyncComponent(() => import("./ButtonTransportClick.vue"))],
   ['btn-unapprove', defineAsyncComponent(() => import("./ButtonUnApprove.vue"))],
+  ['btn-logout', defineAsyncComponent(() => import("./ButtonLogout.vue"))],
 ]);
 
 onMounted(() => {

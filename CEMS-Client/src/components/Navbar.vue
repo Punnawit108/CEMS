@@ -66,6 +66,7 @@ const handleClick = () => {
                     <Button :type="'btn-editRequest'"></Button>
                 </RouterLink>
             </div>
+            <Button :type="'btn-logout'" class="mr-5"></Button>
             <div class="inline-flex justify-center items-center">
                 <Icon :icon="'profile'" :size="32" />
             </div>
