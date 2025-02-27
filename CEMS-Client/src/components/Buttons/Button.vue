@@ -5,106 +5,41 @@
  * ชื่อผู้เขียน/แก้ไข: พรชัย
  * วันที่จัดทำ/แก้ไข: 12 กุมภาพันธ์ 2568
  */
-import { defineProps, onMounted, shallowRef } from "vue";
-import ButtonApprove from "./ButtonApprove.vue";
-import ButtonSubmit from "./ButtonSubmit.vue";
-import ButtonCancleBorderGray from "./ButtonCancleBorderGray.vue";
-import ButtonCancleGray from "./ButtonCancleGray.vue";
-import ButtonEditProject from "./ButtonEditProject.vue";
-import ButtonEditRequest from "./ButtonEditRequest.vue";
-import ButtonEditSend from "./ButtonEditSend.vue";
-import ButtonEditUser from "./ButtonEditUser.vue";
-import ButtonExpense from "./ButtonExpense.vue";
-import ButtonExpenseType from "./ButtonExpenseType.vue";
-import ButtonExpenseTypeGray from "./ButtonExpenseTypeGray.vue";
-import ButtonExpenseTypeGrayClick from "./ButtonExpenseTypeGrayClick.vue";
-import ButtonPayment1 from "./ButtonPayment1.vue";
-import ButtonPrint2 from "./ButtonPrint2.vue";
-import ButtonPrivate from "./ButtonPrivate.vue";
-import ButtonPublic1 from "./ButtonPublic1.vue";
-import ButtonSave from "./ButtonSave.vue";
-import ButtonSearch from "./ButtonSearch.vue";
-import ButtonTransport from "./ButtonTransport.vue";
-import ButtonTransportClick from "./ButtonTransportClick.vue";
-import ButtonUnApprove from "./ButtonUnApprove.vue";
+ import { ref, defineAsyncComponent, defineProps, onMounted, type Component } from "vue";
 
+const currentComponent = ref<Component| null>(null);
 
-const currentComponent = shallowRef();
+const props = defineProps<{
+  type: string;
+}>();
 
-const props = defineProps({
-  type: {
-    type: String,
-    required: true,
-  },
-});
+const componentMap = new Map<string, Component>([
+  ['btn-approve', defineAsyncComponent(() => import("./ButtonApprove.vue"))],
+  ['btn-summit', defineAsyncComponent(() => import("./ButtonSubmit.vue"))],
+  ['btn-cancleBorderGray', defineAsyncComponent(() => import("./ButtonCancleBorderGray.vue"))],
+  ['btn-cancleGray', defineAsyncComponent(() => import("./ButtonCancleGray.vue"))],
+  ['btn-editProject', defineAsyncComponent(() => import("./ButtonEditProject.vue"))],
+  ['btn-editRequest', defineAsyncComponent(() => import("./ButtonEditRequest.vue"))],
+  ['btn-editSend', defineAsyncComponent(() => import("./ButtonEditSend.vue"))],
+  ['btn-editUser', defineAsyncComponent(() => import("./ButtonEditUser.vue"))],
+  ['btn-expense', defineAsyncComponent(() => import("./ButtonExpense.vue"))],
+  ['btn-expenseType', defineAsyncComponent(() => import("./ButtonExpenseType.vue"))],
+  ['btn-expenseTypeGray', defineAsyncComponent(() => import("./ButtonExpenseTypeGray.vue"))],
+  ['btn-expenseTypeGrayClick', defineAsyncComponent(() => import("./ButtonExpenseTypeGrayClick.vue"))],
+  ['btn-payment1', defineAsyncComponent(() => import("./ButtonPayment1.vue"))],
+  ['btn-print2', defineAsyncComponent(() => import("./ButtonPrint2.vue"))],
+  ['btn-private', defineAsyncComponent(() => import("./ButtonPrivate.vue"))],
+  ['btn-public1', defineAsyncComponent(() => import("./ButtonPublic1.vue"))],
+  ['btn-save', defineAsyncComponent(() => import("./ButtonSave.vue"))],
+  ['btn-search', defineAsyncComponent(() => import("./ButtonSearch.vue"))],
+  ['btn-transport', defineAsyncComponent(() => import("./ButtonTransport.vue"))],
+  ['btn-transportClick', defineAsyncComponent(() => import("./ButtonTransportClick.vue"))],
+  ['btn-unapprove', defineAsyncComponent(() => import("./ButtonUnApprove.vue"))],
+  ['btn-logout', defineAsyncComponent(() => import("./ButtonLogout.vue"))],
+]);
 
 onMounted(() => {
-  switch (props.type) {
-    case 'btn-approve':
-      currentComponent.value = ButtonApprove;
-      break;
-    case 'btn-summit':
-      currentComponent.value = ButtonSubmit;
-      break;
-    case 'btn-cancleBorderGray':
-      currentComponent.value = ButtonCancleBorderGray;
-      break;
-    case 'btn-cancleGray':
-      currentComponent.value = ButtonCancleGray;
-      break;
-    // ตั้งแต่ตรง Set แค่ Case ก่อน
-    case 'btn-editProject':
-      currentComponent.value = ButtonEditProject;
-      break;
-    case 'btn-editRequest':
-      currentComponent.value = ButtonEditRequest;
-      break;
-    case 'btn-editSend':
-      currentComponent.value = ButtonEditSend;
-      break;
-    case 'btn-editUser':
-      currentComponent.value = ButtonEditUser;
-      break;
-    case 'btn-expense':
-      currentComponent.value = ButtonExpense;
-      break;
-    case 'btn-expenseType':
-      currentComponent.value = ButtonExpenseType;
-      break;
-    case 'btn-expenseTypeGray':
-      currentComponent.value = ButtonExpenseTypeGray;
-      break;
-    case 'btn-expenseTypeGrayClick':
-      currentComponent.value = ButtonExpenseTypeGrayClick;
-      break;
-    case 'btn-payment1':
-      currentComponent.value = ButtonPayment1;
-      break;
-    case 'btn-print2':
-      currentComponent.value = ButtonPrint2;
-      break;
-    case 'btn-private':
-      currentComponent.value = ButtonPrivate;
-      break;
-    case 'btn-public1':
-      currentComponent.value = ButtonPublic1;
-      break;
-    case 'btn-save':
-      currentComponent.value = ButtonSave;
-      break;
-    case 'btn-search':
-      currentComponent.value = ButtonSearch;
-      break;
-    case 'btn-transport':
-      currentComponent.value = ButtonTransport;
-      break;
-    case 'btn-transportClick':
-      currentComponent.value = ButtonTransportClick;
-      break;
-    case 'btn-unapprove':
-      currentComponent.value = ButtonUnApprove;
-      break;
-  }
+  currentComponent.value = componentMap.get(props.type) || null;
 });
 </script>
 

@@ -10,6 +10,9 @@ import { onMounted, ref } from "vue";
 import { useDashboard } from "../../store/dashboard";
 import { useDashboardDetail } from "../../store/dashboard";
 import ChartDataLabels from "chartjs-plugin-datalabels";
+import Decimal from 'decimal.js';
+
+
 import {
   Chart,
   PieController,
@@ -27,6 +30,9 @@ import {
 //รับค่า useDashboardDetail จาก store มาเก็บ
 const dashboardDetailStore = useDashboardDetail();
 const user = ref<any>(null);
+
+
+
 
 //ค้นหา user
 const loadUser = async () => {
@@ -59,6 +65,11 @@ Chart.register(
 //รับค่า useDashboard จาก store เข้ามา
 const dashboardStore = useDashboard();
 const projectData = ref<any>(null);
+
+// Function to format decimal numbers
+const formatDecimal = (value: number) => {
+  return new Decimal(value).toFixed(2);
+};
 
 //ประกาศตัวแปร ประเภทค่าใช้จ่าย
 const requisitionType = ref<any>(null);
@@ -373,14 +384,8 @@ onMounted(async () => {
 
     <div class="mainfloat clearFix">
       <!-- Summary section -->
-      <div
-        class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch"
-      >
-        <div
-          v-for="(item, index) in dashboardDetailStore.dashboard"
-          :key="index"
-          class="columnDashboard shadowBox"
-        >
+      <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
+        <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox">
           <p class="font16">{{ item.key }}</p>
           <p class="font35">{{ item.value }}</p>
         </div>
@@ -406,7 +411,10 @@ onMounted(async () => {
             <tr v-for="(project, index) in projectData">
               <td class="text-right">{{ index + 1 }}</td>
               <td class="textOverflow">{{ project.pjName }}</td>
-              <td class="text-right">{{ project.totalPjExpense }}</td>
+              <td class="text-right">
+                {{ new Decimal(project.totalPjExpense ?? 0).toFixed(2) }}
+
+              </td>
             </tr>
           </tbody>
         </table>
