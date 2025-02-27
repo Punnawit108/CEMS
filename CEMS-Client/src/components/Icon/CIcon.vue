@@ -1,186 +1,69 @@
 <script setup lang="ts">
-/*
-* ชื่อไฟล์: CIcon.vue
-* คำอธิบาย: ไฟล์นี้ข้อมูล icon
-* ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
-* วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
-*/
-import { defineProps, onMounted, shallowRef } from "vue";
-import CIconApproval from "./CIconApproval.vue";
-import CIconApprovalList from "./CIconApprovalList.vue";
-import CIconBin from "./CIconBin.vue";
-import CIconCheckCircle from "./CIconCheckCircle.vue";
-import CIconCirclePlus from "./CIconCirclePlus.vue";
-import CIconDashboard from "./CIconDashboard.vue";
-import CIconDisbursement from "./CIconDisbursement.vue";
-import CIconEdit from "./CIconEdit.vue";
-import CIconErrorCircle from "./CIconErrorCircle.vue";
-import CIconExclamationCircle from "./CIconExclamationCircle.vue";
-import CIconEye from "./CIconEye.vue";
-import CIconEyeSlash from "./CIconEyeSlash.vue";
-import CIconFile from "./CIconFile.vue";
-import CIconListWithdraw from "./CIconListWithdraw.vue";
-import CIconNotification from "./CIconNotification.vue";
-import CIconPen from "./CIconPen.vue";
-import CIconPrinter from "./CIconPrinter.vue";
-import CIconProfile from "./CIconProfile.vue";
-import CIconReport from "./CIconReport.vue";
-import CIconReportExpense from "./CIconReportExpense.vue";
-import CIconReportProject from "./CIconReportProject.vue";
-import CIconSystemSettings from "./CIconSystemSettings.vue";
-import CIconSystemSettingsDisbursementApprover from "./CIconSystemSettingsDisbursementApprover.vue";
-import CIconSystemSettingsDisbursementType from "./CIconSystemSettingsDisbursementType.vue";
-import CIconSystemSettingsDisbursementTypeExpense from "./CIconSystemSettingsDisbursementTypeExpense.vue";
-import CIconSystemSettingsDisbursementTypeVehicle from "./CIconSystemSettingsDisbursementTypeVehicle.vue";
-import CIconSystemSettingsUser from "./CIconSystemSettingsUser.vue";
-import CIconUserRemove from "./CIconUserRemove.vue";
-import CIconViewDetails from "./CIconViewDetails.vue";
-
-const currentComponent = shallowRef();
+import { shallowRef, defineProps, onMounted, type Component } from "vue";
 
 const props = defineProps<{
-    icon: String
-    size?: number; // เพิ่ม props สำหรับขนาด
+    icon: string;
+    size?: number;
 }>();
-onMounted(()=>{
-    switch(props.icon){
-        case 'dashboard':
-            currentComponent.value = CIconDashboard;
-            break;
 
-        case 'disbursement':
-            currentComponent.value = CIconDisbursement;
-            break;
+const iconMap = new Map<string, Component>([
+    ["dashboard", () => import("./CIconDashboard.vue")],
+    ["disbursement", () => import("./CIconDisbursement.vue")],
+    ["listWithdraw", () => import("./CIconListWithdraw.vue")],
+    ["createExpenseForm", () => import("./CIconListWithdraw.vue")],
+    ["listWithdrawDetail", () => import("./CIconListWithdraw.vue")],
+    ["editExpenseForm", () => import("./CIconListWithdraw.vue")],
+    ["paymentList", () => import("./CIconListWithdraw.vue")],
+    ["paymentListDetail", () => import("./CIconListWithdraw.vue")],
+    ["approvalHistory", () => import("./CIconReportExpense.vue")],
+    ["historyWithdraw", () => import("./CIconReportExpense.vue")],
+    ["historyWithdrawDetail", () => import("./CIconReportExpense.vue")],
+    ["approvalHistoryDetail", () => import("./CIconReportExpense.vue")],
+    ["paymentHistory", () => import("./CIconReportExpense.vue")],
+    ["paymentHistoryDetail", () => import("./CIconReportExpense.vue")],
+    ["reportExpense", () => import("./CIconReportExpense.vue")],
+    ["reportProject", () => import("./CIconReportProject.vue")],
+    ["approvalList", () => import("./CIconApprovalList.vue")],
+    ["approval", () => import("./CIconApproval.vue")],
+    ["printer", () => import("./CIconPrinter.vue")],
+    ["profile", () => import("./CIconProfile.vue")],
+    ["systemSettings", () => import("./CIconSystemSettings.vue")],
+    ["systemSettingsUser", () => import("./CIconSystemSettingsUser.vue")],
+    ["systemSettingsUserDetail", () => import("./CIconSystemSettingsUser.vue")],
+    ["systemSettingsUserDetailEditUser", () => import("./CIconSystemSettingsUser.vue")],
+    ["systemSettingsDisbursementApprover", () => import("./CIconSystemSettingsDisbursementApprover.vue")],
+    ["systemSettingsDisbursementApproverAdd", () => import("./CIconSystemSettingsDisbursementApprover.vue")],
+    ["systemSettingsDisbursementTypeExpense", () => import("./CIconSystemSettingsDisbursementTypeExpense.vue")],
+    ["systemSettingsDisbursementTypeExpenseAdd", () => import("./CIconSystemSettingsDisbursementTypeExpense.vue")],
+    ["systemSettingsDisbursementType", () => import("./CIconSystemSettingsDisbursementType.vue")],
+    ["systemSettingsDisbursementTypeVehicle", () => import("./CIconSystemSettingsDisbursementTypeVehicle.vue")],
+    ["systemSettingsDisbursementTypeVehicleAddPublic", () => import("./CIconSystemSettingsDisbursementTypeVehicle.vue")],
+    ["systemSettingsDisbursementTypeVehicleAddPrivate", () => import("./CIconSystemSettingsDisbursementTypeVehicle.vue")],
+    ["report", () => import("./CIconReport.vue")],
+    ["notification", () => import("./CIconNotification.vue")],
+    ["viewDetails", () => import("./CIconViewDetails.vue")],
+    ["bin", () => import("./CIconBin.vue")],
+    ["edit", () => import("./CIconEdit.vue")],
+    ["eye", () => import("./CIconEye.vue")],
+    ["eyeSlash", () => import("./CIconEyeSlash.vue")],
+    ["circlePlus", () => import("./CIconCirclePlus.vue")],
+    ["pen", () => import("./CIconPen.vue")],
+    ["checkCircle", () => import("./CIconCheckCircle.vue")],
+    ["exclamationCircle", () => import("./CIconExclamationCircle.vue")],
+    ["errorCircle", () => import("./CIconErrorCircle.vue")],
+    ["userRemove", () => import("./CIconUserRemove.vue")],
+    ["file", () => import("./CIconFile.vue")],
+]);
 
-        case 'listWithdraw':
-        case 'createExpenseForm':
-        case 'listWithdrawDetail':
-        case 'editExpenseForm':
-        case 'paymentList':
-        case 'paymentListDetail':
-            currentComponent.value = CIconListWithdraw;
-            break;  
+const currentComponent = shallowRef<Component | null>(null);
 
-        case 'historyWithdraw ':
-        case 'approvalHistory':
-        case 'historyWithdraw':
-        case 'historyWithdrawDetail':
-        case 'approvalHistoryDetail':
-        case 'paymentHistory':
-        case 'paymentHistoryDetail':
-        case 'reportExpense':
-            currentComponent.value = CIconReportExpense;
-            break;
-
-        case 'reportProject':
-            currentComponent.value = CIconReportProject;
-            break;
-
-        case 'approvalList':
-            currentComponent.value = CIconApprovalList;
-            break;  
-
-        case 'approval':
-            currentComponent.value = CIconApproval;
-            break;
-
-        case 'printer':
-            currentComponent.value = CIconPrinter;
-            break;
-
-        case 'profile':
-            currentComponent.value = CIconProfile;
-            break;
-
-        case 'systemSettings':
-            currentComponent.value = CIconSystemSettings;
-            break;
-
-        case 'systemSettingsUser':
-        case 'systemSettingsUserDetail':
-        case 'systemSettingsUserDetailEditUser':
-            currentComponent.value = CIconSystemSettingsUser;
-            break;
-
-        case 'systemSettingsDisbursementApprover':
-        case 'systemSettingsDisbursementApproverAdd':
-            currentComponent.value = CIconSystemSettingsDisbursementApprover;
-            break;
-
-        case 'systemSettingsDisbursementTypeExpense':
-        case 'systemSettingsDisbursementTypeExpenseAdd':
-            currentComponent.value = CIconSystemSettingsDisbursementTypeExpense;
-            break;
-
-        case 'systemSettingsDisbursementType':
-            currentComponent.value = CIconSystemSettingsDisbursementType;
-            break;
-
-        case 'systemSettingsDisbursementTypeVehicle':
-        case 'systemSettingsDisbursementTypeVehicleAddPublic':
-        case 'systemSettingsDisbursementTypeVehicleAddPrivate':
-            currentComponent.value = CIconSystemSettingsDisbursementTypeVehicle;
-            break;
-
-        case 'report':
-            currentComponent.value = CIconReport;
-            break;
-
-        case 'notification':
-            currentComponent.value = CIconNotification;
-            break;
-
-        case 'viewDetails':
-            currentComponent.value = CIconViewDetails;
-            break;
-
-        case 'bin':
-            currentComponent.value = CIconBin;
-            break;
-
-        case 'edit':
-            currentComponent.value = CIconEdit;
-            break;
-
-        case 'eye':
-            currentComponent.value = CIconEye;
-            break;
-
-        case 'eyeSlash':
-            currentComponent.value = CIconEyeSlash;
-            break;
-
-        case 'circlePlus':
-            currentComponent.value = CIconCirclePlus;
-            break;
-
-        case 'pen':
-            currentComponent.value = CIconPen;
-            break;
-
-        case 'checkCircle':
-            currentComponent.value = CIconCheckCircle;
-            break;
-
-        case 'exclamationCircle':
-            currentComponent.value = CIconExclamationCircle;
-            break;
-
-        case 'errorCircle':
-            currentComponent.value = CIconErrorCircle;
-            break;
-
-        case 'userRemove':
-            currentComponent.value = CIconUserRemove;
-            break;
-
-        case 'file':
-            currentComponent.value = CIconFile;
-            break;            
+onMounted(async () => {
+    const componentLoader = iconMap.get(props.icon);
+    if (componentLoader) {
+        currentComponent.value = (await componentLoader()).default;
     }
-})
+});
 </script>
-
 
 <template>
     <component :is="currentComponent" :size="props.size" v-if="currentComponent" />
