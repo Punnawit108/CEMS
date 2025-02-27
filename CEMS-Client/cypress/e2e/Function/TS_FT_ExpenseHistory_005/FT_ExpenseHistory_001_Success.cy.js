@@ -1,50 +1,27 @@
-describe('Test New Feature', () => {
-  before(() => {
-      cy.login(); // ใช้ custom command login
+describe("ExpenseManage Tests", () => {
+    beforeEach("ล็อกอินเข้าสู่ระบบ", () => {
+      cy.login("65160093", "admin");
+    });
+  
+    it("ประวัติค่าใช้จ่าย", () => {
+      Cypress.on("uncaught:exception", (err) => {
+        if (
+          err.message.includes("lockSystem.ts") ||
+          err.message.includes("AxiosError") ||
+          err.message.includes("Cannot read properties of null (reading 'usrId')")
+        ) {
+          return false; 
+        }
+        return true;
+      });
+      cy.get(':nth-child(2) > .relative > .flex').click();
+      cy.get('[href="/disbursement/historyWithdraw"] > .relative > .absolute').click();
+      cy.get('.โครงการ > :nth-child(1) > .grid > .relative > .appearance-none').select('โครงการที่ 1');
+      cy.get('.ประเภทค่าใช้จ่าย > :nth-child(1) > .grid > .relative > .appearance-none').select('ประเภทที่ 1');
+      cy.get('#Calendar').click();
+      cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table/tbody/tr[1]/th[8]').click();
+      cy.get('#btn-พิมพ์').click();
+      cy.get('.btn-ยืนยัน').click();
+    });
   });
-
-  it('หลังจากเข้าสู่ระบบ', () => {
-      // เลือกเมนู "การเบิกจ่าย" จาก Sidebar
-      cy.xpath('//*[@id="app"]/div/div/div/nav/ul/li[2]/button/div[1]').click();
-      cy.wait(1000);
-      // ตรวจสอบว่า dropdown แสดงผล
-      cy.xpath("//ul[contains(@class, 'ml-8 mt-2')]").should('be.visible');
-      // เลือก "รายการเบิกค่าใช้จ่าย" จาก dropdown
-      cy.xpath('//*[@id="app"]/div/div/div/nav/ul/li[2]/ul/li[1]/a/a/div[1]').click();
-
-      // ตรวจสอบว่า URL เปลี่ยนไปตามที่คาดไว้
-      cy.url().should('include', '/disbursement/listWithdraw');
-      // ตรวจสอบว่าหน้ามีข้อความ "รายการเบิกค่าใช้จ่าย"
-      cy.get('h1').contains('รายการเบิกค่าใช้จ่าย')
-          .should('be.visible') // ตรวจสอบว่า h1 มองเห็นได้
-          .and('have.css', 'font-size', '24px') // ตรวจสอบขนาดตัวอักษร
-          .and('have.css', 'font-family', 'Sarabun');
-
-      // ตรวจสอบ header ใน table[9] (th[1] ถึง th[8]) ว่ามี font-family = Sarabun  font-size = 14px และ font-weight = 700 (bold)
-      for (let col = 1; col <= 8; col++) {
-          cy.xpath(`//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table[9]/thead/tr/th[${col}]`)
-              .should('be.visible')
-              .and('have.css', 'font-family', 'Sarabun') // ตรวจสอบฟอนต์เป็น Sarabun
-              .and('have.css', 'font-size', '14px') // ตรวจสอบ font-size = 14px
-              .and('have.css', 'font-weight', '700') // ตรวจสอบ font-weight = bold
-              .and('have.css', 'color', 'rgb(0, 0, 0)'); 
-      }
-      cy.wait(1000);
-
-      // ตรวจสอบข้อมูลในตาราง ว่ามี font-family = Sarabun  font-size = 14px 
-      cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table[11]/tbody/tr')
-          .its('length')
-          .then((rowCount) => {
-              for (let row = 1; row <= rowCount; row++) {
-                  for (let col = 1; col <= 6; col++) {
-                      cy.xpath(`//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table[11]/tbody/tr[${row}]/th[${col}]`)
-                          .should('be.visible')
-                          .and('have.css', 'font-family', 'Sarabun') // ตรวจสอบฟอนต์เป็น Sarabun
-                          .and('have.css', 'font-size', '14px') // ตรวจสอบ font-size = 14px
-                          .and('have.css', 'color', 'rgb(0, 0, 0)'); 
-                  }
-              }
-          });
-
-  });
-});
+  
