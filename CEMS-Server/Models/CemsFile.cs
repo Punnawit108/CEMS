@@ -17,6 +17,9 @@ namespace CEMS_Server.Models
 
         public int? FSize { get; set; }
 
+        public string FUniqueName { get; set; } = null!;
+        public string FPath { get; set; } = null!;
+
         // สร้างความสัมพันธ์กับ CemsRequisition
         public virtual CemsRequisition FRq { get; set; } = null!;
     }

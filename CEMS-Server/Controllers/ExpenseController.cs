@@ -267,22 +267,49 @@ public class ExpenseController : ControllerBase
 
         if (expenseDto.Files != null && expenseDto.Files.Count > 0)
         {
+            // กำหนดเส้นทางหลักของการเก็บไฟล์
+            string baseUploadPath = Path.Combine(
+                Directory.GetCurrentDirectory(),
+                "wwwroot/uploads"
+            );
+
+            // สร้างโฟลเดอร์ "elegant" ถ้ายังไม่มี
+            string elegantFolderPath = Path.Combine(baseUploadPath, "elegant");
+            if (!Directory.Exists(elegantFolderPath))
+            {
+                Directory.CreateDirectory(elegantFolderPath);
+            }
+
             foreach (var file in expenseDto.Files)
             {
-                using var memoryStream = new MemoryStream();
-                await file.CopyToAsync(memoryStream);
-                var fileData = memoryStream.ToArray();
+                // สร้างชื่อไฟล์ที่ไม่ซ้ำกันโดยใช้ UUID
+                string uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
+                // กำหนดเส้นทางที่ต้องการเก็บไฟล์
+                string filePath = Path.Combine(elegantFolderPath, uniqueFileName);
+
+                // เก็บไฟล์ลงใน server
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // สร้างข้อมูลไฟล์ในฐานข้อมูล
                 var cemsFile = new CemsFile
                 {
                     FRqId = rqId,
                     FName = file.FileName,
                     FFileType = file.ContentType,
-                    FFile = fileData,
                     FSize = (int)file.Length,
+                    //FUniqueName = uniqueFileName,
+                    //FPath = $"/uploads/elegant/{uniqueFileName}", // เส้นทางไฟล์ใน server
                 };
+
+                // เพิ่มข้อมูลไฟล์ลงในฐานข้อมูล
                 _context.CemsFiles.Add(cemsFile);
             }
+
+            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
             await _context.SaveChangesAsync();
         }
 
