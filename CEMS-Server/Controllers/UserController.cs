@@ -152,7 +152,7 @@ public class UserController : ControllerBase
             return StatusCode(500, $"เกิดข้อผิดพลาดในการบันทึกข้อมูล: {ex.Message}");
         }
 
-        return NoContent();
+        return Ok(new { success = true, message = "อัพเดทข้อมูลสำเร็จ" });
     }
 
     [HttpGet("{id}")]
