@@ -22,6 +22,6 @@ describe("Dashboard Tests", () => {
         // ตรวจสอบว่า URL เปลี่ยนไปตามที่คาดไว้
         cy.url().should('include', '/disbursement/historyWithdraw');
         cy.wait(1000);
-
+        
     });
   });
