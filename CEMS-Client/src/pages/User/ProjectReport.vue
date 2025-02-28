@@ -12,6 +12,7 @@ import Ctable from '../../components/Table/CTable.vue';
 import { useProjectsStore } from '../../store/projectsReport';
 import Button from "../../components/Buttons/Button.vue";
 import ProjectReport from '../../types/index';
+import Decimal from "decimal.js";
 import { useExportProjectReportStore } from "../../store/exportProjectReport";
 import {
     Chart,
@@ -269,7 +270,7 @@ onMounted(async () => {
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                             {{ project.pjName }}
                         </th>
-                        <th class="py-3 px-2 w-60 text-end font-[100]">{{ project.pjSumAmountExpenses }}</th>
+                        <th class="py-3 px-2 w-60 text-end font-[100]">{{ new Decimal(project.pjSumAmountExpenses ?? 0).toFixed(2)  }}</th>
                     </tr>
                 </tbody>
             </table>

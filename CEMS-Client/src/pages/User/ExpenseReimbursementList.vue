@@ -5,22 +5,13 @@
 * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
 * วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
 */
-<<<<<<< HEAD
-import { useRoute, useRouter } from 'vue-router';
-import Icon from '../../components/template/CIcon.vue';
-import Ctable from '../../components/template/CTable.vue';
-import StatusBudge from '../../components/template/StatusBudge.vue';
-=======
 import { useRouter } from 'vue-router';
 import Icon from '../../components/Icon/CIcon.vue';
 import Ctable from '../../components/Table/CTable.vue';
 import StatusBudge from '../../components/Status/StatusBudge.vue';
->>>>>>> develop
 import { onMounted, ref } from 'vue';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
-import { useLockStore } from '../../store/lockSystem';
-import Button from '../../components/template/Button.vue';
-
+import Decimal from 'decimal.js';
 const router = useRouter();
 const expenseReimbursementStore = useExpenseReimbursement();
 const user = ref<any>(null);
@@ -247,7 +238,7 @@ const confirmDelete = async () => {
                             {{ expenseReimbursementList.rqWithDrawDate }}
                         </th>
                         <th class="py-[12px] px-5 w-32 text-end">
-                            {{ expenseReimbursementList.rqExpenses }}
+                            {{ new Decimal (expenseReimbursementList.rqExpenses ?? 0).toFixed(2) }}
                         </th>
                         <th class="py-[12px] px-2 w-28 text-center">
                             <span>

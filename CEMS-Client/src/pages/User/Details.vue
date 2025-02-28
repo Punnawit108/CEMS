@@ -14,6 +14,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
 import { useExportDetailStore } from "../../store/exportDetail";
 import FileDisplay from "../../components/FileDisplay.vue";
+import Decimal from "decimal.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -401,7 +402,7 @@ const previewFile = (file: File) => {
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
-            <p class="item">{{ expenseData?.rqExpenses || '-' }}</p>
+            <p class="item">{{ new Decimal (expenseData?.rqExpenses || '-' ).toFixed(2) }}</p>
           </div>
           <div class="col"></div>
           <div v-if="!isPaymentOrHistoryPath" class="col"></div>

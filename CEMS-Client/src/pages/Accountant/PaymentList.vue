@@ -12,7 +12,7 @@ import { usePayment } from '../../store/paymentStore';
 import { onMounted } from 'vue';
 const paymentlist = usePayment();
 const router = useRouter();
-
+import Decimal from 'decimal.js';
 onMounted(()=>{
     paymentlist.getAllPaymentList()
 })
@@ -173,7 +173,7 @@ const toDetails = (id: string) => {
                             </th>
                             <th class="py-[12px] px-5 w-44 text-start ">{{ paymentlist.rqRqtName }}</th>
                             <th class="py-[12px] px-2 w-24 text-end ">{{ paymentlist.rqDateWithdraw }}</th>
-                            <th class="py-[12px] px-2 w-40 text-end ">{{ paymentlist.rqExpenses }}</th>
+                            <th class="py-[12px] px-2 w-40 text-end ">{{new Decimal(paymentlist.rqExpenses ?? 0).toFixed(2) }}</th>
                             <th class="py-[10px] px-2 w-32 text-center ">
                                 <span class="flex justify-center" v-on:click="toDetails(paymentlist.rqId)">
                                     <Icon :icon="'viewDetails'" />
