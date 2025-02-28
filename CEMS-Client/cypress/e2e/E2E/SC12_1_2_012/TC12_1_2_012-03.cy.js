@@ -1,5 +1,5 @@
 /*
-* ชื่อไฟล์: TC12_1_1_012-01.cy
+* ชื่อไฟล์: TC12_1_1_012-03.cy
 * คำอธิบาย: E2e
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข:  
@@ -21,6 +21,9 @@ describe("ManageExpeneFormTest", () => {
         cy.url().should('include', '/systemSettings/disbursementType/expense');
         
         cy.wait(1000);
+
+        cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div[3]/div/div[2]/div/div[2]/button[3]').click();
+
 
     });
   });
