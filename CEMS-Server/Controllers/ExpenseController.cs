@@ -530,6 +530,23 @@ public class ExpenseController : ControllerBase
             return NotFound(new { message = "ไม่พบไฟล์ที่ต้องการลบ" });
         }
 
+        // ลบไฟล์จริงจากโฟลเดอร์
+        var filePath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "Assets",
+            "Upload",
+            file.FPath
+        );
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath); // ลบไฟล์ออกจากโฟลเดอร์
+        }
+        else
+        {
+            return NotFound(new { message = "ไม่พบไฟล์ในโฟลเดอร์" });
+        }
+
+        // ลบข้อมูลไฟล์ออกจากฐานข้อมูล
         _context.CemsFiles.Remove(file);
         await _context.SaveChangesAsync();
 

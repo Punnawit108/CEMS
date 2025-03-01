@@ -624,7 +624,8 @@ const previewFile = (file: File) => {
     </div>
 
     <FileDisplay v-for="fileObj in selectedFiles" :key="fileObj.file.name || fileObj.file.lastModified"
-      :file="fileObj.file" @remove="removeFile(fileObj.fId, fileObj.file.name)" @preview="previewFile(fileObj.file)" />
+      :file="fileObj.file" :fileName="fileObj.file.name" @remove="removeFile(fileObj.fId, fileObj.file.name)"
+      @preview="previewFile(fileObj.file)" />
 
 
     <!-- Popup บันทึก -->
