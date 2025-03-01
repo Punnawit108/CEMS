@@ -415,7 +415,7 @@ public partial class CemsContext : DbContext
             entity.Property(e => e.FUniqueName).HasMaxLength(255).HasColumnName("f_unique_name");
             entity.Property(e => e.FPath).HasMaxLength(255).HasColumnName("f_path");
             entity.Property(e => e.FFileType).HasMaxLength(45).HasColumnName("f_file_type");
-            entity.Property(e => e.FFile).HasColumnType("mediumblob").HasColumnName("f_file");
+            //entity.Property(e => e.FFile).HasColumnType("mediumblob").HasColumnName("f_file");
             entity.Property(e => e.FSize).HasColumnName("f_size");
 
             entity

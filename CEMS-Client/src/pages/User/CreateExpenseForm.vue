@@ -77,11 +77,11 @@ onMounted(async () => {
   }
 });
 
-// กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 0
+// กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 1
 const filteredVehicleType = computed(() => {
   return vehicleType.value
     ? vehicleType.value.filter((vehicle: TravelManage) =>
-      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 0
+      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 1
     )
     : [];
 })
@@ -110,6 +110,15 @@ const selectedPayrate = computed(() => {
 
   return selectedVehicle ? selectedVehicle.vhPayrate : '';
 });
+
+//fn คำนวณเงินของระยะทางและอัตราจ่าย
+const calculateExpenses = () => {
+  if (formData.value.rqDistance && selectedPayrate.value) {
+    const expenses = Number(formData.value.rqDistance) * Number(selectedPayrate.value);
+    displayRqExpenses.value = expenses.toString();
+    formData.value.rqExpenses = expenses;
+  }
+};
 
 //fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
@@ -556,7 +565,7 @@ const previewFile = (file: File) => {
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <label for="rqDistance" class="block text-sm font-medium py-2"
               :class="{ 'text-red-500': errors.rqDistance }">ระยะทาง <span class="text-red-500">*</span></label>
-            <input type="text" id="rqDistance" v-model="formData.rqDistance"
+            <input type="text" id="rqDistance" v-model="formData.rqDistance" @input="calculateExpenses"
               :class="['inputItem', { 'error': errors.rqDistance }]" />
           </div>
 

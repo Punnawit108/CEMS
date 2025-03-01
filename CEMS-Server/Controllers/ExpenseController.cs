@@ -194,13 +194,13 @@ public class ExpenseController : ControllerBase
                 RqProgress = u.RqProgress,
 
                 Files = u
-                    .CemsFiles.Select(f => new CemsFile
+                    .CemsFiles.Select(f => new ExpenseFileDto
                     {
                         FId = f.FId,
                         FName = f.FName,
                         FFileType = f.FFileType,
                         FSize = f.FSize,
-                        FFile = f.FFile,
+                        FPath = f.FPath, // ส่ง path ของไฟล์
                     })
                     .ToList(),
             })
@@ -267,17 +267,13 @@ public class ExpenseController : ControllerBase
 
         if (expenseDto.Files != null && expenseDto.Files.Count > 0)
         {
-            // กำหนดเส้นทางหลักของการเก็บไฟล์
-            string baseUploadPath = Path.Combine(
-                Directory.GetCurrentDirectory(),
-                "wwwroot/uploads"
-            );
+            // กำหนดเส้นทางหลักของการเก็บไฟล์ (assets/upload)
+            string baseUploadPath = Path.Combine(Directory.GetCurrentDirectory(), "assets/upload");
 
-            // สร้างโฟลเดอร์ "elegant" ถ้ายังไม่มี
-            string elegantFolderPath = Path.Combine(baseUploadPath, "elegant");
-            if (!Directory.Exists(elegantFolderPath))
+            // สร้างโฟลเดอร์ "assets/upload" ถ้ายังไม่มี
+            if (!Directory.Exists(baseUploadPath))
             {
-                Directory.CreateDirectory(elegantFolderPath);
+                Directory.CreateDirectory(baseUploadPath);
             }
 
             foreach (var file in expenseDto.Files)
@@ -286,7 +282,7 @@ public class ExpenseController : ControllerBase
                 string uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
                 // กำหนดเส้นทางที่ต้องการเก็บไฟล์
-                string filePath = Path.Combine(elegantFolderPath, uniqueFileName);
+                string filePath = Path.Combine(baseUploadPath, uniqueFileName);
 
                 // เก็บไฟล์ลงใน server
                 using (var stream = new FileStream(filePath, FileMode.Create))
@@ -301,8 +297,8 @@ public class ExpenseController : ControllerBase
                     FName = file.FileName,
                     FFileType = file.ContentType,
                     FSize = (int)file.Length,
-                    //FUniqueName = uniqueFileName,
-                    //FPath = $"/uploads/elegant/{uniqueFileName}", // เส้นทางไฟล์ใน server
+                    FUniqueName = uniqueFileName,
+                    FPath = $"/assets/upload/{uniqueFileName}", // เส้นทางไฟล์ใน server
                 };
 
                 // เพิ่มข้อมูลไฟล์ลงในฐานข้อมูล
@@ -461,7 +457,7 @@ public class ExpenseController : ControllerBase
                     FRqId = id,
                     FName = file.FileName,
                     FFileType = file.ContentType,
-                    FFile = fileData,
+                    //FFile = fileData,
                     FSize = (int)file.Length,
                 };
                 _context.CemsFiles.Add(cemsFile);
