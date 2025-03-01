@@ -1220,6 +1220,7 @@ const confirmDeleteExpense = async () => {
       <h2 class="text-[24px] font-bold text-center text-black mt-3">
         ยืนยันการลบข้อมูลประเภทค่าใช้จ่ายสำเร็จ
       </h2>
+      
     </div>
   </div>
 
