@@ -11,7 +11,7 @@ import Ctable from '../../components/Table/CTable.vue';
 import StatusBudge from '../../components/Status/StatusBudge.vue';
 import { onMounted, ref } from 'vue';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
-
+import Decimal from 'decimal.js';
 const router = useRouter();
 const expenseReimbursementStore = useExpenseReimbursement();
 const user = ref<any>(null);
@@ -167,7 +167,7 @@ const confirmDelete = async () => {
                             {{ expenseReimbursementList.rqWithDrawDate }}
                         </th>
                         <th class="py-[12px] px-5 w-32 text-end">
-                            {{ expenseReimbursementList.rqExpenses }}
+                            {{ new Decimal (expenseReimbursementList.rqExpenses ?? 0).toFixed(2) }}
                         </th>
                         <th class="py-[12px] px-2 w-28 text-center">
                             <span>

@@ -13,7 +13,7 @@ import { useExpensesListStore, useExpensesGraphStore } from '../../store/expense
 import ExpenseReportGraph from '../../types/index';
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/Buttons/Button.vue";
-
+import Decimal from 'decimal.js';
 import {
     Chart,
     BarController,
@@ -373,7 +373,7 @@ onMounted(async () => {
                                     {{ expense.rqDatePay }}
                                 </th>
                                 <th class="py-[12px] px-2 w-40 text-end">
-                                    {{ expense.rqExpenses }}
+                                    {{ new Decimal(expense.rqExpenses ?? 0).toFixed(2) }}
                                 </th>
                                 <th class="py-[10px] px-2 w-32 text-center">
                                     <span class="flex justify-center">
