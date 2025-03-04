@@ -194,13 +194,13 @@ public class ExpenseController : ControllerBase
                 RqProgress = u.RqProgress,
 
                 Files = u
-                    .CemsFiles.Select(f => new CemsFile
+                    .CemsFiles.Select(f => new ExpenseFileDto
                     {
                         FId = f.FId,
                         FName = f.FName,
                         FFileType = f.FFileType,
                         FSize = f.FSize,
-                        FFile = f.FFile,
+                        FPath = f.FPath, // ส่ง path ของไฟล์
                     })
                     .ToList(),
             })
@@ -267,22 +267,45 @@ public class ExpenseController : ControllerBase
 
         if (expenseDto.Files != null && expenseDto.Files.Count > 0)
         {
+            // กำหนดเส้นทางหลักของการเก็บไฟล์ (assets/upload)
+            string baseUploadPath = Path.Combine(Directory.GetCurrentDirectory(), "assets/upload");
+
+            // สร้างโฟลเดอร์ "assets/upload" ถ้ายังไม่มี
+            if (!Directory.Exists(baseUploadPath))
+            {
+                Directory.CreateDirectory(baseUploadPath);
+            }
+
             foreach (var file in expenseDto.Files)
             {
-                using var memoryStream = new MemoryStream();
-                await file.CopyToAsync(memoryStream);
-                var fileData = memoryStream.ToArray();
+                // สร้างชื่อไฟล์ที่ไม่ซ้ำกันโดยใช้ UUID
+                string uniqueFileName = $"{Guid.NewGuid()}{Path.GetExtension(file.FileName)}";
 
+                // กำหนดเส้นทางที่ต้องการเก็บไฟล์
+                string filePath = Path.Combine(baseUploadPath, uniqueFileName);
+
+                // เก็บไฟล์ลงใน server
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await file.CopyToAsync(stream);
+                }
+
+                // สร้างข้อมูลไฟล์ในฐานข้อมูล
                 var cemsFile = new CemsFile
                 {
                     FRqId = rqId,
                     FName = file.FileName,
                     FFileType = file.ContentType,
-                    FFile = fileData,
                     FSize = (int)file.Length,
+                    FUniqueName = uniqueFileName,
+                    FPath = $"/assets/upload/{uniqueFileName}", // เส้นทางไฟล์ใน server
                 };
+
+                // เพิ่มข้อมูลไฟล์ลงในฐานข้อมูล
                 _context.CemsFiles.Add(cemsFile);
             }
+
+            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
             await _context.SaveChangesAsync();
         }
 
@@ -434,7 +457,7 @@ public class ExpenseController : ControllerBase
                     FRqId = id,
                     FName = file.FileName,
                     FFileType = file.ContentType,
-                    FFile = fileData,
+                    //FFile = fileData,
                     FSize = (int)file.Length,
                 };
                 _context.CemsFiles.Add(cemsFile);
@@ -507,6 +530,23 @@ public class ExpenseController : ControllerBase
             return NotFound(new { message = "ไม่พบไฟล์ที่ต้องการลบ" });
         }
 
+        // ลบไฟล์จริงจากโฟลเดอร์
+        var filePath = Path.Combine(
+            Directory.GetCurrentDirectory(),
+            "Assets",
+            "Upload",
+            file.FPath
+        );
+        if (System.IO.File.Exists(filePath))
+        {
+            System.IO.File.Delete(filePath); // ลบไฟล์ออกจากโฟลเดอร์
+        }
+        else
+        {
+            return NotFound(new { message = "ไม่พบไฟล์ในโฟลเดอร์" });
+        }
+
+        // ลบข้อมูลไฟล์ออกจากฐานข้อมูล
         _context.CemsFiles.Remove(file);
         await _context.SaveChangesAsync();
 

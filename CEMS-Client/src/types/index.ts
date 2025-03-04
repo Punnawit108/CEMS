@@ -199,6 +199,7 @@ export interface Project {
     pjId: number;
     pjName: string;
     pjAmountExpenses: number;
+    pjIsActice : number;
 }
 
 //ข้อมูล notification
