@@ -3,33 +3,31 @@
 * ชื่อไฟล์: UserSetting.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าจอจัดการผู้ใช้ ซึ่งแสดงตารางผู้ใช้ภายในระบบ พร้อมฟังก์ชั่นค้นหาและกรองข้อมูล
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 11 กุมภาพันธ์ 2568
+* วันที่จัดทำ/แก้ไข: 4 มีนาคม 2568
 */
 
-import Icon from '../../components/template/CIcon.vue'
+import Icon from '../../components/Icon/CIcon.vue'
 import { useRouter } from 'vue-router'
 import { ref, onMounted, computed, watch } from 'vue'
-import Pagination from '../../components/template/Pagination.vue'
+import Pagination from '../../components/Pagination.vue'
 import { useUserStore } from '../../store/user'
 import { storeToRefs } from 'pinia'
-import { useProjectStore } from '../../store/project'
 import type { User } from '../../types'
 
 // Import filters
-import UserSearchInput from '../../components/template/filters/UserSearchInput.vue'
-import DepartmentFilter from '../../components/template/filters/DepartmentFilter.vue'
-import DivisionFilter from '../../components/template/filters/DivisionFilter.vue'
-import RoleFilter from '../../components/template/filters/RoleFilter.vue'
-import FilterButtons from '../../components/template/filters/FilterButtons.vue'
+import UserSearchInput from '../../components/filters/UserSearchInput.vue'
+import DepartmentFilter from '../../components/filters/DepartmentFilter.vue'
+import DivisionFilter from '../../components/filters/DivisionFilter.vue'
+import RoleFilter from '../../components/filters/RoleFilter.vue'
+import FilterButtons from '../../components/filters/FilterButtons.vue'
 
-const projectStore = useProjectStore()
 const router = useRouter()
 const store = useUserStore()
 const { users } = storeToRefs(store)
 const loading = ref(false)
 
 // Pagination state
-const currentPage = ref(1)
+const currentPage = ref(1)  
 const itemsPerPage = ref(10)
 const paginatedUsers = ref<User[]>([])
 
@@ -115,8 +113,7 @@ onMounted(async () => {
   loading.value = true
   try {
     await Promise.all([
-      store.getAllUsers(),
-      projectStore.getAllProjects(),
+      store.getAllUsers()
     ])
   } catch (error) {
     console.error('Error in mounted:', error)
