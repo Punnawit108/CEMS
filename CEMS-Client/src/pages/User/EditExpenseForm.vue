@@ -108,6 +108,7 @@ onMounted(async () => {
         currentDate.value = parseDate(data.rqWithdrawDate);
         selectedDate.value = parseDate(data.rqPayDate);
 
+        //แก้ตรงนี้ โดยสามารถรับทั้ง file และ fileUrl
         selectedFiles.value = data.files.map((file: any) => {
           const blob = base64ToBlob(file.fFile, file.fFileType);
           const fileObject = new File([blob], file.fName, { type: file.fFileType });
@@ -437,6 +438,7 @@ const confirmCancle = async (event: Event) => {
 };
 
 //ดูข้อมูลใน file
+//เพิ่มตัวที่เป็นไฟล์ path
 const previewFile = (file: File) => {
   const fileURL = URL.createObjectURL(file);
 

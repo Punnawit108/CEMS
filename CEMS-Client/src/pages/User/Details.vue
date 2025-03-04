@@ -36,7 +36,8 @@ onMounted(async () => {
   if (expenseData) {
     console.log(expenseData)
     selectedFiles.value = expenseData.value.files.map((file: any) => {
-      const fileUrl = `http://localhost:5247/Assets/Upload${file.fPath}`;
+      const fileUrl = `http://localhost:5247${file.fPath}`;
+      console.log(fileUrl)
       return {
         file: fileUrl,
         fId: file.fId,
