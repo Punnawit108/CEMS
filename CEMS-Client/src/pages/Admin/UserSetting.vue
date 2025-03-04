@@ -181,7 +181,13 @@ onMounted(async () => {
             <th class="py-[12px] px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
             <th class="py-[12px] px-2 w-24 text-start">{{ user.usrStName }}</th>
             <th class="py-[12px] px-2 w-20 text-start">{{ user.usrRolName }}</th>
-            <th class="py-[12px] px-2 w-24 text-start">{{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}</th>
+            <th class="py-[12px] px-2 w-24 text-start">
+              <span :class="user.usrIsActive
+                ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal' 
+                : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
+                {{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}
+              </span>
+            </th>
             <th class="w-24">
               <span class="flex justify-center">
                 <input type="checkbox" :checked="user.usrIsSeeReport === 1" disabled

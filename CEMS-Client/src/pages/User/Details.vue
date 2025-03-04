@@ -346,12 +346,18 @@ const previewFile = (file: File) => {
               class="!text-white px-4 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
+<<<<<<< HEAD
+          <div class="pr-5 flex">
+            <button class="bg-yellow text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin mr-4">แก้ไขคำขอเบิก</button>
+            <Button :type="'btn-print2'" @click="openPopupPrint"></Button>
+=======
           <div class="flex flex-row pr-8 gap-4">
             <RouterLink v-if="expenseData.rqStatus == 'edit' && route.name === 'listWithdrawDetail'" :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
               <Button :type="'btn-editRequest'"></Button>
             </RouterLink>
 
             <Button :type="'btn-print2'" class="w-[95px] h-[40px]" @click="openPopupPrint"></Button>
+>>>>>>> develop
           </div>
         </div>
 
