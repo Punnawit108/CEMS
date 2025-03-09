@@ -612,7 +612,7 @@ const previewFile = (file: File) => {
           </div>
 
           <!-- ช่อง "อัตราค่าเดินทาง" -->
-          <div v-if="rqtName === 'ค่าเดินทาง'">
+          <div v-if="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'">
             <label for="rqPayrate" class="block text-sm font-medium py-2">อัตราค่าเดินทาง </label>
             <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ selectedPayrate }}</p>
           </div>
@@ -632,6 +632,13 @@ const previewFile = (file: File) => {
               <option :value="null" disabled selected>Select User</option>
               <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead">{{ user.usrName }}</option>
             </select>
+             <button
+                v-if="formData.rqInsteadEmail"
+                @click="formData.rqInsteadEmail = null"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm bg-gray-200 p-1 rounded-full"
+              >
+                X
+              </button>
           </div>
         </div>
 
@@ -659,7 +666,7 @@ const previewFile = (file: File) => {
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
               alt="Upload icon" class="object-contain w-16 aspect-[1.1]" />
             <p class="mt-3">คลิก หรือลากไฟล์มาที่นี่ เพื่ออัปโหลด</p>
-            <p class="mt-3">DOCS PNG หรือ PDF (MAX 2MB)</p>
+            <p class="mt-3">DOCS JPEG หรือ PDF (MAX 2MB)</p>
           </div>
         </div>
       </div>
