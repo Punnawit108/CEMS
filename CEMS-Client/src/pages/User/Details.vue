@@ -31,8 +31,6 @@ const selectedFiles = ref<{ file: string; fId: number; fileName: string | null }
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
   expenseData.value = await detailStore.getRequisition(id);
-
-
   if (expenseData) {
     console.log(expenseData)
     selectedFiles.value = expenseData.value.files.map((file: any) => {
@@ -45,9 +43,20 @@ onMounted(async () => {
     });
     console.log(selectedFiles)
   }
-
 })
 
+const rqPayDateFormatted = computed(() => formatDate(expenseData.value?.rqPayDate));
+const rqWithdrawDateFormatted = computed(() => formatDate(expenseData.value?.rqWithDrawDate));
+const rqVhTypeFormatted = computed(() => {
+  return expenseData.value?.rqVhType === "public" ? "รถสาธารณะ" : "รถส่วนตัว";
+});
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "-"; // ถ้าเป็น null หรือ undefined ให้แสดง "-"
+  const parts = dateString.split("-"); // แยก YYYY-MM-DD
+  if (parts.length !== 3) return dateString; // ถ้ารูปแบบไม่ถูกต้อง คืนค่าเดิม
+  return `${parts[2]}/${parts[1]}/${parts[0]}`; // เรียงใหม่เป็น DD/MM/YYYY
+};
 
 // FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่  
 // ถ้ารายการคำขอเบิกนั้นๆ เป็นของ ผู้ใช้ปัจจุบัน และ AprStatus นั้นเป็น waiting จะดึงข้อมูล
@@ -277,7 +286,7 @@ const editAprDate = computed(() => {
 });
 
 //ดูข้อมูลใน file
-const previewFile = (file:string) => {
+const previewFile = (file: string) => {
   if (typeof file === 'string') {
     // ถ้า file เป็น string (URL)
     if (file.endsWith('.pdf') || file.match(/\.(jpeg|jpg|png)$/i)) {
@@ -342,7 +351,7 @@ const previewFile = (file:string) => {
         <div class="flex items-center align-middle justify-between">
           <h3 class="text-base font-bold text-black ">
             {{ expenseData.rqName }}<span :class="`bg-[${statusInfo.color}]`"
-              class="!text-white px-4 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
+              class="!text-white px-4 py-[4px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
           <div class="flex flex-row pr-8 gap-4">
@@ -366,11 +375,11 @@ const previewFile = (file:string) => {
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqPayDate || '-' }}</p>
+            <p class="item">{{ rqPayDateFormatted }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqWithDrawDate || '-' }}</p>
+            <p class="item">{{ rqWithdrawDateFormatted }}</p>
           </div>
         </div>
 
@@ -381,7 +390,7 @@ const previewFile = (file:string) => {
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
-            <p class="item">{{ expenseData?.rqInsteadName || '-' }}</p>
+            <p class="item">{{ expenseData?.rqInsteadEmail || '-' }}</p>
           </div>
         </div>
 
@@ -405,7 +414,7 @@ const previewFile = (file:string) => {
         <div class="travel row flex">
           <div class="col">
             <p class="head">ประเภทการเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhType || '-' }}</p>
+            <p class="item">{{ rqVhTypeFormatted || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ประเภทรถ</p>
@@ -413,11 +422,15 @@ const previewFile = (file:string) => {
           </div>
           <div class="col">
             <p class="head">ระยะทาง</p>
-            <p class="item">{{ expenseData?.rqDistance || '-' }}</p>
+            <p class="item">
+              {{ expenseData?.rqDistance ? expenseData.rqDistance + " กิโลเมตร" : '-' }}
+            </p>
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhPayrate || '-' }}</p>
+            <p class="item">
+              {{ expenseData?.rqVhPayrate ? expenseData.rqVhPayrate + " บาท/กิโลเมตร" : '-' }}
+            </p>
           </div>
         </div>
 
