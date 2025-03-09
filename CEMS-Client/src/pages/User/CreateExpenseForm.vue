@@ -751,7 +751,15 @@ const previewFile = (file: File) => {
               type="number"
               id="rqExpenses"
               v-model="displayRqExpenses"
-              :class="['inputItem', { error: errors.rqExpenses }]"
+              :class="[
+                'inputItem ',
+                {
+                  error: errors.rqExpenses,
+                  'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
+                    selectedTravelType === 'private',
+                },
+              ]"
+              :disabled="selectedTravelType === 'private'"
             />
           </div>
 
