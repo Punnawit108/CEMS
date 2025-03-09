@@ -6,7 +6,7 @@
 * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
 */
 
-import { defineProps, onMounted, ref, defineAsyncComponent, type Component } from "vue"; // นำเข้า defineProps เพื่อจัดการพร็อพของคอมโพเนนต์
+import { defineProps, watchEffect, ref, defineAsyncComponent, type Component } from "vue"; // นำเข้า defineProps เพื่อจัดการพร็อพของคอมโพเนนต์
 
 // กำหนดพร็อพที่คอมโพเนนต์นี้รับเข้ามา
 
@@ -23,9 +23,9 @@ const componentMap = new Map<string, Component>([
     ['sts-sketch', defineAsyncComponent(() => import("./StatusSketch.vue"))],
 ]);
 
-onMounted(() => {
+watchEffect(() => {
     currentComponent.value = componentMap.get(props.status) || null;
-}); 
+});
 </script>
 
 <template>
