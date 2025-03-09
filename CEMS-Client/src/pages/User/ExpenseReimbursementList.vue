@@ -5,13 +5,15 @@
 * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
 * วันที่จัดทำ/แก้ไข: 17 ธันวาคม 2567
 */
-import { useRouter } from 'vue-router';
+import { useRouter , useRoute } from 'vue-router';
 import Icon from '../../components/Icon/CIcon.vue';
 import Ctable from '../../components/Table/CTable.vue';
 import StatusBudge from '../../components/Status/StatusBudge.vue';
 import { onMounted, ref } from 'vue';
 import { useExpenseReimbursement } from '../../store/expenseReimbursement';
 import Decimal from 'decimal.js';
+import { useLockStore } from '../../store/lockSystem';
+
 const router = useRouter();
 const expenseReimbursementStore = useExpenseReimbursement();
 const user = ref<any>(null);
