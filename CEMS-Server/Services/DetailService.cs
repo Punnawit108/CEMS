@@ -149,29 +149,34 @@ public class DetailService
             return Array.Empty<byte>();
         }
 
-        string watermarkText = "อนุมัติ"; // Default to "อนุมัติ"
-        var approverStatus = _context.CemsApproverRequisitions
-            .Where(a => a.AprRqId == expenseId)
-            .FirstOrDefault();
+        string watermarkText = "อนุมัติ"; // กำหนดค่าเริ่มต้นเป็น accept
 
-        if (approverStatus != null)
+        // ตรวจสอบผ่านทุกๆ สถานะใน approverCounts
+        for (int i = 0; i < approverCounts.Count; i++)
         {
-            switch (approverStatus.AprStatus)
+            var approver = approverCounts[i];
+
+            // หากพบค่าสถานะเป็น "-" หรือเป็น null จะนับเป็น reject
+            if (string.IsNullOrEmpty(approver.AprStatus) || approver.AprStatus == "-")
             {
-                case "waiting":
-                    watermarkText = "รออนุมัติ";
-                    break;
-                case "edit":
-                    watermarkText = "ฉบับร่าง";
-                    break;
-                case "reject":
-                    watermarkText = "ส่งกลับ";
-                    break;
-                case "accept":
-                    watermarkText = "อนุมัติ";
-                    break;
+                watermarkText = "ไม่อนุมัติ";
+                break;
+            }
+
+            // ตรวจสอบสถานะสุดท้าย ถ้าเป็น reject ให้เป็น "ไม่อนุมัติ"
+            if (approver.AprStatus == "reject")
+            {
+                watermarkText = "ไม่อนุมัติ";
+                break;
             }
         }
+
+        // ตรวจสอบกรณีทั้งหมดเป็น "accept" ยกเว้นอันสุดท้าย
+        if (watermarkText == "accept" && approverCounts.Last().AprStatus == "reject")
+        {
+            watermarkText = "ไม่อนุมัติ";
+        }
+
 
         var fontPath = "Fonts/THSarabunNew.ttf";
         using (var fontStream = new FileStream(fontPath, FileMode.Open, FileAccess.Read))
@@ -190,84 +195,82 @@ public class DetailService
                 {
                     // Header Section (Right-aligned)
 
-                    
+
 
                     column.Item().PaddingBottom(10).Row(row =>
 {
-    row.Spacing(5); // กำหนดระยะห่างระหว่างองค์ประกอบ
 
-    // กล่องที่ใช้สำหรับจัดกลาง (เว้นที่ด้านซ้าย)
+
+
     row.RelativeItem();
-
-    // "ใบเบิกค่าใช้จ่าย" อยู่ตรงกลางของกระดาษ
     row.ConstantItem(200).AlignCenter().Text("ใบเบิกค่าใช้จ่าย")
-        .Bold().FontSize(15).FontFamily(font);
+        .Bold().FontSize(22).FontFamily(font);
 
-    // วันที่เกิดค่าใช้จ่าย อยู่ด้านขวา
     row.RelativeItem().AlignRight().PaddingRight(50)
         .Text($"วันที่เกิดค่าใช้จ่าย: {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}")
-        .FontFamily(font);
+        .FontFamily(font).FontSize(14);
+
 });
-                    column.Item().AlignRight().PaddingLeft(150).PaddingBottom(10).PaddingRight(50).Text($"วันที่เบิก: {(expense.RqWithdrawDate != null ? expense.RqWithdrawDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font);
+                    column.Item().AlignRight().PaddingLeft(150).PaddingBottom(10).PaddingRight(82).Text($"วันที่เบิก: {(expense.RqWithdrawDate != null ? expense.RqWithdrawDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font).FontSize(14);
 
                     column.Item().PaddingBottom(10).Row(row =>
                     {
                         // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"รหัสรายการเบิก     {expense.RqCode ?? "-"}").FontFamily(font).FontSize(12);
+                        row.RelativeItem().PaddingLeft(80).Text($"รหัสรายการเบิก     {expense.RqCode ?? "-"}").FontFamily(font).FontSize(14);
 
                         // ชื่อผู้เบิกแทน
-                        row.RelativeItem().AlignCenter().Text($"วันที่อนุมัติ     {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font);
+                        row.RelativeItem().PaddingLeft(80).Text($"วันที่อนุมัติ              {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font).FontSize(14);
                     });
                     column.Item();
 
                     column.Item().PaddingBottom(10).Row(row =>
                     {
                         // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"ชื่อรายการเบิก     {expense.RqPurpose ?? "-"}").FontFamily(font);
+                        row.RelativeItem().PaddingLeft(80).Text($"ชื่อรายการเบิก       {expense.RqPurpose ?? "-"}").FontFamily(font).FontSize(14);
 
                         // ชื่อผู้เบิกแทน
-                        row.RelativeItem().AlignCenter().Text($"โครงการ     {expense.RqPjName ?? "-"}").FontFamily(font);
+                        row.RelativeItem().PaddingLeft(82).Text($"โครงการ                {expense.RqPjName ?? "-"}").FontFamily(font).FontSize(14);
                     });
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้ขอเบิก     {expense.RqUsrName ?? "-"}").FontFamily(font);
+                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้ขอเบิก               {expense.RqUsrName ?? "-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้เบิกแทน     {"-"}").FontFamily(font);
+                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้เบิกแทน              {"-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ประเภทค่าใช้จ่าย     {expense.RqRqtName ?? "-"}").FontFamily(font);
+                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ประเภทค่าใช้จ่าย    {expense.RqRqtName ?? "-"}").FontFamily(font).FontSize(14);
 
                     column.Item().PaddingBottom(10).Row(row =>
                     {
                         // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"ประการเดินทาง     {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font);
+                        row.RelativeItem().PaddingLeft(80).Text($"ประการเดินทาง      {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font).FontSize(14);
 
                         // ชื่อผู้เบิกแทน
-                        row.RelativeItem().AlignCenter().Text($"ประเภทรถส่วนตัว     {expense.RqVhName ?? "-"}").FontFamily(font);
+                        row.RelativeItem().PaddingLeft(80).Text($"ประเภทรถส่วนตัว     {expense.RqVhName ?? "-"}").FontFamily(font).FontSize(14);
                     });
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"สถานที่เริ่มต้น     {expense.RqStartLocation ?? "-"}").FontFamily(font);
+                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"สถานที่เริ่มต้น        {expense.RqStartLocation ?? "-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"สถานที่สิ้นสุด     {expense.RqEndLocation ?? "-"}").FontFamily(font);
+                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"สถานที่สิ้นสุด         {expense.RqEndLocation ?? "-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ระยะทาง (กม.)     {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}").FontFamily(font);
+                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ระยะทาง (กม.)       {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}").FontFamily(font).FontSize(14);
 
                     column.Item().PaddingBottom(10).Row(row =>
                     {
                         // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"อัตราค่าเดินทาง     {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font);
+                        row.RelativeItem().PaddingLeft(80).Text($"อัตราค่าเดินทาง      {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font).FontSize(14);
 
                         // ชื่อผู้เบิกแทน
-                        row.RelativeItem().AlignCenter().Text($"จำนวนเงิน (บาท)     {expense.RqExpenses.ToString("")}").FontFamily(font);
+                        row.RelativeItem().PaddingLeft(83).Text($"จำนวนเงิน (บาท)      {expense.RqExpenses.ToString("")}").FontFamily(font).FontSize(14);
                     });
 
-                    column.Item().PaddingLeft(80).PaddingBottom(30).Text($"รายละเอียด     {expense.RqPurpose ?? "-"}").FontFamily(font);
-
-                    column.Item().Table(table =>
+                    column.Item().PaddingLeft(80).PaddingBottom(30).Text($"รายละเอียด           {expense.RqPurpose ?? "-"}").FontFamily(font).FontSize(14);
+                    column.Item().AlignCenter().Table(table =>
 {
+    // กำหนดคอลัมน์
     table.ColumnsDefinition(columns =>
     {
-        columns.RelativeColumn(2);
-        columns.RelativeColumn(4);
-        columns.RelativeColumn(2);
+        columns.ConstantColumn(100); // คอลัมน์ลำดับผู้อนุมัติ
+        columns.ConstantColumn(220); // คอลัมน์ชื่อ-นามสกุล
+        columns.ConstantColumn(100); // คอลัมน์สถานะ
     });
 
     // สร้างแถวหัวข้อ
@@ -292,19 +295,7 @@ public class DetailService
 
         table.Cell().Element(CellStyle).AlignCenter().Text(statusText);
     }
-
-
-    table.Cell().ColumnSpan(2).Element(CellStyle).Text("ผู้อนุมัติเบิกจ่าย"); // กินสองช่องแรก
-
-    table.Cell().Element(CellStyle).AlignCenter().Text("สถานะ");
 });
-
-
-
-
-
-
-
                 });
 
                 page.Background().Element(container =>
@@ -312,8 +303,8 @@ public class DetailService
                     container.AlignCenter().AlignMiddle().Element(element =>
                     {
                         element.Rotate(-45).Text(watermarkText)
-                            .FontSize(100)
-                            .FontColor("#b5baba ")
+                            .FontSize(170)
+                            .FontColor("#f5eeed")
                             .AlignCenter()
                             .FontFamily(font); // ใช้ฟอนต์ที่โหลด
                     });
