@@ -42,7 +42,7 @@ const handleClick = () => {
                 <Icon :icon="name_navbar" :size="32" />
             </div>
             <div class=" ml-4 ">
-                <H1 class=" text-[24px] text-[#000000]">
+                <H1 class=" text-[20px] font-bold text-[#2B2D68]">
                     {{ navbarTitle }}
                 </H1>
             </div>
