@@ -642,7 +642,6 @@ const previewFile = (file: File) => {
                 <option value="" disabled>เลือกประเภทการเดินทาง</option>
                 <option
                   v-for="type in uniqueTravelTypes"
-                  :key="type"
                   :value="type"
                 >
                   {{ type === "private" ? "ประเภทส่วนตัว" : "ประเภทสาธารณะ" }}

@@ -13,7 +13,6 @@ import { useExpensesListStore, useExpensesGraphStore } from '../../store/expense
 import ExpenseReportGraph from '../../types/index';
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/Buttons/Button.vue";
-import Decimal from 'decimal.js';
 import {
     Chart,
     BarController,
