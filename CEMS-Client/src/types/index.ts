@@ -16,7 +16,7 @@ export interface Expense {
     rqVhType: string;
     rqVhPayrate: string;
     rqPayDate: Date;
-    rqDateWithdraw: Date;
+    rqWithdrawDate: Date;
     rqCode: string | null;
     rqInsteadName: string | null;
     rqExpenses: number;
