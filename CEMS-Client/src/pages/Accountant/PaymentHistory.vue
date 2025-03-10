@@ -13,7 +13,7 @@ import { ref, computed, onMounted } from 'vue';
 const paymentHistory = usePayment();
 const router = useRouter();
 const currentPage = ref(1);
-const itemsPerPage = ref(15);
+const itemsPerPage = ref(10);
 const table = ref("Table1-footer");
 import Decimal from 'decimal.js';
 const totalPages = computed(() => {
@@ -201,11 +201,11 @@ const toDetails = (id: string) => {
             <div>
                 <Ctable :table="'Table9-head'" />
             </div>
-            <table class="w-full">
+            <table class="w-full ">
                 <tbody>
                     <tr  v-for="(history, index) in paginated"
                     :key="history.rqId"
-                    class="border-t"
+                    class="border-t text-black"
                     :class="{
                       'border-b border-gray': index === paginated.length - 1,
                     }">
@@ -226,7 +226,7 @@ const toDetails = (id: string) => {
                             {{ history.rqPjName }}
                         </th>
                         <th class="py-[12px] px-5 w-32 text-start ">{{history.rqRqtName}}</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">{{history.rqDateWithdraw}}</th>
+                        <th class="py-[12px] px-2 w-24 text-end ">{{history.rqWithdrawDate}}</th>
                         <th class="py-[12px] px-2 w-32 text-center ">{{ new Decimal(history.rqExpenses ?? 0).toFixed(2)}}</th>
                         <th class="py-[10px] px-2 w-[90px] text-center ">
                             <span class="flex justify-center" @click="() => toDetails(history.rqId.toString())">

@@ -156,25 +156,28 @@ const toDetails = (id: string) => {
                 <Ctable :table="'Table7-head'" />
             </div>
             <div>
-                <table class="w-full">
+                <table class="w-full ">
                     <tbody>
                         <tr v-for="(paymentlist, index) in paymentlist.expense" :key="paymentlist.rqId"
-                         class=" text-[14px] border-b-2 border-[#BBBBBB] ">
+                         class=" text-[14px] text-black border-b-2 border-[#BBBBBB] ">
                             <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1}}</th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="paymentlist.rqUsrName">
+                            <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                                 {{paymentlist.rqUsrName}}
                             </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                title="paymentlist.rqPjName">
+                            <th class="py-[12px] px-3 w-48 text-start truncate overflow-hidden"
+                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            >
+                            {{paymentlist.rqName}}
+                            </th>
+                            <th class="py-[12px] px-6 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                                 {{paymentlist.rqPjName}}
                             </th>
-                            <th class="py-[12px] px-5 w-44 text-start ">{{ paymentlist.rqRqtName }}</th>
-                            <th class="py-[12px] px-2 w-24 text-end ">{{ paymentlist.rqDateWithdraw }}</th>
-                            <th class="py-[12px] px-2 w-40 text-end ">{{new Decimal(paymentlist.rqExpenses ?? 0).toFixed(2) }}</th>
-                            <th class="py-[10px] px-2 w-32 text-center ">
+                            <th class="py-[12px] w-32 text-start ">{{paymentlist.rqRqtName}}</th>
+                            <th class="py-[12px] px-2 w-24 text-end ">{{ paymentlist.rqWithdrawDate }}</th>
+                            <th class="py-[12px] pl-8 w-32 text-center ">{{new Decimal(paymentlist.rqExpenses ?? 0).toFixed(2) }}</th>
+                            <th class="py-[10px] px-2 w-28 text-center ">
                                 <span class="flex justify-center" v-on:click="toDetails(paymentlist.rqId)">
                                     <Icon :icon="'viewDetails'" />
                                 </span>

@@ -6,7 +6,7 @@
  * วันที่จัดทำ/แก้ไข: 4 มกราคม 2568
  */
 
-import { onMounted, ref, computed, watch } from "vue";
+import { onMounted, ref, computed, watch , watchEffect} from "vue";
 import Button from "../../components/Buttons/Button.vue";
 import { useRequisitionStore } from "../../store/requisition";
 import router from "../../router";
@@ -17,7 +17,7 @@ import FileDisplay from "../../components/FileDisplay.vue";
 const requisitionStore = useRequisitionStore();
 const user = ref<any>(null);
 const vehicleType = ref<any>(null);
-const selectedTravelType = ref<string>("");
+const selectedTravelType = ref<string | null>("");
 const fileInput = ref<HTMLInputElement | null>(null);
 const selectedFiles = ref<{ file: File; fId: number | null }[]>([]);
 
@@ -67,7 +67,7 @@ onMounted(async () => {
       const travelType = requisitionStore.requisitionType.find(
         (type) => type.rqtName === "ค่าเดินทาง"
       );
-      selectedTravelType.value = "private";
+      selectedTravelType.value = "public";
       if (travelType) {
         formData.value.rqRqtId = travelType?.rqtId ?? 0;
         rqtName.value = "ค่าเดินทาง";
@@ -82,20 +82,26 @@ onMounted(async () => {
 const filteredVehicleType = computed(() => {
   return vehicleType.value
     ? vehicleType.value.filter(
-        (vehicle: TravelManage) =>
-          vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 1
-      )
+      (vehicle: TravelManage) =>
+        vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 1
+    )
     : [];
 });
 
+// ตั้งค่า vhId เป็นค่าแรกของ filteredVehicleType เมื่อ filteredVehicleType เปลี่ยนแปลง
+watchEffect(() => {
+  if (filteredVehicleType.value.length > 0) {
+    vhId.value = filteredVehicleType.value[0].vhId.toString();
+  }
+});
 // กรองประเภทการเดินทางที่ไม่ซ้ำ
 const uniqueTravelTypes = computed(() => {
   return vehicleType.value && vehicleType.value.length > 0
     ? [
-        ...new Set(
-          vehicleType.value.map((vehicle: TravelManage) => vehicle.vhType)
-        ),
-      ]
+      ...new Set(
+        vehicleType.value.map((vehicle: TravelManage) => vehicle.vhType)
+      ),
+    ]
     : [];
 });
 
@@ -275,6 +281,27 @@ const closePopupSubmit = () => {
 };
 
 const displayRqExpenses = ref("");
+
+watch(rqtName, (newValue) => {
+  if (newValue !== 'ค่าเดินทาง') {
+    selectedTravelType.value = null;
+   } else {
+     selectedTravelType.value = 'public';
+   }
+});
+
+watch(
+  () => formData.value.rqRqtId,
+  (newValue, oldValue) => {
+    if (newValue !== oldValue) {
+      formData.value.rqStartLocation = "";
+      formData.value.rqEndLocation = "";
+      formData.value.rqDistance = "";
+      formData.value.rqExpenses = 0;
+      formData.value.rqVhId = 0;
+    }
+  }
+);
 
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
@@ -476,9 +503,7 @@ const previewFile = (file: File) => {
     <!-- btn -->
     <div class="flex justify-end gap-4">
       <Button :type="'btn-save'" @click="handleSave">บันทึก</Button>
-      <Button :type="'btn-cancleBorderGray'" @click="handleCancel"
-        >ยกเลิก</Button
-      >
+      <Button :type="'btn-cancleBorderGray'" @click="handleCancel">ยกเลิก</Button>
       <Button :type="'btn-summit'" @click="handleSubmit">ยืนยัน</Button>
     </div>
     <!-- Fromประเภทค่าเดินทาง-->
@@ -490,84 +515,45 @@ const previewFile = (file: File) => {
           <!-- ช่อง "รหัสรายการเบิก " -->
 
           <div>
-            <label for="rqCode" class="block text-sm font-medium py-2"
-              >รหัสรายการเบิก
+            <label for="rqCode" class="block text-sm font-medium py-2">รหัสรายการเบิก
             </label>
             <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ rqCode }}</p>
           </div>
 
           <!-- ช่อง "ชื่อรายการเบิก *" -->
           <div>
-            <label
-              for="rqName"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqName }"
-              >ชื่อรายการเบิก <span class="text-red-500">*</span></label
-            >
-            <input
-              type="text"
-              id="rqName"
-              v-model="formData.rqName"
-              :class="['inputItem', { error: errors.rqName }]"
-            />
+            <label for="rqName" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqName }">ชื่อรายการเบิก <span class="text-red-500">*</span></label>
+            <input type="text" id="rqName" v-model="formData.rqName" :class="['inputItem', { error: errors.rqName }]" />
           </div>
 
           <!-- ช่อง "วันที่ทำรายการเบิกค่าใช้จ่าย *" -->
           <div class="">
-            <label for="rqWithdrawDate" class="block text-sm font-medium py-2"
-              >วันที่ทำรายการเบิกค่าใช้จ่าย
-              <span class="text-red-500">*</span></label
-            >
-            <SingleDatePicker
-              v-model="currentDate"
-              id="rqWithdrawDate"
-              :confirmedDate="currentDate"
-              :disabled="true"
-              class="date w-full h-[42px] text-[#BABBBE]"
-            />
+            <label for="rqWithdrawDate" class="block text-sm font-medium py-2">วันที่ทำรายการเบิกค่าใช้จ่าย
+              <span class="text-red-500">*</span></label>
+            <SingleDatePicker v-model="currentDate" id="rqWithdrawDate" :confirmedDate="currentDate" :disabled="true"
+              class="date w-full h-[42px] text-[#BABBBE]" />
           </div>
 
           <!-- ช่อง "วันที่ทำการเบิกค่าใช้จ่าย *" -->
           <div>
-            <label
-              for="rqPayDate"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.selectedDate }"
-              >วันที่ทำการเบิกค่าใช้จ่าย
-              <span class="text-red-500">*</span></label
-            >
-            <SingleDatePicker
-              v-model="selectedDate"
-              id="rqPayDate"
-              v-model:isOpen="isDatePickerOpen"
-              :confirmedDate="selectedDate"
-              class="dateInput w-full h-[42px] text-black"
-              placeholder="เลือกวันที่"
-              :class="['dateInput', { error: errors.selectedDate }]"
-            />
+            <label for="rqPayDate" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.selectedDate }">วันที่ทำการเบิกค่าใช้จ่าย
+              <span class="text-red-500">*</span></label>
+            <SingleDatePicker v-model="selectedDate" id="rqPayDate" v-model:isOpen="isDatePickerOpen"
+              :confirmedDate="selectedDate" class="dateInput w-full h-[42px] text-black" placeholder="เลือกวันที่"
+              :class="['dateInput', { error: errors.selectedDate }]" />
           </div>
 
           <!-- ช่อง "โครงการ *" -->
           <div>
-            <label
-              for="projectName"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqPjId }"
-              >โครงการ<span class="text-red-500">*</span></label
-            >
+            <label for="projectName" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqPjId }">โครงการ<span class="text-red-500">*</span></label>
             <div class="text-xs">
-              <select
-                id="projectName"
-                v-model="formData.rqPjId"
-                :class="['inputItem', { error: errors.rqPjId }]"
-                required
-              >
+              <select id="projectName" v-model="formData.rqPjId" :class="['inputItem', { error: errors.rqPjId }]"
+                required>
                 <option disabled selected>เลือกโครงการ</option>
-                <option
-                  v-for="project in requisitionStore.projects"
-                  :key="project.pjId"
-                  :value="project.pjId"
-                >
+                <option v-for="project in requisitionStore.projects" :key="project.pjId" :value="project.pjId">
                   {{ project.pjName }}
                 </option>
               </select>
@@ -578,26 +564,14 @@ const previewFile = (file: File) => {
 
           <div>
             <!-- Dropdown -->
-            <label
-              for="expenseType"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqRqtId }"
-            >
+            <label for="expenseType" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.rqRqtId }">
               ประเภทค่าใช้จ่าย <span class="text-red-500">*</span>
             </label>
-            <select
-              id="expenseType"
-              v-model="formData.rqRqtId"
-              @change="updateRqtName"
-              :class="['inputItem', { error: errors.rqRqtId }]"
-              required
-            >
+            <select id="expenseType" v-model="formData.rqRqtId" @change="updateRqtName"
+              :class="['inputItem', { error: errors.rqRqtId }]" required>
               <option value="" selected disabled>กรุณาเลือกประเภท</option>
-              <option
-                v-for="requisitionTypeData in requisitionStore.requisitionType"
-                :key="requisitionTypeData.rqtId"
-                :value="requisitionTypeData.rqtId"
-              >
+              <option v-for="requisitionTypeData in requisitionStore.requisitionType" :key="requisitionTypeData.rqtId"
+                :value="requisitionTypeData.rqtId">
                 {{ requisitionTypeData.rqtName }}
               </option>
               <!-- <option value="999">อื่นๆ</option> -->
@@ -606,39 +580,23 @@ const previewFile = (file: File) => {
 
           <!-- ช่อง "ประเภทค่าใช้จ่ายอื่นๆ *" -->
           <div v-show="rqtName == 'อื่นๆ'">
-            <label
-              for="rqAny"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqAny }"
-            >
+            <label for="rqAny" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.rqAny }">
               ประเภทค่าใช้จ่ายอื่นๆ <span class="text-red-500">*</span>
             </label>
-            <input
-              id="rqAny"
-              v-model="formData.rqAny"
-              :class="['inputItem', { error: errors.rqAny }]"
-              type="text"
-              placeholder="กรุณาระบุข้อมูลเพิ่มเติม"
-            />
+            <input id="rqAny" v-model="formData.rqAny" :class="['inputItem', { error: errors.rqAny }]" type="text"
+              placeholder="กรุณาระบุข้อมูลเพิ่มเติม" />
           </div>
 
           <!-- ช่อง "ประเภทการเดินทาง *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <!-- Dropdown เลือกประเภทการเดินทาง -->
-            <label
-              for="travelType"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.selectedTravelType }"
-            >
+            <label for="travelType" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.selectedTravelType }">
               ประเภทการเดินทาง <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
-              <select
-                id="travelType"
-                @change="updateTypevh"
-                v-model="selectedTravelType"
-                :class="['inputItem', { error: errors.selectedTravelType }]"
-              >
+              <select id="travelType" @change="updateTypevh" v-model="selectedTravelType"
+                :class="['inputItem', { error: errors.selectedTravelType }]">
                 <option value="" disabled>เลือกประเภทการเดินทาง</option>
                 <option v-for="type in uniqueTravelTypes" :value="type">
                   {{ type === "private" ? "ประเภทส่วนตัว" : "ประเภทสาธารณะ" }}
@@ -650,25 +608,15 @@ const previewFile = (file: File) => {
           <!-- ช่อง "ประเภทรถ *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <!-- Dropdown เลือกประเภทรถ (กรองตามประเภทการเดินทางที่เลือก) -->
-            <label
-              for="vehicleType"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.vhId }"
-            >
+            <label for="vehicleType" class="block text-sm font-medium py-2" :class="{ 'text-red-500': errors.vhId }">
               ประเภทรถ <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
-              <select
-                v-model="vhId"
-                :class="['inputItem', { error: errors.vhId }]"
-              >
+              <select v-model="vhId" :class="['inputItem', { error: errors.vhId }]">
                 <option value="" selected disabled>เลือกประเภทรถ</option>
                 <!-- ใช้ filteredVehicleType ที่กรองแล้ว -->
-                <option
-                  v-for="vehicle in filteredVehicleType"
-                  :key="vehicle.vhId.toString()"
-                  :value="vehicle.vhId.toString()"
-                >
+                <option v-for="vehicle in filteredVehicleType" :key="vehicle.vhId.toString()"
+                  :value="vehicle.vhId.toString()">
                   {{ vehicle.vhVehicle }}
                 </option>
               </select>
@@ -677,59 +625,33 @@ const previewFile = (file: File) => {
 
           <!-- ช่อง "สถานที่เริ่มต้น *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
-            <label
-              for="rqStartLocation"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqStartLocation }"
-              >สถานที่เริ่มต้น <span class="text-red-500">*</span></label
-            >
-            <input
-              type="text"
-              id="rqStartLocation"
-              v-model="formData.rqStartLocation"
-              :class="['inputItem', { error: errors.rqStartLocation }]"
-            />
+            <label for="rqStartLocation" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqStartLocation }">สถานที่เริ่มต้น <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="rqStartLocation" v-model="formData.rqStartLocation"
+              :class="['inputItem', { error: errors.rqStartLocation }]" />
           </div>
           <!-- ช่อง "สถานที่สิ้นสุด *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
-            <label
-              for="rqEndLocation"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqEndLocation }"
-              >สถานที่สิ้นสุด <span class="text-red-500">*</span></label
-            >
-            <input
-              type="text"
-              id="rqEndLocation"
-              v-model="formData.rqEndLocation"
-              :class="['inputItem', { error: errors.rqEndLocation }]"
-            />
+            <label for="rqEndLocation" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqEndLocation }">สถานที่สิ้นสุด <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="rqEndLocation" v-model="formData.rqEndLocation"
+              :class="['inputItem', { error: errors.rqEndLocation }]" />
           </div>
 
           <!-- ช่อง "ระยะทาง *" -->
           <div v-if="rqtName === 'ค่าเดินทาง'">
-            <label
-              for="rqDistance"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqDistance }"
-              >ระยะทาง (กิโลเมตร) <span class="text-red-500">*</span></label
-            >
-            <input
-              type="text"
-              id="rqDistance"
-              v-model="formData.rqDistance"
-              @input="calculateExpenses"
-              :class="['inputItem', { error: errors.rqDistance }]"
-            />
+            <label for="rqDistance" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqDistance }">ระยะทาง (กิโลเมตร) <span
+                class="text-red-500">*</span></label>
+            <input type="text" id="rqDistance" v-model="formData.rqDistance" @input="calculateExpenses"
+              :class="['inputItem', { error: errors.rqDistance }]" />
           </div>
 
           <!-- ช่อง "อัตราค่าเดินทาง" -->
-          <div
-            v-if="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'"
-          >
-            <label for="rqPayrate" class="block text-sm font-medium py-2"
-              >อัตราค่าเดินทาง (บาท/กิโลเมตร)</label
-            >
+          <div v-if="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'">
+            <label for="rqPayrate" class="block text-sm font-medium py-2">อัตราค่าเดินทาง (บาท/กิโลเมตร)</label>
             <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">
               {{ selectedPayrate }}
             </p>
@@ -769,27 +691,17 @@ const previewFile = (file: File) => {
             </label>
 
             <div class="relative">
-              <select
-                id="rqInsteadEmail"
-                v-model="formData.rqInsteadEmail"
-                class="inputItem w-full border rounded px-4 py-2 pr-8"
-              >
+              <select id="rqInsteadEmail" v-model="formData.rqInsteadEmail"
+                class="inputItem w-full border rounded px-4 py-2 pr-8">
                 <option :value="null" disabled selected>Select User</option>
-                <option
-                  :value="user.usrEmail"
-                  v-for="user in requisitionStore.UserInstead"
-                  :key="user.usrEmail"
-                >
+                <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead" :key="user.usrEmail">
                   {{ user.usrName }}
                 </option>
               </select>
 
               <!-- ปุ่มกากบาท -->
-              <button
-                v-if="formData.rqInsteadEmail"
-                @click="formData.rqInsteadEmail = null"
-                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm bg-gray-200 p-1 rounded-full"
-              >
+              <button v-if="formData.rqInsteadEmail" @click="formData.rqInsteadEmail = null"
+                class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm bg-gray-200 p-1 rounded-full">
                 X
               </button>
             </div>
@@ -798,16 +710,9 @@ const previewFile = (file: File) => {
       </div>
       <!-- ช่อง "รายละเอียด *" -->
       <div class="text-sm my-4">
-        <label
-          class="block text-sm font-medium pb-2"
-          :class="{ 'text-red-500': errors.rqPurpose }"
-          >รายละเอียด <span class="text-red-500">*</span></label
-        >
-        <textarea
-          v-model="formData.rqPurpose"
-          class="h-[81px]"
-          :class="['inputItem', { error: errors.rqPurpose }]"
-        >
+        <label class="block text-sm font-medium pb-2" :class="{ 'text-red-500': errors.rqPurpose }">รายละเอียด <span
+            class="text-red-500">*</span></label>
+        <textarea v-model="formData.rqPurpose" class="h-[81px]" :class="['inputItem', { error: errors.rqPurpose }]">
         </textarea>
       </div>
 
@@ -816,29 +721,15 @@ const previewFile = (file: File) => {
         <label class="z-0 max-md:max-w-full">อัปโหลดไฟล์</label>
         <div
           class="flex z-0 mt-1 h-[278px] w-full bg-white rounded-md border border-solid border-[#B8B8B8] min-h-[395px] max-md:max-w-full cursor-pointer relative"
-          @click="triggerFileInput"
-          @dragover.prevent
-          @drop.prevent="handleDrop"
-        >
+          @click="triggerFileInput" @dragover.prevent @drop.prevent="handleDrop">
           <!-- Input สำหรับอัปโหลดหลายไฟล์ -->
-          <input
-            type="file"
-            ref="fileInput"
-            @change="handleFileChange"
-            accept="image/jpeg,application/pdf,.doc,.docx"
-            multiple
-            style="display: none"
-          />
+          <input type="file" ref="fileInput" @change="handleFileChange" accept="image/jpeg,application/pdf,.doc,.docx"
+            multiple style="display: none" />
 
-          <div
-            class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[#B8B8B8]"
-          >
-            <img
-              loading="lazy"
+          <div class="flex flex-col items-center justify-center absolute inset-0 text-sm text-[#B8B8B8]">
+            <img loading="lazy"
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
-              alt="Upload icon"
-              class="object-contain w-16 aspect-[1.1]"
-            />
+              alt="Upload icon" class="object-contain w-16 aspect-[1.1]" />
             <p class="mt-3">คลิก หรือลากไฟล์มาที่นี่ เพื่ออัปโหลด</p>
             <p class="mt-3">DOCS JPEG หรือ PDF (MAX 2MB)</p>
           </div>
@@ -846,38 +737,19 @@ const previewFile = (file: File) => {
       </div>
     </div>
 
-    <FileDisplay
-      v-for="fileObj in selectedFiles"
-      :key="fileObj.file.name || fileObj.file.lastModified"
-      :file="fileObj.file"
-      :fileName="fileObj.file.name"
-      @remove="removeFile(fileObj.fId, fileObj.file.name)"
-      @preview="previewFile(fileObj.file)"
-    />
+    <FileDisplay v-for="fileObj in selectedFiles" :key="fileObj.file.name || fileObj.file.lastModified"
+      :file="fileObj.file" :fileName="fileObj.file.name" @remove="removeFile(fileObj.fId, fileObj.file.name)"
+      @preview="previewFile(fileObj.file)" />
 
     <!-- Popup บันทึก -->
-    <div
-      v-if="isPopupSaveOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-2 py-4 flex flex-col justify-center"
-      >
+    <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-2 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg
-            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#FFBE40"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
@@ -887,16 +759,12 @@ const previewFile = (file: File) => {
           คุณยืนยันการบันทึกแบบร่างรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button
-            @click="closePopupSave"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="closePopupSave"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button
-            @click="confirmSave"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="confirmSave"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
         </div>
@@ -904,28 +772,14 @@ const previewFile = (file: File) => {
     </div>
 
     <!-- Popup ยกเลิก -->
-    <div
-      v-if="isPopupCancleOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
-      >
+    <div v-if="isPopupCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg
-            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#FFBE40"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
@@ -935,16 +789,12 @@ const previewFile = (file: File) => {
           คุณยกเลิกการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button
-            @click="closePopupCancle"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="closePopupCancle"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button
-            @click="confirmCancle"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="confirmCancle"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
         </div>
@@ -952,28 +802,14 @@ const previewFile = (file: File) => {
     </div>
 
     <!-- Popup ยืนยัน -->
-    <div
-      v-if="isPopupSubmitOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
-      <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
-      >
+    <div v-if="isPopupSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg
-            :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="20"
-            height="20"
-            fill="#FFBE40"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
@@ -983,16 +819,12 @@ const previewFile = (file: File) => {
           คุณยืนยันการทำรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button
-            @click="closePopupSubmit"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="closePopupSubmit"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button
-            @click="confirmSubmit"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
-          >
+          <button @click="confirmSubmit"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
         </div>
@@ -1000,28 +832,15 @@ const previewFile = (file: File) => {
     </div>
 
     <!-- Alert -->
-    <div
-      v-if="isAlertSaveOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <div v-if="isAlertSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
-      >
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="mb-4">
-          <svg
-            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="green"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mt-3">
@@ -1033,28 +852,15 @@ const previewFile = (file: File) => {
       </div>
     </div>
 
-    <div
-      v-if="isAlertCancleOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <div v-if="isAlertCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
-      >
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="mb-4">
-          <svg
-            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="green"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-3">
@@ -1063,28 +869,15 @@ const previewFile = (file: File) => {
       </div>
     </div>
 
-    <div
-      v-if="isAlertSubmitOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-    >
+    <div v-if="isAlertSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
-      >
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="mb-4">
-          <svg
-            :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="green"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
+          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd"
-            />
+              clip-rule="evenodd" />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-3">
