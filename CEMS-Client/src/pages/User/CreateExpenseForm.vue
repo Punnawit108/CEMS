@@ -659,16 +659,29 @@ const previewFile = (file: File) => {
 
           <!-- ช่อง "จำนวนเงิน (บาท) *" -->
           <div>
-            <label for="rqExpenses" class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqExpenses }">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
-            <input type="number" id="rqExpenses" v-model="displayRqExpenses" :class="[
-              'inputItem ',
-              {
-                error: errors.rqExpenses,
-                'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
-                  selectedTravelType === 'private',
-              },
-            ]" :disabled="selectedTravelType === 'private'" />
+            <label
+              for="rqExpenses"
+              class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqExpenses }"
+              >จำนวนเงิน (บาท) <span class="text-red-500">*</span></label
+            >
+            <input
+              type="number"
+              id="rqExpenses"
+              v-model="displayRqExpenses"
+              :class="[
+                'inputItem ',
+                {
+                  error: errors.rqExpenses,
+                  'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
+                    rqtName === 'ค่าเดินทาง' &&
+                    selectedTravelType === 'private',
+                },
+              ]"
+              :disabled="
+                rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
+              "
+            />
           </div>
 
           <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->
