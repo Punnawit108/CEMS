@@ -524,7 +524,7 @@ const previewFile = (file: File) => {
               ประเภทรถ <span class="text-red-500">*</span>
             </label>
             <div class="text-xs">
-              <select v-model="vhId" :class="['inputItem', { 'error': errors.vhId }]">
+              <select id="vehicle" v-model="vhId" :class="['inputItem', { 'error': errors.vhId }]">
                 <option value="" selected disabled>เลือกประเภทรถ</option>
                 <!-- ใช้ filteredVehicleType ที่กรองแล้ว -->
                 <option v-for="vehicle in filteredVehicleType" :key="vehicle.vhId.toString()"
