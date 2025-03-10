@@ -25,32 +25,40 @@
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
 //
-// declare global {
-//   namespace Cypress {
-//     interface Chainable {
-//       login(email: string, password: string): Chainable<void>
-//       drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
-//       visit(originalFn: CommandOriginalFn, url: string, options: Partial<VisitOptions>): Chainable<Element>
-//     }
-//   }
-// }
+declare global {
+  namespace Cypress {
+    interface Chainable {
+      login(email: string, password: string): Chainable<void>
+      drag(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
+      dismiss(subject: string, options?: Partial<TypeOptions>): Chainable<Element>
+      loginExpenseManage(id: string, password: string): Chainable<void>
+    }
+  }
+}
 
 import 'cypress-xpath';
-Cypress.Commands.add('login', () => {
+
+Cypress.Commands.add('login', (id: string, password: string) => {
     cy.visit('http://localhost:5173/login');
+
+    // จัดการกับข้อผิดพลาดที่ไม่ต้องการให้ Cypress หยุดทำงาน
     Cypress.on('uncaught:exception', (err) => {
-        if (err.message.includes('lockSystem.ts') || err.message.includes('AxiosError') || err.message.includes("Cannot read properties of null (reading 'usrId')")) {
-            return false;
+        if (
+            err.message.includes('lockSystem.ts') ||
+            err.message.includes('AxiosError') ||
+            err.message.includes("Cannot read properties of null (reading 'usrId')")
+        ) {
+            return false; // Cypress จะไม่หยุดทำงานเมื่อเจอ Error เหล่านี้
         }
         return true;
     });
+
     cy.get('.login button').should('be.visible');
-    //cy.wait(1500);
-    cy.get('.login button').click();
-    cy.get('.modal-action').should('be.visible');
-    //cy.wait(1500);
-    cy.get('select.select.select-bordered').select(12);
-    //cy.wait(1500);
-    cy.get('button.btn').click();
+
+    cy.xpath('//*[@id="app"]/div/div/div/main/div/div[2]/div/div[2]/form/input[1]').type(id);
+    cy.xpath('//*[@id="app"]/div/div/div/main/div/div[2]/div/div[2]/form/input[2]').type(password);
+
+    
+    cy.xpath('//*[@id="app"]/div/div/div/main/div/div[2]/div/div[2]/form/button').click();
 });
+
