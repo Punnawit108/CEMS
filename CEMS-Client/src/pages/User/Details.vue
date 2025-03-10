@@ -14,6 +14,7 @@ import { useRoute, useRouter } from "vue-router";
 import { useDetailStore } from "../../store/detail";
 import { useExportDetailStore } from "../../store/exportDetail";
 import FileDisplay from "../../components/FileDisplay.vue";
+import Decimal from "decimal.js";
 
 const route = useRoute();
 const router = useRouter();
@@ -24,26 +25,38 @@ const isAlertPrintOpen = ref(false); // ควบคุมการแสดง 
 const id = route.params.id.toString();
 const expenseData = ref<any>(null);
 const progressData = ref<any>(null);
-const selectedFiles = ref<{ file: File; fId: number | null }[]>([]);
+const selectedFiles = ref<{ file: string; fId: number; fileName: string | null }[]>([]);
 
 
 onMounted(async () => {
   progressData.value = await detailStore.getApprover(id);
   expenseData.value = await detailStore.getRequisition(id);
-  console.log(expenseData.value)
-
   if (expenseData) {
+    console.log(expenseData)
     selectedFiles.value = expenseData.value.files.map((file: any) => {
-      const blob = base64ToBlob(file.fFile, file.fFileType);
-      const fileObject = new File([blob], file.fName, { type: file.fFileType });
+      const fileUrl = `http://localhost:5247${file.fPath}`;
       return {
-        file: fileObject,
+        file: fileUrl,
         fId: file.fId,
+        fileName: file.fName,
       };
     });
+    console.log(selectedFiles)
   }
 })
 
+const rqPayDateFormatted = computed(() => formatDate(expenseData.value?.rqPayDate));
+const rqWithdrawDateFormatted = computed(() => formatDate(expenseData.value?.rqWithDrawDate));
+const rqVhTypeFormatted = computed(() => {
+  return expenseData.value?.rqVhType === "public" ? "รถสาธารณะ" : "รถส่วนตัว";
+});
+
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "-"; // ถ้าเป็น null หรือ undefined ให้แสดง "-"
+  const parts = dateString.split("-"); // แยก YYYY-MM-DD
+  if (parts.length !== 3) return dateString; // ถ้ารูปแบบไม่ถูกต้อง คืนค่าเดิม
+  return `${parts[2]}/${parts[1]}/${parts[0]}`; // เรียงใหม่เป็น DD/MM/YYYY
+};
 
 // FN ตรวจสอบว่ามีคำว่า 'approval' และ list ใน path หรือไม่  
 // ถ้ารายการคำขอเบิกนั้นๆ เป็นของ ผู้ใช้ปัจจุบัน และ AprStatus นั้นเป็น waiting จะดึงข้อมูล
@@ -273,25 +286,21 @@ const editAprDate = computed(() => {
 });
 
 //ดูข้อมูลใน file
-const previewFile = (file: File) => {
-  const fileURL = URL.createObjectURL(file);
-
-  if (file.type === 'application/pdf') {
-    window.open(fileURL, '_blank');
-  }
-  else if (file.type.startsWith('image/')) {
-    window.open(fileURL, '_blank');
-  }
-  else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-    const link = document.createElement('a');
-    link.href = fileURL;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-  else {
-    console.log('ไม่สามารถแสดงผลไฟล์ประเภทนี้ได้');
+const previewFile = (file: string) => {
+  if (typeof file === 'string') {
+    // ถ้า file เป็น string (URL)
+    if (file.endsWith('.pdf') || file.match(/\.(jpeg|jpg|png)$/i)) {
+      window.open(file, '_blank'); // เปิดไฟล์ PDF หรือรูปภาพในแท็บใหม่
+    } else if (file.endsWith('.docx')) {
+      const link = document.createElement('a');
+      link.href = file;
+      link.download = file.substring(file.lastIndexOf('/') + 1); // ดาวน์โหลดไฟล์ Word
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      console.log('ไม่สามารถแสดงผลไฟล์ประเภทนี้ได้');
+    }
   }
 };
 </script>
@@ -342,11 +351,12 @@ const previewFile = (file: File) => {
         <div class="flex items-center align-middle justify-between">
           <h3 class="text-base font-bold text-black ">
             {{ expenseData.rqName }}<span :class="`bg-[${statusInfo.color}]`"
-              class="!text-white px-4 py-[1px] rounded-[10px] text-xs font-thin ml-[15px]">{{
+              class="!text-white px-4 py-[4px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
           <div class="flex flex-row pr-8 gap-4">
-            <RouterLink v-if="expenseData.rqStatus == 'edit' && route.name === 'listWithdrawDetail'" :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
+            <RouterLink v-if="expenseData.rqStatus == 'edit' && route.name === 'listWithdrawDetail'"
+              :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
               <Button :type="'btn-editRequest'"></Button>
             </RouterLink>
 
@@ -365,11 +375,11 @@ const previewFile = (file: File) => {
           </div>
           <div class="col">
             <p class="head">วันที่เกิดค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqPayDate || '-' }}</p>
+            <p class="item">{{ rqPayDateFormatted }}</p>
           </div>
           <div class="col">
             <p class="head">วันที่ทำรายการเบิกค่าใช้จ่าย</p>
-            <p class="item">{{ expenseData?.rqWithDrawDate || '-' }}</p>
+            <p class="item">{{ rqWithdrawDateFormatted }}</p>
           </div>
         </div>
 
@@ -380,7 +390,7 @@ const previewFile = (file: File) => {
           </div>
           <div class="col">
             <p class="head">ชื่อผู้เบิกแทน</p>
-            <p class="item">{{ expenseData?.rqInsteadName || '-' }}</p>
+            <p class="item">{{ expenseData?.rqInsteadEmail || '-' }}</p>
           </div>
         </div>
 
@@ -395,7 +405,7 @@ const previewFile = (file: File) => {
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
-            <p class="item">{{ expenseData?.rqExpenses || '-' }}</p>
+            <p class="item">{{ new Decimal(expenseData?.rqExpenses || '-').toFixed(2) }}</p>
           </div>
           <div class="col"></div>
           <div v-if="!isPaymentOrHistoryPath" class="col"></div>
@@ -404,7 +414,7 @@ const previewFile = (file: File) => {
         <div class="travel row flex">
           <div class="col">
             <p class="head">ประเภทการเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhType || '-' }}</p>
+            <p class="item">{{ rqVhTypeFormatted || '-' }}</p>
           </div>
           <div class="col">
             <p class="head">ประเภทรถ</p>
@@ -412,11 +422,15 @@ const previewFile = (file: File) => {
           </div>
           <div class="col">
             <p class="head">ระยะทาง</p>
-            <p class="item">{{ expenseData?.rqDistance || '-' }}</p>
+            <p class="item">
+              {{ expenseData?.rqDistance ? expenseData.rqDistance + " กิโลเมตร" : '-' }}
+            </p>
           </div>
           <div class="col">
             <p class="head">อัตราค่าเดินทาง</p>
-            <p class="item">{{ expenseData?.rqVhPayrate || '-' }}</p>
+            <p class="item">
+              {{ expenseData?.rqVhPayrate ? expenseData.rqVhPayrate + " บาท/กิโลเมตร" : '-' }}
+            </p>
           </div>
         </div>
 
@@ -439,8 +453,8 @@ const previewFile = (file: File) => {
         <div class="row flex">
           <div class="flex-1">
             <p class="head">อัปโหลดไฟล์</p>
-            <FileDisplay v-for="fileObj in selectedFiles" :key="fileObj.file.name || fileObj.file.lastModified"
-              :file="fileObj.file" @preview="previewFile(fileObj.file)" class="text-[14px] text-black" />
+            <FileDisplay v-for="fileObj in selectedFiles" :key="fileObj.fId" :file="fileObj.file"
+              :fileName="fileObj.fileName" @preview="previewFile(fileObj.file)" class="text-[14px] text-black" />
             <p v-if="selectedFiles == null" class="item">-</p>
           </div>
           <div class="flex-1"></div>

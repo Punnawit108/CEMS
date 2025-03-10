@@ -30,7 +30,7 @@ const vhId = ref(0);
 const currentDate = ref(new Date());
 const selectedDate = ref(new Date());
 const rqCode = ref('')
-const selectedFiles = ref<{ file: File; fId: number | null }[]>([]);
+const selectedFiles = ref<{ file: any; fId: number | null; fileName: string | null }[]>([]);
 
 const isDatePickerOpen = ref(false);
 const isPopupSaveOpen = ref(false);
@@ -95,6 +95,7 @@ onMounted(async () => {
       await requisitionStore.getUserEmail(user.value.usrId)
       const data = await requisitionStore.getExpenseById(id);
       if (data) {
+        console.log(data)
         Object.assign(formData.value, data);
         vhId.value = data.rqVhId;
 
@@ -109,13 +110,15 @@ onMounted(async () => {
         selectedDate.value = parseDate(data.rqPayDate);
 
         selectedFiles.value = data.files.map((file: any) => {
-          const blob = base64ToBlob(file.fFile, file.fFileType);
-          const fileObject = new File([blob], file.fName, { type: file.fFileType });
+          const fileUrl = `http://localhost:5247${file.fPath}`;
           return {
-            file: fileObject,
+            file: fileUrl,
             fId: file.fId,
+            fileName: file.fName,
           };
         });
+
+        console.log(selectedFiles.value)
       }
     } catch (error) {
       console.log("Error loading user:", error);
@@ -187,6 +190,7 @@ const handleFileChange = async (event: Event) => {
 const removeFile = async (fIdToRemove: number | null, fileNameToRemove?: string) => {
   if (fIdToRemove !== null) {
     await requisitionStore.deleteFile(fIdToRemove);
+    console.log(fIdToRemove)
     selectedFiles.value = selectedFiles.value.filter(item => item.fId !== fIdToRemove);
   } else if (fileNameToRemove) {
     selectedFiles.value = selectedFiles.value.filter(item => item.file.name !== fileNameToRemove);
@@ -199,49 +203,61 @@ const uploadFiles = async (files: File[]) => {
   const allowedFileTypes = new Set([
     "application/pdf",
     "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-    "image/jpeg"
+    "image/jpeg",
   ]);
   const maxFileSize = 2 * 1024 * 1024; // 2MB
-  const validFiles: { file: File; fId: number | null }[] = [];
+  const validFiles: { file: File; fId: number | null; fileName: string }[] = [];
   const errors: string[] = [];
 
-  const existingFiles = new Set(selectedFiles.value.map(item => `${item.file.name}-${item.file.size}`));
+  const existingFiles = new Set(
+    selectedFiles.value.map((item) => `${item.file.name}-${item.file.size}`)
+  );
 
   for (const file of files) {
     const fileKey = `${file.name}-${file.size}`;
 
+    // ตรวจสอบว่าไฟล์ซ้ำหรือไม่
     if (existingFiles.has(fileKey)) {
       errors.push(`ไฟล์ ${file.name} ถูกเพิ่มไปแล้ว`);
       continue;
     }
 
+    // ตรวจสอบประเภทไฟล์
     if (!allowedFileTypes.has(file.type)) {
-      errors.push(`ไฟล์ ${file.name} ไม่ได้รับอนุญาต (อัปโหลดได้เฉพาะ PDF, DOCX หรือ JPEG)`);
+      errors.push(
+        `ไฟล์ ${file.name} ไม่ได้รับอนุญาต (อัปโหลดได้เฉพาะ PDF, DOCX หรือ JPEG)`
+      );
       continue;
     }
 
+    // ตรวจสอบว่าไฟล์เป็น .JPG หรือไม่
     if (file.type === "image/jpeg" && file.name.toLowerCase().endsWith(".jpg")) {
       errors.push(`ไฟล์ ${file.name} เป็นไฟล์ .JPG ไม่อนุญาตให้อัปโหลด`);
       continue;
     }
 
+    // ตรวจสอบขนาดไฟล์
     if (file.size > maxFileSize) {
       errors.push(`ไฟล์ ${file.name} มีขนาดเกิน 2MB`);
       continue;
     }
 
-    // กำหนด fId เป็น null
-    validFiles.push({ file, fId: null });
+    // เพิ่มไฟล์ที่ผ่านการตรวจสอบลงใน validFiles
+    validFiles.push({ file, fId: null, fileName: file.name });
     existingFiles.add(fileKey);
   }
 
+  // เพิ่มไฟล์ที่ผ่านการตรวจสอบลงใน selectedFiles
   if (validFiles.length > 0) {
     selectedFiles.value.push(...validFiles);
   }
 
+  // แสดงข้อผิดพลาด (ถ้ามี)
   if (errors.length > 0) {
     alert(errors.join("\n"));
   }
+
+  console.log(selectedFiles.value)
 };
 
 const handleSubmit = async () => {
@@ -437,25 +453,37 @@ const confirmCancle = async (event: Event) => {
 };
 
 //ดูข้อมูลใน file
-const previewFile = (file: File) => {
-  const fileURL = URL.createObjectURL(file);
-
-  if (file.type === 'application/pdf') {
-    window.open(fileURL, '_blank');
-  }
-  else if (file.type.startsWith('image/')) {
-    window.open(fileURL, '_blank');
-  }
-  else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
-    const link = document.createElement('a');
-    link.href = fileURL;
-    link.download = file.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  }
-  else {
-    console.log('ไม่สามารถแสดงผลไฟล์ประเภทนี้ได้');
+const previewFile = (file: string | File) => {
+  if (typeof file === 'string') {
+    // กรณี file เป็น string (URL)
+    if (file.endsWith('.pdf') || file.match(/\.(jpeg|jpg|png)$/i)) {
+      window.open(file, '_blank'); // เปิดไฟล์ PDF หรือรูปภาพในแท็บใหม่
+    } else if (file.endsWith('.docx')) {
+      const link = document.createElement('a');
+      link.href = file;
+      link.download = file.substring(file.lastIndexOf('/') + 1); // ดาวน์โหลดไฟล์ Word
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      console.log('ไม่สามารถแสดงผลไฟล์ประเภทนี้ได้');
+    }
+  } else if (file instanceof File) {
+    // กรณี file เป็น File object (ไฟล์ที่อัพโหลดใหม่)
+    const fileUrl = URL.createObjectURL(file); // สร้าง URL ชั่วคราวสำหรับไฟล์
+    if (file.type === 'application/pdf' || file.type.match(/image\/(jpeg|jpg|png)/i)) {
+      window.open(fileUrl, '_blank'); // เปิดไฟล์ PDF หรือรูปภาพในแท็บใหม่
+    } else if (file.type === 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      const link = document.createElement('a');
+      link.href = fileUrl;
+      link.download = file.name; // ดาวน์โหลดไฟล์ Word
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    } else {
+      console.log('ไม่สามารถแสดงผลไฟล์ประเภทนี้ได้');
+    }
+    URL.revokeObjectURL(fileUrl); // ลบ URL object หลังจากใช้งานเสร็จ
   }
 };
 </script>
@@ -612,17 +640,36 @@ const previewFile = (file: File) => {
           </div>
 
           <!-- ช่อง "อัตราค่าเดินทาง" -->
-          <div v-if="rqtName === 'ค่าเดินทาง'">
+          <div v-if="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'">
             <label for="rqPayrate" class="block text-sm font-medium py-2">อัตราค่าเดินทาง </label>
             <p class="inputItem bg-[#F7F7F7] text-[#BABBBE]">{{ selectedPayrate }}</p>
           </div>
 
           <!-- ช่อง "จำนวนเงิน (บาท) *" -->
           <div>
-            <label for="rqExpenses" class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqExpenses }">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
-            <input type="number" id="rqExpenses" v-model="displayRqExpenses"
-              :class="['inputItem', { 'error': errors.rqExpenses }]" />
+            <label
+              for="rqExpenses"
+              class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqExpenses }"
+              >จำนวนเงิน (บาท) <span class="text-red-500">*</span></label
+            >
+            <input
+              type="number"
+              id="rqExpenses"
+              v-model="displayRqExpenses"
+              :class="[
+                'inputItem ',
+                {
+                  error: errors.rqExpenses,
+                  'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
+                    rqtName === 'ค่าเดินทาง' &&
+                    selectedTravelType === 'private',
+                },
+              ]"
+              :disabled="
+                rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
+              "
+            />
           </div>
 
           <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->
@@ -630,8 +677,17 @@ const previewFile = (file: File) => {
             <label for="rqInsteadEmail" class="block text-sm font-medium py-2">ชื่อผู้ขอเบิกแทน </label>
             <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem">
               <option :value="null" disabled selected>Select User</option>
-              <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead">{{ user.usrName }}</option>
-            </select>
+<option
+                  :value="user.usrEmail"
+                  v-for="user in requisitionStore.UserInstead"
+                  :key="user.usrEmail"
+                >
+                  {{ user.usrName }}
+                </option>            </select>
+            <button v-if="formData.rqInsteadEmail" @click="formData.rqInsteadEmail = null"
+              class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm bg-gray-200 p-1 rounded-full">
+              X
+            </button>
           </div>
         </div>
 
@@ -659,14 +715,15 @@ const previewFile = (file: File) => {
               src="https://cdn.builder.io/api/v1/image/assets/TEMP/5da245b200f054a57a812257a8291e28aacdd77733a878e94699b2587a54360d?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
               alt="Upload icon" class="object-contain w-16 aspect-[1.1]" />
             <p class="mt-3">คลิก หรือลากไฟล์มาที่นี่ เพื่ออัปโหลด</p>
-            <p class="mt-3">DOCS PNG หรือ PDF (MAX 2MB)</p>
+            <p class="mt-3">DOCS JPEG หรือ PDF (MAX 2MB)</p>
           </div>
         </div>
       </div>
     </div>
 
     <FileDisplay v-for="fileObj in selectedFiles" :key="fileObj.file.name || fileObj.file.lastModified"
-      :file="fileObj.file" @remove="removeFile(fileObj.fId)" @preview="previewFile(fileObj.file)" />
+      :file="fileObj.file" :fileName="fileObj.fileName" @remove="removeFile(fileObj.fId, fileObj.file.name)"
+      @preview="previewFile(fileObj.file)" />
 
     <!-- Popup บันทึก -->
     <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
