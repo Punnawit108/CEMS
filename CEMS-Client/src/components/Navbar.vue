@@ -55,7 +55,7 @@ const handleClick = () => {
     </div>
     <div class="mr-6 inline-flex h-9">
       <!-- ปุ่มเมื่ออยู่ในหน้า listWithdraw -->
-      <div class="mr-6 items-end" v-if="route.name === 'listWithdraw'">
+      <!-- <div class="mr-6 items-end" v-if="route.name === 'listWithdraw'">
         <RouterLink
           to="/disbursement/listWithdraw/createExpenseForm"
           v-if="!lockStore.isLocked"
@@ -63,9 +63,9 @@ const handleClick = () => {
           <Button :type="'btn-expense'"></Button>
         </RouterLink>
         <Button v-else :type="'btn-expense'" @click="handleClick"></Button>
-      </div>
+      </div> -->
       <!-- ปุ่มเมื่ออยู่ในหน้า listWithdrawDetail -->
-      <div class="mr-6 items-end" v-if="route.name === 'listWithdrawDetail'">
+      <!-- <div class="mr-6 items-end" v-if="route.name === 'listWithdrawDetail'">
         <RouterLink
           to="/disbursement/listWithdraw/detail/:id"
           v-if="!lockStore.isLocked"
@@ -83,7 +83,7 @@ const handleClick = () => {
         >
           <Button :type="'btn-editRequest'"></Button>
         </RouterLink>
-      </div>
+      </div> -->
       <Button :type="'btn-logout'" class="mr-5"></Button>
       <div class="inline-flex justify-center items-center">
         <Icon :icon="'profile'" :size="32" />
