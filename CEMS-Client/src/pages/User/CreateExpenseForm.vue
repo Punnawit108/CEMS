@@ -640,10 +640,7 @@ const previewFile = (file: File) => {
                 :class="['inputItem', { error: errors.selectedTravelType }]"
               >
                 <option value="" disabled>เลือกประเภทการเดินทาง</option>
-                <option
-                  v-for="type in uniqueTravelTypes"
-                  :value="type"
-                >
+                <option v-for="type in uniqueTravelTypes" :value="type">
                   {{ type === "private" ? "ประเภทส่วนตัว" : "ประเภทสาธารณะ" }}
                 </option>
               </select>
@@ -755,10 +752,13 @@ const previewFile = (file: File) => {
                 {
                   error: errors.rqExpenses,
                   'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
+                    rqtName === 'ค่าเดินทาง' &&
                     selectedTravelType === 'private',
                 },
               ]"
-              :disabled="selectedTravelType === 'private'"
+              :disabled="
+                rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
+              "
             />
           </div>
 
