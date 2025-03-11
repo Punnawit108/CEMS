@@ -1,3 +1,4 @@
+
 <script setup lang="ts">
 /*
 * ชื่อไฟล์: Breadcrumb.vue
@@ -8,17 +9,14 @@
 import { computed } from 'vue';
 import { useRoute, useRouter, RouteRecordNormalized } from 'vue-router';
 
-// ใช้ route เพื่อดึงเส้นทางปัจจุบัน
 const route = useRoute();
 const router = useRouter();
 
-// กำหนด type ให้กับ RouteMeta
 interface RouteMeta {
     breadcrumb?: string;
     parent?: string;
 }
 
-// ฟังก์ชัน recursive เพื่อหา parent routes ทั้งหมด
 const findParentRoutes = (routeName: string | undefined, routes: Array<any> = []) => {
     if (!routeName) return routes;
     const parentRoute = router.getRoutes().find(route => route.name === routeName);
@@ -28,18 +26,14 @@ const findParentRoutes = (routeName: string | undefined, routes: Array<any> = []
             name: parentRoute.name,
             meta: parentRoute.meta as RouteMeta
         });
-        // ตรวจสอบว่า parentRoute.meta.parent เป็น string ก่อนใช้งาน
         if (typeof parentRoute.meta.parent === 'string') {
-            // เรียกฟังก์ชันซ้ำเพื่อตรวจสอบ parent ของ parent route
             return findParentRoutes(parentRoute.meta.parent, routes);
         }
     }
     return routes;
 };
 
-// คำนวณเส้นทางที่ต้องการแสดง
 const breadcrumbs = computed(() => {
-    // เริ่มจากเส้นทางที่ตรงกับเส้นทางปัจจุบัน
     let matchedRoutes = route.matched.map((route: RouteRecordNormalized) => ({
         path: route.path,
         name: route.name,
@@ -47,12 +41,19 @@ const breadcrumbs = computed(() => {
     }));
 
     let currentRoute = matchedRoutes[matchedRoutes.length - 1];
-    // ถ้า route ปัจจุบันมี parent ให้เพิ่ม parent เข้าไปใน breadcrumbs
     if (currentRoute && currentRoute.meta.parent) {
         const parentRoutes = findParentRoutes(currentRoute.meta.parent);
         matchedRoutes = [...parentRoutes, ...matchedRoutes];
     }
-    // เปลี่ยนแปลงเป็นรูปแบบ
+
+    // หากมาจากการแจ้งเตือน ให้แสดง 'แจ้งเตือน / รายละเอียด'
+    if (route.query.fromNotification === 'true') {
+        return [
+            { path: '/notification', label: 'แจ้งเตือน' },
+            { path: route.path, label: 'รายละเอียด' }
+        ];
+    }
+
     return matchedRoutes.map(route => ({
         path: route.path,
         label: route.meta.breadcrumb || route.name

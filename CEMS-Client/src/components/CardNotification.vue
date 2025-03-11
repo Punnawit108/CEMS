@@ -1,16 +1,15 @@
-<script setup lang="ts">
 /*
 * ชื่อไฟล์: CardNotification.vue
 * คำอธิบาย: ใช้สำหรับแสดงข้อมูลแจ้งเตือนแต่ละตัว
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข: 30 พฤศจิกายน 2567
-*/
+<script setup lang="ts">
 import { useNotification } from '../store/notification';
 import { defineProps, computed } from 'vue';
-import { useRouter } from 'vue-router'; // นำเข้า useRouter
+import { useRouter } from 'vue-router';
 
 const notificationStore = useNotification();
-const router = useRouter(); // สร้างอินสแตนซ์ router
+const router = useRouter();
 
 const props = defineProps(["notificationInfo"]);
 
@@ -18,7 +17,6 @@ const updateStatus = (NtId: number) => {
     notificationStore.updateStatusNoti(NtId);
 };
 
-// ฟังก์ชันจัดรูปแบบวันที่
 const formatDateTime = (dateTime: string): string => {
     const date = new Date(dateTime);
     const day = date.getDate().toString().padStart(2, '0');
@@ -30,14 +28,11 @@ const formatDateTime = (dateTime: string): string => {
 };
 
 const getStatusMessage = (rqStatus: string, rqProgress: string): string => {
-    //สำหรับผู้อนุมัติ
-    if (rqStatus === "waiting"||rqStatus === "accept") return "รอดำเนินการอนุมัติ";
-    //สำหรับผู้สร้างใบเบิก
-    if (rqStatus == "accept"&& rqProgress == "paying") return "ได้รับการอนุมัติเรียบร้อยแล้ว";
+    if (rqStatus === "waiting" || rqStatus === "accept") return "รอดำเนินการอนุมัติ";
+    if (rqStatus == "accept" && rqProgress == "paying") return "ได้รับการอนุมัติเรียบร้อยแล้ว";
     if (rqStatus === "edit") return "แก้ไขเพิ่มเติม กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
     if (rqStatus === "reject") return "ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
-    if (rqStatus == "accept"&& rqProgress === "complete") return "ได้รับการนำจ่ายเรียบร้อยแล้ว";
-    //นักบัญชี
+    if (rqStatus == "accept" && rqProgress === "complete") return "ได้รับการนำจ่ายเรียบร้อยแล้ว";
     if (rqProgress === "paying" && rqStatus == "accept") return "รอนำจ่าย";
     return "";
 };
@@ -50,16 +45,23 @@ const sortedNotifications = computed(() => {
     });
 });
 
-// ฟังก์ชันนำทางเมื่อคลิกที่แจ้งเตือน
 const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: string) => {
-    if (ntAprStatus === "reject" || ntAprRqProgress === "complete"||ntAprRqProgress === "paying") {
-        router.push(`/disbursement/historyWithdraw/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
-    }else if(ntAprStatus === "edit"){
-        router.push(`/disbursement/listWithdraw/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
-    }else if(ntAprStatus === "waiting" || ntAprRqProgress === "accepting"){
-        router.push(`/approval/list/detail/${ntId}`); // นำทางไปยังเส้นทางที่กำหนด
+    if (ntAprStatus === "reject" || ntAprRqProgress === "complete" || ntAprRqProgress === "paying") {
+        router.push({ 
+            path: `/disbursement/historyWithdraw/detail/${ntId}`, 
+            query: { fromNotification: 'true' } // ส่ง query parameter เพื่อบอกว่าเข้ามาจากการแจ้งเตือน
+        });
+    } else if (ntAprStatus === "edit") {
+        router.push({ 
+            path: `/disbursement/listWithdraw/detail/${ntId}`, 
+            query: { fromNotification: 'true' } // ส่ง query parameter เพื่อบอกว่าเข้ามาจากการแจ้งเตือน
+        });
+    } else if (ntAprStatus === "waiting" || ntAprRqProgress === "accepting") {
+        router.push({ 
+            path: `/approval/list/detail/${ntId}`, 
+            query: { fromNotification: 'true' } // ส่ง query parameter เพื่อบอกว่าเข้ามาจากการแจ้งเตือน
+        });
     }
-    
 };
 </script>
 
@@ -67,8 +69,8 @@ const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: st
     <section v-for="item in sortedNotifications" :key="item.ntId" @click="() => {
         updateStatus(item.ntId);
         navigateToDetail(item.ntAprRqId, item.ntAprStatus, item.ntAprRqProgress);
-    }" class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400 hover:bg-current cursor-pointer"
-        :class="[item.ntStatus === 'unread' ? 'bg-white' : 'bg-neutral-300']">
+    }" class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400 hover:cursor-pointer"
+        :class="[item.ntStatus === 'unread' ? 'bg-white' : 'bg-[#f7f7f7]']">
         <div
             class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
             <h2 class="text-sm text-gray-800">
