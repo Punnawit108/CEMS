@@ -5,55 +5,58 @@
  * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
  * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
  */
-import Icon from '../../components/Icon/CIcon.vue';
+import Icon from "../../components/Icon/CIcon.vue";
 import { onMounted, ref, computed, watch } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/Table/CTable.vue';
-import { useExpensesListStore, useExpensesGraphStore } from '../../store/expensesReport';
-import ExpenseReportGraph from '../../types/index';
+import Ctable from "../../components/Table/CTable.vue";
+import {
+  useExpensesListStore,
+  useExpensesGraphStore,
+} from "../../store/expensesReport";
+import ExpenseReportGraph from "../../types/index";
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/Buttons/Button.vue";
-import Decimal from 'decimal.js';
-import { storeToRefs } from 'pinia';
+// import Decimal from "decimal.js";
+import { storeToRefs } from "pinia";
 
 // Import filters
-import UserSearchInput from '../../components/filters/UserSearchInput.vue';
-import ProjectFilter from '../../components/Filters/ProjectFilter.vue';
-import RequisitionTypeFilter from '../../components/Filters/RequisitionTypeFilter.vue';
-import DateFilter from '../../components/Filters/DateFilter.vue';
-import FilterButtons from '../../components/Filters/FilterButtons.vue';
+import UserSearchInput from "../../components/filters/UserSearchInput.vue";
+import ProjectFilter from "../../components/Filters/ProjectFilter.vue";
+import RequisitionTypeFilter from "../../components/Filters/RequisitionTypeFilter.vue";
+import DateFilter from "../../components/Filters/DateFilter.vue";
+import FilterButtons from "../../components/Filters/FilterButtons.vue";
 
 import {
-    Chart,
-    BarController,
-    BarElement,
-    PieController,
-    ArcElement,
-    Legend,
-    Tooltip,
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    Title,
-    CategoryScale,
+  Chart,
+  BarController,
+  BarElement,
+  PieController,
+  ArcElement,
+  Legend,
+  Tooltip,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  Title,
+  CategoryScale,
 } from "chart.js";
 
 // Register Chart.js components, including for the bar chart
 Chart.register(
-    BarController,
-    BarElement,
-    PieController,
-    ArcElement,
-    Legend,
-    Tooltip,
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    Title,
-    CategoryScale,
-    ChartDataLabels
+  BarController,
+  BarElement,
+  PieController,
+  ArcElement,
+  Legend,
+  Tooltip,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  Title,
+  CategoryScale,
+  ChartDataLabels
 );
 
 // ตัวแปรแสดง/ซ่อน Modal
@@ -73,20 +76,20 @@ const requisitionTypes = ref<any[]>([]);
 
 // Filters
 const filters = ref({
-    searchQuery: '',
-    project: '',
-    requisitionType: '',
-    startDate: undefined as Date | undefined,
-    endDate: undefined as Date | undefined,
+  searchQuery: "",
+  project: "",
+  requisitionType: "",
+  startDate: undefined as Date | undefined,
+  endDate: undefined as Date | undefined,
 });
 
 // Last searched filters (สำหรับการกรองข้อมูลจริงๆ)
 const lastSearchedFilters = ref({
-    searchQuery: '',
-    project: '',
-    requisitionType: '',
-    startDate: undefined as Date | undefined,
-    endDate: undefined as Date | undefined,
+  searchQuery: "",
+  project: "",
+  requisitionType: "",
+  startDate: undefined as Date | undefined,
+  endDate: undefined as Date | undefined,
 });
 
 // Date picker state
@@ -96,217 +99,280 @@ const isStartDatePickerOpen = ref(false);
 const isEndDatePickerOpen = ref(false);
 
 // Reset pagination when filters change
-watch(lastSearchedFilters, () => {
+watch(
+  lastSearchedFilters,
+  () => {
     // TODO: เพิ่ม pagination หากจำเป็น
-}, { deep: true });
+  },
+  { deep: true }
+);
 
 // ฟังก์ชันแปลงปี คริสต์ศักราช เป็น พุทธศักราช (บวก 543)
 const toBuddhistYear = (date: Date): Date => {
-    if (!date) return date;
-    const newDate = new Date(date);
-    newDate.setFullYear(newDate.getFullYear() + 543);
-    return newDate;
+  if (!date) return date;
+  const newDate = new Date(date);
+  newDate.setFullYear(newDate.getFullYear() + 543);
+  return newDate;
 };
 
 // ฟังก์ชันแปลงรูปแบบวันที่เป็นพุทธศักราชในรูปแบบ YYYY-MM-DD
 const formatToBuddhistYYYYMMDD = (date: Date): string => {
-    if (!date) return '';
+  if (!date) return "";
 
-    const buddhistDate = toBuddhistYear(date);
-    const year = buddhistDate.getFullYear();
-    const month = (buddhistDate.getMonth() + 1).toString().padStart(2, '0');
-    const day = buddhistDate.getDate().toString().padStart(2, '0');
+  const buddhistDate = toBuddhistYear(date);
+  const year = buddhistDate.getFullYear();
+  const month = (buddhistDate.getMonth() + 1).toString().padStart(2, "0");
+  const day = buddhistDate.getDate().toString().padStart(2, "0");
 
-    return `${year}-${month}-${day}`;
+  return `${year}-${month}-${day}`;
 };
 
 // ฟังก์ชันแปลงรูปแบบวันที่สำหรับการกรอง (สำหรับแสดงในคอนโซล)
 const formatDateForDisplay = (date: Date): string => {
-    if (!date) return '';
-    const day = date.getDate().toString().padStart(2, '0');
-    const month = (date.getMonth() + 1).toString().padStart(2, '0');
-    const year = date.getFullYear();
-    const buddhistYear = year + 543;
-    return `${day}/${month}/${buddhistYear}`;
+  if (!date) return "";
+  const day = date.getDate().toString().padStart(2, "0");
+  const month = (date.getMonth() + 1).toString().padStart(2, "0");
+  const year = date.getFullYear();
+  const buddhistYear = year + 543;
+  return `${day}/${month}/${buddhistYear}`;
 };
 
 const filteredExpenses = computed(() => {
-    if (!expenses.value) return [];
+  if (!expenses.value) return [];
 
-    // Log การกรองข้อมูล
-    console.log('Filtering expenses with filters:', JSON.stringify(lastSearchedFilters.value));
+  // Log การกรองข้อมูล
+  console.log(
+    "Filtering expenses with filters:",
+    JSON.stringify(lastSearchedFilters.value)
+  );
 
-    if (lastSearchedFilters.value.startDate) {
-        console.log('Start date for filtering (แบบคริสต์ศักราช):', lastSearchedFilters.value.startDate);
-        console.log('Start date for filtering (แบบพุทธศักราช):', formatDateForDisplay(lastSearchedFilters.value.startDate));
-        console.log('Start date formatted (YYYY-MM-DD พุทธศักราช):', formatToBuddhistYYYYMMDD(lastSearchedFilters.value.startDate));
+  if (lastSearchedFilters.value.startDate) {
+    console.log(
+      "Start date for filtering (แบบคริสต์ศักราช):",
+      lastSearchedFilters.value.startDate
+    );
+    console.log(
+      "Start date for filtering (แบบพุทธศักราช):",
+      formatDateForDisplay(lastSearchedFilters.value.startDate)
+    );
+    console.log(
+      "Start date formatted (YYYY-MM-DD พุทธศักราช):",
+      formatToBuddhistYYYYMMDD(lastSearchedFilters.value.startDate)
+    );
+  }
+
+  if (lastSearchedFilters.value.endDate) {
+    console.log(
+      "End date for filtering (แบบคริสต์ศักราช):",
+      lastSearchedFilters.value.endDate
+    );
+    console.log(
+      "End date for filtering (แบบพุทธศักราช):",
+      formatDateForDisplay(lastSearchedFilters.value.endDate)
+    );
+    console.log(
+      "End date formatted (YYYY-MM-DD พุทธศักราช):",
+      formatToBuddhistYYYYMMDD(lastSearchedFilters.value.endDate)
+    );
+  }
+
+  return expenses.value.filter((item) => {
+    // กรองตามชื่อผู้ใช้
+    const matchesSearch =
+      !lastSearchedFilters.value.searchQuery ||
+      (item.rqUsrName &&
+        item.rqUsrName
+          .toLowerCase()
+          .includes(lastSearchedFilters.value.searchQuery.toLowerCase()));
+
+    // กรองตามโครงการ
+    const matchesProject =
+      !lastSearchedFilters.value.project ||
+      (item.rqPjName && item.rqPjName === lastSearchedFilters.value.project);
+
+    // กรองตามประเภทค่าใช้จ่าย
+    const matchesRequisitionType =
+      !lastSearchedFilters.value.requisitionType ||
+      (item.rqRqtName &&
+        item.rqRqtName === lastSearchedFilters.value.requisitionType);
+
+    // ตรวจสอบวันที่ด้วยการเปรียบเทียบสตริง YYYY-MM-DD แบบพุทธศักราช
+    let matchesStartDate = true;
+    let matchesEndDate = true;
+
+    if (lastSearchedFilters.value.startDate && item.rqPayDate) {
+      // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
+      const startDateStr = formatToBuddhistYYYYMMDD(
+        lastSearchedFilters.value.startDate
+      );
+
+      // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
+      matchesStartDate = item.rqPayDate >= startDateStr;
+
+      // Debug
+      console.log(
+        `เปรียบเทียบ "${item.rqPayDate}" >= "${startDateStr}" = ${matchesStartDate}`
+      );
     }
 
-    if (lastSearchedFilters.value.endDate) {
-        console.log('End date for filtering (แบบคริสต์ศักราช):', lastSearchedFilters.value.endDate);
-        console.log('End date for filtering (แบบพุทธศักราช):', formatDateForDisplay(lastSearchedFilters.value.endDate));
-        console.log('End date formatted (YYYY-MM-DD พุทธศักราช):', formatToBuddhistYYYYMMDD(lastSearchedFilters.value.endDate));
+    if (lastSearchedFilters.value.endDate && item.rqPayDate) {
+      // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
+      const endDateStr = formatToBuddhistYYYYMMDD(
+        lastSearchedFilters.value.endDate
+      );
+
+      // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
+      matchesEndDate = item.rqPayDate <= endDateStr;
+
+      // Debug
+      console.log(
+        `เปรียบเทียบ "${item.rqPayDate}" <= "${endDateStr}" = ${matchesEndDate}`
+      );
     }
 
-    return expenses.value.filter((item) => {
-        // กรองตามชื่อผู้ใช้
-        const matchesSearch = !lastSearchedFilters.value.searchQuery ||
-            (item.rqUsrName && item.rqUsrName.toLowerCase().includes(lastSearchedFilters.value.searchQuery.toLowerCase()));
-
-        // กรองตามโครงการ
-        const matchesProject = !lastSearchedFilters.value.project ||
-            (item.rqPjName && item.rqPjName === lastSearchedFilters.value.project);
-
-        // กรองตามประเภทค่าใช้จ่าย
-        const matchesRequisitionType = !lastSearchedFilters.value.requisitionType ||
-            (item.rqRqtName && item.rqRqtName === lastSearchedFilters.value.requisitionType);
-
-        // ตรวจสอบวันที่ด้วยการเปรียบเทียบสตริง YYYY-MM-DD แบบพุทธศักราช
-        let matchesStartDate = true;
-        let matchesEndDate = true;
-
-        if (lastSearchedFilters.value.startDate && item.rqDatePay) {
-            // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
-            const startDateStr = formatToBuddhistYYYYMMDD(lastSearchedFilters.value.startDate);
-
-            // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
-            matchesStartDate = item.rqDatePay >= startDateStr;
-
-            // Debug
-            console.log(`เปรียบเทียบ "${item.rqDatePay}" >= "${startDateStr}" = ${matchesStartDate}`);
-        }
-
-        if (lastSearchedFilters.value.endDate && item.rqDatePay) {
-            // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
-            const endDateStr = formatToBuddhistYYYYMMDD(lastSearchedFilters.value.endDate);
-
-            // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
-            matchesEndDate = item.rqDatePay <= endDateStr;
-
-            // Debug
-            console.log(`เปรียบเทียบ "${item.rqDatePay}" <= "${endDateStr}" = ${matchesEndDate}`);
-        }
-
-        return matchesSearch && matchesProject && matchesRequisitionType && matchesStartDate && matchesEndDate;
-    });
+    return (
+      matchesSearch &&
+      matchesProject &&
+      matchesRequisitionType &&
+      matchesStartDate &&
+      matchesEndDate
+    );
+  });
 });
 
 // สร้าง computed properties สำหรับดึงข้อมูลโครงการและประเภทการเบิกที่มีอยู่
 const extractedProjects = computed(() => {
-    if (!expenses.value) return [];
+  if (!expenses.value) return [];
 
-    // ดึงชื่อโครงการที่ไม่ซ้ำกัน
-    const uniqueProjects = new Map();
+  // ดึงชื่อโครงการที่ไม่ซ้ำกัน
+  const uniqueProjects = new Map();
 
-    expenses.value.forEach(item => {
-        if (item.rqPjName) {
-            // สมมติว่า id เป็นชื่อโครงการเพราะไม่มีข้อมูลชัดเจนเกี่ยวกับโครงสร้าง id โครงการ
-            uniqueProjects.set(item.rqPjName, { pjId: item.rqPjName, pjName: item.rqPjName });
-        }
-    });
+  expenses.value.forEach((item) => {
+    if (item.rqPjName) {
+      // สมมติว่า id เป็นชื่อโครงการเพราะไม่มีข้อมูลชัดเจนเกี่ยวกับโครงสร้าง id โครงการ
+      uniqueProjects.set(item.rqPjName, {
+        pjId: item.rqPjName,
+        pjName: item.rqPjName,
+      });
+    }
+  });
 
-    return Array.from(uniqueProjects.values());
+  return Array.from(uniqueProjects.values());
 });
 
 const extractedRequisitionTypes = computed(() => {
-    if (!expenses.value) return [];
+  if (!expenses.value) return [];
 
-    // ดึงประเภทการเบิกที่ไม่ซ้ำกัน
-    const uniqueTypes = new Map();
+  // ดึงประเภทการเบิกที่ไม่ซ้ำกัน
+  const uniqueTypes = new Map();
 
-    expenses.value.forEach(item => {
-        if (item.rqRqtName) {
-            uniqueTypes.set(item.rqRqtName, { rqtId: item.rqRqtName, rqtName: item.rqRqtName });
-        }
-    });
+  expenses.value.forEach((item) => {
+    if (item.rqRqtName) {
+      uniqueTypes.set(item.rqRqtName, {
+        rqtId: item.rqRqtName,
+        rqtName: item.rqRqtName,
+      });
+    }
+  });
 
-    return Array.from(uniqueTypes.values());
+  return Array.from(uniqueTypes.values());
 });
 
 // Filter handlers
 const handleSearch = () => {
-    lastSearchedFilters.value = {
-        searchQuery: filters.value.searchQuery,
-        project: filters.value.project,
-        requisitionType: filters.value.requisitionType,
-        startDate: filters.value.startDate,
-        endDate: filters.value.endDate,
-    };
+  lastSearchedFilters.value = {
+    searchQuery: filters.value.searchQuery,
+    project: filters.value.project,
+    requisitionType: filters.value.requisitionType,
+    startDate: filters.value.startDate,
+    endDate: filters.value.endDate,
+  };
 
-    console.log('Search with filters:', JSON.stringify(lastSearchedFilters.value));
+  console.log(
+    "Search with filters:",
+    JSON.stringify(lastSearchedFilters.value)
+  );
 };
 
 const handleReset = () => {
-    // รีเซ็ตค่าปัจจุบัน
-    filters.value = {
-        searchQuery: '',
-        project: '',
-        requisitionType: '',
-        startDate: undefined,
-        endDate: undefined,
-    };
+  // รีเซ็ตค่าปัจจุบัน
+  filters.value = {
+    searchQuery: "",
+    project: "",
+    requisitionType: "",
+    startDate: undefined,
+    endDate: undefined,
+  };
 
-    // รีเซ็ตค่าที่ใช้ในการค้นหาล่าสุด
-    lastSearchedFilters.value = {
-        searchQuery: '',
-        project: '',
-        requisitionType: '',
-        startDate: undefined,
-        endDate: undefined,
-    };
+  // รีเซ็ตค่าที่ใช้ในการค้นหาล่าสุด
+  lastSearchedFilters.value = {
+    searchQuery: "",
+    project: "",
+    requisitionType: "",
+    startDate: undefined,
+    endDate: undefined,
+  };
 
-    // รีเซ็ตวันที่
-    startDateTemp.value = new Date();
-    endDateTemp.value = new Date();
+  // รีเซ็ตวันที่
+  startDateTemp.value = new Date();
+  endDateTemp.value = new Date();
 };
 
 // Date handlers
 const confirmStartDate = (date: Date) => {
-    filters.value.startDate = date;
-    console.log('Start date confirmed (คริสต์ศักราช):', date);
-    console.log('Start date confirmed (พุทธศักราช):', formatToBuddhistYYYYMMDD(date));
+  filters.value.startDate = date;
+  console.log("Start date confirmed (คริสต์ศักราช):", date);
+  console.log(
+    "Start date confirmed (พุทธศักราช):",
+    formatToBuddhistYYYYMMDD(date)
+  );
 };
 
 const confirmEndDate = (date: Date) => {
-    filters.value.endDate = date;
-    console.log('End date confirmed (คริสต์ศักราช):', date);
-    console.log('End date confirmed (พุทธศักราช):', formatToBuddhistYYYYMMDD(date));
+  filters.value.endDate = date;
+  console.log("End date confirmed (คริสต์ศักราช):", date);
+  console.log(
+    "End date confirmed (พุทธศักราช):",
+    formatToBuddhistYYYYMMDD(date)
+  );
 };
 
 const cancelStartDate = () => {
-    if (!filters.value.startDate) {
-        startDateTemp.value = new Date();
-    } else {
-        startDateTemp.value = filters.value.startDate;
-    }
+  if (!filters.value.startDate) {
+    startDateTemp.value = new Date();
+  } else {
+    startDateTemp.value = filters.value.startDate;
+  }
 };
 
 const cancelEndDate = () => {
-    if (!filters.value.endDate) {
-        endDateTemp.value = new Date();
-    } else {
-        endDateTemp.value = filters.value.endDate;
-    }
+  if (!filters.value.endDate) {
+    endDateTemp.value = new Date();
+  } else {
+    endDateTemp.value = filters.value.endDate;
+  }
 };
 
 const handleExport = (type: string) => {
-    selectedType.value = type; // อัปเดตประเภทที่เลือก
+  selectedType.value = type; // อัปเดตประเภทที่เลือก
 };
 
 const exportFile = async () => {
-    if (!selectedType.value) return;
+  if (!selectedType.value) return;
 
-    try {
-        await exportReportStore.exportFile(selectedType.value);
+  try {
+    await exportReportStore.exportFile(selectedType.value);
 
-        selectedType.value = null;
-        showModal.value = false;
-    } catch (error) {
-        console.error("Error exporting file:", error);
-        if (selectedType.value) {
-            alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`);
-        }
+    selectedType.value = null;
+    showModal.value = false;
+  } catch (error) {
+    console.error("Error exporting file:", error);
+    if (selectedType.value) {
+      alert(
+        `เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`
+      );
     }
+  }
 };
 
 // Bar chart setup
@@ -316,325 +382,474 @@ const expense: string[] = [];
 // จำนวนเงินของแต่ละประเภทค่าใช้จ่าย
 const amountMoney: number[] = [];
 
+// แกน X Title
+const customXAxisTitle = {
+  id: "customXAxisTitle",
+  afterDraw: (chart: any) => {
+    const { ctx, chartArea } = chart;
+    const xPos = chartArea.right + 120;
+    const yPos = chartArea.bottom;
+
+    ctx.save();
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.font = "14px Sarabun";
+    ctx.fillStyle = "#000";
+    ctx.fillText("ประเภทค่าใช้จ่าย", xPos, yPos);
+    ctx.restore();
+  },
+};
+
+// แกน Y Title
+const customYAxisTitle = {
+  id: "customYAxisTitle",
+  afterDraw: (chart: any) => {
+    const { ctx, chartArea } = chart;
+    const xPos = chartArea.left + 15;
+    const yPos = chartArea.top - 50;
+
+    ctx.save();
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.font = "14px Sarabun";
+    ctx.fillStyle = "#000";
+    ctx.fillText("จำนวนเงิน (บาท)", xPos, yPos);
+    ctx.restore();
+  },
+};
+
 onMounted(async () => {
-    loading.value = true;
+  loading.value = true;
 
-    try {
-        await expensesListStore.getAllExpenses();
-        await expensesGraphStore.getAllExpenses();
+  try {
+    await expensesListStore.getAllExpenses();
+    await expensesGraphStore.getAllExpenses();
 
-        // อัปเดตข้อมูลสำหรับตัวกรอง
-        projects.value = extractedProjects.value;
-        requisitionTypes.value = extractedRequisitionTypes.value;
+    // อัปเดตข้อมูลสำหรับตัวกรอง
+    projects.value = extractedProjects.value;
+    requisitionTypes.value = extractedRequisitionTypes.value;
 
-        expensesGraphStore.expensegraph.forEach((item: ExpenseReportGraph) => {
-            expense.push(item.rqRqtName);
-            amountMoney.push(item.rqSumExpenses);
-        });
-    } catch (error) {
-        console.error("Error fetching expenses:", error);
-    } finally {
-        // รอสักครู่ก่อนปิด loading เพื่อให้มั่นใจว่า UI ได้ render แล้ว
-        setTimeout(() => {
-            loading.value = false;
-        }, 500);
-    }
+    expensesGraphStore.expensegraph.forEach((item: ExpenseReportGraph) => {
+      expense.push(item.rqRqtName);
+      amountMoney.push(item.rqSumExpenses);
+    });
+  } catch (error) {
+    console.error("Error fetching expenses:", error);
+  } finally {
+    // รอสักครู่ก่อนปิด loading เพื่อให้มั่นใจว่า UI ได้ render แล้ว
+    setTimeout(() => {
+      loading.value = false;
+    }, 500);
+  }
 
-    const barchart = document.getElementById("barChart") as HTMLCanvasElement;
-    if (barchart) {
-        new Chart(barchart, {
-            type: "bar",
-            data: {
-                labels: expense,
-                datasets: [
-                    {
-                        label: "จำนวนเงิน (บาท)",
-                        data: amountMoney,
-                        backgroundColor: "#C81C1B",
-                        barPercentage: 0.2, // ความหนาของแท่งกราฟ
-                        datalabels: {
-                            display: false, // ช่อนข้อมูลของ "จำนวนเงิน (บาท)" ที่ขึ้นบนแท่งกราฟ
-                        },
-                    },
-                ],
+  const barchart = document.getElementById("barChart") as HTMLCanvasElement;
+  if (barchart) {
+    new Chart(barchart, {
+      type: "bar",
+      data: {
+        labels: expense,
+        datasets: [
+          {
+            label: "จำนวนเงิน (บาท)",
+            data: amountMoney,
+            backgroundColor: "#C81C1B",
+            barPercentage: 0.2, // ความหนาของแท่งกราฟ
+            datalabels: {
+              display: false, // ช่อนข้อมูลของ "จำนวนเงิน (บาท)" ที่ขึ้นบนแท่งกราฟ
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: "ประเภทค่าใช้จ่าย",
-                            font: {
-                                weight: "bold",
-                                size: 14,
-                            },
-                            padding: {
-                                top: 20,
-                            },
-                        },
-                        ticks: {
-                            font: {
-                                weight: "bold",
-                                size: 12,
-                            },
-                        },
-                        grid: {
-                            display: false,
-                        },
-                    },
-                    y: {
-                        beginAtZero: true, // แกน y เริ่มที่ 0
-                        ticks: {
-                            font: {
-                                weight: "bold",
-                                size: 12,
-                            },
-                            stepSize: 500, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
-                        },
-                        border: {
-                            display: false, // ลบเส้นแรกของแกน y
-                        },
-                    },
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "จำนวนเงิน (บาท)",
-                        align: "start",
-                        padding: {
-                            top: 10,
-                            bottom: 30,
-                        },
-                        font: {
-                            weight: "bold",
-                            size: 14,
-                        },
-                    },
-                    legend: {
-                        display: false, // ซ่อนชนิดของแท่งกราฟ
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: (tooltipItem) => {
-                                return `จำนวนเงิน: ${tooltipItem.raw} บาท`;
-                            },
-                        },
-                    },
-                },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 60,
+            left: 30,
+            right: 120,
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: "#000",
+              font: {
+                size: 14,
+                family: "Sarabun",
+              },
             },
-        });
-    } else {
-        console.error("Canvas element for bar chart not found");
-    }
+            grid: {
+              display: false,
+            },
+          },
+          y: {
+            beginAtZero: true, // แกน y เริ่มที่ 0
+            ticks: {
+              color: "#000",
+              font: {
+                size: 14,
+                family: "Sarabun",
+              },
+              stepSize: 10000, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
+            },
+            border: {
+              display: false, // ลบเส้นแรกของแกน y
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            display: false, // ซ่อนชนิดของแท่งกราฟ
+          },
+          tooltip: {
+            callbacks: {
+              label: (tooltipItem) => {
+                const value = Number(tooltipItem.raw);
+                const formatted = value.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                });
+                return `จำนวนเงิน: ${formatted} บาท`;
+              },
+            },
+            titleFont: {
+              family: "Sarabun",
+              size: 14,
+            },
+            bodyFont: {
+              family: "Sarabun",
+              size: 14,
+            },
+            footerFont: {
+              family: "Sarabun",
+              size: 14,
+            },
+          },
+        },
+      },
+      plugins: [customXAxisTitle, customYAxisTitle],
+    });
+  } else {
+    console.error("Canvas element for bar chart not found");
+  }
 });
 </script>
 
 <template>
-    <div>
-        <!-- path for test = /report/project -->
-        <!-- begin::Filter -->
-        <div class="relative w-full mb-6">
-            <Button :type="'btn-print2'" @click="showModal = true"
-                class="absolute right-0 transform -translate-y-1/2 top-1/2">
-                ส่งออก
-            </Button>
-        </div>
-
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
-            <!-- ค้นหาชื่อผู้ใช้ -->
-            <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
-
-            <!-- โครงการ -->
-            <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
-
-            <!-- ประเภทค่าใช้จ่าย -->
-            <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
-                :loading="loading" />
-
-            <!-- วันที่เริ่มต้นขอเบิก -->
-            <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
-                :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
-                :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
-
-            <!-- วันที่สิ้นสุดขอเบิก -->
-            <div class="flex flex-col">
-                <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
-                    :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
-
-                <!-- ปุ่มค้นหาและรีเซ็ต -->
-                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
-            </div>
-        </div>
-        <!-- end::Filter -->
-
-        <!-- begin::Content -->
-        <div class="flex flex-col items-center justify-center">
-            <!-- begin::Bar chart -->
-            <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-                <p class="mb-10 font-bold text-center text-black">
-                    ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
-                </p>
-                <!-- เอา v-if="loading" ออก และแสดง canvas ตลอดเวลา -->
-                <div class="w-3/4 h-full">
-                    <canvas id="barChart"></canvas>
-                </div>
-            </div>
-            <!-- end::Bar chart -->
-
-            <!-- begin::Table -->
-            <div class="w-full h-fit border-[2px] flex flex-col items-start">
-                <!-- Table Header -->
-                <Ctable :table="'Table7-head'" />
-                <!-- Table Data -->
-                <table class="w-full text-center text-black table-auto">
-                    <tbody>
-                        <tr v-if="loading">
-                            <td colspan="8" class="py-4">
-                                <div class="flex justify-center items-center">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                    <span class="ml-2">กำลังโหลดข้อมูล...</span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr v-else-if="!expenses?.length">
-                            <td colspan="8" class="py-4">ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย</td>
-                        </tr>
-
-                        <tr v-else-if="filteredExpenses.length === 0">
-                            <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
-                        </tr>
-
-                        <tr v-else v-for="(expense, index) in filteredExpenses" :key="index"
-                            class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                :title="expense.rqUsrName">
-                                {{ expense.rqUsrName }}
-                            </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                :title="expense.rqName">
-                                {{ expense.rqName }}
-                            </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                :title="expense.rqPjName">
-                                {{ expense.rqPjName }}
-                            </th>
-                            <th class="py-[12px] px-5 w-44 text-start">
-                                {{ expense.rqRqtName }}
-                            </th>
-                            <th class="py-[12px] px-2 w-24 text-end">
-                                {{ expense.rqDatePay }}
-                            </th>
-                            <th class="py-[12px] px-2 w-40 text-end">
-                                {{ expense.rqExpenses }}
-                            </th>
-                            <th class="py-[10px] px-2 w-32 text-center">
-                                <span class="flex justify-center">
-                                    <Icon :icon="'viewDetails'" class="cursor-pointer hover:text-blue-500" />
-                                </span>
-                            </th>
-                        </tr>
-                    </tbody>
-                </table>
-                <!-- Table Footer -->
-                <Ctable :table="'Table7-footer'" />
-            </div>
-        </div>
-        <!-- end::Content -->
-
-        <!-- Modal for export -->
-        <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
-                <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-
-                <!-- ปุ่มเลือกประเภทไฟล์ -->
-                <div>
-                    <div class="flex justify-center space-x-6">
-                        <!-- ปุ่ม PDF -->
-                        <button @click="handleExport('pdf')"
-                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                            <!-- ไอคอน PDF -->
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                class="w-8 h-8 mr-2">
-                                <path
-                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
-                            </svg>
-                        </button>
-
-                        <!-- ปุ่ม XLSX -->
-                        <button @click="handleExport('xlsx')"
-                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                            <!-- ไอคอน XLSX -->
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                class="w-8 h-8 mr-2">
-                                <path
-                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="flex justify-center mb-6 space-x-20">
-                        <span class="mt-2 text-sm text-gray-600">PDF</span>
-                        <span class="mt-2 text-sm text-gray-600">XLSX</span>
-                    </div>
-
-                    <!-- ปุ่มยืนยันและยกเลิก -->
-                    <div class="flex justify-center space-x-4">
-                        <button @click="showModal = false" class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
-                            ยกเลิก
-                        </button>
-                        <button @click="exportFile" :disabled="!selectedType"
-                            class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
-                            ยืนยัน
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
+  <div>
+    <!-- path for test = /report/project -->
+    <!-- begin::Filter -->
+    <div class="relative w-full mb-6">
+      <Button
+        :type="'btn-print2'"
+        @click="showModal = true"
+        class="absolute right-0 transform -translate-y-1/2 top-1/2"
+      >
+        ส่งออก
+      </Button>
     </div>
+
+    <div
+      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8"
+    >
+      <!-- ค้นหาชื่อผู้ใช้ -->
+      <UserSearchInput
+        v-model="filters.searchQuery"
+        :loading="loading"
+        label="ค้นหาชื่อผู้ใช้"
+      />
+
+      <!-- โครงการ -->
+      <ProjectFilter
+        v-model="filters.project"
+        :projects="projects"
+        :loading="loading"
+      />
+
+      <!-- ประเภทค่าใช้จ่าย -->
+      <RequisitionTypeFilter
+        v-model="filters.requisitionType"
+        :requisition-types="requisitionTypes"
+        :loading="loading"
+      />
+
+      <!-- วันที่เริ่มต้นขอเบิก -->
+      <DateFilter
+        v-model="startDateTemp"
+        :loading="loading"
+        label="วันที่เริ่มต้นขอเบิก"
+        :is-open="isStartDatePickerOpen"
+        @update:is-open="isStartDatePickerOpen = $event"
+        :confirmed-date="filters.startDate"
+        @confirm="confirmStartDate"
+        @cancel="cancelStartDate"
+      />
+
+      <!-- วันที่สิ้นสุดขอเบิก -->
+      <div class="flex flex-col">
+        <DateFilter
+          v-model="endDateTemp"
+          :loading="loading"
+          label="วันที่สิ้นสุดขอเบิก"
+          :is-open="isEndDatePickerOpen"
+          @update:is-open="isEndDatePickerOpen = $event"
+          :confirmed-date="filters.endDate"
+          @confirm="confirmEndDate"
+          @cancel="cancelEndDate"
+          class="mb-2"
+        />
+
+        <!-- ปุ่มค้นหาและรีเซ็ต -->
+        <FilterButtons
+          :loading="loading"
+          @reset="handleReset"
+          @search="handleSearch"
+        />
+      </div>
+    </div>
+    <!-- end::Filter -->
+
+    <!-- begin::Content -->
+    <div class="flex flex-col items-center justify-center">
+      <!-- begin::Bar chart -->
+      <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
+        <p class="mb-10 font-bold text-center text-black">
+          ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
+        </p>
+        <div v-if="loading" class="flex justify-center items-center">
+          <div
+            class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+          ></div>
+          <span class="ml-2">กำลังโหลดข้อมูล...</span>
+        </div>
+        <div class="w-3/4 h-full">
+          <canvas id="barChart" v-show="!loading"></canvas>
+        </div>
+      </div>
+      <!-- end::Bar chart -->
+
+      <!-- begin::Table -->
+      <div class="w-full h-fit border-[2px] flex flex-col items-start">
+        <!-- Table Header -->
+        <Ctable :table="'Table7-head'" />
+        <!-- Table Data -->
+        <table class="w-full text-center text-black table-auto">
+          <tbody>
+            <tr v-if="loading">
+              <td colspan="8" class="py-4">
+                <div class="flex justify-center items-center">
+                  <div
+                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+                  ></div>
+                  <span class="ml-2">กำลังโหลดข้อมูล...</span>
+                </div>
+              </td>
+            </tr>
+
+            <tr v-else-if="!expenses?.length">
+              <td colspan="8" class="py-4">ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย</td>
+            </tr>
+
+            <tr v-else-if="filteredExpenses.length === 0">
+              <td colspan="8" class="py-4">
+                ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
+              </td>
+            </tr>
+
+            <tr
+              v-else
+              v-for="(expense, index) in filteredExpenses"
+              :key="index"
+              class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50"
+            >
+              <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+              <th
+                class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                style="
+                  max-width: 224px;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  overflow: hidden;
+                "
+                :title="expense.rqUsrName"
+              >
+                {{ expense.rqUsrName }}
+              </th>
+              <th
+                class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                style="
+                  max-width: 224px;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  overflow: hidden;
+                "
+                :title="expense.rqName"
+              >
+                {{ expense.rqName }}
+              </th>
+              <th
+                class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                style="
+                  max-width: 224px;
+                  white-space: nowrap;
+                  text-overflow: ellipsis;
+                  overflow: hidden;
+                "
+                :title="expense.rqPjName"
+              >
+                {{ expense.rqPjName }}
+              </th>
+              <th class="py-[12px] px-5 w-44 text-start">
+                {{ expense.rqRqtName }}
+              </th>
+              <th class="py-[12px] px-2 w-24 text-end">
+                {{ expense.rqPayDate }}
+              </th>
+              <th class="py-[12px] px-2 w-40 text-end">
+                {{
+                  expense.rqExpenses.toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
+                }}
+              </th>
+              <th class="py-[10px] px-2 w-32 text-center">
+                <span class="flex justify-center">
+                  <Icon
+                    :icon="'viewDetails'"
+                    class="cursor-pointer hover:text-blue-500"
+                  />
+                </span>
+              </th>
+            </tr>
+          </tbody>
+        </table>
+        <!-- Table Footer -->
+        <Ctable :table="'Table7-footer'" />
+      </div>
+    </div>
+    <!-- end::Content -->
+
+    <!-- Modal for export -->
+    <div
+      v-if="showModal"
+      class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50"
+    >
+      <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
+        <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
+
+        <!-- ปุ่มเลือกประเภทไฟล์ -->
+        <div>
+          <div class="flex justify-center space-x-6">
+            <!-- ปุ่ม PDF -->
+            <button
+              @click="handleExport('pdf')"
+              :class="[
+                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
+                selectedType === 'pdf'
+                  ? 'bg-blue-500 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200',
+              ]"
+            >
+              <!-- ไอคอน PDF -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-8 h-8 mr-2"
+              >
+                <path
+                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z"
+                />
+              </svg>
+            </button>
+
+            <!-- ปุ่ม XLSX -->
+            <button
+              @click="handleExport('xlsx')"
+              :class="[
+                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
+                selectedType === 'xlsx'
+                  ? 'bg-green-500 text-white'
+                  : 'bg-gray-100 hover:bg-gray-200',
+              ]"
+            >
+              <!-- ไอคอน XLSX -->
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                viewBox="0 0 24 24"
+                fill="currentColor"
+                class="w-8 h-8 mr-2"
+              >
+                <path
+                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z"
+                />
+              </svg>
+            </button>
+          </div>
+
+          <div class="flex justify-center mb-6 space-x-20">
+            <span class="mt-2 text-sm text-gray-600">PDF</span>
+            <span class="mt-2 text-sm text-gray-600">XLSX</span>
+          </div>
+
+          <!-- ปุ่มยืนยันและยกเลิก -->
+          <div class="flex justify-center space-x-4">
+            <button
+              @click="showModal = false"
+              class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400"
+            >
+              ยกเลิก
+            </button>
+            <button
+              @click="exportFile"
+              :disabled="!selectedType"
+              class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
+            >
+              ยืนยัน
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
 </template>
 
 <style scoped>
 .custom-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
 }
 
 .custom-select::-ms-expand {
-    display: none;
+  display: none;
 }
 
 select,
 select option {
-    background-color: white;
-    color: #000000;
+  background-color: white;
+  color: #000000;
 }
 
 select:invalid,
 select option[value=""] {
-    color: #999999;
+  color: #999999;
 }
 
 [hidden] {
-    display: none;
+  display: none;
 }
 
 /* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .custom-select {
-        background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position-x: 100%;
-        background-position-y: 5px;
-    }
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .custom-select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position-x: 100%;
+    background-position-y: 5px;
+  }
 }
 </style>
