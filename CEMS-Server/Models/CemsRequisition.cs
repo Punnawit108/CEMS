@@ -41,12 +41,17 @@ public partial class CemsRequisition
 
     public string? RqProof { get; set; }
 
+    public string? RqDisburser { get; set; }
+
     public string RqStatus { get; set; } = null!;
 
     public string RqProgress { get; set; } = null!;
+    public string? RqAny { get; set; }
 
-    public virtual ICollection<CemsApproverRequisition> CemsApproverRequisitions { get; set; } = new List<CemsApproverRequisition>();
+    public virtual ICollection<CemsApproverRequisition> CemsApproverRequisitions { get; set; } =
+        new List<CemsApproverRequisition>();
 
+    public virtual ICollection<CemsFile> CemsFiles { get; set; } = new List<CemsFile>();
     public virtual CemsProject RqPj { get; set; } = null!;
 
     public virtual CemsRequisitionType RqRqt { get; set; } = null!;

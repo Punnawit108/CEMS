@@ -6,11 +6,14 @@
 * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 // import Icon from '../../components/template/CIcon.vue';
-import { onMounted } from "vue";
+import { onMounted, ref } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/template/CTable.vue';
+import Ctable from '../../components/Table/CTable.vue';
 import { useProjectsStore } from '../../store/projectsReport';
+import Button from "../../components/Buttons/Button.vue";
 import ProjectReport from '../../types/index';
+import Decimal from "decimal.js";
+import { useExportProjectReportStore } from "../../store/exportProjectReport";
 import {
     Chart,
     BarController,
@@ -45,7 +48,30 @@ Chart.register(
 );
 
 const projectsStore = useProjectsStore();
+const showModal = ref(false);
+const selectedType = ref<string | null>(null);
+const exportProjectReportStore = useExportProjectReportStore();
 
+const handleExport = (type: string) => {
+    selectedType.value = type; // อัปเดตประเภทที่เลือก
+};
+
+
+const exportFile = async () => {
+    if (!selectedType.value) return;
+
+    try {
+        await exportProjectReportStore.exportFile(selectedType.value);
+
+        selectedType.value = null;
+        showModal.value = false;
+    } catch (error) {
+        console.error("Error exporting file:", error);
+        if (selectedType.value) {
+            alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`);
+        }
+    }
+};
 // Bar chart setup
 // โครงการ
 const project: string[] = [];
@@ -55,9 +81,8 @@ const amountMoney: number[] = [];
 
 onMounted(async () => {
     await projectsStore.getAllProjects();
-    const projects = projectsStore.projects;
 
-    projects.forEach((item: ProjectReport) => {
+    projectsStore.projects.forEach((item: ProjectReport) => {
         project.push(item.pjName);
         amountMoney.push(item.pjSumAmountExpenses);
     });
@@ -157,73 +182,63 @@ onMounted(async () => {
     <!-- path for test = /report/project -->
 
     <!-- begin::Filter -->
-    <div class="flex gap-6 w-full mb-8">
-        <!-- Filter ค้นหา -->
-        <div class="h-fit w-[266px] ">
-            <form class="grid">
-                <label for="SearchBar" class="py-0.5 text-[14px] text-black text-start">ค้นหา</label>
-                <div class="relative h-[32px] w-[266px]  justify-center items-center">
+    <div class="flex w-full gap-6 mb-8">
+        <div class="relative w-full">
+            <Button :type="'btn-print2'" @click="showModal = true"
+                class="absolute right-0 mr-4 transform -translate-y-1/2 top-1/2">
+                ส่งออก
+            </Button>
+        </div>
+        <!-- Modal -->
+        <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
+            <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
+                <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
 
-                    <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12.6629 13.1759L17 17.5M14.5 8.75C14.5 12.2017 11.7017 15 8.25 15C4.79822 15 2 12.2017 2 8.75C2 5.29822 4.79822 2.5 8.25 2.5C11.7017 2.5 14.5 5.29822 14.5 8.75Z"
-                                stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
+                <!-- ปุ่มเลือกประเภทไฟล์ -->
+                <div>
+                    <div class="flex justify-center space-x-6">
+                        <!-- ปุ่ม PDF -->
+                        <button @click="handleExport('pdf')"
+                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                            <!-- ไอคอน PDF -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="w-8 h-8 mr-2">
+                                <path
+                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
+                            </svg>
+                        </button>
+
+                        <!-- ปุ่ม XLSX -->
+                        <button @click="handleExport('xlsx')"
+                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                            <!-- ไอคอน XLSX -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="w-8 h-8 mr-2">
+                                <path
+                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
+                            </svg>
+                        </button>
                     </div>
 
-                    <input type="text" id="SearchBar"
-                        class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-9"
-                        placeholder="ชื่อ-นามสกุล" />
-                </div>
-            </form>
-        </div>
-        <!-- Filter ประเภทค่าใช้จ่าย -->
-        <div class="h-fit w-[266px] ">
-            <form class="grid">
-                <label for="ExpenseType" class="py-0.5 text-[14px] text-black text-start">ประเภทค่าใช้จ่าย</label>
-                <div class="relative h-[32px] w-[266px]  justify-center items-center">
+                    <div class="flex justify-center mb-6 space-x-20">
+                        <span class="mt-2 text-sm text-gray-600">PDF</span>
+                        <span class="mt-2 text-sm text-gray-600">XLSX</span>
+                    </div>
 
-                    <select required
-                        class="custom-select text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4">
-                        <option value="" disabled selected hidden class="placeholder">ประเภทค่าใช้จ่าย</option>
-                        <option value="Type1">ประเภทที่ 1</option>
-                        <option value="Type2">ประเภทที่ 2</option>
-                    </select>
-
-                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg width="13" height="8" viewBox="0 0 13 8" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M7.2071 7.2071C6.8166 7.5976 6.1834 7.5976 5.7929 7.2071L0.79289 2.20711C0.40237 1.81658 0.40237 1.18342 0.79289 0.79289C1.18342 0.40237 1.81658 0.40237 2.20711 0.79289L6.5 5.0858L10.7929 0.79289C11.1834 0.40237 11.8166 0.40237 12.2071 0.79289C12.5976 1.18342 12.5976 1.81658 12.2071 2.20711L7.2071 7.2071Z"
-                                fill="black" />
-                        </svg>
+                    <!-- ปุ่มยืนยันและยกเลิก -->
+                    <div class="flex justify-center space-x-4">
+                        <button @click="showModal = false" class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
+                            ยกเลิก
+                        </button>
+                        <button @click="exportFile" :disabled="!selectedType"
+                            class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
+                            ยืนยัน
+                        </button>
                     </div>
                 </div>
-            </form>
+            </div>
         </div>
-        <!-- Filter วันที่เบิก -->
-        <div class="h-fit w-[266px]">
-            <form class="grid">
-                <label for="Calendar" class="py-0.5 text-[14px] text-black text-start">วันที่เบิก</label>
-                <div class="relative h-[32px] w-[266px]  justify-center items-center">
 
-                    <input type="text" id="Calendar"
-                        class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4"
-                        placeholder="01/01/2567-31/12/2567" />
-
-                    <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                        <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M3.31847 16.72C2.94262 16.72 2.62905 16.5998 2.37775 16.3596C2.12646 16.1193 2.00054 15.8196 2 15.4602V5.49922C2 5.1404 2.12592 4.84087 2.37775 4.60062C2.62959 4.36037 2.94316 4.23999 3.31847 4.23947H4.76176V2.5H5.64047V4.23947H11.4773V2.5H12.2932V4.23947H13.7365C14.1118 4.23947 14.4253 4.35985 14.6772 4.60062C14.929 4.84139 15.0547 5.14119 15.0541 5.5V9.20593C15.0541 9.31721 15.0152 9.41004 14.9374 9.4844C14.8597 9.55876 14.7626 9.59594 14.6462 9.59594C14.5298 9.59594 14.4327 9.55876 14.3549 9.4844C14.2771 9.41004 14.2382 9.31721 14.2382 9.20593V8.61934H2.81588V15.4602C2.81588 15.5798 2.8681 15.6898 2.97253 15.7902C3.07696 15.8905 3.192 15.9405 3.31765 15.9399H8.56785C8.68425 15.9399 8.78134 15.9771 8.85912 16.0515C8.93691 16.1258 8.9758 16.2187 8.9758 16.33C8.9758 16.4412 8.93691 16.5341 8.85912 16.6084C8.78134 16.6828 8.68425 16.72 8.56785 16.72H3.31847ZM13.7365 17.5C12.8276 17.5 12.0563 17.1973 11.4226 16.592C10.7895 15.9857 10.4729 15.2483 10.4729 14.3799C10.4729 13.5114 10.7895 12.7743 11.4226 12.1685C12.0558 11.5627 12.8268 11.2597 13.7357 11.2597C14.6445 11.2597 15.4158 11.5627 16.0495 12.1685C16.6832 12.7743 17 13.5114 17 14.3799C17 15.2483 16.6832 15.9857 16.0495 16.592C15.4158 17.1984 14.6448 17.501 13.7365 17.5ZM15.0868 16.0975L15.5322 15.6716L14.0498 14.2535V12.1303H13.4224V14.5062L15.0868 16.0975Z"
-                                fill="black" />
-                        </svg>
-                    </div>
-                </div>
-            </form>
-        </div>
     </div>
     <!-- end::Filter -->
 
@@ -232,8 +247,8 @@ onMounted(async () => {
 
         <!-- begin::Bar chart -->
         <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-            <p class="font-bold text-black mb-10 text-center">ยอดการเบิกของค่าใช้จ่ายแต่ละโครงการ</p>
-            <div class=" h-full w-3/4">
+            <p class="mb-10 font-bold text-center text-black">ยอดการเบิกของค่าใช้จ่ายแต่ละโครงการ</p>
+            <div class="w-3/4 h-full ">
                 <canvas id="barChart"></canvas>
             </div>
         </div>
@@ -241,21 +256,21 @@ onMounted(async () => {
 
         <!-- begin::Table -->
         <!-- <div class="w-full h-fit border-[2px] flex flex-col items-start"> -->
-        <div class="w-full h-fit border-[2px] flex flex-col items-start">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
             <!-- Table Header -->
             <Ctable :table="'Table4-head'" />
             <!-- Table Data -->
-            <table class="table-auto w-full text-center text-black">
+            <table class="w-full text-center text-black table-auto">
                 <tbody>
                     <tr v-for="(project, index) in projectsStore.projects" :key="index"
                         class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
-                        <th class="py-3 px-2 w-14">{{ index + 1 }}</th>
-                        <th class="py-3 px-2 w-auto text-start truncate overflow-hidden"
+                        <th class="px-2 py-3 w-14">{{ index + 1 }}</th>
+                        <th class="w-auto px-2 py-3 overflow-hidden truncate text-start"
                             style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                             {{ project.pjName }}
                         </th>
-                        <th class="py-3 px-2 w-60 text-end font-[100]">{{ project.pjSumAmountExpenses }}</th>
+                        <th class="py-3 px-2 w-60 text-end font-[100]">{{ new Decimal(project.pjSumAmountExpenses ?? 0).toFixed(2)  }}</th>
                     </tr>
                 </tbody>
             </table>

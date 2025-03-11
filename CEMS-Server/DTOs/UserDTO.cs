@@ -29,19 +29,32 @@ namespace CEMS_Server.DTOs
 
         public string UsrPhoneNumber { get; set; } = null!;
 
-        public string UsrEmail { get; set; } = null!;   
+        public string UsrEmail { get; set; } = null!;
 
         public int UsrIsSeeReport { get; set; }
 
         public int UsrIsActive { get; set; }
-        
     }
-    
+
+    public class UserLocalDto
+    {
+        public required string UsrId { get; set; }
+
+        public string UsrRolName { get; set; } = null!;
+
+        public string UsrFirstName { get; set; } = null!;
+
+        public string UsrLastName { get; set; } = null!;
+
+        public int UsrIsSeeReport { get; set; }
+
+        public int UsrIsActive { get; set; }
+    }
+
     //ตัวแปรของเส้น Put
     public class UpdateUserRoleDto
     {
         public string UsrRolName { get; set; } = null!;
         public int UsrIsSeeReport { get; set; }
     }
-    
 }

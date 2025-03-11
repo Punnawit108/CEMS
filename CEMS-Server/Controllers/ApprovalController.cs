@@ -1,14 +1,18 @@
 /*
 * ชื่อไฟล์: ApprovalController.cs
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API ของการอนุมัติและผู้อนุมัติ
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล , นายพงศธร บุญญามา
+* วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
 */
 
+using System.Globalization;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using CEMS_Server.Hubs;
 using CEMS_Server.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.SignalR;
 using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
@@ -18,20 +22,23 @@ namespace CEMS_Server.Controllers;
 public class ApprovalController : ControllerBase
 {
     private readonly CemsContext _context;
+    private readonly IHubContext<NotificationHub> _hubContext;
 
-    public ApprovalController(CemsContext context)
+    public ApprovalController(CemsContext context, IHubContext<NotificationHub> hubContext)
     {
         _context = context;
+        _hubContext = hubContext;
     }
 
     /// <summary>แสดงช้อมูลผู้อนุมัติ</summary>
     /// <returns>ข้อมูลผู้อนุมัติทั้งหมด</returns>
-    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
+    /// <remarks>แก้ไขล่าสุด: 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<object>>> ApproverList()
     {
         var acceptorList = await _context
             .CemsApprovers.Include(e => e.ApUsr)
+            .OrderBy(e => e.ApSequence)
             .Select(e => new
             {
                 e.ApUsr.UsrId,
@@ -48,11 +55,11 @@ public class ApprovalController : ControllerBase
     /// <returns>ช้อมูลการอนุมัติ</returns>
     /// <param name="requisitionId">เลขใบคำขอเบิก</param>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
-    [HttpGet("progress/{requisitionId:int}")]
-    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(string requisitionId)
+    [HttpGet("progress/{rqId}")]
+    public async Task<ActionResult<IEnumerable<object>>> ApproveProgress(string rqId)
     {
         var disbursement = await _context
-            .CemsRequisitions.Where(e => e.RqId == requisitionId)
+            .CemsRequisitions.Where(e => e.RqId == rqId)
             .Select(e => new
             {
                 e.RqId,
@@ -64,7 +71,7 @@ public class ApprovalController : ControllerBase
             .ToListAsync();
 
         var acceptor = await _context
-            .CemsApproverRequisitions.Where(e => e.AprRqId == requisitionId)
+            .CemsApproverRequisitions.Where(e => e.AprRqId == rqId)
             .Include(e => e.AprRq)
             .Include(e => e.AprAp)
             .Include(e => e.AprAp.ApUsr)
@@ -81,6 +88,23 @@ public class ApprovalController : ControllerBase
             .OrderBy(e => e.AprId)
             .ToListAsync();
 
+        if (acceptor == null || !acceptor.Any())
+        {
+            int mockCount = 3; // จำนวนข้อมูลจำลองที่ต้องการ
+            acceptor = Enumerable
+                .Range(1, mockCount)
+                .Select(i => new
+                {
+                    AprId = (int?)null,
+                    AprApId = (int?)null,
+                    UsrFirstName = "-",
+                    UsrLastName = "-",
+                    AprName = (string?)null,
+                    AprDate = (DateTime?)null,
+                    AprStatus = (string?)null,
+                })
+                .ToList();
+        }
         var formattedAcceptor = acceptor.Select(e => new
         {
             e.AprId,
@@ -100,10 +124,14 @@ public class ApprovalController : ControllerBase
     /// <summary>ใช้เพิ่มผู้อนุมัติ</summary>
     /// <returns>ข้อมูลผู้อนุมัติ</returns>
     /// <param name="approver">ข้อมูลผู้อนุมัติ</param>
-    /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
+    /// <remarks>แก้ไขล่าสุด: 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
     [HttpPost]
     public async Task<ActionResult> AddApprover([FromBody] CemsApprover approver)
     {
+        var latestSequence = await _context.CemsApprovers.CountAsync();
+
+        approver.ApSequence = latestSequence + 1;
+
         _context.CemsApprovers.Add(approver);
         await _context.SaveChangesAsync();
 
@@ -111,7 +139,7 @@ public class ApprovalController : ControllerBase
     }
 
     /// <summary>ใช้สำหรับดำเนินการคำขอเบิก</summary>
-    /// <returns>คำขอเบิกได้รับการดำเนินการ </returns>
+    /// <returns>คำขอเบิกได้รับการดำเนินการ</returns>
     /// <remarks>แก้ไขล่าสุด: 28 พฤศจิกายน 2567 โดย นายพรชัย เพิ่มพูลกิจ</remark>
     [HttpPost("approve")]
     public async Task<ActionResult> ApproveRequisition(
@@ -128,72 +156,186 @@ public class ApprovalController : ControllerBase
         );
     }
 
+    /// <summary>สลับอันดับผู้อนุมัติ</summary>
+    /// <returns>อันดับผู้อนุมัติที่เปลี่ยนแปลง</returns>
+    /// <param name="approver">ข้อมูลผู้อนุมัติ</param>
+    /// <remarks>แก้ไขล่าสุด: 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remark>
     [HttpPut("swapSequence")]
     public async Task<ActionResult> SwapRequisitionSequence(
         [FromBody] ApprovalSequence approvalSequence
     )
     {
-        // Delete Old Sequence
-        var approvalBySequence = await _context.CemsApprovers.FirstOrDefaultAsync(e =>
-            e.ApSequence == approvalSequence.ApSequence
-        );
-
-        if (approvalBySequence == null)
-        {
-            return NotFound($"Approval sequence {approvalSequence.ApSequence} not found.");
-        }
-
-        approvalBySequence.ApSequence = null;
-
-        // Update New Sequence
-        var approval = await _context.CemsApprovers.FirstOrDefaultAsync(e =>
+        // ค้นหาผู้อนุมัติที่ต้องการจะย้ายตำแหน่ง
+        var approverToMove = await _context.CemsApprovers.FirstOrDefaultAsync(e =>
             e.ApId == approvalSequence.ApId
         );
 
-        if (approval == null)
+        // ดึงข้อมูลผู้อนุมัติทั้งหมด ยกเว้นผู้ที่เราจะย้าย และเรียงตามลำดับ
+        var allApprovers = await _context
+            .CemsApprovers.Where(e => e.ApId != approvalSequence.ApId)
+            .OrderBy(e => e.ApSequence)
+            .ToListAsync();
+
+        // เก็บลำดับเดิมและลำดับที่ต้องการย้ายไป
+        var originalSequence = approverToMove.ApSequence;
+        var targetSequence = approvalSequence.ApSequence;
+
+        // อัพเดทลำดับตามทิศทางการย้าย
+        if (originalSequence > targetSequence)
         {
-            return NotFound($"Approval with ID {approvalSequence.ApId} not found.");
+            // กรณีย้ายขึ้น
+            foreach (var approver in allApprovers)
+            {
+                if (approver.ApSequence >= targetSequence && approver.ApSequence < originalSequence)
+                {
+                    approver.ApSequence++;
+                }
+            }
+        }
+        else
+        {
+            // กรณีย้ายลง
+            foreach (var approver in allApprovers)
+            {
+                if (approver.ApSequence <= targetSequence && approver.ApSequence > originalSequence)
+                {
+                    approver.ApSequence--;
+                }
+            }
         }
 
-        approval.ApSequence = approvalSequence.ApSequence;
+        // กำหนดลำดับใหม่ให้กับผู้อนุมัติที่ต้องการย้าย
+        approverToMove.ApSequence = targetSequence;
 
-        // Save changes to the database
         await _context.SaveChangesAsync();
 
-        return Ok("Sequence swapped successfully.");
+        return Ok("Sequences updated successfully.");
     }
 
+    /// <summary>การอนุมัติ</summary>
+    /// <returns>สถานะการอนุมัติ</returns>
+    /// <param name="approverUpdate">ข้อมูลการอนุมัติ</param>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+
     [HttpPut("approve")]
-    public async Task<ActionResult> updateApprove([FromBody] ApproverUpdateDto approverUpdate)
+    public async Task<ActionResult> UpdateApprove([FromBody] ApproverUpdateDto approverUpdate)
     {
         if (approverUpdate == null)
         {
             return BadRequest("Expense data is null.");
         }
+
         var approver = await _context.CemsApproverRequisitions.FindAsync(approverUpdate.AprId);
+
         if (approver == null)
         {
             return NotFound($"ไม่มีข้อมูลของ id {approverUpdate.AprId} ในระบบ");
         }
+        var now = DateTime.Now;
+
         approver.AprApId = approverUpdate.AprApId;
         approver.AprName = approverUpdate.AprName;
-        approver.AprDate = approverUpdate.AprDate;
+        approver.AprDate = new DateTime(
+            now.Year + 543,
+            now.Month,
+            now.Day,
+            now.Hour,
+            now.Minute,
+            now.Second
+        );
         approver.AprStatus = approverUpdate.AprStatus;
 
         _context.CemsApproverRequisitions.Update(approver);
         await _context.SaveChangesAsync();
-        
-        if (approverUpdate.AprApId == 3 && approverUpdate.AprStatus == "accept")
+
+        var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r =>
+            r.RqId == approver.AprRqId
+        );
+
+        if (requisition == null)
         {
-            var updateSuccess = await UpdateRequisitionsStatus(approver.AprRqId , "accept" , "paying" , null);
-            if (!updateSuccess)
+            return BadRequest("");
+        }
+
+        if (approverUpdate.AprStatus == "accept")
+        {
+            var approvers = await _context
+                .CemsApproverRequisitions.Where(a => a.AprRqId == approver.AprRqId)
+                .Include(a => a.AprAp) // โหลดข้อมูลของ AprAp
+                .ThenInclude(ap => ap.ApUsr) // โหลดข้อมูลของ ApUsr
+                .OrderBy(a => a.AprId)
+                .ToListAsync();
+
+            // หา index ของผู้อนุมัติคนปัจจุบัน
+            var currentApproverIndex = approvers.FindIndex(a => a.AprId == approver.AprId);
+
+            // ตรวจสอบว่ามีผู้อนุมัติถัดไปในลำดับ
+            if (currentApproverIndex != -1)
             {
-                return NotFound();
+                if (currentApproverIndex + 1 < approvers.Count)
+                {
+                    var nextApprover = approvers[currentApproverIndex + 1];
+
+                    if (nextApprover != null && string.IsNullOrEmpty(nextApprover.AprStatus))
+                    {
+                        var notification = new CemsNotification
+                        {
+                            NtDate = DateTime.Now,
+                            NtAprId = approverUpdate.AprId,
+                            NtStatus = "unread",
+                            NtUsrId = nextApprover.AprAp.ApUsr.UsrId,
+                        };
+                        _context.CemsNotifications.Add(notification);
+                        nextApprover.AprStatus = "waiting";
+                        _context.CemsApproverRequisitions.Update(nextApprover);
+                        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+                        await _context.SaveChangesAsync();
+                    }
+                }
+                else
+                {
+                    var updateSuccess = await UpdateRequisitionsStatus(
+                        approver.AprRqId,
+                        "accept",
+                        "paying",
+                        null
+                    );
+                    var notificationForUser = new CemsNotification
+                    {
+                        NtDate = DateTime.Now,
+                        NtAprId = approverUpdate.AprId,
+                        NtStatus = "unread",
+                        NtUsrId = requisition.RqUsrId,
+                    };
+                    _context.CemsNotifications.Add(notificationForUser);
+                    await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+                    await _context.SaveChangesAsync();
+                    if (!updateSuccess)
+                    {
+                        return NotFound();
+                    }
+                }
             }
         }
         if (approverUpdate.AprStatus == "edit")
         {
-            var updateEdit = await UpdateRequisitionsStatus(approver.AprRqId , "edit" , "accepting" , approverUpdate.RqReason);
+            var updateEdit = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "edit",
+                "accepting",
+                approverUpdate.RqReason
+            );
+            var notificationForUser = new CemsNotification
+            {
+                NtDate = DateTime.Now,
+                NtAprId = approverUpdate.AprId,
+                NtStatus = "unread",
+                NtUsrId = requisition.RqUsrId,
+            };
+            _context.CemsNotifications.Add(notificationForUser);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+            await _context.SaveChangesAsync();
+
             if (!updateEdit)
             {
                 return NotFound();
@@ -201,21 +343,50 @@ public class ApprovalController : ControllerBase
         }
         if (approverUpdate.AprStatus == "reject")
         {
-            var updateReject = await UpdateRequisitionsStatus(approver.AprRqId , "reject" , "complete" , approverUpdate.RqReason);
+            var updateReject = await UpdateRequisitionsStatus(
+                approver.AprRqId,
+                "reject",
+                "complete",
+                approverUpdate.RqReason
+            );
+            var notificationForUser = new CemsNotification
+            {
+                NtDate = DateTime.Now,
+                NtAprId = approverUpdate.AprId,
+                NtStatus = "unread",
+                NtUsrId = requisition.RqUsrId,
+            };
+            _context.CemsNotifications.Add(notificationForUser);
+            await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+            await _context.SaveChangesAsync();
+
             if (!updateReject)
             {
                 return NotFound();
             }
         }
+
         return NoContent();
     }
 
-    private async Task<bool> UpdateRequisitionsStatus(string rqId , string rqStatus , string rqProgress ,string rqReason)
+    /// <summary>เปลี่ยนสถานะคำขอ ตามการอนุมัติ</summary>
+    /// <returns>true or false</returns>
+    /// <param name="rqId">รหัสคำขอเบิก</param>
+    /// <param name="rqStatus">สถานะคำขอเบิก</param>
+    /// <param name="rqProgress">สถานะ progress คำขอเบิก</param>
+    /// <param name="rqReason">เหตุผลการไม่อนุมัติของคำขอเบิก</param>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+    private async Task<bool> UpdateRequisitionsStatus(
+        string rqId,
+        string rqStatus,
+        string rqProgress,
+        string rqReason
+    )
     {
         var requisition = await _context.CemsRequisitions.FirstOrDefaultAsync(r => r.RqId == rqId);
         if (requisition == null)
         {
-            return false; 
+            return false;
         }
         requisition.RqStatus = rqStatus;
         requisition.RqProgress = rqProgress;
@@ -223,5 +394,133 @@ public class ApprovalController : ControllerBase
         _context.CemsRequisitions.Update(requisition);
         await _context.SaveChangesAsync();
         return true;
+    }
+
+    /// <summary>ลบข้อมูลผู้อนุมัติ</summary>
+    /// <param name="approverId">รหัสผู้อนุมัติ</param>
+    /// <returns>ผลลัพธ์การลบข้อมูลผู้อนุมัติ</returns>
+    /// <remarks>แก้ไขล่าสุด: วันที่ 29 ธันวาคม 2567 โดย นายธีรวัฒน์ นิระมล</remarks>
+
+    [HttpDelete("{approverId:int}")]
+    public async Task<ActionResult> DeleteApprover(int approverId)
+    {
+        // ค้นหาผู้อนุมัติโดยใช้ ID
+        var approver = await _context.CemsApprovers.FindAsync(approverId);
+
+        if (approver == null)
+        {
+            return NotFound($"ไม่พบผู้อนุมัติที่มี ID {approverId}");
+        }
+
+        // เก็บลำดับของผู้อนุมัติที่จะลบไว้
+        var deletedSequence = approver.ApSequence;
+
+        // อัปเดตข้อมูลใน cems_approver_requistion ให้ AprApId เป็น null
+        var approverRequisitions = await _context
+            .CemsApproverRequisitions.Where(e => e.AprApId == approverId)
+            .ToListAsync();
+
+        if (approverRequisitions.Any())
+        {
+            foreach (var requisition in approverRequisitions)
+            {
+                requisition.AprApId = null;
+            }
+            _context.CemsApproverRequisitions.UpdateRange(approverRequisitions);
+        }
+
+        // ดึงข้อมูลผู้อนุมัติทั้งหมดที่มีลำดับมากกว่าผู้อนุมัติที่จะลบ
+        var approversToUpdate = await _context
+            .CemsApprovers.Where(a => a.ApSequence > deletedSequence)
+            .OrderBy(a => a.ApSequence)
+            .ToListAsync();
+
+        // ลดลำดับของผู้อนุมัติที่เหลือลง 1 ลำดับ
+        foreach (var remainingApprover in approversToUpdate)
+        {
+            remainingApprover.ApSequence--;
+        }
+
+        _context.CemsApprovers.Remove(approver);
+
+        try
+        {
+            await _context.SaveChangesAsync();
+        }
+        catch (DbUpdateException ex)
+        {
+            // จัดการข้อผิดพลาดเมื่อมีความสัมพันธ์ในฐานข้อมูลที่ไม่สามารถลบได้
+            return Conflict($"ไม่สามารถลบผู้อนุมัติได้เนื่องจากข้อผิดพลาด: {ex.Message}");
+        }
+
+        return Ok($"ลบผู้อนุมัติที่มี ID {approverId}");
+    }
+
+    /// <summary>ลบข้อมูลผู้อนุมัติ</summary>
+    /// <param name="disburseUpdate">ข้อมูลการนำจ่าย</param>
+    /// <returns>สถานะการเปลี่ยนแปลงข้อมูลนำจ่าย</returns>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+
+    [HttpPut("disburse")]
+    public async Task<ActionResult> UpdateDisburse([FromBody] DisburseUpdateDto disburseUpdate)
+    {
+        var requisition = await _context
+            .CemsRequisitions.Where(r => r.RqId == disburseUpdate.RqId)
+            .FirstOrDefaultAsync();
+
+        if (requisition == null)
+        {
+            return NotFound("Requisition not found.");
+        }
+
+        if (requisition.RqPjId == ' ')
+        {
+            return BadRequest("Requisition does not have a valid Project ID.");
+        }
+
+        var project = await _context
+            .CemsProjects.Where(p => p.PjId == requisition.RqPjId)
+            .FirstOrDefaultAsync();
+
+        if (project == null)
+        {
+            return NotFound($"Project with ID {requisition.RqPjId} not found.");
+        }
+
+        var now = DateTime.Now;
+        requisition.RqDisburser = disburseUpdate.UsrId;
+        requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
+        requisition.RqProgress = "complete";
+
+        // Debug ก่อนอัปเดตค่า pj_amount_expenses
+        Console.WriteLine(
+            $"[Before] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
+        );
+
+        // อัปเดตค่า pj_amount_expenses
+        project.PjAmountExpenses += requisition.RqExpenses;
+
+        // Debug หลังจากอัปเดตค่า pj_amount_expenses
+        Console.WriteLine(
+            $"[After] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
+        );
+
+        _context.CemsRequisitions.Update(requisition);
+        _context.CemsProjects.Update(project);
+
+        // var notification = new CemsNotification
+        // {
+        //     NtDate = DateTime.Now,
+        //     NtStatus = "unread",
+        //     NtUsrId = requisition.RqUsrId,
+        // };
+        // _context.CemsNotifications.Add(notification);
+        // await _context.SaveChangesAsync();
+
+        // _context.CemsRequisitions.Update(requisition);
+        // await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        await _context.SaveChangesAsync();
+
+        return NoContent();
     }
 }

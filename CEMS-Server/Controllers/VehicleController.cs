@@ -1,6 +1,6 @@
 /*
 * ชื่อไฟล์: VehicleController.cs
-* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ Vehicle ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้ 
+* คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ Vehicle ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้
 * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
@@ -11,8 +11,8 @@ using CEMS_Server.Models; // อ้างอิงถึงโมเดลฐา
 using Microsoft.AspNetCore.Mvc; // ใช้สำหรับการสร้าง API
 using Microsoft.EntityFrameworkCore; // ใช้สำหรับการดำเนินการกับฐานข้อมูล
 
-namespace CEMS_Server.Controllers
-{
+namespace CEMS_Server.Controllers ;
+
     // ระบุเส้นทางของ API และระบุว่าเป็น Controller สำหรับ API
     [Route("api/vehicle")]
     [ApiController]
@@ -28,11 +28,11 @@ namespace CEMS_Server.Controllers
 
         // ดึงข้อมูลรถทั้งหมด
         // GET: api/Vehicle
-        [HttpGet]
-        public IActionResult GetVehicles()
+        [HttpGet("private")]
+        public IActionResult GetVehiclesPrivate()
         {
             // ดึงข้อมูลจากตาราง CemsVehicles
-            var vehicles = _context.CemsVehicles.ToList();
+            var vehicles = _context.CemsVehicles.Where(v => v.VhType == "private").ToList();
 
             // ตรวจสอบว่ามีข้อมูลหรือไม่
             if (vehicles == null || !vehicles.Any())
@@ -41,13 +41,44 @@ namespace CEMS_Server.Controllers
             }
 
             // แปลงข้อมูลให้เหมาะสมกับการใช้งานบน Frontend
-            var vehicleDetails = vehicles.Select(vehicle => new
+            var vehicleDetails = vehicles
+                .Select(vehicle => new
+                {
+                    Id = vehicle.VhId, // แทนที่ VhId เป็น Id
+                    VehicleType = vehicle.VhType, // แทนที่ VhType เป็น VehicleType
+                    VhName = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
+                    PayRate = vehicle.VhPayrate, // แทนที่ VhPayrate เป็น PayRate
+                    VhVisible = vehicle.VhVisible
+                })
+                .ToList();
+
+            // ส่งคืนข้อมูลในรูปแบบ JSON
+            return Ok(vehicleDetails);
+        }
+
+        [HttpGet("public")]
+        public IActionResult GetVehiclePublic()
+        {
+            // ดึงข้อมูลจากตาราง CemsVehicles
+            var vehicles = _context.CemsVehicles.Where(v => v.VhType == "public").ToList();
+
+            // ตรวจสอบว่ามีข้อมูลหรือไม่
+            if (vehicles == null || !vehicles.Any())
             {
-                Id = vehicle.VhId,             // แทนที่ VhId เป็น Id
-                VehicleType = vehicle.VhType,   // แทนที่ VhType เป็น VehicleType
-                LicensePlate = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
-                PayRate = vehicle.VhPayrate    // แทนที่ VhPayrate เป็น PayRate
-            }).ToList();
+                return NotFound("No vehicles found."); // ส่งสถานะ 404 พร้อมข้อความ
+            }
+
+            // แปลงข้อมูลให้เหมาะสมกับการใช้งานบน Frontend
+            var vehicleDetails = vehicles
+                .Select(vehicle => new
+                {
+                    Id = vehicle.VhId, // แทนที่ VhId เป็น Id
+                    VehicleType = vehicle.VhType, // แทนที่ VhType เป็น VehicleType
+                    VhName = vehicle.VhVehicle, // แทนที่ VhVehicle เป็น LicensePlate
+                    PayRate = vehicle.VhPayrate, // แทนที่ VhPayrate เป็น PayRate
+                    VhVisible = vehicle.VhVisible
+                })
+                .ToList();
 
             // ส่งคืนข้อมูลในรูปแบบ JSON
             return Ok(vehicleDetails);
@@ -73,7 +104,7 @@ namespace CEMS_Server.Controllers
                 Id = vehicle.VhId,
                 VehicleType = vehicle.VhType,
                 LicensePlate = vehicle.VhVehicle,
-                PayRate = vehicle.VhPayrate
+                PayRate = vehicle.VhPayrate,
             };
 
             // ส่งข้อมูลกลับ
@@ -83,14 +114,21 @@ namespace CEMS_Server.Controllers
         // เพิ่มข้อมูลรถใหม่
         // POST: api/Vehicle
         [HttpPost]
-        public IActionResult CreateVehicle([FromBody] CemsVehicle vehicle)
+        public IActionResult CreateVehicle([FromBody] VehicleDTO vehicleDto)
         {
             // ตรวจสอบว่าข้อมูลที่ส่งมาไม่ถูกต้อง
-            if (vehicle == null)
+            if (vehicleDto == null)
             {
                 return BadRequest("Invalid vehicle data."); // ส่งสถานะ 400
             }
 
+            var vehicle = new CemsVehicle
+            {
+                VhType = vehicleDto.VhType,
+                VhPayrate = vehicleDto.VhPayrate,
+                VhVehicle = vehicleDto.VhVehicle,
+                VhVisible = 1
+            };
             // เพิ่มข้อมูลใหม่ลงในบริบท
             _context.CemsVehicles.Add(vehicle);
             _context.SaveChanges(); // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
@@ -102,14 +140,9 @@ namespace CEMS_Server.Controllers
         // อัปเดตข้อมูลรถ
         // PUT: api/Vehicle/5
         [HttpPut("{id}")]
-        public IActionResult UpdateVehicle(int id, [FromBody] CemsVehicle vehicle)
+        public IActionResult UpdateVehicle(int id)
         {
-            // ตรวจสอบความถูกต้องของข้อมูล
-            if (vehicle == null || id != vehicle.VhId)
-            {
-                return BadRequest("Vehicle data is invalid."); // ส่งสถานะ 400
-            }
-
+            
             // ค้นหาข้อมูลที่ต้องการแก้ไข
             var existingVehicle = _context.CemsVehicles.FirstOrDefault(v => v.VhId == id);
             if (existingVehicle == null)
@@ -117,10 +150,7 @@ namespace CEMS_Server.Controllers
                 return NotFound($"Vehicle with ID {id} not found."); // ส่งสถานะ 404
             }
 
-            // อัปเดตข้อมูลในออบเจ็กต์ที่ค้นพบ
-            existingVehicle.VhType = vehicle.VhType;
-            existingVehicle.VhVehicle = vehicle.VhVehicle;
-            existingVehicle.VhPayrate = vehicle.VhPayrate;
+            existingVehicle.VhVisible = existingVehicle.VhVisible == 0 ? 1 : 0;
 
             // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
             _context.SaveChanges();
@@ -128,6 +158,81 @@ namespace CEMS_Server.Controllers
             // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
             return NoContent();
         }
+
+        // PUT Private
+[HttpPut("update/private")]
+public async Task<IActionResult> UpdatePrivate(VehiclePrivateUpdateDTO vehicleDTO)
+{
+    // ตรวจสอบค่าที่ส่งมา
+    if (vehicleDTO == null || vehicleDTO.VhId == 0 || string.IsNullOrEmpty(vehicleDTO.VhVehicle))
+    {
+        return BadRequest(new { message = "Invalid data. Please provide VhId and VhVehicle." });
+    }
+
+    // ค้นหาข้อมูลเดิมจากฐานข้อมูล
+    var existingPrivateVehicle = await _context.CemsVehicles.FirstOrDefaultAsync(vh => vh.VhId == vehicleDTO.VhId);
+
+    if (existingPrivateVehicle == null)
+    {
+        return NotFound(new { message = "Private vehicle not found." });
+    }
+
+    // อัปเดตข้อมูล
+    existingPrivateVehicle.VhVehicle = vehicleDTO.VhVehicle;
+    existingPrivateVehicle.VhPayrate = vehicleDTO.VhPayrate;
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        return StatusCode(500, new { message = "Failed to update the private vehicle.", error = ex.Message });
+    }
+
+    return Ok(new { message = "Private vehicle updated successfully." });
+}
+
+// PUT Public
+[HttpPut("update/public")]
+public async Task<IActionResult> UpdatePublic(VehiclePublicUpdateDTO vehicleDTO)
+{
+    // ตรวจสอบค่าที่ส่งมา
+    if (vehicleDTO == null || vehicleDTO.VhId == 0 || string.IsNullOrEmpty(vehicleDTO.VhVehicle))
+    {
+        return BadRequest(new { message = "Invalid data. Please provide VhId and VhVehicle." });
+    }
+
+    // ค้นหาข้อมูลเดิมจากฐานข้อมูล
+    var existingPublicVehicle = await _context.CemsVehicles.FirstOrDefaultAsync(vh => vh.VhId == vehicleDTO.VhId);
+
+    if (existingPublicVehicle == null)
+    {
+        return NotFound(new { message = "Public vehicle not found." });
+    }
+
+    // อัปเดตข้อมูล
+    existingPublicVehicle.VhVehicle = vehicleDTO.VhVehicle;
+
+    try
+    {
+        await _context.SaveChangesAsync();
+    }
+    catch (DbUpdateConcurrencyException ex)
+    {
+        return StatusCode(500, new { message = "Failed to update the public vehicle.", error = ex.Message });
+    }
+
+    return Ok(new { message = "Public vehicle updated successfully." });
+}
+
+
+    [HttpGet("validation/{VhId}")]
+    public async Task<IActionResult> CheckVehicleUsage(int VhId)
+    {
+        var isInUse = await _context.CemsRequisitions.AnyAsync(vh => vh.RqVhId == VhId);
+        return Ok(new { VhId, isInUse });
+    }
 
         // ลบข้อมูลรถ
         // DELETE: api/Vehicle/5
@@ -148,5 +253,6 @@ namespace CEMS_Server.Controllers
             // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
             return NoContent();
         }
+
     }
-}
+

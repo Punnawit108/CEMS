@@ -10,7 +10,11 @@ namespace CEMS_Server.DTOs
     {
         public int RqtId { get; set; }
         public string RqtName {get; set;} = null!;
-
-
+        public int? RqtVisible {get; set;} = null!;
+    }
+    public class RequisitionTypeUpdateDTO
+    {
+        public int RqtId { get; set; }
+        public string RqtName {get; set;} = null!;
     }
 }

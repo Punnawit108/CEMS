@@ -2,7 +2,7 @@
 * ชื่อไฟล์: UserController.cs
 * คำอธิบาย: ไฟล์นี้สำหรับกำหนด logic API ของการจัดการผู้ใช้
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+* วันที่จัดทำ/แก้ไข: 4 มีนาคม 2568
 */
 
 using CEMS_Server.AppContext;
@@ -53,35 +53,51 @@ public class UserController : ControllerBase
                 UsrIsSeeReport = u.UsrIsSeeReport,
                 UsrIsActive = u.UsrIsActive,
             })
-            
             .ToListAsync();
-
-        var acceptorIds = await _context.CemsApprovers.Select(e => e.ApUsrId).ToListAsync();
-
-        foreach (var user in users)
-        {
-            if (acceptorIds.Contains(user.UsrId))
-            {
-                user.UsrRolName = "Approver"; // Set the desired role name
-            }
-        }
 
         return Ok(users);
     }
+
+    [HttpGet("localUser")]
+    public async Task<ActionResult<IEnumerable<UserLocalDto>>> GetLocalUser()
+    {
+        var users = await _context
+            .CemsUsers.Include(e => e.UsrRol)
+            .Select(u => new UserLocalDto
+            {
+                UsrId = u.UsrId,
+                UsrRolName = u.UsrRol.RolName,
+                UsrFirstName = u.UsrFirstName,
+                UsrLastName = u.UsrLastName,
+                UsrIsSeeReport = u.UsrIsSeeReport,
+                UsrIsActive = u.UsrIsActive,
+            })
+            .ToListAsync();
+
+        return Ok(users);
+    }
+
     /// <summary> เปลี่ยนแปลงข้อมูลผู้ใช้ </summary>
     /// <param name="id" > id ของผู้ใช้ </param>
     /// <param name="updateDto" > ข้อมูลของผู้ใช้ที่สามารถแก้ไขได้ </param>
     /// <returns> สิทธิ์การดูรายงานและบทบาท </returns>
     /// <remarks> แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย จิรภัทร มณีวงษ์ </remark>
+    ///
     [HttpPut("{id}")]
-    public async Task<IActionResult> UpdateUserRole(int id, [FromBody] UpdateUserRoleDto updateDto)
+    public async Task<IActionResult> UpdateUserRole(
+        string id,
+        [FromBody] UpdateUserRoleDto updateDto
+    )
     {
         if (updateDto == null)
         {
             return BadRequest("User role data is null.");
         }
 
-        var user = await _context.CemsUsers.FindAsync(id);
+        // ใช้ Include เพื่อโหลด role data ด้วย
+        var user = await _context
+            .CemsUsers.Include(u => u.UsrRol)
+            .FirstOrDefaultAsync(u => u.UsrId == id);
 
         if (user == null)
         {
@@ -89,21 +105,79 @@ public class UserController : ControllerBase
         }
 
         // หา Role จาก RoleName
-        var role =
-            await _context.CemsRoles // เปลี่ยนเป็น CemsRoles ตาม Model
-            .FirstOrDefaultAsync(r => r.RolName == updateDto.UsrRolName);
+        var role = await _context.CemsRoles.FirstOrDefaultAsync(r =>
+            r.RolName == updateDto.UsrRolName
+        );
 
         if (role == null)
         {
             return BadRequest($"Role '{updateDto.UsrRolName}' not found");
         }
 
+        // อัพเดตข้อมูล
         user.UsrRol = role;
-        user.UsrIsSeeReport = (sbyte)updateDto.UsrIsSeeReport; // เปลี่ยนกลับเป็น sbyte ตาม Model
+        user.UsrIsSeeReport = (sbyte)updateDto.UsrIsSeeReport;
 
-        _context.CemsUsers.Update(user);
-        await _context.SaveChangesAsync();
+        try
+        {
+            _context.CemsUsers.Update(user);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            return StatusCode(500, $"เกิดข้อผิดพลาดในการบันทึกข้อมูล: {ex.Message}");
+        }
 
-        return NoContent();
+        return Ok(new { success = true, message = "อัพเดทข้อมูลสำเร็จ" });
+    }
+
+    [HttpGet("{id}")]
+    public async Task<IActionResult> GetUserByEmployeeId(string id)
+    {
+        var isApprover = 0;
+        var user = _context
+            .CemsUsers.Include(u => u.UsrRol)
+            .FirstOrDefault(u => u.UsrEmployeeId == id);
+
+        if (user == null)
+            return NotFound("Not found user");
+
+
+
+        var approver = _context.CemsApprovers.FirstOrDefault(u => u.ApUsrId == user.UsrId);
+        if(approver != null) isApprover = 1;
+
+        var userLocal = new
+        {
+            UsrId = user.UsrId,
+            UsrRolName = user.UsrRol.RolName,
+            UsrFirstName = user.UsrFirstName,
+            UsrLastName = user.UsrLastName,
+            UsrIsSeeReport = user.UsrIsSeeReport,
+            UsrIsActive = user.UsrIsActive,
+            UsrIsApprover = isApprover
+        };
+
+        return Ok(userLocal);
+    }
+
+    /// <summary> ดึงข้อมูลผู้ใช้ทั้งหมด </summary>
+    /// <returns> ข้อมูลผู้ใช้ทั้งหมด </returns>
+    /// <remarks> แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย จิรภัทร มณีวงษ์ </remark>
+    [HttpGet("email/{id}")]
+    public async Task<ActionResult> GetUserToCreateRequisition(string id)
+    {
+        var users = await _context
+            .CemsUsers.Where(u => u.UsrId != id)
+            .OrderBy(e => e.UsrId)
+            .Select(u => new
+            {
+                u.UsrId,
+                UsrName = u.UsrFirstName + " " + u.UsrLastName,
+                u.UsrEmail,
+            })
+            .ToListAsync();
+
+        return Ok(users);
     }
 }

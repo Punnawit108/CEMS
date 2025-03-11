@@ -11,7 +11,7 @@ public partial class CemsApprover
 
     public int? ApSequence { get; set; }
 
-    public virtual CemsUser ApUsr { get; set; } = null!;
+    public virtual CemsUser? ApUsr { get; set; }
 
     public virtual ICollection<CemsApproverRequisition> CemsApproverRequisitions { get; set; } = new List<CemsApproverRequisition>();
 }

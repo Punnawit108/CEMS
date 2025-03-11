@@ -2,7 +2,7 @@
 * ชื่อไฟล์: user.ts
 * คำอธิบาย: ไฟล์ store API ของข้อมูลของผู้ใช้
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+* วันที่จัดทำ/แก้ไข: 4 มีนาคม 2568
 */
 
 import { defineStore } from 'pinia';
@@ -19,7 +19,9 @@ const BASE_URL = import.meta.env.VITE_BASE_URL;
 
 export const useUserStore = defineStore('users', {
   state: () => ({
-    users: [] as User[]
+    user: {} as User,
+    users: [] as User[],
+    token: localStorage.getItem("token") || null,
   }),
   actions: {
     /*
@@ -38,6 +40,34 @@ export const useUserStore = defineStore('users', {
         throw error;
       }
     },
+
+    async getLocalUsers() {
+      try {
+        const result = await axios.get(`${BASE_URL}/api/user/localUser`);
+        this.users = result.data;
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        throw error;
+      }
+    },
+    /*
+* คำอธิบาย: ดึงข้อมูลผู้ใช้ตาม id
+* Input: userId
+* Output: ข้อมูลของผู้ใช้
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 9 กุมภาพันธ์ 2568
+*/
+    async getUserById(userId: string) {
+
+      try {
+        const result = await axios.get(`${BASE_URL}/api/user/${userId}`);
+        console.log(result.data)
+        this.user = result.data;
+      } catch (error) {
+        console.error('Failed to fetch users:', error);
+        throw error;
+      }
+    },
     /*
     * คำอธิบาย: แก้ไขข้อมูลผู้ใช้ของแต่ละผู้ใช้ตาม id
     * Input: userId, updateData (usrRolName, usrIsSeeReport)
@@ -45,7 +75,7 @@ export const useUserStore = defineStore('users', {
     * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
     * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
     */
-    async editUserRole(userId: number, updateData: UpdateUserRoleDto) {
+    async editUserRole(userId: string, updateData: UpdateUserRoleDto) {
       try {
         await axios.put(`${BASE_URL}/api/user/${userId}`, updateData);
         // อัพเดทข้อมูลใน store
@@ -58,6 +88,43 @@ export const useUserStore = defineStore('users', {
         console.error('Failed to update user:', error);
         throw error;
       }
+    },
+    /*
+    * คำอธิบาย: เข้าสู่ระบบ
+    * Input: username, password
+    * Output: เข้าสู่ระบบเพื่อใช้งานระบบ
+    * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+    * วันที่จัดทำ/แก้ไข: 9 กุมภาพันธ์ 2568
+    */
+    async loginUser(username: string, password: string) {
+      try {
+        const result = await axios.post(`${BASE_URL}/api/auth/login`, { username, password });
+        this.token = result.data.token;
+        if (this.token) {
+          localStorage.setItem("token", this.token);
+          axios.defaults.headers.common["Authorization"] = `Bearer ${this.token}`;
+        }
+      } catch (error) {
+        console.error('Failed to Login : ', error);
+        throw error;
+      }
+    },
+    // เพิ่มในไฟล์ user.ts ในส่วน actions
+    async updateUserViewPermission(userId: string, isViewReport: number) {
+      try {
+        // สร้าง endpoint ใหม่เฉพาะสำหรับอัพเดทสิทธิการดูรายงาน
+        await axios.patch(`${BASE_URL}/api/user/${userId}/viewPermission`, { usrIsSeeReport: isViewReport });
+
+        // อัพเดทข้อมูลใน store
+        const userIndex = this.users.findIndex(u => u.usrId === userId);  
+        if (userIndex !== -1) {
+          this.users[userIndex].usrIsSeeReport = isViewReport;
+        }
+      } catch (error) {
+        console.error('Failed to update view permission:', error);
+        throw error;
+      }
     }
+
   }
 });
