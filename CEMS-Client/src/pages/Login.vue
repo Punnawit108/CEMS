@@ -129,13 +129,9 @@ const handleLogin = async (e: Event) => {
                 <div class="col1 mr-4">
                   <img
                     src="https://cdn.builder.io/api/v1/image/assets/TEMP/e4ee6b90239817772fda3e0280afcee6fccf893263e541c7d09bdf9fae7fbab6?placeholderIfAbsent=true&apiKey=963991dcf23f4b60964b821ef12710c5"
-                    alt="Company logo"
-                    class="w-full h-auto max-w-[450px] object-contain"
-                  />
+                    alt="Company logo" class="w-full h-auto max-w-[450px] object-contain" />
                 </div>
-                <div
-                  class="col2 text-black text-base font-[500] leading-normal mt-[30px] ml-16 flex-grow"
-                >
+                <div class="col2 text-black text-base font-[500] leading-normal mt-[30px] ml-16 flex-grow">
                   <p class="ml-14">
                     ระบบเบิกค่าใช้จ่ายนี้จะเป็นเครื่องมือที่มีประโยชน์อย่างยิ่งสำหรับองค์กร
                   </p>
@@ -145,51 +141,45 @@ const handleLogin = async (e: Event) => {
                   </p>
                   <p>และเพิ่มความสะดวกสะบายในการทำงาน</p>
                 </div>
-                <div
-                  class="col3 ml-4 flex-grow flex items-center justify-center"
-                >
+                <div class="col3 ml-4 flex-grow flex items-center justify-center">
                   <img
                     src="https://cdn.builder.io/api/v1/image/assets/TEMP/79484dda0518e08b70f0cc357d13bbce2ef31243ee3cf6ee0f38f2ef7e23eb63?placeholderIfAbsent=true&apiKey=9804936447ee44d9b9e8514cc347c2f4"
-                    width="1125"
-                    height="750"
-                  />
+                    width="1125" height="750" />
                 </div>
               </div>
             </div>
           </div>
 
-          <div
-            class="right lg:basis-1/2 flex justify-center items-center lg:ml-12 h-full flex-col"
-          >
+          <div class="right lg:basis-1/2 flex justify-center items-center lg:ml-12 h-full flex-col">
             <div class="w-[400px]">
-              <div
-                class="flex justify-center text-[#393C8A] text-[42px] font-[800] leading-normal"
-              >
-                เข้าสู่ระบบ
+              <div class="flex justify-center text-[#393C8A] text-[42px] font-[800] leading-normal mb-8">
+                ระบบเบิกค่าใช้จ่าย
               </div>
+              
               <div class="login" @submit="handleLogin">
                 <form>
-                  <label class="text-black font-bold">Username</label>
                   <br />
-                  <input
-                    type="text"
-                    class="w-full rounded-md text-black"
-                    v-model="username"
-                  />
-                  <div class="my-5"></div>
-                  <label class="text-black font-bold">Password</label>
-                  <br />
-                  <input
-                    type="password"
-                    class="w-full rounded-md text-black"
-                    v-model="password"
-                  />
-                  <button
-                    type="submit"
-                    class="w-full text-white bg-redNormal mt-5 rounded-md"
-                  >
-                    ยืนยัน
+                  <input type="text" class="w-full rounded-md text-black" v-model="username" placeholder="xxxxxx@gmail.com"/>
+                  <div class="my-8"></div>
+                  <input type="password" class="w-full rounded-md text-black" v-model="password" placeholder="XXXXXX"/>
+                  <button type="submit" class="w-full text-white bg-[#FF0000] mt-7 rounded-md text-sm py-2 ">
+                    เข้าสู่ระบบ
                   </button>
+                  <div class="flex justify-center items-center my-10">
+                    <div class="h-[1px] w-[75%] bg-grayDark"></div>
+                    <div class="mx-8 text-sm text-black">หรือ</div>
+                    <div class="h-[1px] w-[75%] bg-grayDark"></div>
+                  </div>
+                  <div class="login">
+                    <button onclick="roleSelected.showModal()"
+                      class="flex border-[#FF0000] border-[1px] rounded-[50px] bg-white w-[400px] h-[50px] justify-center items-center shrink-0 gap-2 ">
+                      <div class="google flex items-center mr-2">
+                        <img
+                          src="https://cdn.builder.io/api/v1/image/assets/TEMP/32f25e6cc5e16af815ba918f90bbf9de73c55b345d40fb1d258f3575e687a563?placeholderIfAbsent=true&apiKey=ce9e005cbe534bedb4f28b1cd72e0e50"
+                          width="100" height="100" />
+                      </div>
+                    </button>
+                  </div>
                 </form>
               </div>
             </div>

@@ -6,13 +6,22 @@
  * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
  */
 import Icon from '../../components/Icon/CIcon.vue';
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed, watch } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from '../../components/Table/CTable.vue';
 import { useExpensesListStore, useExpensesGraphStore } from '../../store/expensesReport';
 import ExpenseReportGraph from '../../types/index';
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/Buttons/Button.vue";
+import Decimal from 'decimal.js';
+import { storeToRefs } from 'pinia';
+
+// Import filters
+import UserSearchInput from '../../components/filters/UserSearchInput.vue';
+import ProjectFilter from '../../components/Filters/ProjectFilter.vue';
+import RequisitionTypeFilter from '../../components/Filters/RequisitionTypeFilter.vue';
+import DateFilter from '../../components/Filters/DateFilter.vue';
+import FilterButtons from '../../components/Filters/FilterButtons.vue';
 
 import {
     Chart,
@@ -29,29 +38,6 @@ import {
     Title,
     CategoryScale,
 } from "chart.js";
-// ตัวแปรแสดง/ซ่อน Modal
-const showModal = ref(false);
-const selectedType = ref<string | null>(null);
-const exportReportStore = useExportExpenseReportStore();
-const handleExport = (type: string) => {
-    selectedType.value = type; // อัปเดตประเภทที่เลือก
-};
-
-const exportFile = async () => {
-    if (!selectedType.value) return;
-
-    try {
-        await exportReportStore.exportFile(selectedType.value);
-       
-        selectedType.value = null; 
-        showModal.value = false;
-    } catch (error) {
-        console.error("Error exporting file:", error);
-        if (selectedType.value) {
-            alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`);
-        }
-    }
-};
 
 // Register Chart.js components, including for the bar chart
 Chart.register(
@@ -70,8 +56,258 @@ Chart.register(
     ChartDataLabels
 );
 
+// ตัวแปรแสดง/ซ่อน Modal
+const showModal = ref(false);
+const selectedType = ref<string | null>(null);
+const exportReportStore = useExportExpenseReportStore();
+const loading = ref(false);
+
+// Stores
 const expensesListStore = useExpensesListStore();
 const expensesGraphStore = useExpensesGraphStore();
+const { expenses } = storeToRefs(expensesListStore);
+
+// สำหรับข้อมูลโครงการและประเภทการเบิก
+const projects = ref<any[]>([]);
+const requisitionTypes = ref<any[]>([]);
+
+// Filters
+const filters = ref({
+    searchQuery: '',
+    project: '',
+    requisitionType: '',
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+});
+
+// Last searched filters (สำหรับการกรองข้อมูลจริงๆ)
+const lastSearchedFilters = ref({
+    searchQuery: '',
+    project: '',
+    requisitionType: '',
+    startDate: undefined as Date | undefined,
+    endDate: undefined as Date | undefined,
+});
+
+// Date picker state
+const startDateTemp = ref(new Date());
+const endDateTemp = ref(new Date());
+const isStartDatePickerOpen = ref(false);
+const isEndDatePickerOpen = ref(false);
+
+// Reset pagination when filters change
+watch(lastSearchedFilters, () => {
+    // TODO: เพิ่ม pagination หากจำเป็น
+}, { deep: true });
+
+// ฟังก์ชันแปลงปี คริสต์ศักราช เป็น พุทธศักราช (บวก 543)
+const toBuddhistYear = (date: Date): Date => {
+    if (!date) return date;
+    const newDate = new Date(date);
+    newDate.setFullYear(newDate.getFullYear() + 543);
+    return newDate;
+};
+
+// ฟังก์ชันแปลงรูปแบบวันที่เป็นพุทธศักราชในรูปแบบ YYYY-MM-DD
+const formatToBuddhistYYYYMMDD = (date: Date): string => {
+    if (!date) return '';
+
+    const buddhistDate = toBuddhistYear(date);
+    const year = buddhistDate.getFullYear();
+    const month = (buddhistDate.getMonth() + 1).toString().padStart(2, '0');
+    const day = buddhistDate.getDate().toString().padStart(2, '0');
+
+    return `${year}-${month}-${day}`;
+};
+
+// ฟังก์ชันแปลงรูปแบบวันที่สำหรับการกรอง (สำหรับแสดงในคอนโซล)
+const formatDateForDisplay = (date: Date): string => {
+    if (!date) return '';
+    const day = date.getDate().toString().padStart(2, '0');
+    const month = (date.getMonth() + 1).toString().padStart(2, '0');
+    const year = date.getFullYear();
+    const buddhistYear = year + 543;
+    return `${day}/${month}/${buddhistYear}`;
+};
+
+const filteredExpenses = computed(() => {
+    if (!expenses.value) return [];
+
+    // Log การกรองข้อมูล
+    console.log('Filtering expenses with filters:', JSON.stringify(lastSearchedFilters.value));
+
+    if (lastSearchedFilters.value.startDate) {
+        console.log('Start date for filtering (แบบคริสต์ศักราช):', lastSearchedFilters.value.startDate);
+        console.log('Start date for filtering (แบบพุทธศักราช):', formatDateForDisplay(lastSearchedFilters.value.startDate));
+        console.log('Start date formatted (YYYY-MM-DD พุทธศักราช):', formatToBuddhistYYYYMMDD(lastSearchedFilters.value.startDate));
+    }
+
+    if (lastSearchedFilters.value.endDate) {
+        console.log('End date for filtering (แบบคริสต์ศักราช):', lastSearchedFilters.value.endDate);
+        console.log('End date for filtering (แบบพุทธศักราช):', formatDateForDisplay(lastSearchedFilters.value.endDate));
+        console.log('End date formatted (YYYY-MM-DD พุทธศักราช):', formatToBuddhistYYYYMMDD(lastSearchedFilters.value.endDate));
+    }
+
+    return expenses.value.filter((item) => {
+        // กรองตามชื่อผู้ใช้
+        const matchesSearch = !lastSearchedFilters.value.searchQuery ||
+            (item.rqUsrName && item.rqUsrName.toLowerCase().includes(lastSearchedFilters.value.searchQuery.toLowerCase()));
+
+        // กรองตามโครงการ
+        const matchesProject = !lastSearchedFilters.value.project ||
+            (item.rqPjName && item.rqPjName === lastSearchedFilters.value.project);
+
+        // กรองตามประเภทค่าใช้จ่าย
+        const matchesRequisitionType = !lastSearchedFilters.value.requisitionType ||
+            (item.rqRqtName && item.rqRqtName === lastSearchedFilters.value.requisitionType);
+
+        // ตรวจสอบวันที่ด้วยการเปรียบเทียบสตริง YYYY-MM-DD แบบพุทธศักราช
+        let matchesStartDate = true;
+        let matchesEndDate = true;
+
+        if (lastSearchedFilters.value.startDate && item.rqDatePay) {
+            // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
+            const startDateStr = formatToBuddhistYYYYMMDD(lastSearchedFilters.value.startDate);
+
+            // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
+            matchesStartDate = item.rqDatePay >= startDateStr;
+
+            // Debug
+            console.log(`เปรียบเทียบ "${item.rqDatePay}" >= "${startDateStr}" = ${matchesStartDate}`);
+        }
+
+        if (lastSearchedFilters.value.endDate && item.rqDatePay) {
+            // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
+            const endDateStr = formatToBuddhistYYYYMMDD(lastSearchedFilters.value.endDate);
+
+            // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
+            matchesEndDate = item.rqDatePay <= endDateStr;
+
+            // Debug
+            console.log(`เปรียบเทียบ "${item.rqDatePay}" <= "${endDateStr}" = ${matchesEndDate}`);
+        }
+
+        return matchesSearch && matchesProject && matchesRequisitionType && matchesStartDate && matchesEndDate;
+    });
+});
+
+// สร้าง computed properties สำหรับดึงข้อมูลโครงการและประเภทการเบิกที่มีอยู่
+const extractedProjects = computed(() => {
+    if (!expenses.value) return [];
+
+    // ดึงชื่อโครงการที่ไม่ซ้ำกัน
+    const uniqueProjects = new Map();
+
+    expenses.value.forEach(item => {
+        if (item.rqPjName) {
+            // สมมติว่า id เป็นชื่อโครงการเพราะไม่มีข้อมูลชัดเจนเกี่ยวกับโครงสร้าง id โครงการ
+            uniqueProjects.set(item.rqPjName, { pjId: item.rqPjName, pjName: item.rqPjName });
+        }
+    });
+
+    return Array.from(uniqueProjects.values());
+});
+
+const extractedRequisitionTypes = computed(() => {
+    if (!expenses.value) return [];
+
+    // ดึงประเภทการเบิกที่ไม่ซ้ำกัน
+    const uniqueTypes = new Map();
+
+    expenses.value.forEach(item => {
+        if (item.rqRqtName) {
+            uniqueTypes.set(item.rqRqtName, { rqtId: item.rqRqtName, rqtName: item.rqRqtName });
+        }
+    });
+
+    return Array.from(uniqueTypes.values());
+});
+
+// Filter handlers
+const handleSearch = () => {
+    lastSearchedFilters.value = {
+        searchQuery: filters.value.searchQuery,
+        project: filters.value.project,
+        requisitionType: filters.value.requisitionType,
+        startDate: filters.value.startDate,
+        endDate: filters.value.endDate,
+    };
+
+    console.log('Search with filters:', JSON.stringify(lastSearchedFilters.value));
+};
+
+const handleReset = () => {
+    // รีเซ็ตค่าปัจจุบัน
+    filters.value = {
+        searchQuery: '',
+        project: '',
+        requisitionType: '',
+        startDate: undefined,
+        endDate: undefined,
+    };
+
+    // รีเซ็ตค่าที่ใช้ในการค้นหาล่าสุด
+    lastSearchedFilters.value = {
+        searchQuery: '',
+        project: '',
+        requisitionType: '',
+        startDate: undefined,
+        endDate: undefined,
+    };
+
+    // รีเซ็ตวันที่
+    startDateTemp.value = new Date();
+    endDateTemp.value = new Date();
+};
+
+// Date handlers
+const confirmStartDate = (date: Date) => {
+    filters.value.startDate = date;
+    console.log('Start date confirmed (คริสต์ศักราช):', date);
+    console.log('Start date confirmed (พุทธศักราช):', formatToBuddhistYYYYMMDD(date));
+};
+
+const confirmEndDate = (date: Date) => {
+    filters.value.endDate = date;
+    console.log('End date confirmed (คริสต์ศักราช):', date);
+    console.log('End date confirmed (พุทธศักราช):', formatToBuddhistYYYYMMDD(date));
+};
+
+const cancelStartDate = () => {
+    if (!filters.value.startDate) {
+        startDateTemp.value = new Date();
+    } else {
+        startDateTemp.value = filters.value.startDate;
+    }
+};
+
+const cancelEndDate = () => {
+    if (!filters.value.endDate) {
+        endDateTemp.value = new Date();
+    } else {
+        endDateTemp.value = filters.value.endDate;
+    }
+};
+
+const handleExport = (type: string) => {
+    selectedType.value = type; // อัปเดตประเภทที่เลือก
+};
+
+const exportFile = async () => {
+    if (!selectedType.value) return;
+
+    try {
+        await exportReportStore.exportFile(selectedType.value);
+
+        selectedType.value = null;
+        showModal.value = false;
+    } catch (error) {
+        console.error("Error exporting file:", error);
+        if (selectedType.value) {
+            alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`);
+        }
+    }
+};
 
 // Bar chart setup
 // ประเภทค่าใช้จ่าย
@@ -81,15 +317,27 @@ const expense: string[] = [];
 const amountMoney: number[] = [];
 
 onMounted(async () => {
+    loading.value = true;
+
     try {
         await expensesListStore.getAllExpenses();
         await expensesGraphStore.getAllExpenses();
+
+        // อัปเดตข้อมูลสำหรับตัวกรอง
+        projects.value = extractedProjects.value;
+        requisitionTypes.value = extractedRequisitionTypes.value;
+
         expensesGraphStore.expensegraph.forEach((item: ExpenseReportGraph) => {
             expense.push(item.rqRqtName);
             amountMoney.push(item.rqSumExpenses);
         });
     } catch (error) {
         console.error("Error fetching expenses:", error);
+    } finally {
+        // รอสักครู่ก่อนปิด loading เพื่อให้มั่นใจว่า UI ได้ render แล้ว
+        setTimeout(() => {
+            loading.value = false;
+        }, 500);
     }
 
     const barchart = document.getElementById("barChart") as HTMLCanvasElement;
@@ -186,211 +434,172 @@ onMounted(async () => {
 <template>
     <div>
         <!-- path for test = /report/project -->
-        <!-- path for test = /report/project -->
-        <!-- path for test = /report/project -->
-        <!-- path for test = /report/project -->
-
         <!-- begin::Filter -->
-        <div class="flex w-full gap-6 mb-8">
-            <!-- Filter ค้นหา -->
-
-            <div class="h-fit w-[266px]">
-                <form class="grid">
-                    <label for="SearchBar" class="py-0.5 text-[14px] text-black text-start">ค้นหา</label>
-                    <div class="relative h-[32px] w-[266px] justify-center items-center">
-                        <div class="absolute transform -translate-y-1/2 pointer-events-none left-2 top-1/2">
-                            <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M12.6629 13.1759L17 17.5M14.5 8.75C14.5 12.2017 11.7017 15 8.25 15C4.79822 15 2 12.2017 2 8.75C2 5.29822 4.79822 2.5 8.25 2.5C11.7017 2.5 14.5 5.29822 14.5 8.75Z"/>
-                            </svg>
-                            </div>
-                        <input type="text" id="SearchBar"
-                            class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-9"
-                            placeholder="ชื่อ-นามสกุล" />
-                    </div>
-                </form>
-            </div>
-            <!-- Filter ประเภทค่าใช้จ่าย -->
-            <div class="h-fit w-[266px]">
-                <form class="grid">
-                    <label for="ExpenseType" class="py-0.5 text-[14px] text-black text-start">ประเภทค่าใช้จ่าย</label>
-                    <div class="relative h-[32px] w-[266px] justify-center items-center">
-                        <select required
-                            class="custom-select text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4">
-                            <option value="" disabled selected hidden class="placeholder">
-                                ประเภทค่าใช้จ่าย
-                            </option>
-                            <option value="Type1">ประเภทที่ 1</option>
-                            <option value="Type2">ประเภทที่ 2</option>
-                        </select>
-
-                        <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
-                            <svg width="13" height="8" viewBox="0 0 13 8" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path fill-rule="evenodd" clip-rule="evenodd"
-                                    d="M7.2071 7.2071C6.8166 7.5976 6.1834 7.5976 5.7929 7.2071L0.79289 2.20711C0.40237 1.81658 0.40237 1.18342 0.79289 0.79289C1.18342 0.40237 1.81658 0.40237 2.20711 0.79289L6.5 5.0858L10.7929 0.79289C11.1834 0.40237 11.8166 0.40237 12.2071 0.79289C12.5976 1.18342 12.5976 1.81658 12.2071 2.20711L7.2071 7.2071Z"
-                                    fill="black" />
-                            </svg>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <!-- Filter วันที่เบิก -->
-            <div class="h-fit w-[266px]">
-                <form class="grid">
-                    <label for="Calendar" class="py-0.5 text-[14px] text-black text-start">วันที่เบิก</label>
-                    <div class="relative h-[32px] w-[266px] justify-center items-center">
-                        <input type="text" id="Calendar"
-                            class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4"
-                            placeholder="01/01/2567-31/12/2567" />
-
-                        <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
-                            <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
-                                xmlns="http://www.w3.org/2000/svg">
-                                <path
-                                    d="M3.31847 16.72C2.94262 16.72 2.62905 16.5998 2.37775 16.3596C2.12646 16.1193 2.00054 15.8196 2 15.4602V5.49922C2 5.1404 2.12592 4.84087 2.37775 4.60062C2.62959 4.36037 2.94316 4.23999 3.31847 4.23947H4.76176V2.5H5.64047V4.23947H11.4773V2.5H12.2932V4.23947H13.7365C14.1118 4.23947 14.4253 4.35985 14.6772 4.60062C14.929 4.84139 15.0547 5.14119 15.0541 5.5V9.20593C15.0541 9.31721 15.0152 9.41004 14.9374 9.4844C14.8597 9.55876 14.7626 9.59594 14.6462 9.59594C14.5298 9.59594 14.4327 9.55876 14.3549 9.4844C14.2771 9.41004 14.2382 9.31721 14.2382 9.20593V8.61934H2.81588V15.4602C2.81588 15.5798 2.8681 15.6898 2.97253 15.7902C3.07696 15.8905 3.192 15.9405 3.31765 15.9399H8.56785C8.68425 15.9399 8.78134 15.9771 8.85912 16.0515C8.93691 16.1258 8.9758 16.2187 8.9758 16.33C8.9758 16.4412 8.93691 16.5341 8.85912 16.6084C8.78134 16.6828 8.68425 16.72 8.56785 16.72H3.31847ZM13.7365 17.5C12.8276 17.5 12.0563 17.1973 11.4226 16.592C10.7895 15.9857 10.4729 15.2483 10.4729 14.3799C10.4729 13.5114 10.7895 12.7743 11.4226 12.1685C12.0558 11.5627 12.8268 11.2597 13.7357 11.2597C14.6445 11.2597 15.4158 11.5627 16.0495 12.1685C16.6832 12.7743 17 13.5114 17 14.3799C17 15.2483 16.6832 15.9857 16.0495 16.592C15.4158 17.1984 14.6448 17.501 13.7365 17.5ZM15.0868 16.0975L15.5322 15.6716L14.0498 14.2535V12.1303H13.4224V14.5062L15.0868 16.0975Z"
-                                    fill="black" />
-                            </svg>
-                        </div>
-                    </div>
-                </form>
-            </div>
-            <div>
-                <!-- ปุ่มเปิด Modal -->
-                <Button :type="'btn-print2'" @click="showModal = true"
-                    class=" right-0 mr-4 transform -translate-y-1/2 top-1/2">
-                    ส่งออก
-                </Button>
-
-                <!-- Modal -->
-                <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-                    <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
-                        <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-
-                        <!-- ปุ่มเลือกประเภทไฟล์ -->
-                        <div>
-                            <div class="flex justify-center space-x-6">
-                                <!-- ปุ่ม PDF -->
-                                <button @click="handleExport('pdf')"
-                                    :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                                    <!-- ไอคอน PDF -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        class="w-8 h-8 mr-2">
-                                        <path
-                                            d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
-                                    </svg>
-                                </button>
-
-                                <!-- ปุ่ม XLSX -->
-                                <button @click="handleExport('xlsx')"
-                                    :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                                    <!-- ไอคอน XLSX -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        class="w-8 h-8 mr-2">
-                                        <path
-                                            d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="flex justify-center space-x-20 mb-6">
-                                <span class="text-sm text-gray-600 mt-2">PDF</span>
-                                <span class="text-sm text-gray-600 mt-2">XLSX</span>
-                            </div>
-
-                            <!-- ปุ่มยืนยันและยกเลิก -->
-                            <div class="flex justify-center space-x-4">
-                                <button @click="showModal = false"
-                                    class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
-                                    ยกเลิก
-                                </button>
-                                <button @click="exportFile" :disabled="!selectedType"
-                                    class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
-                                    ยืนยัน
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                </div>
-
-            </div>
-            <!-- end::Filter -->
-
-            <!-- begin::Content -->
-            <div class="flex flex-col items-center justify-center">
-                <!-- begin::Bar chart -->
-                <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-                    <p class="mb-10 font-bold text-center text-black">
-                        ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
-                    </p>
-                    <div class="w-3/4 h-full">
-                        <canvas id="barChart"></canvas>
-                    </div>
-                </div>
-                <!-- end::Bar chart -->
-
-                <!-- begin::Table -->
-                <div class="w-full h-fit border-[2px] flex flex-col items-start">
-                    <!-- Table Header -->
-                    <Ctable :table="'Table7-head'" />
-                    <!-- Table Data -->
-                    <!-- <Ctable :table="'Table7-data'" />    -->
-                    <table class="w-full text-center text-black table-auto">
-                        <tbody>
-                            <tr v-for="(expense, index) in expensesListStore.expenses" :key="index"
-                                class="text-[14px] border-b-2 border-[#BBBBBB]">
-                                <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
-                                <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
-                max-width: 224px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-              " title="นายเทียนชัย คูเมือง">
-                                    {{ expense.rqUsrName }}
-                                </th>
-                                <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
-                max-width: 224px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-              " title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                                    {{ expense.rqName }}
-                                </th>
-                                <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden" style="
-                max-width: 224px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-              " title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                                    {{ expense.rqPjName }}
-                                </th>
-                                <th class="py-[12px] px-5 w-44 text-start">
-                                    {{ expense.rqRqtName }}
-                                </th>
-                                <th class="py-[12px] px-2 w-24 text-end">
-                                    {{ expense.rqDatePay }}
-                                </th>
-                                <th class="py-[12px] px-2 w-40 text-end">
-                                    {{ expense.rqExpenses }}
-                                </th>
-                                <th class="py-[10px] px-2 w-32 text-center">
-                                    <span class="flex justify-center">
-                                        <Icon :icon="'viewDetails'" />
-                                    </span>
-                                </th>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <!-- Table Footer -->
-                    <Ctable :table="'Table7-footer'" />
-                </div>
-            </div>
-            <!-- end::Content -->
+        <div class="relative w-full mb-6">
+            <Button :type="'btn-print2'" @click="showModal = true"
+                class="absolute right-0 transform -translate-y-1/2 top-1/2">
+                ส่งออก
+            </Button>
         </div>
-</template>
 
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+            <!-- ค้นหาชื่อผู้ใช้ -->
+            <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
+
+            <!-- โครงการ -->
+            <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
+
+            <!-- ประเภทค่าใช้จ่าย -->
+            <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+                :loading="loading" />
+
+            <!-- วันที่เริ่มต้นขอเบิก -->
+            <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+                :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+                :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
+
+            <!-- วันที่สิ้นสุดขอเบิก -->
+            <div class="flex flex-col">
+                <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
+                    :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
+                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
+
+                <!-- ปุ่มค้นหาและรีเซ็ต -->
+                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+            </div>
+        </div>
+        <!-- end::Filter -->
+
+        <!-- begin::Content -->
+        <div class="flex flex-col items-center justify-center">
+            <!-- begin::Bar chart -->
+            <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
+                <p class="mb-10 font-bold text-center text-black">
+                    ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
+                </p>
+                <!-- เอา v-if="loading" ออก และแสดง canvas ตลอดเวลา -->
+                <div class="w-3/4 h-full">
+                    <canvas id="barChart"></canvas>
+                </div>
+            </div>
+            <!-- end::Bar chart -->
+
+            <!-- begin::Table -->
+            <div class="w-full h-fit border-[2px] flex flex-col items-start">
+                <!-- Table Header -->
+                <Ctable :table="'Table7-head'" />
+                <!-- Table Data -->
+                <table class="w-full text-center text-black table-auto">
+                    <tbody>
+                        <tr v-if="loading">
+                            <td colspan="8" class="py-4">
+                                <div class="flex justify-center items-center">
+                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                                    <span class="ml-2">กำลังโหลดข้อมูล...</span>
+                                </div>
+                            </td>
+                        </tr>
+
+                        <tr v-else-if="!expenses?.length">
+                            <td colspan="8" class="py-4">ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย</td>
+                        </tr>
+
+                        <tr v-else-if="filteredExpenses.length === 0">
+                            <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
+                        </tr>
+
+                        <tr v-else v-for="(expense, index) in filteredExpenses" :key="index"
+                            class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
+                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                :title="expense.rqUsrName">
+                                {{ expense.rqUsrName }}
+                            </th>
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                :title="expense.rqName">
+                                {{ expense.rqName }}
+                            </th>
+                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                :title="expense.rqPjName">
+                                {{ expense.rqPjName }}
+                            </th>
+                            <th class="py-[12px] px-5 w-44 text-start">
+                                {{ expense.rqRqtName }}
+                            </th>
+                            <th class="py-[12px] px-2 w-24 text-end">
+                                {{ expense.rqDatePay }}
+                            </th>
+                            <th class="py-[12px] px-2 w-40 text-end">
+                                {{ expense.rqExpenses }}
+                            </th>
+                            <th class="py-[10px] px-2 w-32 text-center">
+                                <span class="flex justify-center">
+                                    <Icon :icon="'viewDetails'" class="cursor-pointer hover:text-blue-500" />
+                                </span>
+                            </th>
+                        </tr>
+                    </tbody>
+                </table>
+                <!-- Table Footer -->
+                <Ctable :table="'Table7-footer'" />
+            </div>
+        </div>
+        <!-- end::Content -->
+
+        <!-- Modal for export -->
+        <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
+            <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
+                <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
+
+                <!-- ปุ่มเลือกประเภทไฟล์ -->
+                <div>
+                    <div class="flex justify-center space-x-6">
+                        <!-- ปุ่ม PDF -->
+                        <button @click="handleExport('pdf')"
+                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                            <!-- ไอคอน PDF -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="w-8 h-8 mr-2">
+                                <path
+                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
+                            </svg>
+                        </button>
+
+                        <!-- ปุ่ม XLSX -->
+                        <button @click="handleExport('xlsx')"
+                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+                            <!-- ไอคอน XLSX -->
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
+                                class="w-8 h-8 mr-2">
+                                <path
+                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
+                            </svg>
+                        </button>
+                    </div>
+
+                    <div class="flex justify-center mb-6 space-x-20">
+                        <span class="mt-2 text-sm text-gray-600">PDF</span>
+                        <span class="mt-2 text-sm text-gray-600">XLSX</span>
+                    </div>
+
+                    <!-- ปุ่มยืนยันและยกเลิก -->
+                    <div class="flex justify-center space-x-4">
+                        <button @click="showModal = false" class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
+                            ยกเลิก
+                        </button>
+                        <button @click="exportFile" :disabled="!selectedType"
+                            class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
+                            ยืนยัน
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</template>
 
 <style scoped>
 .custom-select {
@@ -420,7 +629,7 @@ select option[value=""] {
 }
 
 /* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio: 0) {
+@media screen and (-webkit-min-device-pixel-ratio:0) {
     .custom-select {
         background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
         background-repeat: no-repeat;

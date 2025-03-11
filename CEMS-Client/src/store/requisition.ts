@@ -30,7 +30,7 @@ export const useRequisitionStore = defineStore('dropdown', {
 
         filteredVehicleType: (state) => {
             return state.vehicleType.filter(vehicle =>
-                vehicle.vhType === state.selectedTravelType && vehicle.vhVisible !== 1
+                vehicle.vhType === state.selectedTravelType && vehicle.vhVisible == 1
             );
         },
 
@@ -71,7 +71,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         async getAllRequisitionType() {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/list`);
-                this.requisitionType = result.data;
+                this.requisitionType = result.data.filter((item: ExpenseManage) => item.rqtVisible === 1);
                 return this.requisitionType;
             } catch (error) {
                 if (axios.isAxiosError(error)) {

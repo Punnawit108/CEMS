@@ -29,12 +29,11 @@ namespace CEMS_Server.DTOs
 
         public string UsrPhoneNumber { get; set; } = null!;
 
-        public string UsrEmail { get; set; } = null!;   
+        public string UsrEmail { get; set; } = null!;
 
         public int UsrIsSeeReport { get; set; }
 
         public int UsrIsActive { get; set; }
-        
     }
 
     public class UserLocalDto
@@ -50,16 +49,12 @@ namespace CEMS_Server.DTOs
         public int UsrIsSeeReport { get; set; }
 
         public int UsrIsActive { get; set; }
-
-        public int? UsrIsApprover {get; set; }
-        
     }
-    
+
     //ตัวแปรของเส้น Put
     public class UpdateUserRoleDto
     {
         public string UsrRolName { get; set; } = null!;
         public int UsrIsSeeReport { get; set; }
     }
-    
 }

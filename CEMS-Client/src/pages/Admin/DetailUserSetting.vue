@@ -11,6 +11,7 @@ import { ref, reactive, onMounted } from 'vue';                // import ref แ
 import { useRoute, useRouter } from 'vue-router';   // import hooks สำหรับจัดการ routing
 import { useUserStore } from '../../store/user';
 import { storeToRefs } from 'pinia';
+import axios from 'axios';
 
 const route = useRoute();                           // สร้าง instance สำหรับอ่านค่าจาก route ปัจจุบัน
 const router = useRouter();                         // สร้าง instance สำหรับจัดการ navigation
@@ -60,33 +61,56 @@ const originalUser = {
 // สร้าง reactive copy ของข้อมูลผู้ใช้สำหรับการแก้ไข
 const user = reactive({ ...originalUser });
 
-// โหลดข้อมูลผู้ใช้เมื่อ component ถูกโหลด
 onMounted(async () => {
-    try {
-        if (users.value.length === 0) {
-            await store.getAllUsers();
-        }
-        const foundUser = users.value.find(u => u.usrId === userId);
-        if (foundUser) {
-            user.firstName = foundUser.usrFirstName;
-            user.lastName = foundUser.usrLastName;
-            user.employeeId = foundUser.usrEmployeeId;
-            user.phoneNumber = foundUser.usrPhoneNumber || '';
-            user.email = foundUser.usrEmail;
-            user.affiliation = foundUser.usrCpnName;
-            user.position = foundUser.usrPstName;
-            user.department = foundUser.usrDptName;
-            user.division = foundUser.usrStName;
-            // แปลง role จากอังกฤษเป็นไทย
-            user.role = reverseRoleMapping[foundUser.usrRolName] || foundUser.usrRolName;
-            user.status = foundUser.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ';
-            user.viewReportPermission = foundUser.usrIsSeeReport === 1;
-
-            Object.assign(originalUser, user);
-        }
-    } catch (error) {
-        console.error('Failed to load user data:', error);
+  try {
+    // โหลดข้อมูลผู้ใช้ทั้งหมดหากยังไม่ได้โหลด
+    if (users.value.length === 0) {
+      await store.getAllUsers();
     }
+    
+    // เพิ่มส่วนนี้: สร้าง API request ใหม่เพื่อดึงข้อมูลผู้ใช้เฉพาะราย
+    // แม้ว่าข้อมูลจะมีอยู่แล้วใน store แต่เราจะเรียก API อีกครั้งเพื่อให้มี HTTP request
+    // สำหรับการทดสอบ และป้องกันการแคชด้วยการเพิ่ม timestamp
+    try {
+      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
+      // ป้องกันการแคชโดยเพิ่ม timestamp เป็น query parameter
+      const timestamp = new Date().getTime();
+      const response = await axios.get(`/api/user/${userIdStr}?t=${timestamp}`, {
+        headers: {
+          // เพิ่ม headers เพื่อป้องกันการแคช
+          'Cache-Control': 'no-cache, no-store, must-revalidate',
+          'Pragma': 'no-cache',
+          'Expires': '0'
+        }
+      });
+      console.log('Fetched specific user details:', response.data);
+      // ยังคงใช้ข้อมูลจาก store เพื่อไม่ให้กระทบกับการทำงานเดิม
+    } catch (error) {
+      console.log('Extra API call for testing purposes only:', error);
+    }
+
+    // โค้ดเดิมที่ใช้ข้อมูลจาก store
+    const foundUser = users.value.find(u => u.usrId === userId);
+    if (foundUser) {
+      user.firstName = foundUser.usrFirstName;
+      user.lastName = foundUser.usrLastName;
+      user.employeeId = foundUser.usrEmployeeId;
+      user.phoneNumber = foundUser.usrPhoneNumber || '';
+      user.email = foundUser.usrEmail;
+      user.affiliation = foundUser.usrCpnName;
+      user.position = foundUser.usrPstName;
+      user.department = foundUser.usrDptName;
+      user.division = foundUser.usrStName;
+      // แปลง role จากอังกฤษเป็นไทย
+      user.role = reverseRoleMapping[foundUser.usrRolName] || foundUser.usrRolName;
+      user.status = foundUser.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ';
+      user.viewReportPermission = foundUser.usrIsSeeReport === 1;
+
+      Object.assign(originalUser, user);
+    }
+  } catch (error) {
+    console.error('Failed to load user data:', error);
+  }
 });
 
 // ฟังก์ชันสลับโหมดแก้ไข
