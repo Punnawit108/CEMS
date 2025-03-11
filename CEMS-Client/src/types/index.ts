@@ -2,7 +2,7 @@
 * ชื่อไฟล์: index.ts
 * คำอธิบาย: ไฟล์นี้ประกาศ type ของข้อมูล API ทั้งระบบ
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
-* วันที่จัดทำ/แก้ไข: 21 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 11 มีนาคม 2568
 */
 
 //ตัวแปรคำขอเบิก
@@ -109,7 +109,7 @@ export interface UserInstead {
 export interface ProjectReport {
     pjId: number;
     pjName: string;
-    pjSumAmountExpenses: string;
+    pjSumAmountExpenses: number;
 }
 //ข้อมูลแสดงผลของกราฟ expense
 export interface ExpenseReportGraph {
@@ -124,7 +124,7 @@ export interface ExpenseReportList {
     rqUsrName: string;
     rqPjName: string;
     rqRqtName: string;
-    rqDatePay: Date;
+    rqPayDate: String;
     rqExpenses: number;
     // rqSumExpenses: number;
 }
