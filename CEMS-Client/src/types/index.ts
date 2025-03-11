@@ -124,7 +124,7 @@ export interface ExpenseReportList {
     rqUsrName: string;
     rqPjName: string;
     rqRqtName: string;
-    rqDatePay: Date;
+    rqPayDate: String;
     rqExpenses: number;
     // rqSumExpenses: number;
 }
