@@ -109,7 +109,7 @@ export interface UserInstead {
 export interface ProjectReport {
     pjId: number;
     pjName: string;
-    pjSumAmountExpenses: string;
+    pjSumAmountExpenses: number;
 }
 //ข้อมูลแสดงผลของกราฟ expense
 export interface ExpenseReportGraph {
