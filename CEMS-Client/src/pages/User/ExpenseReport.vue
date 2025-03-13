@@ -15,6 +15,19 @@ import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/Buttons/Button.vue";
 import Decimal from 'decimal.js';
 import { storeToRefs } from 'pinia';
+import Pagination from '../../components/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredExpenses.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredExpenses.value.slice(start, end);
+});
 
 // Import filters
 import UserSearchInput from '../../components/filters/UserSearchInput.vue';
@@ -508,9 +521,9 @@ onMounted(async () => {
                             <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                         </tr>
 
-                        <tr v-else v-for="(expense, index) in filteredExpenses" :key="index"
+                        <tr v-else v-for="(expense, index) in paginated" :key="index"
                             class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
                             <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                                 style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="expense.rqUsrName">
@@ -542,9 +555,9 @@ onMounted(async () => {
                             </th>
                         </tr>
                     </tbody>
+                    <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                    @update:currentPage="(page) => (currentPage = page)" />
                 </table>
-                <!-- Table Footer -->
-                <Ctable :table="'Table7-footer'" />
             </div>
         </div>
         <!-- end::Content -->

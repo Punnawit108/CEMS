@@ -10,55 +10,42 @@ import Ctable from '../../components/Table/CTable.vue';
 import Icon from '../../components/Icon/CIcon.vue';
 import { usePayment } from '../../store/paymentStore';
 import { ref, computed, onMounted } from 'vue';
+import Decimal from 'decimal.js';
+import Pagination from '../../components/Pagination.vue';
+
 const paymentHistory = usePayment();
 const router = useRouter();
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-const table = ref("Table1-footer");
-import Decimal from 'decimal.js';
 const totalPages = computed(() => {
-  return Math.ceil(paymentHistory.expense.length / itemsPerPage.value);
+    return Math.ceil(paymentHistory.expense.length / itemsPerPage.value);
 });
 
 const paginated = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return paymentHistory.expense.slice(start, end);
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return paymentHistory.expense.slice(start, end);
 });
 
 // Calculate remaining rows to fill the table
 const remainingRows = computed(() => {
-  const totalRows = itemsPerPage.value;
-  const rowsOnPage = paginated.value.length;
-  return totalRows - rowsOnPage;
+    const totalRows = itemsPerPage.value;
+    const rowsOnPage = paginated.value.length;
+    return totalRows - rowsOnPage;
 });
 
-
-
-const nextPage = () => {
-  if (currentPage.value < totalPages.value) {
-    currentPage.value++;
-  }
-};
-
-const prevPage = () => {
-  if (currentPage.value > 1) {
-    currentPage.value--;
-  }
-};
-
 const user = ref<any>(null);
-onMounted(async() => {
-    const storedUser = localStorage.getItem("user"); 
+onMounted(async () => {
+    const storedUser = localStorage.getItem("user");
     if (storedUser) {
         try {
-            user.value = await JSON.parse(storedUser); 
+            user.value = await JSON.parse(storedUser);
         } catch (error) {
-            console.log("Error loading user:", error); 
+            console.log("Error loading user:", error);
         }
     }
     if (user) {
-        await paymentHistory.getAllPaymentHistory(user.value.usrId); 
+        await paymentHistory.getAllPaymentHistory(user.value.usrId);
     }
 }
 )
@@ -192,7 +179,8 @@ const toDetails = (id: string) => {
         </div>
 
         <div class="flex justify-end text-[14px] mt-11">
-            <button class=" bg-white text-[#B67D12] border border[#B67D12] w-[95px] h-[32px] mr-[18px] rounded-md">ล้าง</button>
+            <button
+                class=" bg-white text-[#B67D12] border border[#B67D12] w-[95px] h-[32px] mr-[18px] rounded-md">ล้าง</button>
             <button class=" bg-[#B67D12] text-white w-[95px] h-[32px] rounded-md">ค้นหา</button>
         </div>
 
@@ -203,31 +191,27 @@ const toDetails = (id: string) => {
             </div>
             <table class="w-full ">
                 <tbody>
-                    <tr  v-for="(history, index) in paginated"
-                    :key="history.rqId"
-                    class="border-t text-black"
-                    :class="{
-                      'border-b border-gray': index === paginated.length - 1,
+                    <tr v-for="(history, index) in paginated" :key="history.rqId" class="border-t text-black" :class="{
+                        'border-b border-gray': index === paginated.length - 1,
                     }">
                         <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            >
-                            {{history.rqUsrName}}
+                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                            {{ history.rqUsrName }}
                         </th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            >
-                            {{history.rqName}}
+                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                            {{ history.rqName }}
                         </th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                             {{ history.rqPjName }}
                         </th>
-                        <th class="py-[12px] px-5 w-32 text-start ">{{history.rqRqtName}}</th>
-                        <th class="py-[12px] px-2 w-24 text-end ">{{history.rqWithdrawDate}}</th>
-                        <th class="py-[12px] px-2 w-32 text-center ">{{ new Decimal(history.rqExpenses ?? 0).toFixed(2)}}</th>
+                        <th class="py-[12px] px-5 w-32 text-start ">{{ history.rqRqtName }}</th>
+                        <th class="py-[12px] px-2 w-24 text-end ">{{ history.rqWithdrawDate }}</th>
+                        <th class="py-[12px] px-2 w-32 text-center ">{{ new Decimal(history.rqExpenses ??
+                            0).toFixed(2)}}</th>
                         <th class="py-[10px] px-2 w-[90px] text-center ">
                             <span class="flex justify-center" @click="() => toDetails(history.rqId.toString())">
                                 <Icon :icon="'viewDetails'" />
@@ -235,93 +219,24 @@ const toDetails = (id: string) => {
                         </th>
                     </tr>
                     <!-- Show empty rows if there are less than 15 items -->
-          <tr v-if="paginated.length < itemsPerPage">
-            <td v-for="index in 7" :key="'empty' + index" class="px-4 py-2">
-              &nbsp;
-              <!-- Empty cell for spacing -->
-            </td>
-          </tr>
-          <!-- Fill remaining rows with empty cells for consistent row height -->
-          <tr v-for="index in remainingRows" :key="'empty-row' + index">
-            <td v-for="i in 7" :key="'empty-cell' + i" class="px-4 py-2">
-              &nbsp;
-              <!-- Empty cell for spacing -->
-            </td>
-          </tr>
+                    <tr v-if="paginated.length < itemsPerPage">
+                        <td v-for="index in 7" :key="'empty' + index" class="px-4 py-2">
+                            &nbsp;
+                            <!-- Empty cell for spacing -->
+                        </td>
+                    </tr>
+                    <!-- Fill remaining rows with empty cells for consistent row height -->
+                    <tr v-for="index in remainingRows" :key="'empty-row' + index">
+                        <td v-for="i in 7" :key="'empty-cell' + i" class="px-4 py-2">
+                            &nbsp;
+                            <!-- Empty cell for spacing -->
+                        </td>
+                    </tr>
                 </tbody>
-                <!-- Table2-footer -->
-        <tfoot class="border-t" v-if="table === 'Table1-footer'">
-            <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-              <th></th>
-  
-              <th class="py-[12px] text-end">
-                {{ currentPage }} of {{ totalPages }}
-              </th>
-              <th class="py-[12px] flex justify-evenly text-[14px] font-bold">
-                <span class="ml-6 text-[#A0A0A0]">
-                  <button
-                    @click="prevPage"
-                    :disabled="currentPage === 1"
-                    class="px-3 py-1 rounded"
-                  >
-                    <span class="text-sm">&lt;</span>
-                  </button>
-                </span>
-                <span class="mr-6">
-                  <button
-                    @click="nextPage"
-                    :disabled="currentPage === totalPages"
-                    class="px-3 py-1 rounded"
-                  >
-                    <span class="text-sm">&gt;</span>
-                  </button>
-                </span>
-              </th>
-            </tr>
-          </tfoot>
+                <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                    @update:currentPage="(page) => (currentPage = page)" />
             </table>
         </div>
     </div>
     <!-- content -->
 </template>
-<style scoped>
-.custom-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: none;
-}
-
-.custom-select::-ms-expand {
-    display: none;
-}
-
-select,
-select option {
-    background-color: white;
-    color: #000000;
-}
-
-select:invalid,
-select option[value=""] {
-    color: #999999;
-}
-
-[hidden] {
-    display: none;
-}
-
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .custom-select {
-        background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position-x: 100%;
-        background-position-y: 5px;
-    }
-}
-</style>

@@ -15,6 +15,19 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { Expense } from '../../types';
 import Decimal from 'decimal.js';
 import { storeToRefs } from 'pinia';
+import Pagination from '../../components/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredApprovals.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredApprovals.value.slice(start, end);
+});
 
 // Import filters
 import UserSearchInput from '../../components/filters/UserSearchInput.vue';
@@ -378,9 +391,9 @@ const toDetails = async (data: Expense) => {
                         <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                     </tr>
 
-                    <tr v-else v-for="(item, index) in filteredApprovals" :key="item.rqId" 
+                    <tr v-else v-for="(item, index) in paginated" :key="item.rqId" 
                         class="border-b hover:bg-gray-50">
-                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
                         <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="item.usrName">
@@ -404,8 +417,9 @@ const toDetails = async (data: Expense) => {
                         </th>
                     </tr>
                 </tbody>
+                <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                @update:currentPage="(page) => (currentPage = page)" />
             </table>
-            <Ctable :table="'Table8-footer'" />
         </div>
     </div>
 </template>

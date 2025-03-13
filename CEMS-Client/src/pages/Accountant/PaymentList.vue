@@ -9,11 +9,28 @@ import { useRouter } from 'vue-router';
 import Icon from '../../components/Icon/CIcon.vue';
 import Ctable from '../../components/Table/CTable.vue';
 import { usePayment } from '../../store/paymentStore';
-import { onMounted } from 'vue';
-const paymentlist = usePayment();
-const router = useRouter();
+import { ref, computed, onMounted } from 'vue';
+import Pagination from '../../components/Pagination.vue';
 import Decimal from 'decimal.js';
-onMounted(()=>{
+const paymentlist = usePayment();
+
+const router = useRouter();
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+    return Math.ceil(paymentlist.expense.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return paymentlist.expense.slice(start, end);
+});
+
+
+
+
+onMounted(() => {
     paymentlist.getAllPaymentList()
 })
 
@@ -146,7 +163,8 @@ const toDetails = (id: string) => {
         </div>
 
         <div class="flex justify-end text-[14px] mt-11">
-            <button class=" bg-white text-[#B67D12] border border[#B67D12] w-[95px] h-[32px] mr-[18px] rounded-md">ล้าง</button>
+            <button
+                class=" bg-white text-[#B67D12] border border[#B67D12] w-[95px] h-[32px] mr-[18px] rounded-md">ล้าง</button>
             <button class=" bg-[#B67D12] text-white w-[95px] h-[32px] rounded-md">ค้นหา</button>
         </div>
         <!-- Table -->
@@ -158,25 +176,27 @@ const toDetails = (id: string) => {
             <div>
                 <table class="w-full ">
                     <tbody>
-                        <tr v-for="(paymentlist, index) in paymentlist.expense" :key="paymentlist.rqId"
-                         class=" text-[14px] text-black border-b-2 border-[#BBBBBB] ">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1}}</th>
+                        <tr v-for="(paymentlist, index) in paginated" :key="paymentlist.rqId"
+                            class="border-t text-black" :class="{
+                                'border-b border-gray': index === paginated.length - 1,
+                            }">
+                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
                             <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                                 style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                                {{paymentlist.rqUsrName}}
+                                {{ paymentlist.rqUsrName }}
                             </th>
                             <th class="py-[12px] px-3 w-48 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            >
-                            {{paymentlist.rqName}}
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                {{ paymentlist.rqName }}
                             </th>
                             <th class="py-[12px] px-6 w-56 text-start truncate overflow-hidden"
                                 style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                                {{paymentlist.rqPjName}}
+                                {{ paymentlist.rqPjName }}
                             </th>
-                            <th class="py-[12px] w-32 text-start ">{{paymentlist.rqRqtName}}</th>
+                            <th class="py-[12px] w-32 text-start ">{{ paymentlist.rqRqtName }}</th>
                             <th class="py-[12px] px-2 w-24 text-end ">{{ paymentlist.rqWithdrawDate }}</th>
-                            <th class="py-[12px] pl-8 w-32 text-center ">{{new Decimal(paymentlist.rqExpenses ?? 0).toFixed(2) }}</th>
+                            <th class="py-[12px] pl-8 w-32 text-center ">{{ new Decimal(paymentlist.rqExpenses ??
+                                0).toFixed(2) }}</th>
                             <th class="py-[10px] px-2 w-28 text-center ">
                                 <span class="flex justify-center" v-on:click="toDetails(paymentlist.rqId)">
                                     <Icon :icon="'viewDetails'" />
@@ -184,49 +204,11 @@ const toDetails = (id: string) => {
                             </th>
                         </tr>
                     </tbody>
+                    <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                        @update:currentPage="(page) => (currentPage = page)" />
                 </table>
-            </div>
-            <div>
-                <Ctable :table="'Table7-footer'" />
             </div>
         </div>
     </div>
     <!-- content -->
 </template>
-<style scoped>
-.custom-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: none;
-}
-
-.custom-select::-ms-expand {
-    display: none;
-}
-
-select,
-select option {
-    background-color: white;
-    color: #000000;
-}
-
-select:invalid,
-select option[value=""] {
-    color: #999999;
-}
-
-[hidden] {
-    display: none;
-}
-
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .custom-select {
-        background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position-x: 100%;
-        background-position-y: 5px;
-    }
-}
-</style>
