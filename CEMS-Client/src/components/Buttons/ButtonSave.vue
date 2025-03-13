@@ -2,7 +2,7 @@
 <template>
       <button
     id="btn-บันทึก"
-    class="btn-บันทึก bg-grayNormal text-white rounded-[6px] h-[35px] px-6 flex items-center justify-center text-[14px] font-thin"
+    class="btn-บันทึก bg-grayNormal text-black rounded-[6px] h-[40px] p-4 flex items-center justify-center text-[14px] font-thin"
     type="button"
     @click="$emit('click')"
   >

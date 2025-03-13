@@ -1,142 +1,110 @@
+# UserSetting.vue
 <script setup lang="ts">
 /**
 * ชื่อไฟล์: UserSetting.vue
 * คำอธิบาย: ไฟล์นี้แสดงหน้าจอจัดการผู้ใช้ ซึ่งแสดงตารางผู้ใช้ภายในระบบ พร้อมฟังก์ชั่นค้นหาและกรองข้อมูล
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 4 มีนาคม 2568
+* วันที่จัดทำ/แก้ไข: 11 มกราคม 2568
 */
 
-import Icon from '../../components/Icon/CIcon.vue'
-import { useRouter } from 'vue-router'
-import { ref, onMounted, computed, watch } from 'vue'
-import Pagination from '../../components/Pagination.vue'
-import { useUserStore } from '../../store/user'
-import { storeToRefs } from 'pinia'
-import type { User } from '../../types'
+import Icon from '../../components/Icon/CIcon.vue';
+import { useRouter } from 'vue-router';
+import { ref, onMounted, computed, watch } from 'vue';
+import Pagination from '../../components/Pagination.vue';
+import { useUserStore } from '../../store/user';
+import { storeToRefs } from 'pinia';
+import Filter from '../../components/Filter.vue';
+import { useProjectStore } from '../../store/project';
+import { useRequisitionTypeStore } from '../../store/requisitionType';
+import type { User } from '../../types';
 
-// Import filters
-import UserSearchInput from '../../components/filters/UserSearchInput.vue'
-import DepartmentFilter from '../../components/filters/DepartmentFilter.vue'
-import DivisionFilter from '../../components/filters/DivisionFilter.vue'
-import RoleFilter from '../../components/filters/RoleFilter.vue'
-import FilterButtons from '../../components/filters/FilterButtons.vue'
-
-const router = useRouter()
-const store = useUserStore()
-const { users } = storeToRefs(store)
-const loading = ref(false)
+const projectStore = useProjectStore();
+const requisitionTypeStore = useRequisitionTypeStore();
+const router = useRouter();
+const store = useUserStore();
+const { users } = storeToRefs(store);
+const loading = ref(false);
 
 // Pagination state
-const currentPage = ref(1)  
-const itemsPerPage = ref(10)
-const paginatedUsers = ref<User[]>([])
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const paginatedUsers = ref<User[]>([]);
 
 // Filters
 const filters = ref({
   searchTerm: '',
+  searchRqName: '',
   department: '',
   division: '',
+  status: '',
   role: '',
-})
-
-// Last searched filters
-const lastSearchedFilters = ref({
-  searchTerm: '',
-  department: '',
-  division: '',
-  role: '',
-})
+  projectId: '',
+  selectedRequisitionTypeId: ''
+});
 
 // Reset pagination when filters change
-watch(lastSearchedFilters, () => {
-  currentPage.value = 1
-})
+watch(filters, () => {
+  currentPage.value = 1;
+});
 
 // Filtered users computation
 const filteredUsers = computed(() => {
-  if (!users.value) return []
+  if (!users.value) return [];
 
   return users.value.filter(user => {
-    const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
-      user.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
-      user.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
-      user.usrEmployeeId.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase())
+    const matchesSearch = filters.value.searchTerm === '' ||
+      user.usrFirstName.toLowerCase().includes(filters.value.searchTerm.toLowerCase()) ||
+      user.usrLastName.toLowerCase().includes(filters.value.searchTerm.toLowerCase()) ||
+      user.usrEmployeeId.toLowerCase().includes(filters.value.searchTerm.toLowerCase());
 
-    const matchesDepartment = lastSearchedFilters.value.department === '' ||
-      user.usrDptName === lastSearchedFilters.value.department
+    const matchesDepartment = filters.value.department === '' ||
+      user.usrDptName === filters.value.department;
 
-    const matchesDivision = lastSearchedFilters.value.division === '' ||
-      user.usrStName === lastSearchedFilters.value.division
+    const matchesDivision = filters.value.division === '' ||
+      user.usrStName === filters.value.division;
 
-    const matchesRole = lastSearchedFilters.value.role === '' ||
-      user.usrRolName === lastSearchedFilters.value.role
+    const matchesStatus = filters.value.status === '' ||
+      (filters.value.status === 'active' && user.usrIsActive) ||
+      (filters.value.status === 'inactive' && !user.usrIsActive);
 
-    return matchesSearch && matchesDepartment && matchesDivision && matchesRole
-  }).sort((a, b) => a.usrEmployeeId.localeCompare(b.usrEmployeeId))
-})
+    const matchesRole = filters.value.role === '' ||
+      user.usrRolName === filters.value.role;
 
-// Navigation
+    return matchesSearch && matchesDepartment && matchesDivision && matchesStatus && matchesRole;
+  }).sort((a, b) => a.usrEmployeeId.localeCompare(b.usrEmployeeId));
+});
+
 const navigateToDetail = (userId: string) => {
-  router.push(`/systemSettings/user/detail/${userId}`)
-}
+  router.push(`/systemSettings/user/detail/${userId}`);
+};
 
-// Filter handlers
-const handleSearch = () => {
-  lastSearchedFilters.value = {
-    searchTerm: filters.value.searchTerm,
-    department: filters.value.department,
-    division: filters.value.division,
-    role: filters.value.role,
-  }
-}
-
-const handleReset = () => {
-  // Reset current filters
-  filters.value = {
-    searchTerm: '',
-    department: '',
-    division: '',
-    role: '',
-  }
-  
-  // Reset last searched filters
-  lastSearchedFilters.value = {
-    searchTerm: '',
-    department: '',
-    division: '',
-    role: '',
-  }
-}
-
-// Lifecycle hooks
 onMounted(async () => {
-  loading.value = true
+  loading.value = true;
   try {
     await Promise.all([
-      store.getAllUsers()
-    ])
+      store.getAllUsers(),
+      projectStore.getAllProjects(),
+    ]);
   } catch (error) {
-    console.error('Error in mounted:', error)
+    console.error('Error in mounted:', error);
   } finally {
-    loading.value = false
+    loading.value = false;
   }
-})
+});
 </script>
 
 <template>
   <div class="flex flex-col text-center">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-12 w-full">
-      <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
+    <Filter :loading="loading" :users="users" :projects="projectStore.projects"
+      :requisitionTypes="requisitionTypeStore.requisitionTypes" v-model:searchTerm="filters.searchTerm"
+      v-model:searchRqName="filters.searchRqName" v-model:selectedDepartment="filters.department"
+      v-model:selectedDivision="filters.division" v-model:selectedRole="filters.role"
+      v-model:selectedProjectId="filters.projectId"
+      v-model:selectedRequisitionTypeId="filters.selectedRequisitionTypeId" :showRqNameFilter="false"
+      :showSearchFilter="true" :showDepartmentFilter="true" :showDivisionFilter="true" :showRoleFilter="true"
+      :showProjectFilter="false" :showRequisitionTypeFilter="false" :showDateFilter="false" />
 
-      <DepartmentFilter v-model="filters.department" :users="users" :loading="loading" />
-
-      <DivisionFilter v-model="filters.division" :users="users" :loading="loading" />
-
-      <RoleFilter v-model="filters.role" :users="users" :loading="loading" />
-
-      <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
-    </div>
-    <div class="w-full h-fit border-[2px] flex flex-col items-start">
+      <div class="w-full h-fit border-[2px] flex flex-col items-start">
       <table class="table-auto w-full text-center text-black">
         <thead class="bg-[#F2F4F8]">
           <tr class="text-[16px] border-b-2 border-[#BBBBBB]">
@@ -174,20 +142,14 @@ onMounted(async () => {
             <th class="py-[12px] px-2 w-12 h-[46px]">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
             <th class="py-[12px] px-2 w-24">{{ user.usrEmployeeId }}</th>
             <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
-              style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-              :title="`${user.usrFirstName} ${user.usrLastName}`">
+                style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                :title="`${user.usrFirstName} ${user.usrLastName}`">
               {{ user.usrFirstName }} {{ user.usrLastName }}
             </th>
             <th class="py-[12px] px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
             <th class="py-[12px] px-2 w-24 text-start">{{ user.usrStName }}</th>
             <th class="py-[12px] px-2 w-20 text-start">{{ user.usrRolName }}</th>
-            <th class="py-[12px] px-2 w-24 text-start">
-              <span :class="user.usrIsActive
-                ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal' 
-                : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
-                {{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}
-              </span>
-            </th>
+            <th class="py-[12px] px-2 w-24 text-start">{{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}</th>
             <th class="w-24">
               <span class="flex justify-center">
                 <input type="checkbox" :checked="user.usrIsSeeReport === 1" disabled

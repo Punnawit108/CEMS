@@ -182,21 +182,19 @@ onMounted(async () => {
               </div>
             </form>
           </div>
-
-          <div class="flex space-x-4 my-5 justify-end">
-
-            <Button :type="'btn-editProject'" @click="openPopupEdit" class="my-5 px-5">แก้ไขลำดับ</Button>
+          <div>
             <button
-              class=" bg-[#B6B7BA] text-white rounded-[6px] h-[40px] px-8 flex items-center text-[14px] font-thin mt-5"
+              class=" bg-yellow text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center"
               @click="lockSystem">
               {{ lockStore.isLocked ? 'เปิดรับคำขอ' : 'ปิดรับคำขอ' }}
             </button>
-            <button @click="openPopupAdd"
-              class="my-5 bg-green text-white rounded-[6px] h-[40px] px-8 flex items-center text-[14px] font-thin justify-center">เพิ่มผู้มีสิทธิ์อนุมัติ</button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
-
+        <div class="flex space-x-4 my-5 justify-end">
+          <Button :type="'btn-editProject'" @click="openPopupEdit" class="my-5">แก้ไขลำดับ</Button>
+          <button @click="openPopupAdd" class="my-5 bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center">ผู้มีสิทธิ์อนุมัติ</button>
+        </div>
       </div>
     </div>
 
@@ -206,19 +204,22 @@ onMounted(async () => {
       <!-- แถบหัวข้อ -->
       <div class="h-[50px] flex items-center justify-between text-[14px] text-black font-bold">
         <p class="w-20 text-center">ลำดับ</p>
-        <p class="w-36 text-center">รหัสพนักงาน</p>
         <p class="w-4/5 pl-2">ชื่อ-นามสกุล</p>
         <p class="w-56 text-end pr-2">จัดการ</p>
       </div>
       <!-- แถบเนื้อหา -->
       <div v-for="(approver, index) in approvalStore.approvers" :key="approver.usrId"
         class="h-[50px] flex items-center justify-between text-[14px] text-black border-b border-[#BBBBBB]">
-        <p class="w-20 text-center">{{index + 1 }}</p>
-        <p class="w-36 text-center">{{  "6516000" + index + 1 }}</p>
+        <p class="w-20 pl-6">{{ index + 1 }}</p>
         <p class="w-4/5 pl-2">{{ approver.usrFirstName }} {{ approver.usrLastName }}</p>
         <div class="ml-5 w-52 text-center flex items-center justify-between">
           <div class="">
-            
+            <select disabled
+              class="appearance-none w-full h-[32px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-1 text-[14px]">
+              <option>
+                {{ approver.apSequence }}
+              </option>
+            </select>
           </div>
 
           <Icon :icon="'bin'" @click="openPopupDelete(approver.apId)" class="mx-3" />

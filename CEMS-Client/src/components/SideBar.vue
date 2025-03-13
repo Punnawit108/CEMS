@@ -11,6 +11,7 @@ import { useNotificationStore } from "../store/notification";
 
 const notificationStore = useNotificationStore();
 
+let role = ref("User");
 const userInfo = ref<any>(null);
 
 console.log(notificationStore.unreadCount);

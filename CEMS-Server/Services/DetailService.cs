@@ -13,7 +13,6 @@ public class DetailService
     public DetailService(CemsContext context)
     {
         _context = context;
-        QuestPDF.Settings.EnableDebugging = true;
     }
 
     private string GetVehicleTypeDescription(string? vehicleType)
@@ -33,66 +32,66 @@ public class DetailService
     }
 
     public static class ThaiNumberConverter
-    {
-        private static readonly string[] Units = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
-        private static readonly string[] Digits = { "", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
+{
+    private static readonly string[] Units = { "", "สิบ", "ร้อย", "พัน", "หมื่น", "แสน", "ล้าน" };
+    private static readonly string[] Digits = { "", "หนึ่ง", "สอง", "สาม", "สี่", "ห้า", "หก", "เจ็ด", "แปด", "เก้า" };
 
-        public static string ToText(long number)
+    public static string ToText(long number)
+    {
+        if (number == 0)
         {
-            if (number == 0)
+            return "ศูนย์";
+        }
+
+        string result = "";
+        int unitIndex = 0;
+        bool isMillion = false;
+
+        while (number > 0)
+        {
+            int digit = (int)(number % 10);
+
+            if (unitIndex == 6 && !isMillion) // ตำแหน่งหลักล้าน
             {
-                return "ศูนย์";
+                result = "ล้าน" + result;
+                isMillion = true;
+                unitIndex = 0;
             }
 
-            string result = "";
-            int unitIndex = 0;
-            bool isMillion = false;
-
-            while (number > 0)
+            if (digit > 0)
             {
-                int digit = (int)(number % 10);
-
-                if (unitIndex == 6 && !isMillion) // ตำแหน่งหลักล้าน
+                if (unitIndex == 1) // หลักสิบ
                 {
-                    result = "ล้าน" + result;
-                    isMillion = true;
-                    unitIndex = 0;
-                }
-
-                if (digit > 0)
-                {
-                    if (unitIndex == 1) // หลักสิบ
+                    if (digit == 1)
                     {
-                        if (digit == 1)
-                        {
-                            result = "สิบ" + result;
-                        }
-                        else if (digit == 2)
-                        {
-                            result = "ยี่สิบ" + result;
-                        }
-                        else
-                        {
-                            result = Digits[digit] + "สิบ" + result;
-                        }
+                        result = "สิบ" + result;
                     }
-                    else if (unitIndex == 0 && digit == 1 && number >= 10) // เลขหนึ่งหลักหน่วยที่ต่อท้ายหลังสิบ
+                    else if (digit == 2)
                     {
-                        result = "เอ็ด" + result;
+                        result = "ยี่สิบ" + result;
                     }
                     else
                     {
-                        result = Digits[digit] + Units[unitIndex] + result;
+                        result = Digits[digit] + "สิบ" + result;
                     }
                 }
-
-                number /= 10;
-                unitIndex++;
+                else if (unitIndex == 0 && digit == 1 && number >= 10) // เลขหนึ่งหลักหน่วยที่ต่อท้ายหลังสิบ
+                {
+                    result = "เอ็ด" + result;
+                }
+                else
+                {
+                    result = Digits[digit] + Units[unitIndex] + result;
+                }
             }
 
-            return result;
+            number /= 10;
+            unitIndex++;
         }
+
+        return result;
     }
+}
 
     public byte[] GenerateDetail(string? expenseId)
     {
@@ -123,60 +122,40 @@ public class DetailService
                            e.RqPurpose
                        }).FirstOrDefault();
 
-
-        var approverCounts = _context.CemsApproverRequisitions
-     .Where(a => a.AprRqId == expenseId) // เฉพาะที่ตรงกับ expenseId
-     .GroupBy(a => new { a.AprId, a.AprName, a.AprStatus }) // กลุ่มตาม AprId, AprName, AprStatus
-     .Select(g => new
-     {
-         AprId = g.Key.AprId,
-         AprName = g.Key.AprName, // รวม AprName
-         AprStatus = g.Key.AprStatus, // รวม AprStatus
-         Count = g.Count() // นับจำนวน occurrences ในแต่ละกลุ่ม
-     })
-     .ToList();
-
-
-
-
-
-
-        int totalApproverCount = approverCounts.Sum(ac => ac.Count);
-
+        var approvers = _context.CemsApproverRequisitions
+            .Where(a => a.AprRqId == expenseId && a.AprStatus == "accept")
+            .OrderBy(a => a.AprId)
+            .Take(3)
+            .ToList();
 
         if (expense == null)
         {
             return Array.Empty<byte>();
         }
 
-        string watermarkText = "อนุมัติ"; // กำหนดค่าเริ่มต้นเป็น accept
+        string watermarkText = "อนุมัติ"; // Default to "อนุมัติ"
+        var approverStatus = _context.CemsApproverRequisitions
+            .Where(a => a.AprRqId == expenseId)
+            .FirstOrDefault();
 
-        // ตรวจสอบผ่านทุกๆ สถานะใน approverCounts
-        for (int i = 0; i < approverCounts.Count; i++)
+        if (approverStatus != null)
         {
-            var approver = approverCounts[i];
-
-            // หากพบค่าสถานะเป็น "-" หรือเป็น null จะนับเป็น reject
-            if (string.IsNullOrEmpty(approver.AprStatus) || approver.AprStatus == "-")
+            switch (approverStatus.AprStatus)
             {
-                watermarkText = "ไม่อนุมัติ";
-                break;
-            }
-
-            // ตรวจสอบสถานะสุดท้าย ถ้าเป็น reject ให้เป็น "ไม่อนุมัติ"
-            if (approver.AprStatus == "reject")
-            {
-                watermarkText = "ไม่อนุมัติ";
-                break;
+                case "waiting":
+                    watermarkText = "รออนุมัติ";
+                    break;
+                case "edit":
+                    watermarkText = "ฉบับร่าง";
+                    break;
+                case "reject":
+                    watermarkText = "ส่งกลับ";
+                    break;
+                case "accept":
+                    watermarkText = "อนุมัติ";
+                    break;
             }
         }
-
-        // ตรวจสอบกรณีทั้งหมดเป็น "accept" ยกเว้นอันสุดท้าย
-        if (watermarkText == "accept" && approverCounts.Last().AprStatus == "reject")
-        {
-            watermarkText = "ไม่อนุมัติ";
-        }
-
 
         var fontPath = "Fonts/THSarabunNew.ttf";
         using (var fontStream = new FileStream(fontPath, FileMode.Open, FileAccess.Read))
@@ -194,108 +173,101 @@ public class DetailService
                 page.Content().Column(column =>
                 {
                     // Header Section (Right-aligned)
+                    column.Item().AlignRight().Text($"รหัสรายการเบิก: {expense.RqCode ?? "-"}").Bold().FontFamily(font);
+                    column.Item().AlignRight().Text($"วันที่เบิก: {(expense.RqWithdrawDate != null ? expense.RqWithdrawDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font);
+                    column.Item().AlignRight().Text($"วันที่เกิดค่าใช้จ่าย: {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font);
+
+                    // เพิ่มการเว้นบรรทัด
+                    column.Item(); // นี้จะสร้างบรรทัดใหม่
+
+                    // ข้อความถัดไป
+                    column.Item().Element(CellStyleHead).AlignCenter().Text("ใบเบิกค่าใช้จ่าย").Bold().FontSize(14).FontFamily(font);
 
 
-
-                    column.Item().PaddingBottom(10).Row(row =>
-{
-
-
-
-    row.RelativeItem();
-    row.ConstantItem(200).AlignCenter().Text("ใบเบิกค่าใช้จ่าย")
-        .Bold().FontSize(22).FontFamily(font);
-
-    row.RelativeItem().AlignRight().PaddingRight(50)
-        .Text($"วันที่เกิดค่าใช้จ่าย: {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}")
-        .FontFamily(font).FontSize(14);
-
-});
-                    column.Item().AlignRight().PaddingLeft(150).PaddingBottom(10).PaddingRight(82).Text($"วันที่เบิก: {(expense.RqWithdrawDate != null ? expense.RqWithdrawDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font).FontSize(14);
-
-                    column.Item().PaddingBottom(10).Row(row =>
+                    // User Info Table
+                    column.Item().Table(table =>
                     {
-                        // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"รหัสรายการเบิก     {expense.RqCode ?? "-"}").FontFamily(font).FontSize(14);
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
 
-                        // ชื่อผู้เบิกแทน
-                        row.RelativeItem().PaddingLeft(80).Text($"วันที่อนุมัติ              {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font).FontSize(14);
-                    });
-                    column.Item();
+                        table.Cell().Element(CellStyleOne).Text($"ชื่อผู้เบิก : {expense.RqUsrName ?? "-"}").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($"ชื่อผู้เบิกแทน : {"-"}").FontFamily(font);
 
-                    column.Item().PaddingBottom(10).Row(row =>
-                    {
-                        // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"ชื่อรายการเบิก       {expense.RqPurpose ?? "-"}").FontFamily(font).FontSize(14);
-
-                        // ชื่อผู้เบิกแทน
-                        row.RelativeItem().PaddingLeft(82).Text($"โครงการ                {expense.RqPjName ?? "-"}").FontFamily(font).FontSize(14);
+                        table.Cell().ColumnSpan(2).Element(CellStyleOne).Text($"วัตถุประสงค์การเบิกค่าใช้จ่าย : {expense.RqPurpose ?? "-"}").FontFamily(font);
                     });
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้ขอเบิก               {expense.RqUsrName ?? "-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้เบิกแทน              {"-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ประเภทค่าใช้จ่าย    {expense.RqRqtName ?? "-"}").FontFamily(font).FontSize(14);
-
-                    column.Item().PaddingBottom(10).Row(row =>
+                    // Expense Details Table
+                    column.Item().Table(table =>
                     {
-                        // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"ประการเดินทาง      {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font).FontSize(14);
+                        table.ColumnsDefinition(columns =>
+                        {
+                            columns.RelativeColumn();
+                            columns.RelativeColumn();
+                        });
 
-                        // ชื่อผู้เบิกแทน
-                        row.RelativeItem().PaddingLeft(80).Text($"ประเภทรถส่วนตัว     {expense.RqVhName ?? "-"}").FontFamily(font).FontSize(14);
+                        table.Cell().Element(CellStyleOne).Text($"โครงการ : {expense.RqPjName ?? "-"}").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($"ประเภทค่าใช้จ่าย : {expense.RqRqtName ?? "-"}").FontFamily(font);
+
+                        table.Cell().Element(CellStyleOne).Text($"ประเภทการเดินทาง : {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($"ประเภทรถ : {expense.RqVhName ?? "-"}").FontFamily(font);
+
+                        table.Cell().Element(CellStyleOne).Text($"สถานที่เริ่มต้น : {expense.RqStartLocation ?? "-"}").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($"สถานที่สิ้นสุด : {expense.RqEndLocation ?? "-"}").FontFamily(font);
+
+                        table.Cell().Element(CellStyleOne).Text($"ระยะทาง (กม.) : {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($"อัตราค่าเดินทาง (บาท) : {expense.RqVhPayrate ?? 0}").FontFamily(font);
+                        
+                        table.Cell().Element(CellStyle).Text($"{ThaiNumberConverter.ToText((long)expense.RqExpenses)}บาทถ้วน").FontFamily(font);
+                        table.Cell().Element(CellStyleOne).Text($" จำนวนเงิน (บาท) : {expense.RqExpenses.ToString("")}").FontFamily(font);
+
                     });
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"สถานที่เริ่มต้น        {expense.RqStartLocation ?? "-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"สถานที่สิ้นสุด         {expense.RqEndLocation ?? "-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ระยะทาง (กม.)       {(int.TryParse(expense.RqDistance, out var distance) ? distance : 0)}").FontFamily(font).FontSize(14);
-
-                    column.Item().PaddingBottom(10).Row(row =>
+                    // Additional Rows for Approval
+                    column.Item().Table(table =>
                     {
-                        // ชื่อผู้เบิก
-                        row.RelativeItem().PaddingLeft(80).Text($"อัตราค่าเดินทาง      {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font).FontSize(14);
+                        table.ColumnsDefinition(columns =>
+                        {
+                            for (int i = 0; i < 5; i++)
+                            {
+                                columns.RelativeColumn();
+                            }
+                        });
 
-                        // ชื่อผู้เบิกแทน
-                        row.RelativeItem().PaddingLeft(83).Text($"จำนวนเงิน (บาท)      {expense.RqExpenses.ToString("")}").FontFamily(font).FontSize(14);
+                        table.Cell().Element(CellStyle).Text("ผู้ขอเบิก").FontFamily(font);
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติ").FontFamily(font);
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติ").FontFamily(font);
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติ").FontFamily(font);
+                        table.Cell().Element(CellStyle).Text("ผู้อนุมัติเบิกจ่าย").FontFamily(font);
+
+                        table.Cell().Element(CellStyle).Text(expense.RqUsrName ?? "-").FontFamily(font);
+                        for (int i = 0; i < approvers.Count; i++)
+                        {
+                            table.Cell().Element(CellStyle).Text(approvers[i].AprName ?? "-").FontFamily(font);
+                        }
+                        for (int i = approvers.Count; i < 4; i++)
+                        {
+                            table.Cell().Element(CellStyle).Text("-").FontFamily(font);
+                        }
+
+                        table.Cell().Element(CellStyle).Text(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-").FontFamily(font);
+                        for (int i = 0; i < approvers.Count; i++)
+                        {
+                            table.Cell().Element(CellStyle).Text(approvers[i].AprDate?.ToString("dd/MM/yyyy") ?? "-").FontFamily(font);
+                        }
+                        for (int i = approvers.Count; i < 4; i++)
+                        {
+                            table.Cell().Element(CellStyle).Text("-").FontFamily(font);
+                        }
                     });
 
-                    column.Item().PaddingLeft(80).PaddingBottom(30).Text($"รายละเอียด           {expense.RqPurpose ?? "-"}").FontFamily(font).FontSize(14);
-                    column.Item().AlignCenter().Table(table =>
-{
-    // กำหนดคอลัมน์
-    table.ColumnsDefinition(columns =>
-    {
-        columns.ConstantColumn(100); // คอลัมน์ลำดับผู้อนุมัติ
-        columns.ConstantColumn(220); // คอลัมน์ชื่อ-นามสกุล
-        columns.ConstantColumn(100); // คอลัมน์สถานะ
-    });
-
-    // สร้างแถวหัวข้อ
-    table.Cell().Element(CellStyle).Text("ลำดับผู้อนุมัติ");
-    table.Cell().Element(CellStyle).Text("ชื่อ-นามสกุล");
-    table.Cell().Element(CellStyle).Text("สถานะ");
-
-    // แสดงข้อมูลรายการอนุมัติ
-    for (int i = 0; i < approverCounts.Count; i++)
-    {
-        var approver = approverCounts[i];
-        table.Cell().Element(CellStyle).AlignCenter().Text((i + 1).ToString()); // ลำดับผู้อนุมัติ
-        table.Cell().Element(CellStyle).Text(approver.AprName?.Substring(0, Math.Min(approver.AprName.Length, 100)) ?? "-");
-
-        // แปลงสถานะจาก "accept" เป็น "อนุมัติ" และ "reject" เป็น "ไม่อนุมัติ"
-        string statusText = approver.AprStatus switch
-        {
-            "accept" => "อนุมัติ",
-            "reject" => "ไม่อนุมัติ",
-            _ => approver.AprStatus ?? "-"
-        };
-
-        table.Cell().Element(CellStyle).AlignCenter().Text(statusText);
-    }
-});
+                    column.Item().LineHorizontal(1);
                 });
 
                 page.Background().Element(container =>
@@ -303,14 +275,14 @@ public class DetailService
                     container.AlignCenter().AlignMiddle().Element(element =>
                     {
                         element.Rotate(-45).Text(watermarkText)
-                            .FontSize(170)
-                            .FontColor("#f5eeed")
+                            .FontSize(100)
+                            .FontColor("#b5baba ")
                             .AlignCenter()
                             .FontFamily(font); // ใช้ฟอนต์ที่โหลด
                     });
                 });
 
-
+                page.Footer().AlignCenter().Text($"วันที่พิมพ์: {DateTime.Now:dd/MM/yyyy}").FontFamily(font);
             });
         });
 

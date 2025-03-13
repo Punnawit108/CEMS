@@ -12,7 +12,7 @@ const routes = useRouter();
 </script>
 <template>
     <button id="btn-logout"
-        class="btn-logout text-Content-Regular bg-redNormal text-white rounded-[6px] h-[35px] px-6 flex items-center justify-center font-thin"
+        class="btn-logout text-Content-Regular bg-redNormal text-white rounded-[6px] h-[40px] p-4 flex items-center justify-center font-thin"
         @click="handleLogout">
         <slot>ออกจากระบบ</slot>
     </button>

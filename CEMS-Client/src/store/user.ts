@@ -2,7 +2,7 @@
 * ชื่อไฟล์: user.ts
 * คำอธิบาย: ไฟล์ store API ของข้อมูลของผู้ใช้
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 4 มีนาคม 2568
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
 import { defineStore } from 'pinia';
@@ -50,14 +50,14 @@ export const useUserStore = defineStore('users', {
         throw error;
       }
     },
-    /*
-* คำอธิบาย: ดึงข้อมูลผู้ใช้ตาม id
-* Input: userId
-* Output: ข้อมูลของผู้ใช้
-* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
-* วันที่จัดทำ/แก้ไข: 9 กุมภาพันธ์ 2568
-*/
-    async getUserById(userId: string) {
+        /*
+    * คำอธิบาย: ดึงข้อมูลผู้ใช้ตาม id
+    * Input: userId
+    * Output: ข้อมูลของผู้ใช้
+    * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+    * วันที่จัดทำ/แก้ไข: 9 กุมภาพันธ์ 2568
+    */
+    async getUserById(userId : string) {
 
       try {
         const result = await axios.get(`${BASE_URL}/api/user/${userId}`);
@@ -109,22 +109,6 @@ export const useUserStore = defineStore('users', {
         throw error;
       }
     },
-    // เพิ่มในไฟล์ user.ts ในส่วน actions
-    async updateUserViewPermission(userId: string, isViewReport: number) {
-      try {
-        // สร้าง endpoint ใหม่เฉพาะสำหรับอัพเดทสิทธิการดูรายงาน
-        await axios.patch(`${BASE_URL}/api/user/${userId}/viewPermission`, { usrIsSeeReport: isViewReport });
-
-        // อัพเดทข้อมูลใน store
-        const userIndex = this.users.findIndex(u => u.usrId === userId);  
-        if (userIndex !== -1) {
-          this.users[userIndex].usrIsSeeReport = isViewReport;
-        }
-      } catch (error) {
-        console.error('Failed to update view permission:', error);
-        throw error;
-      }
-    }
 
   }
 });

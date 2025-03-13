@@ -8,7 +8,7 @@
 import axios from "axios";
 import { defineStore } from "pinia";
 
-export const useExportProjectReportStore = defineStore("exportProjectReport", {
+export const useExportProjectReportStore = defineStore("exportExpenseReport", {
   actions: {
     async exportFile(fileType: string) {
       try {

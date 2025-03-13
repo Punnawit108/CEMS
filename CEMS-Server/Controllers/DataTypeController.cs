@@ -32,16 +32,13 @@ public class DataTypeController : ControllerBase
     public ActionResult<IEnumerable<object>> GetProjects()
     {
         var projects = _context
-            .CemsProjects.Where(p => p.PjIsActive == 1)
-            .Select(p => new
+            .CemsProjects.Select(p => new
             {
                 p.PjId,
                 p.PjName,
                 p.PjAmountExpenses,
-                p.PjIsActive,
             })
             .ToList();
-
         return Ok(projects);
     }
 

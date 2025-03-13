@@ -16,7 +16,7 @@ export interface Expense {
     rqVhType: string;
     rqVhPayrate: string;
     rqPayDate: Date;
-    rqWithdrawDate: Date;
+    rqDateWithdraw: Date;
     rqCode: string | null;
     rqInsteadName: string | null;
     rqExpenses: number;
@@ -199,7 +199,6 @@ export interface Project {
     pjId: number;
     pjName: string;
     pjAmountExpenses: number;
-    pjIsActice : number;
 }
 
 //ข้อมูล notification

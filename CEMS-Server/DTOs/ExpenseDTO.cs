@@ -65,7 +65,7 @@ namespace CEMS_Server.DTOs
 
         public string RqProgress { get; set; } = null!;
 
-        public List<ExpenseFileDto> Files { get; set; }
+        public List<CemsFile> Files { get; set; }
     }
 
     //ตัวแปรของเส้น post และ put
@@ -125,14 +125,5 @@ namespace CEMS_Server.DTOs
         public string RqRqtName { get; set; } = null!;
 
         public double RqSumExpenses { get; set; }
-    }
-
-    public class ExpenseFileDto
-    {
-        public int FId { get; set; }
-        public string FName { get; set; } = null!;
-        public string FFileType { get; set; } = null!;
-        public int? FSize { get; set; }
-        public string FPath { get; set; } = null!; // Path ของไฟล์
     }
 }

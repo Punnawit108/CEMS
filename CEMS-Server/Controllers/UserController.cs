@@ -2,7 +2,7 @@
 * ชื่อไฟล์: UserController.cs
 * คำอธิบาย: ไฟล์นี้สำหรับกำหนด logic API ของการจัดการผู้ใช้
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 4 มีนาคม 2568
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
 using CEMS_Server.AppContext;
@@ -55,6 +55,16 @@ public class UserController : ControllerBase
             })
             .ToListAsync();
 
+        var acceptorIds = await _context.CemsApprovers.Select(e => e.ApUsrId).ToListAsync();
+
+        foreach (var user in users)
+        {
+            if (acceptorIds.Contains(user.UsrId))
+            {
+                user.UsrRolName = "Approver"; // Set the desired role name
+            }
+        }
+
         return Ok(users);
     }
 
@@ -71,8 +81,22 @@ public class UserController : ControllerBase
                 UsrLastName = u.UsrLastName,
                 UsrIsSeeReport = u.UsrIsSeeReport,
                 UsrIsActive = u.UsrIsActive,
+                UsrIsApprover = 0,
             })
             .ToListAsync();
+
+        var approvers = await _context
+            .CemsApprovers.Where(e => e.ApSequence != null)
+            .Select(e => new { e.ApUsrId, e.ApSequence })
+            .ToListAsync();
+
+        foreach (var user in users)
+        {
+            if (approvers.Any(a => a.ApUsrId == user.UsrId))
+            {
+                user.UsrIsApprover = 1; // Set the desired role name
+            }
+        }
 
         return Ok(users);
     }
@@ -134,20 +158,13 @@ public class UserController : ControllerBase
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserByEmployeeId(string id)
     {
-        var isApprover = 0;
-        var user = _context
-            .CemsUsers.Include(u => u.UsrRol)
-            .FirstOrDefault(u => u.UsrEmployeeId == id);
+
+        var user = _context.CemsUsers.Include(u => u.UsrRol).FirstOrDefault(u => u.UsrEmployeeId == id);
 
         if (user == null)
             return NotFound("Not found user");
 
-
-
-        var approver = _context.CemsApprovers.FirstOrDefault(u => u.ApUsrId == user.UsrId);
-        if(approver != null) isApprover = 1;
-
-        var userLocal = new
+        var userLocal = new UserLocalDto
         {
             UsrId = user.UsrId,
             UsrRolName = user.UsrRol.RolName,
@@ -155,8 +172,19 @@ public class UserController : ControllerBase
             UsrLastName = user.UsrLastName,
             UsrIsSeeReport = user.UsrIsSeeReport,
             UsrIsActive = user.UsrIsActive,
-            UsrIsApprover = isApprover
+            UsrIsApprover = 0,
         };
+
+                var approvers = await _context
+            .CemsApprovers.Where(e => e.ApSequence != null)
+            .Select(e => new { e.ApUsrId, e.ApSequence })
+            .ToListAsync();
+
+        foreach(var approver in approvers){
+            if(userLocal.UsrId.Equals(approver.ApUsrId)){
+                userLocal.UsrIsApprover = 1;
+            }
+        }
 
         return Ok(userLocal);
     }
