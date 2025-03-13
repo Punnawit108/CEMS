@@ -1,15 +1,45 @@
 <script lang="ts" setup>
-import { onMounted, computed } from "vue";
+// import lib
+import { ref, onMounted, computed, watch } from "vue";
+import { useRouter } from "vue-router";
 import { createColumnHelper } from "@tanstack/vue-table";
-import { useProjectsStore } from "../../store/projectsReport";
-import BaseTable from "../../components/Table/DynamicTable.vue";
-import ProjectReport from "../../types/index";
+import { storeToRefs } from "pinia";
 
+// import data
+import { useProjectsStore } from "../../store/projectsReport";
+import { useUserStore } from "../../store/user";
+import type { ProjectReport, User } from "../../types";
+
+// import components
+import Icon from "../../components/Icon/CIcon.vue";
+import Pagination from "../../components/Pagination.vue";
+import BaseTable from "../../components/Table/DynamicTable.vue";
+
+// lib variable
+const router = useRouter();
+const loading = ref(false);
+
+// store variable
+const userStore = useUserStore();
 const projectsStore = useProjectsStore();
+const { users } = storeToRefs(userStore);
+
+// Pagination state
+
 const columnHelper = createColumnHelper<ProjectReport>();
 
+// Reset pagination when filters change
+// watch(lastSearchedFilters, () => {
+//   currentPage.value = 1
+// })
+
+// Navigation
+const navigateToDetail = (userId: string) => {
+    router.push(`/systemSettings/user/detail/${userId}`);
+};
+
 // Define columns
-const tableHeader = [
+const tableHeader1 = [
     columnHelper.display({
         id: "order",
         header: () => "ลำดับ",
@@ -37,6 +67,56 @@ const tableHeader = [
     }),
 ];
 
+const tableHeader2 = [
+    columnHelper.display({
+        id: "order",
+        header: () => "ลำดับ",
+        cell: (props: any) => props.row.index + 1,
+    }),
+    columnHelper.accessor("usrEmployeeId", {
+        id: "usrEmployeeId",
+        header: () => "รหัสพนักงาน",
+        cell: (info: any) => info.getValue(),
+    }),
+    columnHelper.accessor("usrFullName", {
+        id: "usrFullName",
+        header: () => "ชื่อ-นามสกุล",
+        cell: (info: any) => info.getValue(),
+    }),
+    columnHelper.accessor("usrDptName", {
+        id: "usrDptName",
+        header: () => "แผนก",
+        cell: (info: any) => info.getValue(),
+    }),
+    columnHelper.accessor("usrStName", {
+        id: "usrStName",
+        header: () => "ฝ่าย",
+        cell: (info: any) => info.getValue(),
+    }),
+    columnHelper.accessor("usrRolName", {
+        id: "usrRolName",
+        header: () => "บทบาท",
+        cell: (info: any) => info.getValue(),
+    }),
+    columnHelper.accessor("usrIsActive", {
+        id: "usrIsActive",
+        header: () => "สถานะ",
+        cell: (info: any) => info.getValue(),
+    }),
+    columnHelper.accessor("usrIsSeeReport", {
+        id: "usrIsSeeReport",
+        header: () => "ดูรายงาน",
+        cell: (info: any) => info.getValue(),
+    }),
+    columnHelper.accessor("usrManage", {
+        id: "usrManage",
+        header: () => "จัดการ",
+        cell: (info: any) => info.getValue(),
+    }),
+];
+
+
+
 const tableStyles = {
     order: "py-3 px-2 w-14",
     pjName: "py-3 px-2 w-auto text-start",
@@ -44,20 +124,67 @@ const tableStyles = {
 };
 
 onMounted(async () => {
-    await projectsStore.getAllProjects();
+    try {
+        await Promise.all([
+            userStore.getAllUsers(),
+            projectsStore.getAllProjects(),
+        ]);
+    } catch (error) {
+        console.error("Error in mounted:", error);
+    } finally {
+        loading.value = false;
+    }
 });
 
-const check = (() => {
-    alert('');
-});
 
-const tableData = computed(() => projectsStore.projects);
+
+const tableData1 = computed(() => projectsStore.projects);
+// ✅ **Pagination State**
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const paginatedUsers = ref<User[]>([]);
+
+// ✅ **Compute Paginated Data**
+const tableData2 = computed(() => {
+    return userStore.users.map((user) => ({
+        ...user,
+        usrFullName: `${user.usrFirstName} ${user.usrLastName}`,
+    }));
+});
 </script>
 
 <template>
-    <BaseTable :columns="tableHeader" :tableData="tableData" :tableStyles="tableStyles">
-        <template #td-2>
-            <div @click="check">check</div>
-        </template>
-    </BaseTable>
+    <div>
+        <!-- Project Table -->
+        <BaseTable :columns="tableHeader1" :tableData="tableData1" :tableStyles="tableStyles"></BaseTable>
+
+        <!-- Users Table -->
+        <BaseTable :columns="tableHeader2" :tableData="tableData2" :tableStyles="tableStyles">
+            <!-- ✅ Custom Rendering for usrIsActive -->
+            <template #cell-usrIsActive="{ row }">
+                <span :class="row.usrIsActive
+                    ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal'
+                    : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
+                    {{ row.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}
+                </span>
+            </template>
+
+            <!-- ✅ Custom Rendering for usrIsSeeReport -->
+            <template #cell-usrIsSeeReport="{ row }">
+                <span class="flex justify-center">
+                    <input type="checkbox" :checked="row.usrIsSeeReport === 1" disabled
+                        class="w-4 h-4 border-2 border-[#BBBBBB] rounded cursor-not-allowed opacity-70">
+                </span>
+            </template>
+
+            <!-- ✅ Custom Action Button for User Management -->
+            <template #cell-usrManage="{ row }">
+                <span class="flex justify-center">
+                    <div @click="navigateToDetail(row.usrId.toString())" class="cursor-pointer hover:text-blue-500">
+                        <Icon :icon="'viewDetails'" />
+                    </div>
+                </span>
+            </template>
+        </BaseTable>
+    </div>
 </template>
