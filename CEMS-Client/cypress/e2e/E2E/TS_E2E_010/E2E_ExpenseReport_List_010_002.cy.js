@@ -1,10 +1,10 @@
 /*
-* ชื่อไฟล์: TC10_1_1_010-03.cy
-* คำอธิบาย: E2e
+* ชื่อไฟล์: TC10_1_1_010-02.cy
+* คำอธิบาย: ตรวจสอบหน้ารายละเอียดคำขอเบิก
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข:  
 */
-describe("ManageUserTest", () => {
+describe("ExpenseReport", () => {
     beforeEach(() => {
         cy.login("65160341", "admin");
     });
@@ -20,12 +20,8 @@ describe("ManageUserTest", () => {
         // ตรวจสอบว่า URL เปลี่ยนไปตามที่คาดไว้
         cy.url().should('include', '/report/expense');
         
-        //พิมพ์ชื่อ 
-        cy.get('#SearchBar').type('Pongsatorn');
-
-        cy.get('#role').select('ผู้ใช้งานทั่วไป'); 
-
-
+        //กดปุ่มดูรายละเอียดคำขอเบิก
+        cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/div[2]/table[11]/tbody/tr[1]/th[8]/span').click();
 
     });
 });

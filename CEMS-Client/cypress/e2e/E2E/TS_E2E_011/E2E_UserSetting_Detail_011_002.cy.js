@@ -1,10 +1,10 @@
 /*
-* ชื่อไฟล์: TC11_1_1_011-01.cy
-* คำอธิบาย: E2e
+* ชื่อไฟล์: TC11_1_1_011-02.cy
+* คำอธิบาย: ตรวจสอบข้อมูลรรายละัเอียดผู้ใช้งาน
 * ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
 * วันที่จัดทำ/แก้ไข:  
 */
-describe("ManageUserTest", () => {
+describe("UserSetting", () => {
     beforeEach(() => {
         cy.login("65160341", "admin");
     });
@@ -19,5 +19,7 @@ describe("ManageUserTest", () => {
 
         // ตรวจสอบว่า URL เปลี่ยนไปตามที่คาดไว้
         cy.url().should('include', '/systemSettings/user');
+        //กดไอคอนเพื่อดูรายละเอียดผู้ใช้่
+        cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table/tbody/tr[1]/th[9]/span').click();
     });
 });
