@@ -67,22 +67,6 @@ const parseDate = (dateStr: string): Date => {
   return new Date(year - 543, month - 1, day); // แปลง พ.ศ. เป็น ค.ศ.
 };
 
-const base64ToBlob = (base64: string, mimeType: string): Blob => {
-  const byteCharacters = atob(base64); // แปลง Base64 ให้เป็น string ของ byte
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-    const slice = byteCharacters.slice(offset, offset + 1024);
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-    byteArrays.push(new Uint8Array(byteNumbers));
-  }
-
-  return new Blob(byteArrays, { type: mimeType });
-};
-
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
@@ -160,7 +144,6 @@ const selectedPayrate = computed(() => {
   return selectedVehicle ? selectedVehicle.vhPayrate : '';
 });
 
-//const selectedFiles = ref<File[]>([]);
 
 //fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
@@ -408,14 +391,14 @@ const createFormData = (formData: createRequisition, selectedFiles: File[]): For
 //เมื่อกดปุ่มบันทึก
 const confirmSave = async (event: Event) => {
   event.preventDefault();
-  formData.value.rqStatus = "sketch";
+  formData.value.rqStatus = "edit";
   formData.value.rqProgress = "accepting"
   await updateFormData()
   const filesOnly = selectedFiles.value.filter(item => item.fId === null).map(item => item.file);
   const fd = await createFormData(formData.value, filesOnly);
   await requisitionStore.updateExpense(id, fd);
   isAlertSaveOpen.value = true;
-
+  console.log(formData)
   setTimeout(() => {
     isAlertSaveOpen.value = false;
     closePopupSave();

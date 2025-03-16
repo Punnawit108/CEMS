@@ -278,11 +278,12 @@ const closePopupSubmit = () => {
 const displayRqExpenses = ref("");
 
 watch(rqtName, (newValue) => {
+  displayRqExpenses.value = "";
   if (newValue !== 'ค่าเดินทาง') {
     selectedTravelType.value = null;
-   } else {
-     selectedTravelType.value = 'public';
-   }
+  } else {
+    selectedTravelType.value = 'public';
+  }
 });
 
 watch(
@@ -292,15 +293,25 @@ watch(
       formData.value.rqStartLocation = "";
       formData.value.rqEndLocation = "";
       formData.value.rqDistance = "";
-      formData.value.rqExpenses = 0;
+      displayRqExpenses.value = "";
       formData.value.rqVhId = 0;
     }
   }
 );
 
+watch(selectedTravelType, () => {
+  formData.value.rqStartLocation = "";
+  formData.value.rqEndLocation = "";
+  formData.value.rqDistance = "";
+  formData.value.rqExpenses = 0;
+  formData.value.rqVhId = 0;
+  console.log(formData.value)
+});
+
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
   formData.value.rqExpenses = newVal === "" ? 0 : Number(newVal);
+  console.log(formData.value)
 });
 
 // ตัวแปรเก็บ error ของแต่ละฟิลด์
