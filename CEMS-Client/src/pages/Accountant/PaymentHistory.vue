@@ -12,6 +12,19 @@ import { usePayment } from '../../store/paymentStore';
 import { ref, computed, onMounted, watch } from 'vue';
 import Decimal from 'decimal.js';
 import { storeToRefs } from 'pinia';
+import Pagination from '../../components/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredPayments.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredPayments.value.slice(start, end);
+});
 
 // Import filters
 import UserSearchInput from '../../components/filters/UserSearchInput.vue';
@@ -28,11 +41,6 @@ const loading = ref(false);
 // สำหรับข้อมูลโครงการและประเภทการเบิก
 const projects = ref<any[]>([]);
 const requisitionTypes = ref<any[]>([]);
-
-// Pagination
-const currentPage = ref(1);
-const itemsPerPage = ref(10);
-const table = ref("Table1-footer");
 
 // Filters
 const filters = ref({
@@ -320,37 +328,6 @@ const cancelEndDate = () => {
         endDateTemp.value = filters.value.endDate;
     }
 };
-
-// Pagination calculations
-const totalPages = computed(() => {
-    return Math.ceil(filteredPayments.value.length / itemsPerPage.value);
-});
-
-const paginatedData = computed(() => {
-    const start = (currentPage.value - 1) * itemsPerPage.value;
-    const end = start + itemsPerPage.value;
-    return filteredPayments.value.slice(start, end);
-});
-
-// Calculate remaining rows to fill the table
-const remainingRows = computed(() => {
-    const totalRows = itemsPerPage.value;
-    const rowsOnPage = paginatedData.value.length;
-    return totalRows - rowsOnPage;
-});
-
-const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
-};
-
-const prevPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-    }
-};
-
 const user = ref<any>(null);
 
 // เมื่อ Component ถูก Mounted ให้ดึงข้อมูลประวัติการนำจ่าย
@@ -473,12 +450,9 @@ const toDetails = (id: string) => {
                         <td colspan="8" class="py-4 text-center">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                     </tr>
 
-                    <tr v-else v-for="(history, index) in paginatedData"
+                    <tr v-else v-for="(history, index) in paginated"
                     :key="history.rqId"
-                    class="border-t text-black"
-                    :class="{
-                      'border-b border-gray': index === paginatedData.length - 1,
-                    }">
+                    class="border-t text-black">
                         <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
                         <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
                             style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
@@ -504,48 +478,10 @@ const toDetails = (id: string) => {
                             </span>
                         </th>
                     </tr>
-                    <!-- Show empty rows if there are less than itemsPerPage items -->
-                    <tr v-if="paginatedData.length < itemsPerPage" v-for="index in remainingRows" :key="'empty-row' + index">
-                        <td colspan="8" class="py-[12px]">&nbsp;</td>
-                    </tr>
                 </tbody>
+                <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                @update:currentPage="(page) => (currentPage = page)" />
             </table>
-            <!-- Pagination Footer -->
-            <tfoot class="border-t text-[14px] border-b-2 border-[#BBBBBB]">
-                <tr>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th></th>
-                    <th class="py-[12px] text-end">
-                        {{ currentPage }} of {{ totalPages }}
-                    </th>
-                    <th class="py-[12px] flex justify-evenly text-[14px] font-bold">
-                        <span class="ml-6 text-[#A0A0A0]">
-                            <button
-                                @click="prevPage"
-                                :disabled="currentPage === 1"
-                                class="px-3 py-1 rounded"
-                                :class="{'opacity-50 cursor-not-allowed': currentPage === 1}"
-                            >
-                                <span class="text-sm">&lt;</span>
-                            </button>
-                        </span>
-                        <span class="mr-6">
-                            <button
-                                @click="nextPage"
-                                :disabled="currentPage === totalPages"
-                                class="px-3 py-1 rounded"
-                                :class="{'opacity-50 cursor-not-allowed': currentPage === totalPages}"
-                            >
-                                <span class="text-sm">&gt;</span>
-                            </button>
-                        </span>
-                    </th>
-                    <th></th>
-                </tr>
-            </tfoot>
         </div>
     </div>
     <!-- content -->
