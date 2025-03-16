@@ -1,53 +1,25 @@
 <script setup lang="ts">
-/*
-* ชื่อไฟล์: Notifications.vue
-* คำอธิบาย: ไฟล์นี้แสดงการแจ้งเตือนที่เข้ามาในระบบ
-* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-*/
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import { useNotificationStore } from '../../store/notification';
-import { onMounted } from 'vue';
 import CardNotification from '../../components/CardNotification.vue';
+import Icon from '../../components/Icon/CIcon.vue';
 
-
-
-let filterNotification = ref("All")
-/*
-* คำอธิบาย: แสดงข้อมูลการแจ้งเตือน
-* Output: ข้อมูลแจ้งเตือน
-* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-*/
-
+let filterNotification = ref("All");
 const notificationStore = useNotificationStore();
-
-// const user = ref<any>(null);
-// onMounted(async () => {
-//     const storedUser = localStorage.getItem("user");
-//     if (storedUser) {
-//         try {
-//             user.value = await JSON.parse(storedUser);
-//         } catch (error) {
-//             console.log("Error loading user:", error);
-//         }
-//     }
-//     if (user) {
-//         await paymentHistory.getAllPaymentHistory(user.value.usrId);
-//     }
-// }
-
 const user = ref<any>(null);
+
+// ตัวแปรสำหรับการแบ่งหน้า
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+
 onMounted(async () => {
     const storedUser = localStorage.getItem("user");
     if (storedUser) {
         try {
-            // Parse JSON และตรวจสอบว่าได้ผลลัพธ์เป็น object
             const parsedUser = JSON.parse(storedUser);
             if (parsedUser && typeof parsedUser === "object") {
                 user.value = parsedUser;
 
-                // ตรวจสอบว่า user.value และ usrId มีอยู่
                 if (user.value && user.value.usrId) {
                     user.value = await notificationStore.loadNotifications(user.value.usrId);
                     await notificationStore.initSignalR(user.value.usrId);
@@ -66,66 +38,84 @@ onMounted(async () => {
 const clickAllNotification = ref(true);
 const clickReadedNotification = ref(false);
 const clickNotReadNotification = ref(false);
-/*
-* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนทั้งหมด
-* Output: ข้อมูลแจ้งเตือนทุกสถานะทั้งหมด
-* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-*/
+
 const toggleAllNotification = () => {
     resetAllToggles();
-    filterNotification.value = "All"
+    filterNotification.value = "All";
     clickAllNotification.value = true;
 };
-/*
-* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะอ่านแล้ว
-* Output: ข้อมูลแจ้งเตือนสถานะอ่านแล้ว
-* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-*/
+
 const toggleReadedNotification = () => {
     resetAllToggles();
-    filterNotification.value = "read"
+    filterNotification.value = "read";
     clickReadedNotification.value = true;
 };
-/*
-* คำอธิบาย: แสดงข้อมูลการแจ้งเตือนสถานะยังไม่อ่าน
-* Output: ข้อมูลแจ้งเตือนสถานะยังไม่อ่าน
-* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-*/
+
 const toggleNotReadNotification = () => {
     resetAllToggles();
-    filterNotification.value = "unread"
+    filterNotification.value = "unread";
     clickNotReadNotification.value = true;
 };
-/*
-* คำอธิบาย: เปลี่ยนสถานะของตัวแปรเพื่อแสดงสถานะที่ต้องการ
-* ชื่อผู้เขียน/แก้ไข: นายศตวรรษ ไตรธิเลน
-* วันที่จัดทำ/แก้ไข: 2 ธันวาคม 2567
-*/
+
 const resetAllToggles = () => {
     clickAllNotification.value = false;
     clickReadedNotification.value = false;
     clickNotReadNotification.value = false;
-
 };
 
+// ปรับปรุง filteredNotifications เพื่อเรียงลำดับ unread ก่อน read
 const filteredNotifications = computed(() => {
+    let notifications = notificationStore.notifications;
+
     if (filterNotification.value === 'read') {
-        return notificationStore.notifications?.filter((item: any) => item.ntStatus === 'read');
+        notifications = notifications?.filter((item: any) => item.ntStatus === 'read');
     } else if (filterNotification.value === 'unread') {
-        return notificationStore.notifications.filter((item: any) => item.ntStatus === 'unread');
+        notifications = notifications.filter((item: any) => item.ntStatus === 'unread');
     }
-    return notificationStore.notifications;
+
+    // เรียงลำดับ unread ก่อน read
+    return notifications.sort((a: any, b: any) => {
+        if (a.ntStatus === 'unread' && b.ntStatus === 'read') {
+            return -1; // unread มาก่อน read
+        } else if (a.ntStatus === 'read' && b.ntStatus === 'unread') {
+            return 1; // read มาหลัง unread
+        } else {
+            return 0; // ไม่ต้องเปลี่ยนลำดับ
+        }
+    });
+});
+
+// คำนวณข้อมูลที่แสดงในหน้าปัจจุบัน
+const paginatedNotifications = computed(() => {
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    return filteredNotifications.value.slice(start, end);
+});
+
+// ฟังก์ชันสำหรับเปลี่ยนหน้า
+const nextPage = () => {
+    if (currentPage.value < totalPages.value) {
+        currentPage.value++;
+    }
+};
+
+const previousPage = () => {
+    if (currentPage.value > 1) {
+        currentPage.value--;
+    }
+};
+
+// คำนวณจำนวนหน้าทั้งหมด
+const totalPages = computed(() => {
+    return Math.ceil(filteredNotifications.value.length / itemsPerPage.value);
 });
 </script>
 
 <template>
     <div>
-        <nav class="flex overflow-hidden items-center whitespace-nowrap" aria-label="Filter options">
+        <nav class="flex overflow-hidden items-center whitespace-nowrap mb-2" aria-label="Filter options">
             <ul
-                class="flex flex-wrap gap-4 self-stretch py-2 pr-20 pl-2 my-auto text-sm leading-snug w-[1136px] max-md:pr-5 max-md:max-w-full">
+                class="flex flex-wrap gap-4 self-stretch py-2 pr-20  my-auto text-sm leading-snug w-[1136px] max-md:pr-5 max-md:max-w-full">
                 <li>
                     <button @click="toggleAllNotification" :class="[
                         'flex px-4 py-1.5 bg-white rounded-3xl border-2 border-solid',
@@ -139,10 +129,8 @@ const filteredNotifications = computed(() => {
                         </svg>
                         <span class="ml-1">ทั้งหมด</span>
                     </button>
+
                 </li>
-
-
-
                 <li>
                     <button @click="toggleReadedNotification"
                         :class="['flex px-4 py-1.5 bg-white rounded-3xl border-2 border-solid', clickReadedNotification ? 'border-[#12B669] text-[#12B669]' : 'border-neutral-400 text-neutral-500 text-opacity-80']">
@@ -155,8 +143,6 @@ const filteredNotifications = computed(() => {
                         <span class="ml-1">อ่านแล้ว</span>
                     </button>
                 </li>
-
-
                 <li>
                     <button @click="toggleNotReadNotification"
                         :class="['flex px-4 py-1.5 bg-white rounded-3xl border-2 border-solid', clickNotReadNotification ? 'border-[#D92C20] text-[#D92C20]' : 'border-neutral-400 text-neutral-500 text-opacity-80']">
@@ -170,37 +156,34 @@ const filteredNotifications = computed(() => {
                     </button>
                 </li>
             </ul>
-
         </nav>
-        <article class="flex flex-col border border-solid border-zinc-400">
-            <CardNotification v-if="filteredNotifications !== null" :notificationInfo="filteredNotifications" />
+        <article class="flex flex-col border border-solid border-[#B6B7BA]">
+            <CardNotification v-if="paginatedNotifications !== null" :notificationInfo="paginatedNotifications" />
 
             <footer
-                class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-zinc-400 min-h-[56px] max-md:max-w-full">
+                class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-b border-solid border-b-[#B6B7BA] min-h-[56px] max-md:max-w-full">
                 <div class="flex grow shrink self-stretch my-auto h-5 min-w-[240px] w-[907px]"></div>
                 <p
                     class="self-stretch my-auto text-xs tracking-wide leading-loose text-right text-black text-opacity-90">
-                    1 of 10
+                    {{ currentPage }} of {{ totalPages }}
                 </p>
-                <button
-                    class="grow shrink self-stretch px-1 my-auto whitespace-nowrap min-h-[32px] rounded-[32px] text-black text-opacity-20 w-[26px]"
+                <button @click="previousPage"
+                    class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow"
                     aria-label="Previous page">
                     <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M19.4219 11.9062L14.8281 16.5L19.4219 21.0938L18.0156 22.5L12.0156 16.5L18.0156 10.5L19.4219 11.9062Z"
-                            fill="black" fill-opacity="0.2" />
+                            fill="black" fill-opacity="0.54" />
                     </svg>
-
                 </button>
-                <button
-                    class="grow shrink self-stretch px-1 my-auto whitespace-nowrap min-h-[32px] rounded-[32px] text-black text-opacity-50 w-[26px]"
+                <button @click="nextPage"
+                    class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow"
                     aria-label="Next page">
                     <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path
                             d="M13.9844 10.5L19.9844 16.5L13.9844 22.5L12.5781 21.0938L17.1719 16.5L12.5781 11.9062L13.9844 10.5Z"
                             fill="black" fill-opacity="0.54" />
                     </svg>
-
                 </button>
             </footer>
         </article>

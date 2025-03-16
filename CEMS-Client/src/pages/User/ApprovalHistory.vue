@@ -314,58 +314,28 @@ const toDetails = async (data: Expense) => {
         <!-- Filter -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             <!-- ค้นหาชื่อผู้ใช้ -->
-            <UserSearchInput
-                v-model="filters.searchQuery"
-                :loading="loading"
-                label="ค้นหาชื่อผู้ใช้"
-            />
+            <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
 
             <!-- โครงการ -->
-            <ProjectFilter
-                v-model="filters.project"
-                :projects="projects"
-                :loading="loading"
-            />
+            <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
 
             <!-- ประเภทค่าใช้จ่าย -->
-            <RequisitionTypeFilter
-                v-model="filters.requisitionType"
-                :requisition-types="requisitionTypes"
-                :loading="loading"
-            />
+            <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+                :loading="loading" />
 
             <!-- วันที่เริ่มต้นขอเบิก -->
-            <DateFilter
-                v-model="startDateTemp"
-                :loading="loading"
-                label="วันที่เริ่มต้นขอเบิก"
-                :is-open="isStartDatePickerOpen"
-                @update:is-open="isStartDatePickerOpen = $event"
-                :confirmed-date="filters.startDate"
-                @confirm="confirmStartDate"
-                @cancel="cancelStartDate"
-            />
+            <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+                :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+                :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
 
             <!-- วันที่สิ้นสุดขอเบิก -->
             <div class="flex flex-col">
-                <DateFilter
-                    v-model="endDateTemp"
-                    :loading="loading"
-                    label="วันที่สิ้นสุดขอเบิก"
-                    :is-open="isEndDatePickerOpen"
-                    @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate"
-                    @confirm="confirmEndDate"
-                    @cancel="cancelEndDate"
-                    class="mb-2"
-                />
+                <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
+                    :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
+                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
 
                 <!-- ปุ่มค้นหาและรีเซ็ต -->
-                <FilterButtons 
-                    :loading="loading"
-                    @reset="handleReset"
-                    @search="handleSearch"
-                />
+                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
             </div>
         </div>
 
@@ -399,14 +369,15 @@ const toDetails = async (data: Expense) => {
                             :title="item.usrName">
                             {{ item.usrName }}
                         </th>
-                        <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
+                        <th class="py-[11px] px-2 text-start w-40 truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="item.rqName">
                             {{ item.rqName }}
                         </th>
-                        <th class="py-[11px] px-2 text-start w-48">{{ item.pjName }}</th>
+                        <th class="py-[11px] px-2 text-start w-40">{{ item.pjName }}</th>
                         <th class="py-[11px] px-5 text-start w-32">{{ item.rqtName }}</th>
-                        <th class="py-[11px] px-5 text-end w-32">{{new Decimal(item.rqExpenses ?? 0).toFixed(2)  }}</th>
+                        <th class="py-[11px] px-5 text-start w-28">{{ item.rqWithdrawDate }}</th>
+                        <th class="py-[11px] px-5 text-end w-32">{{new Decimal(item.rqExpenses ?? 0).toFixed(2) }}</th>
                         <th class="py-[11px] px-2 text-center w-28 ">
                             <span>
                                 <StatusBudge :status="'sts-' + item.rqStatus"></StatusBudge>

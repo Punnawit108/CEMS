@@ -473,6 +473,7 @@ const isPopupUpdateExpenseOpen = ref(false); // สำหรับเปิด/�
 const UpdateRqtId = ref(0);
 
 const isRqtUse = ref(false);
+
 const openPopupUpdateExpense = async (data: any) => {
   const isInUse = await expenseManageType.validationRequisitionTypes(data.rqtId);
   if (isInUse) {
@@ -667,7 +668,7 @@ const confirmDeleteExpense = async () => {
             <button>
               <Icon :icon="'edit'" @click="openPopupEditPrivatecar(item)" />
             </button>
-            <button>
+            <button v-if="!item.isInUse">
               <Icon :icon="'bin'" @click="openPopupDelete(item.id)" />
             </button>
             <button @click="toggleGray(item.id)" class="px-2 py-1 text-black">
@@ -756,7 +757,7 @@ const confirmDeleteExpense = async () => {
             <button>
               <Icon :icon="'edit'" @click="openPopupEditPubliccar(item)" />
             </button>
-            <button>
+            <button >
               <Icon :icon="'bin'" @click="openPopupDelete(item.id)" />
             </button>
             <button @click="toggleGray(item.id)" class="px-2 py-1 text-black">
@@ -1537,7 +1538,7 @@ const confirmDeleteExpense = async () => {
         </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mt-3">
-        ไม่สามารถแก้ไขประเภทค่าใช้จ่ายนี้ได้
+        ไม่สามารถแก้ไข หรือลบประเภทค่าใช้จ่ายนี้ได้
       </h2>
     </div>
   </div>
@@ -1553,10 +1554,11 @@ const confirmDeleteExpense = async () => {
         </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mt-3">
-        ไม่สามารถแก้ไขประเภทค่าเดินทางนี้ได้
+        ไม่สามารถแก้ไข หรือลบประเภทค่าเดินทางนี้ได้
       </h2>
     </div>
   </div>
+
 
 </template>
 
