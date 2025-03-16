@@ -39,21 +39,25 @@
 
 .font16 {
   font-size: 16px;
+  color: black;
 }
 
 .font35 {
   font-size: 35px;
+  color: black;
 }
 
 th {
   font-size: 14px;
   font-weight: 500;
   padding:8px;
+  color: black;
 }
 
 td {
   font-size: 14px;
   padding: 8px;
+  color: black;
 }
 
 .chart-wrapper {
@@ -77,6 +81,7 @@ td {
 .pieChartBox{
   width: 817px !important;
   height: 400px !important;
+  color: black;
 }
 
 #pieChart{

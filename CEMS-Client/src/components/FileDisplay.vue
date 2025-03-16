@@ -6,7 +6,7 @@ const props = defineProps(["file", "fileName"]); // รับ file (URL หร�
 const emit = defineEmits(['remove', 'preview']);
 
 const route = useRoute();
-const hideRemoveIcon = computed(() => route.path.includes("detail"));
+const showRemoveIcon = computed(() => route.path.includes("editExpenseForm"));
 
 const fileIcon = computed(() => {
     let extension = '';
@@ -42,7 +42,7 @@ const fileIcon = computed(() => {
             <p class="ml-4 flex items-center">{{ fileName }}</p> <!-- แสดงชื่อไฟล์จริง -->
         </div>
         <div class="mr-5 flex items-center">
-            <svg v-if="!hideRemoveIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17"
+            <svg v-if="showRemoveIcon" xmlns="http://www.w3.org/2000/svg" width="16" height="17" viewBox="0 0 16 17"
                 fill="none" @click="$emit('remove')">
                 <path
                     d="M1.78433 0.839844L8.00684 7.06235L14.2293 0.839844L16.0068 2.61734L9.78433 8.83984L16.0068 15.0623L14.2281 16.8398L8.00558 10.6173L1.78433 16.8398L0.00683594 15.0623L6.22934 8.83984L0.00683594 2.61734L1.78433 0.839844Z"

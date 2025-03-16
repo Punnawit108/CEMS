@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { shallowRef, defineProps, onMounted, type Component } from "vue";
+import { shallowRef, defineProps, onMounted, type Component, watch } from "vue";
 
 const props = defineProps<{
     icon: string;
@@ -63,6 +63,14 @@ onMounted(async () => {
         currentComponent.value = (await componentLoader()).default;
     }
 });
+
+watch(() => props.icon, async (newIcon) => {
+    const componentLoader = iconMap.get(newIcon);
+    if (componentLoader) {
+        currentComponent.value = (await componentLoader()).default;
+    }
+});
+
 </script>
 
 <template>

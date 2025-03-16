@@ -10,10 +10,13 @@
   },
   "dependencies": {
     "@microsoft/signalr": "^8.0.7",
+    "@tanstack/vue-table": "^8.21.2",
     "axios": "^1.7.8",
     "chart.js": "^4.4.5",
     "chartjs-plugin-datalabels": "^2.2.0",
     "cypress": "^13.17.0",
+    "cypress-downloadfile": "^1.2.4",
+    "cypress-file-upload": "^5.0.8",
     "decimal.js": "^10.5.0",
     "flatpickr": "^4.6.13",
     "flowbite": "^2.5.2",

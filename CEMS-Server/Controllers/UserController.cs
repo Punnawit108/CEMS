@@ -128,12 +128,13 @@ public class UserController : ControllerBase
             return StatusCode(500, $"เกิดข้อผิดพลาดในการบันทึกข้อมูล: {ex.Message}");
         }
 
-        return NoContent();
+        return Ok(new { success = true, message = "อัพเดทข้อมูลสำเร็จ" });
     }
 
     [HttpGet("{id}")]
     public async Task<IActionResult> GetUserByEmployeeId(string id)
     {
+        var isApprover = 0;
         var user = _context
             .CemsUsers.Include(u => u.UsrRol)
             .FirstOrDefault(u => u.UsrEmployeeId == id);
@@ -141,7 +142,12 @@ public class UserController : ControllerBase
         if (user == null)
             return NotFound("Not found user");
 
-        var userLocal = new UserLocalDto
+
+
+        var approver = _context.CemsApprovers.FirstOrDefault(u => u.ApUsrId == user.UsrId);
+        if(approver != null) isApprover = 1;
+
+        var userLocal = new
         {
             UsrId = user.UsrId,
             UsrRolName = user.UsrRol.RolName,
@@ -149,6 +155,7 @@ public class UserController : ControllerBase
             UsrLastName = user.UsrLastName,
             UsrIsSeeReport = user.UsrIsSeeReport,
             UsrIsActive = user.UsrIsActive,
+            UsrIsApprover = isApprover
         };
 
         return Ok(userLocal);
