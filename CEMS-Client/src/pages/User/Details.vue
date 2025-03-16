@@ -108,23 +108,6 @@ const statusMapping = [
 
 ];
 
-const base64ToBlob = (base64: string, mimeType: string): Blob => {
-  const byteCharacters = atob(base64); // แปลง Base64 ให้เป็น string ของ byte
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-    const slice = byteCharacters.slice(offset, offset + 1024);
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-    byteArrays.push(new Uint8Array(byteNumbers));
-  }
-
-  return new Blob(byteArrays, { type: mimeType });
-};
-
-
 const statusInfo = computed(() => {
   if (expenseData.value) {
     const match = statusMapping.find((item) => item.condition(expenseData.value));
@@ -186,13 +169,25 @@ const handleApproverPopup = (status: string) => {
 
 const handleHideApproverPopup = () => {
   isApproverPopup.value = "null";
+  formData.rqReason = '';
 };
 
 const formData = reactive<any>({
   rqReason: null
 })
 
+const isSubmitted = ref(false);
+
+const isTextareaEmpty = computed(() => {
+  return !formData.rqReason || formData.rqReason.trim() === '';
+});
+
+
 const handleSummit = async (status: string) => {
+  isSubmitted.value = true;
+  if (isTextareaEmpty.value && status != 'accept') {
+    return;
+  }
   const currentUser = await initializeCurrentUser();
   const matchedAprId = findAprIdByFirstName(progressData.value, currentUser);
   if (matchedAprId != null) {
@@ -203,7 +198,7 @@ const handleSummit = async (status: string) => {
       aprStatus: status,
       rqReason: formData.rqReason
     };
-    detailStore.updateApprove(data);
+    //detailStore.updateApprove(data);
     handleHideApproverPopup();
     confirmPrint(status)
     isAlertPrintOpen.value = true;
@@ -244,8 +239,8 @@ const closePopupPrint = () => {
 };
 
 const statusMessage = {
-  accept: "ยืนยันการการอนุมัติรายการเบิกค่าใช้จ่ายสำเร็จ",
-  reject: "ยืนยันการไม่อนุมัติรายการเบิกค่าใช้จ่ายสำเร็จ",
+  accept: "ยืนยันการการอนุมัติ\nรายการเบิกค่าใช้จ่ายสำเร็จ",
+  reject: "ยืนยันการไม่อนุมัติ\nรายการเบิกค่าใช้จ่ายสำเร็จ",
   edit: "ยืนยันการส่งกลับรายการเบิกค่าใช้จ่ายสำเร็จ",
   pay: "ยืนยันการนำจ่ายรายการเบิกค่าใช้จ่ายสำเร็จ",
 };
@@ -334,7 +329,7 @@ const previewFile = (file: string) => {
 
     <div v-if="isApprovalPath" class="flex justify-end">
       <div class="flex gap-[42px] mb-[24px]">
-        <Button type="btn-unapprove" class="w-[95px] h-[40px]" @click="handleApproverPopup('reject')" />
+        <Button type="btn-unapprove" class="w-[95px] h-[40px] px-[20px]" @click="handleApproverPopup('reject')" />
         <Button type="btn-editSend" class="w-[95px] h-[40px]" @click="handleApproverPopup('edit')" />
         <Button type="btn-approve" class="w-[95px] h-[40px]" @click="handleApproverPopup('approve')" />
       </div>
@@ -354,7 +349,7 @@ const previewFile = (file: string) => {
               class="!text-white px-4 py-[4px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
-          <div class="flex flex-row pr-8 gap-4">
+          <div class="flex flex-row pr-[35px] gap-4">
             <RouterLink
               v-if="(expenseData.rqStatus === 'edit' || expenseData.rqStatus === 'sketch') && route.name === 'listWithdrawDetail'"
               :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
@@ -477,11 +472,11 @@ const previewFile = (file: string) => {
         <h2 class="text-[24px] font-bold text-center text-black">ยืนยันการอนุมัติรายการเบิกค่าใช้จ่าย</h2>
         <div class="flex flex-col gap-2">
           <h1 class="text-[16px] text-center text-black">{{ expenseData.rqUsrName }}</h1>
-          <h1 class="text-[16px] text-center text-black">วันที่ขอเบิก {{ expenseData.rqWithDrawDate }}</h1>
+          <h1 class="text-[16px] text-center text-black">วันที่ขอเบิก {{ rqWithdrawDateFormatted }}</h1>
         </div>
         <h1 class="text-[18px] text-center text-[#7E7E7E]">คุณยืนยันการอนุมัติรายการเบิกค่าใช้จ่ายหรือไม่ ?</h1>
         <div class="flex justify-center gap-5">
-          <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup();" class="w-[95px] h-[40px]"></Button>
+          <Button :type="'btn-cancleBorderGray'" @click="handleHideApproverPopup();" class="w-[95px] h-[40px]"></Button>
           <Button :type="'btn-summit'" @click="handleSummit('accept')" class="w-[95px] h-[40px]"></Button>
         </div>
       </div>
@@ -496,11 +491,12 @@ const previewFile = (file: string) => {
         <div class="flex flex-col gap-[5px]">
           <p class="text-start text-black text-[16px]">ระบุเหตุผล <span class="text-red-500">*</span></p>
           <textarea id="rqReason" v-model="formData.rqReason" required
-            class="flex overflow-hidden gap-1.5 items-start  px-2.5 py-1.5  w-full text-sm text-gray-500 bg-white rounded-md border-2 border-solid border-gray-200 min-h-[70px] focus:outline-none focus:border-gray-500"
+            :class="{ 'border-red-500': isTextareaEmpty && isSubmitted }"
+            class="flex overflow-hidden gap-1.5 items-start px-2.5 py-1.5 w-full text-sm text-gray-500 bg-white rounded-md border-2 border-solid border-gray-200 min-h-[70px] focus:outline-none focus:border-gray-500"
             aria-label="ระบุเหตุผลการปฏิเสธ" placeholder="ระบุเหตุผล"></textarea>
         </div>
         <div class="flex justify-center gap-5">
-          <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup()"></Button>
+          <Button :type="'btn-cancleBorderGray'" @click="handleHideApproverPopup()"></Button>
           <Button :type="'btn-summit'" @click="handleSummit('reject')"></Button>
         </div>
       </div>
@@ -516,12 +512,12 @@ const previewFile = (file: string) => {
         <div class="flex flex-col gap-[5px]">
           <p class="text-start text-black text-[16px]">ระบุเหตุผล <span class="text-red-500">*</span></p>
           <textarea id="rqReason" v-model="formData.rqReason" required
+            :class="{ 'border-red-500': isTextareaEmpty && isSubmitted }"
             class="flex overflow-hidden gap-1.5 items-start px-2.5 py-1.5 w-full text-sm text-gray-500 bg-white rounded-md border-2 border-solid border-gray-200 min-h-[70px] focus:outline-none focus:border-gray-500"
-            aria-label="ระบุเหตุผล" placeholder="ระบุเหตุผล">
-        </textarea>
+            aria-label="ระบุเหตุผล" placeholder="ระบุเหตุผล"></textarea>
         </div>
         <div class="flex justify-center gap-5">
-          <Button :type="'btn-cancleGray'" @click="handleHideApproverPopup()"></Button>
+          <Button :type="'btn-cancleBorderGray'" @click="handleHideApproverPopup()"></Button>
           <Button :type="'btn-summit'" @click="handleSummit('edit')"></Button>
         </div>
       </div>
@@ -602,7 +598,9 @@ const previewFile = (file: string) => {
             clip-rule="evenodd" />
         </svg>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mt-3">{{ alertMessage }}</h2>
+      <h2 class="text-[24px] font-bold text-center text-black mt-3" style="white-space: pre-line;">
+        {{ alertMessage }}
+      </h2>
     </div>
   </div>
   <!-- content -->
