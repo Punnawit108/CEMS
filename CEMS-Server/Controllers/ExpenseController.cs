@@ -489,14 +489,10 @@ public class ExpenseController : ControllerBase
                     FFileType = file.ContentType,
                     FSize = (int)file.Length,
                     FUniqueName = uniqueFileName,
-                    FPath = $"/assets/upload/{uniqueFileName}", // เส้นทางไฟล์ใน server
+                    FPath = $"/assets/upload/{uniqueFileName}",
                 };
-
-                // เพิ่มข้อมูลไฟล์ลงในฐานข้อมูล
                 _context.CemsFiles.Add(cemsFile);
             }
-
-            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
             await _context.SaveChangesAsync();
         }
 
@@ -511,7 +507,7 @@ public class ExpenseController : ControllerBase
                 approver.AprStatus = "waiting";
                 approver.AprName = null;
                 approver.AprDate = null;
-                // บันทึกการเปลี่ยนแปลงลงฐานข้อมูล
+
                 await _context.SaveChangesAsync();
             }
             else
