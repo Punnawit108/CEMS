@@ -12,6 +12,19 @@ import { usePayment } from '../../store/paymentStore';
 import { onMounted, ref, computed, watch } from 'vue';
 import Decimal from 'decimal.js';
 import { storeToRefs } from 'pinia';
+import Pagination from '../../components/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredPayments.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredPayments.value.slice(start, end);
+});
 
 // Import filters
 import UserSearchInput from '../../components/filters/UserSearchInput.vue';
@@ -428,9 +441,9 @@ const toDetails = (id: string) => {
                             <td colspan="8" class="py-4 text-center">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                         </tr>
 
-                        <tr v-else v-for="(paymentItem, index) in filteredPayments" :key="paymentItem.rqId"
+                        <tr v-else v-for="(paymentItem, index) in paginated" :key="paymentItem.rqId"
                          class=" text-[14px] text-black border-b-2 border-[#BBBBBB] ">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1}}</th>
+                            <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1 + (currentPage - 1) * itemsPerPage}}</th>
                             <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                                 style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                                 {{paymentItem.rqUsrName}}
@@ -454,10 +467,9 @@ const toDetails = (id: string) => {
                             </th>
                         </tr>
                     </tbody>
+                    <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                        @update:currentPage="(page) => (currentPage = page)" />
                 </table>
-            </div>
-            <div>
-                <Ctable :table="'Table7-footer'" />
             </div>
         </div>
     </div>

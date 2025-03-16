@@ -491,7 +491,7 @@ const previewFile = (file: string) => {
   <div v-if="isApproverPopup === 'reject'" class="fixed inset-0 bg-black/50 flex justify-center items-center z-50 ">
     <div class="bg-white rounded-lg shadow-lg w-[460px] h-[295px]">
       <div class="flex flex-col justify-center my-[23px] gap-4 mx-[40px]">
-        <h2 class="text-center text-[24px] text-black">ยืนยันการไม่อนุมัติรายการเบิกค่าใช้จ่าย</h2>
+        <h2 class="text-center text-[24px] text-black font-bold">ยืนยันการไม่อนุมัติรายการเบิกค่าใช้จ่าย</h2>
         <h1 class="text-center text-[#7E7E7E] text-[18px] ">คุณยืนยันการไม่อนุมัติรายการเบิกค่าใช้จ่ายหรือไม่ ?</h1>
         <div class="flex flex-col gap-[5px]">
           <p class="text-start text-black text-[16px]">ระบุเหตุผล <span class="text-red-500">*</span></p>
@@ -511,7 +511,7 @@ const previewFile = (file: string) => {
   <div v-if="isApproverPopup === 'edit'" class="fixed inset-0 bg-black/50 flex justify-center items-center z-50 ">
     <div class="bg-white rounded-lg shadow-lg w-[460px] h-[295px]">
       <div class="flex flex-col justify-center my-[23px] gap-4 mx-[40px]">
-        <h2 class="text-center text-[24px] text-black">ยืนยันการส่งกลับรายการเบิกค่าใช้จ่าย</h2>
+        <h2 class="text-center text-[24px] text-black font-bold">ยืนยันการส่งกลับรายการเบิกค่าใช้จ่าย</h2>
         <h1 class="text-center text-[#7E7E7E] text-[18px] ">คุณยืนยันการส่งกลับรายการเบิกค่าใช้จ่ายหรือไม่ ?</h1>
         <div class="flex flex-col gap-[5px]">
           <p class="text-start text-black text-[16px]">ระบุเหตุผล <span class="text-red-500">*</span></p>
@@ -541,10 +541,10 @@ const previewFile = (file: string) => {
         </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mb-4">
-        ยืนยันการอัปเดตสถานะคำขอเบิก
+        ยืนยันการนำจ่ายรายการเบิกค่าใช้จ่าย
       </h2>
       <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-        คุณยืนยันการอัปเดตสถานะคำขอเบิกหรือไม่ ?
+        คุณยืนยันการนำจ่ายรายการเบิกค่าใช้จ่ายหรือไม่ ?
       </h2>
       <div class="flex justify-center space-x-4">
         <button @click="handleHideApproverPopup()"

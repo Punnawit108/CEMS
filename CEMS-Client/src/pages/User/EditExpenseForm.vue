@@ -720,10 +720,10 @@ const previewFile = (file: string | File) => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
-          ยืนยันการบันทึกคำขอเบิกค่าใช้จ่าย
+          ยืนยันการบันทึกรายการเบิกค่าใช้จ่าย
         </h2>
         <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+          คุณยืนยันการบันทึกรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
           <button @click="closePopupSave"
@@ -811,7 +811,7 @@ const previewFile = (file: string | File) => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mt-3">
-          บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ
+          ยืนยันการบันทึกรายการเบิกค่าใช้จ่ายสำเร็จ
         </h2>
       </div>
     </div>
