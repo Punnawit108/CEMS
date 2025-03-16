@@ -876,7 +876,7 @@ const confirmDeleteExpense = async () => {
   <div v-if="isPopupAddExpenseOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
       <h2 class="text-[16px] font-bold text-center text-black mb-3">
-        การเพิ่มข้อมูลประเภทค่าใช้จ่าย
+        เพิ่มข้อมูลประเภทค่าใช้จ่าย
       </h2>
       <div class="w-full my-3 flex justify-center">
         <!-- ฟอร์ม -->
