@@ -355,11 +355,11 @@ const previewFile = (file: string) => {
                 statusInfo.label }}</span>
           </h3>
           <div class="flex flex-row pr-8 gap-4">
-            <RouterLink v-if="expenseData.rqStatus == 'edit' && route.name === 'listWithdrawDetail'"
+            <RouterLink
+              v-if="(expenseData.rqStatus === 'edit' || expenseData.rqStatus === 'sketch') && route.name === 'listWithdrawDetail'"
               :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
               <Button :type="'btn-editRequest'"></Button>
             </RouterLink>
-
             <Button :type="'btn-print2'" class="w-[95px] h-[40px]" @click="openPopupPrint"></Button>
           </div>
         </div>
