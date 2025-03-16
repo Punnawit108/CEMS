@@ -157,11 +157,11 @@ const totalPages = computed(() => {
                 </li>
             </ul>
         </nav>
-        <article class="flex flex-col border border-solid border-zinc-400">
+        <article class="flex flex-col border border-solid border-[#B6B7BA]">
             <CardNotification v-if="paginatedNotifications !== null" :notificationInfo="paginatedNotifications" />
 
             <footer
-                class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-zinc-400 min-h-[56px] max-md:max-w-full">
+                class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-b border-solid border-b-[#B6B7BA] min-h-[56px] max-md:max-w-full">
                 <div class="flex grow shrink self-stretch my-auto h-5 min-w-[240px] w-[907px]"></div>
                 <p
                     class="self-stretch my-auto text-xs tracking-wide leading-loose text-right text-black text-opacity-90">
