@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
 * วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
 */
-import { ref, onMounted, reactive } from 'vue';
+import { ref, onMounted, reactive, computed, watch } from 'vue';
 import { useRoute } from 'vue-router';
 import Icon from '../../components/Icon/CIcon.vue';
 import Button from '../../components/Buttons/Button.vue';
@@ -14,6 +14,10 @@ import { useUserStore } from '../../store/user';
 import { User } from '../../types';
 import { useCheckExpenseStore } from '../../store/checkExpense';
 import { useLockStore } from '../../store/lockSystem';
+
+// Import filters
+import UserSearchInput from '../../components/filters/UserSearchInput.vue'
+import FilterButtons from '../../components/filters/FilterButtons.vue'
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
@@ -38,6 +42,30 @@ const approverSequence = reactive({
   apSequence: 0
 })
 const selectedApproverId = ref<number>(0);
+const loading = ref(false);
+
+// เพิ่ม filters สำหรับการค้นหา
+const filters = ref({
+  searchTerm: '',
+});
+
+// Last searched filters
+const lastSearchedFilters = ref({
+  searchTerm: '',
+});
+
+// กรองข้อมูลผู้อนุมัติตามคำค้นหา
+const filteredApprovers = computed(() => {
+  if (!approvalStore.approvers) return [];
+
+  return approvalStore.approvers.filter(approver => {
+    const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
+      approver.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+      approver.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase());
+
+    return matchesSearch;
+  });
+});
 
 // ใช้ Vue Router
 const route = useRoute();
@@ -140,21 +168,48 @@ const lockSystem = () => {
   lockStore.toggleLock();
 };
 
+// ฟังก์ชันสำหรับการค้นหา
+const handleSearch = () => {
+  lastSearchedFilters.value = {
+    searchTerm: filters.value.searchTerm,
+  };
+};
+
+// ฟังก์ชันสำหรับการรีเซ็ต
+const handleReset = () => {
+  // รีเซ็ตค่าในฟิลเตอร์
+  filters.value = {
+    searchTerm: '',
+  };
+  
+  // รีเซ็ตค่าล่าสุดที่ใช้ค้นหา
+  lastSearchedFilters.value = {
+    searchTerm: '',
+  };
+};
+
 // ตรวจสอบ path เมื่อ component โหลด
 onMounted(async () => {
-  await lockStore.fetchLockStatus();
-  await approvalStore.getApprovers();
-  await userStore.getAllUsers();
-  await checkExpenseStore.fetchCheck();
+  loading.value = true;
+  try {
+    await lockStore.fetchLockStatus();
+    await approvalStore.getApprovers();
+    await userStore.getAllUsers();
+    await checkExpenseStore.fetchCheck();
 
-  userNotRepeatWithApprovers.value = userStore.users.filter((user: any) => {
-    return !approvalStore.approvers.map((approver) => approver.usrId).includes(user.usrId)
-  })
+    userNotRepeatWithApprovers.value = userStore.users.filter((user: any) => {
+      return !approvalStore.approvers.map((approver) => approver.usrId).includes(user.usrId)
+    })
 
-  if (route.path === "/systemSettings/disbursementApprover/edit") {
-    isEditPage.value = true;
-  } else {
-    isEditPage.value = false;
+    if (route.path === "/systemSettings/disbursementApprover/edit") {
+      isEditPage.value = true;
+    } else {
+      isEditPage.value = false;
+    }
+  } catch (error) {
+    console.error('Error in mounted:', error);
+  } finally {
+    loading.value = false;
   }
 });
 </script>
@@ -165,26 +220,13 @@ onMounted(async () => {
     <div class="items-center">
       <div>
         <div class="flex justify-between items-center">
-          <div class="h-[60px] w-[266px] flex justify-center">
-            <form class="grid w-full">
-              <label for="SearchBar" class="py-0.5 text-[14px] text-black text-start">ค้นหา</label>
-              <div class="relative h-[32px] w-full flex justify-center items-center">
-                <div class="absolute left-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                  <svg width="19" height="20" viewBox="0 0 19 20" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path
-                      d="M12.6629 13.1759L17 17.5M14.5 8.75C14.5 12.2017 11.7017 15 8.25 15C4.79822 15 2 12.2017 2 8.75C2 5.29822 4.79822 2.5 8.25 2.5C11.7017 2.5 14.5 5.29822 14.5 8.75Z"
-                      stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                  </svg>
-                </div>
-                <input type="text" id="SearchBar"
-                  class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-9"
-                  placeholder="รหัสพนักงาน ,ชื่อ-นามสกุล" />
-              </div>
-            </form>
+          <!-- แทนที่ช่องค้นหาเดิมด้วยฟิลเตอร์ จาก UserSetting.vue -->
+          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 my-5">
+            <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
+            <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
           </div>
 
           <div class="flex space-x-4 my-5 justify-end">
-
             <Button :type="'btn-editProject'" @click="openPopupEdit" class="my-5 px-5">แก้ไขลำดับ</Button>
             <button
               class=" bg-[#B6B7BA] text-white rounded-[6px] h-[40px] px-8 flex items-center text-[14px] font-thin mt-5"
@@ -196,10 +238,8 @@ onMounted(async () => {
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
-
       </div>
     </div>
-
 
     <!-- หน้าหลัก รายการแสดงรายการข้อมูล /-->
     <div>
@@ -211,7 +251,14 @@ onMounted(async () => {
         <p class="w-56 text-end pr-2">จัดการ</p>
       </div>
       <!-- แถบเนื้อหา -->
-      <div v-for="(approver, index) in approvalStore.approvers" :key="approver.usrId"
+      <div v-if="loading" class="flex justify-center items-center py-4">
+        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <span class="ml-2">กำลังโหลดข้อมูล...</span>
+      </div>
+      <div v-else-if="filteredApprovers.length === 0" class="py-4 text-center">
+        ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
+      </div>
+      <div v-else v-for="(approver, index) in filteredApprovers" :key="approver.usrId"
         class="h-[50px] flex items-center justify-between text-[14px] text-black border-b border-[#BBBBBB]">
         <p class="w-20 text-center">{{index + 1 }}</p>
         <p class="w-36 text-center">{{  "6516000" + index + 1 }}</p>
