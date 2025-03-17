@@ -16,24 +16,36 @@ public class PdfService
         _context = context;
     }
 
-    public byte[] GenerateExpenseReport(string? projectName = null, string? requestType = null)
+    public byte[] GenerateExpenseReport(
+        string? searchQuery = null,
+        string? project = null,
+        string? requisitionType = null,
+        DateTime? startDate = null,
+        DateTime? endDate = null
+    )
     {
         // ดึงข้อมูลจากฐานข้อมูลพร้อมเงื่อนไขการกรอง
         var expenses = _context.CemsRequisitions
-            .Join(_context.CemsUsers, e => e.RqUsrId, u => u.UsrId, (e, u) => new
-            {
-                UserFullName = u.UsrFirstName + " " + u.UsrLastName,
-                e.RqName,
-                PjName = e.RqPj.PjName,
-                RqtName = e.RqRqt.RqtName,
-                e.RqPayDate,
-                e.RqExpenses
-            })
-            .Where(e =>
-                (string.IsNullOrEmpty(projectName) || e.PjName == projectName) &&
-                (string.IsNullOrEmpty(requestType) || e.RqtName == requestType)
-            )
-            .ToList();
+        .Join(_context.CemsUsers, e => e.RqUsrId, u => u.UsrId, (e, u) => new
+        {
+            UserFullName = u.UsrFirstName + " " + u.UsrLastName,
+            e.RqName,
+            PjName = e.RqPj.PjName,
+            RqtName = e.RqRqt.RqtName,
+            e.RqPayDate,
+            e.RqExpenses
+        })
+        .Where(e =>
+            (string.IsNullOrEmpty(project) || e.PjName.Contains(project)) &&
+            (string.IsNullOrEmpty(requisitionType) || e.RqtName.Contains(requisitionType)) &&
+            (string.IsNullOrEmpty(searchQuery) || e.UserFullName.Contains(searchQuery)) &&
+            (!startDate.HasValue || e.RqPayDate >= DateOnly.FromDateTime(startDate.Value)) &&
+            (!endDate.HasValue || e.RqPayDate <= DateOnly.FromDateTime(endDate.Value))
+        )
+        .ToList();
+
+        // ตรวจสอบค่า expenses ที่กรองแล้ว
+        Console.WriteLine($"Filtered Expenses Count: {expenses.Count}");
 
         var fontPath = "Fonts/THSarabunNew.ttf";
         using (var fontStream = new FileStream(fontPath, FileMode.Open, FileAccess.Read))
@@ -41,6 +53,7 @@ public class PdfService
             FontManager.RegisterFont(fontStream);
         }
         var font = "TH Sarabun New";
+        
         // ใช้ QuestPDF เพื่อสร้าง PDF
         var document = Document.Create(container =>
         {
@@ -106,7 +119,7 @@ public class PdfService
             .AlignMiddle();
     }
 
-     private static IContainer CellStyleNum(IContainer container)
+    private static IContainer CellStyleNum(IContainer container)
     {
         return container
             .Padding(0)
