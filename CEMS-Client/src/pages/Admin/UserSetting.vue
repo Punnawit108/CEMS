@@ -14,6 +14,19 @@ import { useUserStore } from '../../store/user'
 import { storeToRefs } from 'pinia'
 import type { User } from '../../types'
 
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredUsers.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredUsers.value.slice(start, end);
+});
+
+
 // Import filters
 import UserSearchInput from '../../components/filters/UserSearchInput.vue'
 import DepartmentFilter from '../../components/filters/DepartmentFilter.vue'
@@ -26,10 +39,7 @@ const store = useUserStore()
 const { users } = storeToRefs(store)
 const loading = ref(false)
 
-// Pagination state
-const currentPage = ref(1)  
-const itemsPerPage = ref(10)
-const paginatedUsers = ref<User[]>([])
+
 
 // Filters
 const filters = ref({
@@ -169,7 +179,7 @@ onMounted(async () => {
             <td colspan="9" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
           </tr>
 
-          <tr v-else v-for="(user, index) in paginatedUsers" :key="user.usrId"
+          <tr v-else v-for="(user, index) in paginated" :key="user.usrId"
             class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
             <th class="py-[12px] px-2 w-12 h-[46px]">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
             <th class="py-[12px] px-2 w-24">{{ user.usrEmployeeId }}</th>
@@ -203,8 +213,8 @@ onMounted(async () => {
             </th>
           </tr>
         </tbody>
-        <Pagination :items="filteredUsers" :itemsPerPage="itemsPerPage" v-model:currentPage="currentPage"
-          v-model:paginatedItems="paginatedUsers" :showEmptyRows="true" />
+        <Pagination :currentPage="currentPage" :totalPages="totalPages"
+        @update:currentPage="(page) => (currentPage = page)" />
       </table>
     </div>
   </div>

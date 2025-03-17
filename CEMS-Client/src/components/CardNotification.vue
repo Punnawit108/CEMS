@@ -39,9 +39,14 @@ const getStatusMessage = (rqStatus: string, rqProgress: string): string => {
 
 const sortedNotifications = computed(() => {
     return props.notificationInfo.sort((a: any, b: any) => {
+        // เรียงลำดับ unread ก่อน read
         if (a.ntStatus === 'unread' && b.ntStatus === 'read') return -1;
         if (a.ntStatus === 'read' && b.ntStatus === 'unread') return 1;
-        return 0;
+
+        // เรียงลำดับตามวันที่ล่าสุดเป็นอันดับแรก
+        const dateA = new Date(a.ntAprDate).getTime();
+        const dateB = new Date(b.ntAprDate).getTime();
+        return dateB - dateA; // จากใหม่ไปเก่า
     });
 });
 
@@ -69,7 +74,7 @@ const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: st
     <section v-for="item in sortedNotifications" :key="item.ntId" @click="() => {
         updateStatus(item.ntId);
         navigateToDetail(item.ntAprRqId, item.ntAprStatus, item.ntAprRqProgress);
-    }" class="flex justify-between py-6 pl-4 border-b border-solid border-b-zinc-400 hover:cursor-pointer"
+    }" class="flex justify-between py-6 pl-4 border-b border-solid border-b-[#B6B7BA] hover:cursor-pointer"
         :class="[item.ntStatus === 'unread' ? 'bg-white' : 'bg-[#f7f7f7]']">
         <div
             class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">

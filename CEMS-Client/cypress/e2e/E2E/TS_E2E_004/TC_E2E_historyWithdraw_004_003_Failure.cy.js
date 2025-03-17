@@ -1,6 +1,6 @@
 /*
-* ชื่อไฟล์: TC_E2E_historyWithdraw_004_003_Success.cy.js
-* คำอธิบาย: E2E test Filter Success
+* ชื่อไฟล์: TC_E2E_historyWithdraw_004_003_Failure.cy.js
+* คำอธิบาย: E2E test Filter Failure
 * ชื่อผู้เขียน/แก้ไข: นายเทียนชัย คูเมือง
 * วันที่จัดทำ/แก้ไข:  13 มีนาคม 2567
 */
@@ -25,7 +25,7 @@ describe("Dashboard Tests", () => {
     cy.xpath('//*[@id="SearchRqName"]').type('เบิกค่าใช้จ่าย');
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[1]/div[5]/div[2]/div[2]/button[2]').click();
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table/tbody/tr').each(($row) => {
-      cy.wrap($row).should('contain', 'เบิกค่าใช้จ่าย');
+      cy.wrap($row).should('contain', 'เบิกค่าอาหาร');
     });
     cy.wait(1000);
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[1]/div[5]/div[2]/div[2]/button[1]').click();
@@ -34,7 +34,7 @@ describe("Dashboard Tests", () => {
     cy.xpath('/html/body/div/div/div/div/div/div[2]/div/div[1]/div[2]/form/div/select').select('งานเลี้ยง');
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[1]/div[5]/div[2]/div[2]/button[2]').click();
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table/tbody/tr').each(($row) => {
-      cy.wrap($row).should('contain', 'งานเลี้ยง');
+      cy.wrap($row).should('contain', 'สัมนา');
     });
     cy.wait(1000);
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[1]/div[5]/div[2]/div[2]/button[1]').click();
@@ -43,7 +43,7 @@ describe("Dashboard Tests", () => {
     cy.xpath('/html/body/div/div/div/div/div/div[2]/div/div[1]/div[3]/form/div/select').select('ค่าที่พัก');
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[1]/div[5]/div[2]/div[2]/button[2]').click();
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[2]/table/tbody/tr').each(($row) => {
-      cy.wrap($row).should('contain', 'ค่าที่พัก');
+      cy.wrap($row).should('contain', 'ค่าเดินทาง');
     });
     cy.wait(1000);
     cy.xpath('//*[@id="app"]/div/div/div/div/div[2]/div/div[1]/div[5]/div[2]/div[2]/button[1]').click();

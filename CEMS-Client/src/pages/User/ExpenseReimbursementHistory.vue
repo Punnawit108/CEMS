@@ -21,6 +21,19 @@ import ProjectFilter from '../../components/Filters/ProjectFilter.vue';
 import RequisitionTypeFilter from '../../components/Filters/RequisitionTypeFilter.vue';
 import DateFilter from '../../components/Filters/DateFilter.vue';
 import FilterButtons from '../../components/Filters/FilterButtons.vue';
+import Pagination from '../../components/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredHistory.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredHistory.value.slice(start, end);
+});
 
 const expenseReimbursementStore = useExpenseReimbursement();
 const { expenseReimbursementHistory } = storeToRefs(expenseReimbursementStore);
@@ -424,9 +437,9 @@ onMounted(async () => {
               <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
             </tr>
   
-            <tr v-else v-for="(expenseReimbursementItem, index) in filteredHistory"
+            <tr v-else v-for="(expenseReimbursementItem, index) in paginated"
                 :key="expenseReimbursementItem.rqId" class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
-              <th class="py-[12px] px-2 w-14">{{ index + 1 }}</th>
+              <th class="py-[12px] px-2 w-14">{{ index + 1 + (currentPage - 1) * itemsPerPage  }}</th>
               <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
                   style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expenseReimbursementItem.rqName">
@@ -458,10 +471,9 @@ onMounted(async () => {
               </th>
             </tr>
           </tbody>
+          <Pagination :currentPage="currentPage" :totalPages="totalPages"
+          @update:currentPage="(page) => (currentPage = page)" />
         </table>
-        <div>
-          <Ctable :table="'Table9-footer'" />
-        </div>
       </div>
     </div>
 </template>
