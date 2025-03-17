@@ -23,7 +23,7 @@ import ProjectFilter from "../../components/Filters/ProjectFilter.vue";
 import RequisitionTypeFilter from "../../components/Filters/RequisitionTypeFilter.vue";
 import DateFilter from "../../components/Filters/DateFilter.vue";
 import FilterButtons from "../../components/Filters/FilterButtons.vue";
-import Pagination from '../../components/Pagination.vue';
+import Pagination from "../../components/Pagination.vue";
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -508,7 +508,9 @@ onMounted(async () => {
             :key="expenseReimbursementItem.rqId"
             class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50"
           >
-            <th class="py-[12px] px-2 w-14">{{ index + 1 + (currentPage - 1) * itemsPerPage  }}</th>
+            <th class="py-[12px] px-2 w-14">
+              {{ index + 1 + (currentPage - 1) * itemsPerPage }}
+            </th>
             <th
               class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
               style="
@@ -541,9 +543,15 @@ onMounted(async () => {
             </th>
             <th class="py-[12px] px-5 w-32 text-end">
               {{
-                new Decimal(expenseReimbursementItem.rqExpenses ?? 0).toFixed(2)
+                new Decimal(expenseReimbursementItem.rqExpenses ?? 0)
+                  .toNumber()
+                  .toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
               }}
             </th>
+
             <th class="py-[12px] px-2 w-28 text-center">
               <span>
                 <StatusBudge
@@ -568,8 +576,11 @@ onMounted(async () => {
             </th>
           </tr>
         </tbody>
-        <Pagination :currentPage="currentPage" :totalPages="totalPages"
-        @update:currentPage="(page) => (currentPage = page)" />
+        <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          @update:currentPage="(page) => (currentPage = page)"
+        />
       </table>
     </div>
 

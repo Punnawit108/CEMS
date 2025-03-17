@@ -62,55 +62,55 @@ const originalUser = {
 const user = reactive({ ...originalUser });
 
 onMounted(async () => {
-  try {
-    // โหลดข้อมูลผู้ใช้ทั้งหมดหากยังไม่ได้โหลด
-    if (users.value.length === 0) {
-      await store.getAllUsers();
-    }
-    
-    // เพิ่มส่วนนี้: สร้าง API request ใหม่เพื่อดึงข้อมูลผู้ใช้เฉพาะราย
-    // แม้ว่าข้อมูลจะมีอยู่แล้วใน store แต่เราจะเรียก API อีกครั้งเพื่อให้มี HTTP request
-    // สำหรับการทดสอบ และป้องกันการแคชด้วยการเพิ่ม timestamp
     try {
-      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
-      // ป้องกันการแคชโดยเพิ่ม timestamp เป็น query parameter
-      const timestamp = new Date().getTime();
-      const response = await axios.get(`/api/user/${userIdStr}?t=${timestamp}`, {
-        headers: {
-          // เพิ่ม headers เพื่อป้องกันการแคช
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+        // โหลดข้อมูลผู้ใช้ทั้งหมดหากยังไม่ได้โหลด
+        if (users.value.length === 0) {
+            await store.getAllUsers();
         }
-      });
-      console.log('Fetched specific user details:', response.data);
-      // ยังคงใช้ข้อมูลจาก store เพื่อไม่ให้กระทบกับการทำงานเดิม
+
+        // เพิ่มส่วนนี้: สร้าง API request ใหม่เพื่อดึงข้อมูลผู้ใช้เฉพาะราย
+        // แม้ว่าข้อมูลจะมีอยู่แล้วใน store แต่เราจะเรียก API อีกครั้งเพื่อให้มี HTTP request
+        // สำหรับการทดสอบ และป้องกันการแคชด้วยการเพิ่ม timestamp
+        try {
+            const userIdStr = Array.isArray(userId) ? userId[0] : userId;
+            // ป้องกันการแคชโดยเพิ่ม timestamp เป็น query parameter
+            const timestamp = new Date().getTime();
+            const response = await axios.get(`/api/user/${userIdStr}?t=${timestamp}`, {
+                headers: {
+                    // เพิ่ม headers เพื่อป้องกันการแคช
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            });
+            console.log('Fetched specific user details:', response.data);
+            // ยังคงใช้ข้อมูลจาก store เพื่อไม่ให้กระทบกับการทำงานเดิม
+        } catch (error) {
+            console.log('Extra API call for testing purposes only:', error);
+        }
+
+        // โค้ดเดิมที่ใช้ข้อมูลจาก store
+        const foundUser = users.value.find(u => u.usrId === userId);
+        if (foundUser) {
+            user.firstName = foundUser.usrFirstName;
+            user.lastName = foundUser.usrLastName;
+            user.employeeId = foundUser.usrEmployeeId;
+            user.phoneNumber = foundUser.usrPhoneNumber || '';
+            user.email = foundUser.usrEmail;
+            user.affiliation = foundUser.usrCpnName;
+            user.position = foundUser.usrPstName;
+            user.department = foundUser.usrDptName;
+            user.division = foundUser.usrStName;
+            // แปลง role จากอังกฤษเป็นไทย
+            user.role = reverseRoleMapping[foundUser.usrRolName] || foundUser.usrRolName;
+            user.status = foundUser.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ';
+            user.viewReportPermission = foundUser.usrIsSeeReport === 1;
+
+            Object.assign(originalUser, user);
+        }
     } catch (error) {
-      console.log('Extra API call for testing purposes only:', error);
+        console.error('Failed to load user data:', error);
     }
-
-    // โค้ดเดิมที่ใช้ข้อมูลจาก store
-    const foundUser = users.value.find(u => u.usrId === userId);
-    if (foundUser) {
-      user.firstName = foundUser.usrFirstName;
-      user.lastName = foundUser.usrLastName;
-      user.employeeId = foundUser.usrEmployeeId;
-      user.phoneNumber = foundUser.usrPhoneNumber || '';
-      user.email = foundUser.usrEmail;
-      user.affiliation = foundUser.usrCpnName;
-      user.position = foundUser.usrPstName;
-      user.department = foundUser.usrDptName;
-      user.division = foundUser.usrStName;
-      // แปลง role จากอังกฤษเป็นไทย
-      user.role = reverseRoleMapping[foundUser.usrRolName] || foundUser.usrRolName;
-      user.status = foundUser.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ';
-      user.viewReportPermission = foundUser.usrIsSeeReport === 1;
-
-      Object.assign(originalUser, user);
-    }
-  } catch (error) {
-    console.error('Failed to load user data:', error);
-  }
 });
 
 // ฟังก์ชันสลับโหมดแก้ไข
@@ -201,19 +201,21 @@ const confirmCancle = async () => {
                     <div class="flex justify-end">
                         <template v-if="!isEditing">
                             <button @click="toggleEdit"
-                                class="btn-แก้ไขผู้ใช้ bg-yellow text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center">
-                                แก้ไข
+                                class="btn- แก้ไขผู้ใช้ bg-yellow text-white rounded-[6px] h-[35px] w-[100px]  px-4 flex items-center text-[14px] font-thin justify-center">
+                                แก้ไขผู้ใช้
                             </button>
                         </template>
                         <template v-else>
-                            <button @click="openPopupSubmit"
-                                class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center mr-2">
-                                ยืนยัน
-                            </button>
-                            <button @click="confirmCancle"
-                                class="btn-ยกเลิก bg-red-600 text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center">
-                                ยกเลิก
-                            </button>
+                            <div class="flex gap-4">
+                                <button @click="confirmCancle"
+                                    class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[35px] w-[100px] px-6 flex items-center justify-center text-[14px] font-thin">
+                                    ยกเลิก
+                                </button>
+                                <button @click="openPopupSubmit"
+                                    class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[35px] w-[100px] px-6 flex items-center justify-center text-[14px] font-thin">
+                                    ยืนยัน
+                                </button>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -340,7 +342,7 @@ const confirmCancle = async () => {
         </div>
     </div>
 
-    
+
 
     <!-- Alert ยืนยัน -->
     <div v-if="isAlertSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -357,61 +359,4 @@ const confirmCancle = async () => {
             <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการแก้ไขผู้ใช้สำเร็จ</h2>
         </div>
     </div>
-
-
 </template>
-
-<style scoped>
-.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-input:disabled {
-    opacity: 0.5;
-    background-color: #f0f0f0;
-}
-
-select:disabled {
-    opacity: 0.5;
-    background-color: #f0f0f0;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-button {
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-button:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-input[type="checkbox"] {
-    border: 2px solid #d1d5db;
-    border-radius: 4px;
-    background-color: white;
-}
-
-input[type="checkbox"]:checked {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
-}
-
-input[type="checkbox"]:disabled {
-    background-color: #f3f4f6;
-    border-color: #d1d5db;
-}
-</style>
