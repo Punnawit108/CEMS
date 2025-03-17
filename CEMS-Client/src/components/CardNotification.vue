@@ -28,12 +28,24 @@ const formatDateTime = (dateTime: string): string => {
 };
 
 const getStatusMessage = (rqStatus: string, rqProgress: string): string => {
-    if (rqStatus === "waiting" || rqStatus === "accept") return "รอดำเนินการอนุมัติ";
-    if (rqStatus == "accept" && rqProgress == "paying") return "ได้รับการอนุมัติเรียบร้อยแล้ว";
-    if (rqStatus === "edit") return "แก้ไขเพิ่มเติม กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
-    if (rqStatus === "reject") return "ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
-    if (rqStatus == "accept" && rqProgress === "complete") return "ได้รับการนำจ่ายเรียบร้อยแล้ว";
-    if (rqProgress === "paying" && rqStatus == "accept") return "รอนำจ่าย";
+    if (rqStatus === "waiting") {
+        return "รอดำเนินการอนุมัติ";
+    }
+    if (rqStatus === "accept") {
+        if (rqProgress === "paying") {
+            return "รอนำจ่าย";
+        }
+        if (rqProgress === "complete") {
+            return "ได้รับการนำจ่ายเรียบร้อยแล้ว";
+        }
+        return "ได้รับการอนุมัติเรียบร้อยแล้ว";
+    }
+    if (rqStatus === "edit") {
+        return "แก้ไขเพิ่มเติม กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
+    }
+    if (rqStatus === "reject") {
+        return "ไม่ผ่านการอนุมัติ กรุณาตรวจสอบเหตุผล และแก้ไขข้อมูลที่จำเป็นเพื่อยื่นคำร้องใหม่อีกครั้ง";
+    }
     return "";
 };
 
