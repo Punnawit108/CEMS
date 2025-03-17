@@ -309,15 +309,37 @@ public class ExpenseController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
-        if (expenseDto.RqStatus != "sketch")
+        await HandleApproverRequisitions(rqId, expenseDto.RqStatus);
+
+        return CreatedAtAction(
+            nameof(GetExpenseList),
+            new { id = expense.RqId },
+            expenseDto.RqStatus == "sketch"
+                ? new
+                {
+                    Message = "The requisition has been created in sketch status.",
+                    Id = expense.RqId,
+                }
+                : expenseDto
+        );
+    }
+
+    /// <summary>สร้างข้อมูลผู้อนุมัติ</summary>
+    /// <param name="rqId"> รหัสคำขอเบิก /param>
+    /// <param name="rqStatus"> สถานะคำขอเบิก /param>
+    /// <returns>สถานะการสร้างข้อมูลผู้อนุมัติ /returns>
+    /// <remarks>แก้ไขล่าสุด: 16 มีนาคม 2568 โดย นายพงศธร บุญญามา</remark>
+    private async Task HandleApproverRequisitions(string rqId, string rqStatus)
+    {
+        if (rqStatus != "sketch")
         {
-            ///หาข้อมูล AprId ตัวสุดท้าย
-            var lastAprId = _context
+            // หาข้อมูล AprId ตัวสุดท้าย
+            var lastAprId = await _context
                 .CemsApproverRequisitions.OrderByDescending(x => x.AprId)
                 .Select(x => x.AprId)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
-            ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
+            // ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
             int newAprId = (lastAprId ?? 0) + 1;
 
             var approverIds = await _context
@@ -354,17 +376,7 @@ public class ExpenseController : ControllerBase
             }
             await _hubContext.Clients.All.SendAsync("ReceiveNotification");
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
         }
-        return CreatedAtAction(
-            nameof(GetExpenseList),
-            new { id = expense.RqId },
-            new
-            {
-                Message = "The requisition has been created in sketch status.",
-                Id = expense.RqId,
-            }
-        );
     }
 
     /// <summary>หาค่า RqCode ล่าสุด</summary>
@@ -477,28 +489,30 @@ public class ExpenseController : ControllerBase
                     FFileType = file.ContentType,
                     FSize = (int)file.Length,
                     FUniqueName = uniqueFileName,
-                    FPath = $"/assets/upload/{uniqueFileName}", // เส้นทางไฟล์ใน server
+                    FPath = $"/assets/upload/{uniqueFileName}",
                 };
-
-                // เพิ่มข้อมูลไฟล์ลงในฐานข้อมูล
                 _context.CemsFiles.Add(cemsFile);
             }
-
-            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
             await _context.SaveChangesAsync();
         }
 
         if (expenseDto.RqStatus == "waiting")
         {
-            var approvers = await _context
-                .CemsApproverRequisitions.Where(a => a.AprRqId == id && a.AprStatus == "edit")
-                .ToListAsync();
+            var approver = await _context.CemsApproverRequisitions.FirstOrDefaultAsync(a =>
+                a.AprRqId == id && a.AprStatus == "edit"
+            );
 
-            foreach (var approver in approvers)
+            if (approver != null)
             {
                 approver.AprStatus = "waiting";
                 approver.AprName = null;
                 approver.AprDate = null;
+
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                await HandleApproverRequisitions(id, expenseDto.RqStatus);
             }
         }
         await _context.SaveChangesAsync();

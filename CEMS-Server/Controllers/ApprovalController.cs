@@ -112,7 +112,7 @@ public class ApprovalController : ControllerBase
             e.UsrFirstName,
             e.UsrLastName,
             e.AprName,
-            AprDate = e.AprDate.HasValue ? e.AprDate.Value.ToString("dd/MM/yy HH:mm") : null,
+            AprDate = e.AprDate.HasValue ? e.AprDate.Value.ToString("dd/MM/yy HH:mm", new CultureInfo("en-EN")) : null,
             e.AprStatus,
         });
 

@@ -15,6 +15,19 @@ import { onMounted, ref, computed, watch } from 'vue';
 import { Expense } from '../../types';
 import Decimal from 'decimal.js';
 import { storeToRefs } from 'pinia';
+import Pagination from '../../components/Pagination.vue';
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredApprovals.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return filteredApprovals.value.slice(start, end);
+});
 
 // Import filters
 import UserSearchInput from '../../components/filters/UserSearchInput.vue';
@@ -301,58 +314,28 @@ const toDetails = async (data: Expense) => {
         <!-- Filter -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             <!-- ค้นหาชื่อผู้ใช้ -->
-            <UserSearchInput
-                v-model="filters.searchQuery"
-                :loading="loading"
-                label="ค้นหาชื่อผู้ใช้"
-            />
+            <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
 
             <!-- โครงการ -->
-            <ProjectFilter
-                v-model="filters.project"
-                :projects="projects"
-                :loading="loading"
-            />
+            <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
 
             <!-- ประเภทค่าใช้จ่าย -->
-            <RequisitionTypeFilter
-                v-model="filters.requisitionType"
-                :requisition-types="requisitionTypes"
-                :loading="loading"
-            />
+            <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+                :loading="loading" />
 
             <!-- วันที่เริ่มต้นขอเบิก -->
-            <DateFilter
-                v-model="startDateTemp"
-                :loading="loading"
-                label="วันที่เริ่มต้นขอเบิก"
-                :is-open="isStartDatePickerOpen"
-                @update:is-open="isStartDatePickerOpen = $event"
-                :confirmed-date="filters.startDate"
-                @confirm="confirmStartDate"
-                @cancel="cancelStartDate"
-            />
+            <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+                :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+                :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
 
             <!-- วันที่สิ้นสุดขอเบิก -->
             <div class="flex flex-col">
-                <DateFilter
-                    v-model="endDateTemp"
-                    :loading="loading"
-                    label="วันที่สิ้นสุดขอเบิก"
-                    :is-open="isEndDatePickerOpen"
-                    @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate"
-                    @confirm="confirmEndDate"
-                    @cancel="cancelEndDate"
-                    class="mb-2"
-                />
+                <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
+                    :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
+                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
 
                 <!-- ปุ่มค้นหาและรีเซ็ต -->
-                <FilterButtons 
-                    :loading="loading"
-                    @reset="handleReset"
-                    @search="handleSearch"
-                />
+                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
             </div>
         </div>
 
@@ -378,22 +361,23 @@ const toDetails = async (data: Expense) => {
                         <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                     </tr>
 
-                    <tr v-else v-for="(item, index) in filteredApprovals" :key="item.rqId" 
+                    <tr v-else v-for="(item, index) in paginated" :key="item.rqId" 
                         class="border-b hover:bg-gray-50">
-                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
+                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
                         <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="item.usrName">
                             {{ item.usrName }}
                         </th>
-                        <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
+                        <th class="py-[11px] px-2 text-start w-40 truncate overflow-hidden"
                             style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                             :title="item.rqName">
                             {{ item.rqName }}
                         </th>
-                        <th class="py-[11px] px-2 text-start w-48">{{ item.pjName }}</th>
+                        <th class="py-[11px] px-2 text-start w-40">{{ item.pjName }}</th>
                         <th class="py-[11px] px-5 text-start w-32">{{ item.rqtName }}</th>
-                        <th class="py-[11px] px-5 text-end w-32">{{new Decimal(item.rqExpenses ?? 0).toFixed(2)  }}</th>
+                        <th class="py-[11px] px-5 text-start w-28">{{ item.rqWithdrawDate }}</th>
+                        <th class="py-[11px] px-5 text-end w-32">{{new Decimal(item.rqExpenses ?? 0).toFixed(2) }}</th>
                         <th class="py-[11px] px-2 text-center w-28 ">
                             <span>
                                 <StatusBudge :status="'sts-' + item.rqStatus"></StatusBudge>
@@ -404,8 +388,9 @@ const toDetails = async (data: Expense) => {
                         </th>
                     </tr>
                 </tbody>
+                <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                @update:currentPage="(page) => (currentPage = page)" />
             </table>
-            <Ctable :table="'Table8-footer'" />
         </div>
     </div>
 </template>

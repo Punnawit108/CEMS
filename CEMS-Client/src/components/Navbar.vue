@@ -1,44 +1,45 @@
-<script setup lang="ts">
-/*
+
+ <script setup lang="ts">
+ /*
  * ชื่อไฟล์: Navbar.vue
  * คำอธิบาย: ไฟล์นี้ Component Navbar หรือ Header
  * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
  * วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
  */
-import { ref, watchEffect, defineProps } from "vue";
-
-import { useRoute } from "vue-router";
-import { computed, onMounted } from "vue";
-import Icon from "./Icon/CIcon.vue";
-import Button from "./Buttons/Button.vue";
-import { useLockStore } from "../store/lockSystem";
-
-// ใช้ route เพื่อดึงข้อมูลเส้นทางปัจจุบัน
-const route = useRoute();
-const lockStore = useLockStore();
-let name_navbar = "";
-// คำนวณข้อความของ navbar ตามเส้นทางปัจจุบัน
-const navbarTitle = computed(() => {
-  name_navbar = route.name as string;
-  return route.meta.breadcrumb;
-});
-
-// const name_navbar = ref("default-icon");
-// watchEffect(() => {
-//   name_navbar.value = (route.name as string) || "default-icon";
-//   console.log("Navbar Name:", name_navbar.value);
-// });
-
-onMounted(async () => {
-  await lockStore.fetchLockStatus();
-});
-
-const handleClick = () => {
-  if (lockStore.isLocked) {
-    alert("ไม่สามารถทำรายการเบิกได้ในขณะนี้");
-  }
-};
-</script>
+ import { ref, watchEffect, defineProps } from "vue";
+ import { useRoute } from "vue-router";
+ import { computed, onMounted } from "vue";
+ import Icon from "./Icon/CIcon.vue";
+ import Button from "./Buttons/Button.vue";
+ import { useLockStore } from "../store/lockSystem";
+ 
+ const route = useRoute();
+ const lockStore = useLockStore();
+ 
+ const navbarTitle = computed(() => {
+     if (route.query.fromNotification) {
+         return "การแจ้งเตือน"; // แสดง "การแจ้งเตือน" เมื่อมาจากการแจ้งเตือน
+     }
+     return route.meta.breadcrumb; // แสดง breadcrumb ตามปกติ
+ });
+ 
+ let name_navbar = computed(() => {
+     if (route.query.fromNotification === 'true') {
+         return 'notification'; // แสดงไอคอนการแจ้งเตือนเมื่อมาจากการแจ้งเตือน
+     }
+     return route.name as string; // แสดงไอคอนตามชื่อเส้นทางปกติ
+ });
+ 
+ onMounted(async () => {
+   await lockStore.fetchLockStatus();
+ });
+ 
+ const handleClick = () => {
+   if (lockStore.isLocked) {
+     alert("ไม่สามารถทำรายการเบิกได้ในขณะนี้");
+   }
+ };
+ </script>
 
 <template>
   <!-- navbar -->

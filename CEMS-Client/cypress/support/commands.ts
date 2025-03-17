@@ -37,6 +37,7 @@ declare global {
 }
 
 import 'cypress-xpath';
+import 'cypress-downloadfile/lib/downloadFileCommand';
 
 Cypress.Commands.add('login', (id: string, password: string) => {
     cy.visit('http://localhost:5173/login');
