@@ -104,7 +104,24 @@ const lastSearchedFilters = ref({
   startDate: undefined as Date | undefined,
   endDate: undefined as Date | undefined,
 });
+const exportFilteredFile = async (fileType: string) => {
+  // ตรวจสอบว่ามีการกรอกฟิลเตอร์หรือไม่
+  const filters = {
+    searchQuery: lastSearchedFilters.value.searchQuery,
+    project: lastSearchedFilters.value.project,
+    requisitionType: lastSearchedFilters.value.requisitionType,
+    startDate: lastSearchedFilters.value.startDate ? lastSearchedFilters.value.startDate.toISOString() : undefined,
+    endDate: lastSearchedFilters.value.endDate ? lastSearchedFilters.value.endDate.toISOString() : undefined,
+  };
 
+  // เรียกใช้งาน store เพื่อส่งค่าฟิลเตอร์ไปพร้อมกับการส่งออกไฟล์
+  try {
+    const exportStore = useExportExpenseReportStore();
+    await exportStore.exportFile(fileType, filters);
+  } catch (error) {
+    console.error("Error during file export:", error);
+  }
+};
 // Date picker state
 const startDateTemp = ref(new Date());
 const endDateTemp = ref(new Date());
@@ -373,8 +390,18 @@ const handleExport = (type: string) => {
 const exportFile = async () => {
   if (!selectedType.value) return;
 
+  // กำหนดค่าฟิลเตอร์ที่จะส่งไป
+  const filters = {
+    searchQuery: lastSearchedFilters.value.searchQuery,
+    project: lastSearchedFilters.value.project,
+    requisitionType: lastSearchedFilters.value.requisitionType,
+    startDate: lastSearchedFilters.value.startDate,
+    endDate: lastSearchedFilters.value.endDate,
+  };
+
   try {
-    await exportReportStore.exportFile(selectedType.value);
+    // ส่งฟิลเตอร์ไปยัง store
+    await exportReportStore.exportFile(selectedType.value, filters);
 
     selectedType.value = null;
     showModal.value = false;
