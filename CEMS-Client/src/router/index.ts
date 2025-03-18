@@ -34,16 +34,16 @@ import Table from '../components/ForUse/Table.vue';
 import UploadPicture from '../components/UploadPicture.vue';
 import ForUseButton from '../components/ForUse/ForUseButton.vue';
 import ForUseStatus from '../components/ForUse/ForUseStatus.vue';
-import Test from '../pages/User/Test.vue';
+// import Test from '../pages/User/Test.vue';
 
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    {
-      path: '/test',
-      name: 'test',
-      component: Test
-    },
+    // {
+    //   path: '/test',
+    //   name: 'test',
+    //   component: Test
+    // },
     {
       path: '/temp/icon',
       name: 'icon',
