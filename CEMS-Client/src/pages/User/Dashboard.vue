@@ -11,6 +11,7 @@ import { useDashboard } from "../../store/dashboard";
 import { useDashboardDetail } from "../../store/dashboard";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Decimal from 'decimal.js';
+import { computed } from "vue";
 
 
 import {
@@ -30,9 +31,6 @@ import {
 //รับค่า useDashboardDetail จาก store มาเก็บ
 const dashboardDetailStore = useDashboardDetail();
 const user = ref<any>(null);
-
-
-
 
 //ค้นหา user
 const loadUser = async () => {
@@ -68,8 +66,15 @@ const projectData = ref<any>(null);
 
 // Function to format decimal numbers
 const formatDecimal = (value: number) => {
-  return new Decimal(value).toFixed(2);
+  return new Decimal(value)
+    .toFixed(2) // ปรับให้มีทศนิยม 2 จุด
+    .replace(/\B(?=(\d{3})+(?!\d))/g, ","); // เพิ่ม , คั่นหลักพัน
 };
+
+const formatNumber = (value: number) => {
+  return value.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+};
+
 
 //ประกาศตัวแปร ประเภทค่าใช้จ่าย
 const requisitionType = ref<any>(null);
@@ -99,6 +104,10 @@ const labels = [
   "November",
   "December",
 ];
+
+const sortedProjectData = computed(() => {
+  return projectData.value ? [...projectData.value].sort((a, b) => b.totalPjExpense - a.totalPjExpense) : [];
+});
 
 onMounted(async () => {
   //ตรวจสอบว่าเป็น Role user หรือไม่ แล้วเก็บค่าลงตัวแปร
@@ -387,7 +396,7 @@ onMounted(async () => {
       <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
         <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox">
           <p class="font16">{{ item.key }}</p>
-          <p class="font35">{{ item.value }}</p>
+          <p class="font35">{{ formatNumber(item.value) }}</p>
         </div>
       </div>
 
@@ -407,14 +416,10 @@ onMounted(async () => {
             </tr>
           </thead>
           <tbody>
-            <!-- แถว 1 -->
-            <tr v-for="(project, index) in projectData">
+            <tr v-for="(project, index) in sortedProjectData" :key="index">
               <td class="text-right">{{ index + 1 }}</td>
               <td class="textOverflow">{{ project.pjName }}</td>
-              <td class="text-right">
-                {{ new Decimal(project.totalPjExpense ?? 0).toFixed(2) }}
-
-              </td>
+              <td class="text-right">{{ formatDecimal(project.totalPjExpense ?? 0) }}</td>
             </tr>
           </tbody>
         </table>
