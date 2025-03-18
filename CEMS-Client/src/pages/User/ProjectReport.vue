@@ -31,11 +31,6 @@ import {
 } from "chart.js";
 import { storeToRefs } from "pinia";
 
-const paginated = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return projectsStore.projects.slice(start, end);
-});
 // Register Chart.js components, including for the bar chart
 Chart.register(
   BarController,
