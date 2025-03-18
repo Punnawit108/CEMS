@@ -75,9 +75,12 @@ const filteredUsers = computed(() => {
   if (!users.value) return []
 
   return users.value.filter(user => {
+    const fullName = `${user.usrFirstName} ${user.usrLastName}`.toLowerCase()
+
     const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
       user.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       user.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+      fullName.includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       user.usrEmployeeId.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase())
 
     const matchesDepartment = lastSearchedFilters.value.department === '' ||

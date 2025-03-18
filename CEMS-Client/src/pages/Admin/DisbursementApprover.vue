@@ -61,9 +61,12 @@ const filteredApprovers = computed(() => {
   if (!approvalStore.approvers) return [];
 
   return approvalStore.approvers.filter(approver => {
+    const fullName = `${approver.usrFirstName} ${approver.usrLastName}`.toLowerCase()
+
     const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
       approver.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       approver.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+      fullName.includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       approver.usrEmployeeId.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase());
 
     return matchesSearch;
