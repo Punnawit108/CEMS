@@ -96,6 +96,8 @@ const handleClick = () => {
   }
 };
 
+
+
 // showModal และ selectedItemId สำหรับการลบรายการ
 const showModal = ref(false);
 const selectedItemId = ref<string | null>(null);
@@ -415,12 +417,11 @@ onMounted(async () => {
   }
 });
 
-const formatDate = (dateStr: string): string => {
-  if (!dateStr) return "";
-  // สมมติว่า dateStr อยู่ในรูปแบบ "YYYY-MM-DD"
-  const [year, month, day] = dateStr.split("-");
-  const buddhistYear = Number(year) + 543;
-  return `${day}/${month}/${buddhistYear}`;
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "-";
+  const parts = dateString.split("-");
+  if (parts.length !== 3) return dateString;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
 </script>
@@ -454,7 +455,6 @@ const formatDate = (dateStr: string): string => {
         <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
           @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
           @cancel="cancelEndDate" class="mb-4"/>
-
         <!-- ปุ่มค้นหาและรีเซ็ต -->
         <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>
@@ -500,10 +500,10 @@ const formatDate = (dateStr: string): string => {
               </th>
               <th class="py-3 px-5 w-32 text-end">
                 {{
-                new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                })
+                  new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
                 }}
               </th>
               <th class="py-3 px-2 w-20 text-center">
