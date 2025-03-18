@@ -63,7 +63,8 @@ const filteredApprovers = computed(() => {
   return approvalStore.approvers.filter(approver => {
     const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
       approver.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
-      approver.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase());
+      approver.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+      approver.usrEmployeeId.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase());
 
     return matchesSearch;
   });
@@ -249,9 +250,14 @@ onMounted(async () => {
       <div>
         <div class="flex justify-between items-center">
           <!-- แทนที่ช่องค้นหาเดิมด้วยฟิลเตอร์ จาก UserSetting.vue -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 my-5">
-            <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
-            <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+          <div class="flex flex-wrap gap-4 mb-4 lg:mb-0">
+            <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
+              <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
+            </div>
+
+            <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
+              <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+            </div>
           </div>
 
           <div class="flex space-x-4 my-5 justify-end">
