@@ -19,13 +19,20 @@ import Pagination from '../../components/Pagination.vue';
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const totalPages = computed(() => {
-  return Math.ceil(filteredApprovals.value.length / itemsPerPage.value);
+    return Math.ceil(filteredApprovals.value.length / itemsPerPage.value);
 });
 
 const paginated = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredApprovals.value.slice(start, end);
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    const pageItems = filteredApprovals.value.slice(start, end);
+
+    // Add empty rows if fewer than 10 items
+    while (pageItems.length < itemsPerPage.value) {
+        pageItems.push(null);
+    }
+
+    return pageItems;
 });
 
 // Import filters
@@ -288,7 +295,7 @@ onMounted(async () => {
         if (user.value) {
             console.log(user.value.usrId);
             await approvalStore.getApprovalList(user.value.usrId); // เรียกใช้ฟังก์ชันดึงข้อมูลรายการอนุมัติ
-            
+
             // อัปเดตข้อมูลสำหรับตัวกรอง
             projects.value = extractedProjects.value;
             requisitionTypes.value = extractedRequisitionTypes.value;
@@ -315,58 +322,28 @@ const toDetails = async (data: Expense) => {
         <!-- Filter -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             <!-- ค้นหาชื่อผู้ใช้ -->
-            <UserSearchInput
-                v-model="filters.searchQuery"
-                :loading="loading"
-                label="ค้นหาชื่อผู้ใช้"
-            />
+            <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
 
             <!-- โครงการ -->
-            <ProjectFilter
-                v-model="filters.project"
-                :projects="projects"
-                :loading="loading"
-            />
+            <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
 
             <!-- ประเภทค่าใช้จ่าย -->
-            <RequisitionTypeFilter
-                v-model="filters.requisitionType"
-                :requisition-types="requisitionTypes"
-                :loading="loading"
-            />
+            <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+                :loading="loading" />
 
             <!-- วันที่เริ่มต้นขอเบิก -->
-            <DateFilter
-                v-model="startDateTemp"
-                :loading="loading"
-                label="วันที่เริ่มต้นขอเบิก"
-                :is-open="isStartDatePickerOpen"
-                @update:is-open="isStartDatePickerOpen = $event"
-                :confirmed-date="filters.startDate"
-                @confirm="confirmStartDate"
-                @cancel="cancelStartDate"
-            />
+            <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+                :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+                :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
 
             <!-- วันที่สิ้นสุดขอเบิก -->
             <div class="flex flex-col">
-                <DateFilter
-                    v-model="endDateTemp"
-                    :loading="loading"
-                    label="วันที่สิ้นสุดขอเบิก"
-                    :is-open="isEndDatePickerOpen"
-                    @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate"
-                    @confirm="confirmEndDate"
-                    @cancel="cancelEndDate"
-                    class="mb-2"
-                />
+                <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
+                    :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
+                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
 
                 <!-- ปุ่มค้นหาและรีเซ็ต -->
-                <FilterButtons 
-                    :loading="loading"
-                    @reset="handleReset"
-                    @search="handleSearch"
-                />
+                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
             </div>
         </div>
 
@@ -392,29 +369,41 @@ const toDetails = async (data: Expense) => {
                         <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                     </tr>
 
-                    <tr v-else v-for="(item, index) in paginated" :key="item.rqId" class="border-b hover:bg-gray-50">
-                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage  }}</th>
-                        <th class="py-[11px] px-1 text-start w-56 truncate overflow-hidden"
-                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            :title="item.usrName">
-                            {{ item.usrName }}
-                        </th>
-                        <th class="py-[11px] px-5 text-start w-56 truncate overflow-hidden"
-                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            :title="item.rqName">
-                            {{ item.rqName }}
-                        </th>
-                        <th class="py-[11px] px-9 text-start w-56">{{ item.pjName }}</th>
-                        <th class="py-[11px] px-8 text-start w-44">{{ item.rqtName }}</th>
-                        <th class="py-[11px] px-4 text-end w-24">{{ item.rqWithdrawDate }}</th>
-                        <th class="py-[11px] px-7 text-end w-40">{{new Decimal(item.rqExpenses ?? 0).toFixed(2)  }}</th>
-                        <th @click="toDetails(item)" class="py-[11px] px-10 w-20 cursor-pointer hover:text-[#B67D12]">
-                            <Icon :icon="'viewDetails'" />
-                        </th>
+                    <tr v-else v-for="(item, index) in paginated" :key="item ? item.rqId : `empty-${index}`"
+                        :class="item ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+                        <template v-if="item">
+                            <th class="py-3 px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                            <th class="py-3 px-2 text-start truncate overflow-hidden"
+                                style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                :title="item.usrName">
+                                {{ item.usrName }}
+                            </th>
+                            <th class="py-3 px-2 text-start w-40 truncate overflow-hidden"
+                                style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                :title="item.rqName">
+                                {{ item.rqName }}
+                            </th>
+                            <th class="py-3 px-2 text-start w-40">{{ item.pjName }}</th>
+                            <th class="py-3 px-5 text-start w-44">{{ item.rqtName }}</th>
+                            <th class="py-3 px-2 text-start w-32">{{ item.rqWithdrawDate }}</th>
+                            <th class="py-3 px-2 text-end w-40">
+                                {{ new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                                }) }}</th>
+                            <th @click="toDetails(item)" class="py-3 px-2 text-center w-20 hover:text-[#B67D12]">
+                                <span class="flex justify-center">
+                                    <Icon :icon="'viewDetails'" />
+                                </span>
+                            </th>
+                        </template>
+                        <template v-else>
+                            <td class="py-3">&nbsp;</td>
+                        </template>
                     </tr>
                 </tbody>
                 <Pagination :currentPage="currentPage" :totalPages="totalPages"
-                @update:currentPage="(page) => (currentPage = page)" />
+                    @update:currentPage="(page) => (currentPage = page)" />
             </table>
         </div>
     </div>

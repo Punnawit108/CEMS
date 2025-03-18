@@ -23,7 +23,14 @@ const totalPages = computed(() => {
 const paginated = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return filteredUsers.value.slice(start, end);
+  const pageItems = filteredUsers.value.slice(start, end);
+
+  // Add empty rows if fewer than 10 items
+  while (pageItems.length < itemsPerPage.value) {
+    pageItems.push(null);
+  }
+
+  return pageItems;
 });
 
 
@@ -108,7 +115,7 @@ const handleReset = () => {
     division: '',
     role: '',
   }
-  
+
   // Reset last searched filters
   lastSearchedFilters.value = {
     searchTerm: '',
@@ -178,43 +185,48 @@ onMounted(async () => {
           <tr v-else-if="filteredUsers.length === 0">
             <td colspan="9" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
           </tr>
-
-          <tr v-else v-for="(user, index) in paginated" :key="user.usrId"
-            class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
-            <th class="py-[12px] px-2 w-12 h-[46px]">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
-            <th class="py-[12px] px-2 w-24">{{ user.usrEmployeeId }}</th>
-            <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
-              style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-              :title="`${user.usrFirstName} ${user.usrLastName}`">
-              {{ user.usrFirstName }} {{ user.usrLastName }}
-            </th>
-            <th class="py-[12px] px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
-            <th class="py-[12px] px-2 w-24 text-start">{{ user.usrStName }}</th>
-            <th class="py-[12px] px-2 w-20 text-start">{{ user.usrRolName }}</th>
-            <th class="py-[12px] px-2 w-24 text-start">
-              <span :class="user.usrIsActive
-                ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal' 
-                : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
-                {{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}
-              </span>
-            </th>
-            <th class="w-24">
-              <span class="flex justify-center">
-                <input type="checkbox" :checked="user.usrIsSeeReport === 1" disabled
-                  class="w-4 h-4 border-2 border-[#BBBBBB] rounded cursor-not-allowed opacity-70">
-              </span>
-            </th>
-            <th class="py-[10px] px-2 w-24 text-center">
-              <span class="flex justify-center">
-                <div @click="() => navigateToDetail(user.usrId.toString())" class="cursor-pointer hover:text-blue-500">
-                  <Icon :icon="'viewDetails'" />
-                </div>
-              </span>
-            </th>
+          <tr v-for="(user, index) in paginated" :key="user?.usrId ?? `empty-${index}`"
+            :class="user ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+            <template v-if="user">
+              <th class="py-[12px] px-2 w-12 h-[46px]">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
+              <th class="py-[12px] px-2 w-24">{{ user.usrEmployeeId }}</th>
+              <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+                style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                :title="`${user.usrFirstName} ${user.usrLastName}`">
+                {{ user.usrFirstName }} {{ user.usrLastName }}
+              </th>
+              <th class="py-[12px] px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
+              <th class="py-[12px] px-2 w-24 text-start">{{ user.usrStName }}</th>
+              <th class="py-[12px] px-2 w-20 text-start">{{ user.usrRolName }}</th>
+              <th class="py-[12px] px-2 w-24 text-start">
+                <span :class="user.usrIsActive
+                    ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal'
+                    : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
+                  {{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}
+                </span>
+              </th>
+              <th class="w-24">
+                <span class="flex justify-center">
+                  <input type="checkbox" :checked="user.usrIsSeeReport === 1" disabled
+                    class="w-4 h-4 border-2 border-[#BBBBBB] rounded cursor-not-allowed opacity-70">
+                </span>
+              </th>
+              <th class="py-[10px] px-2 w-24 text-center">
+                <span class="flex justify-center">
+                  <div @click="() => navigateToDetail(user.usrId.toString())"
+                    class="cursor-pointer hover:text-blue-500">
+                    <Icon :icon="'viewDetails'" />
+                  </div>
+                </span>
+              </th>
+            </template>
+            <template v-else>
+              <td class="py-3">&nbsp;</td>
+            </template>
           </tr>
         </tbody>
         <Pagination :currentPage="currentPage" :totalPages="totalPages"
-        @update:currentPage="(page) => (currentPage = page)" />
+          @update:currentPage="(page) => (currentPage = page)" />
       </table>
     </div>
   </div>

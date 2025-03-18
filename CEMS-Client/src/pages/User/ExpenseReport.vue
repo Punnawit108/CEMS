@@ -16,9 +16,10 @@ import {
 import ExpenseReportGraph from "../../types/index";
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/Buttons/Button.vue";
-import Decimal from 'decimal.js';
-import { storeToRefs } from 'pinia';
-import Pagination from '../../components/Pagination.vue';
+import Decimal from "decimal.js";
+import { storeToRefs } from "pinia";
+import Pagination from "../../components/Pagination.vue";
+import { useRouter } from "vue-router";
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
@@ -29,7 +30,14 @@ const totalPages = computed(() => {
 const paginated = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return filteredExpenses.value.slice(start, end);
+  const pageItems = filteredExpenses.value.slice(start, end);
+
+  // Add empty rows if fewer than 10 items
+  while (pageItems.length < itemsPerPage.value) {
+    pageItems.push(null);
+  }
+
+  return pageItems;
 });
 
 // Import filters
@@ -71,6 +79,12 @@ Chart.register(
   CategoryScale,
   ChartDataLabels
 );
+
+const router = useRouter();
+
+const toDetails = (id: string) => {
+  router.push(`/disbursement/listWithdraw/detail/${id}`);
+};
 
 // ตัวแปรแสดง/ซ่อน Modal
 const showModal = ref(false);
@@ -577,250 +591,156 @@ onMounted(async () => {
 </script>
 
 <template>
-    <div>
-        <!-- path for test = /report/project -->
-        <!-- begin::Filter -->
-        <div class="relative w-full mb-6">
-            <Button :type="'btn-print2'" @click="showModal = true"
-                class="absolute right-0 transform -translate-y-1/2 top-1/2">
-                ส่งออก
-            </Button>
-        </div>
-    </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
-            <!-- ค้นหาชื่อผู้ใช้ -->
-            <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
-
-            <!-- โครงการ -->
-            <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
-
-            <!-- ประเภทค่าใช้จ่าย -->
-            <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
-                :loading="loading" />
-
-            <!-- วันที่เริ่มต้นขอเบิก -->
-            <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
-                :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
-                :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
-
-            <!-- วันที่สิ้นสุดขอเบิก -->
-            <div class="flex flex-col">
-                <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
-                    :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
-
-                <!-- ปุ่มค้นหาและรีเซ็ต -->
-                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
-            </div>
-        </div>
-        <!-- end::Filter -->
-
-        <!-- begin::Content -->
-        <div class="flex flex-col items-center justify-center">
-            <!-- begin::Bar chart -->
-            <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-                <p class="mb-10 font-bold text-center text-black">
-                    ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
-                </p>
-                <!-- เอา v-if="loading" ออก และแสดง canvas ตลอดเวลา -->
-                <div class="w-3/4 h-full">
-                    <canvas id="barChart"></canvas>
-                </div>
-            </div>
-            <!-- end::Bar chart -->
-
-            <!-- begin::Table -->
-            <div class="w-full h-fit border-[2px] flex flex-col items-start">
-                <!-- Table Header -->
-                <Ctable :table="'Table7-head'" />
-                <!-- Table Data -->
-                <table class="w-full text-center text-black table-auto">
-                    <tbody>
-                        <tr v-if="loading">
-                            <td colspan="8" class="py-4">
-                                <div class="flex justify-center items-center">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
-                                    <span class="ml-2">กำลังโหลดข้อมูล...</span>
-                                </div>
-                            </td>
-                        </tr>
-
-                        <tr v-else-if="!expenses?.length">
-                            <td colspan="8" class="py-4">ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย</td>
-                        </tr>
-
-                        <tr v-else-if="filteredExpenses.length === 0">
-                            <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
-                        </tr>
-
-                        <tr v-else v-for="(expense, index) in paginated" :key="index"
-                            class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                :title="expense.rqUsrName">
-                                {{ expense.rqUsrName }}
-                            </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                :title="expense.rqName">
-                                {{ expense.rqName }}
-                            </th>
-                            <th class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                                :title="expense.rqPjName">
-                                {{ expense.rqPjName }}
-                            </th>
-                            <th class="py-[12px] px-5 w-44 text-start">
-                                {{ expense.rqRqtName }}
-                            </th>
-                            <th class="py-[12px] px-2 w-24 text-end">
-                                {{ expense.rqDatePay }}
-                            </th>
-                            <th class="py-[12px] px-2 w-40 text-end">
-                                {{ expense.rqExpenses }}
-                            </th>
-                            <th class="py-[10px] px-2 w-32 text-center">
-                                <span class="flex justify-center">
-                                    <Icon :icon="'viewDetails'" class="cursor-pointer hover:text-blue-500" />
-                                </span>
-                            </th>
-                        </tr>
-                    </tbody>
-                    <Pagination :currentPage="currentPage" :totalPages="totalPages"
-                    @update:currentPage="(page) => (currentPage = page)" />
-                </table>
-            </div>
-        </div>
-        <!-- end::Content -->
-
-        <!-- Modal for export -->
-        <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-            <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
-                <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-
-                <!-- ปุ่มเลือกประเภทไฟล์ -->
-                <div>
-                    <div class="flex justify-center space-x-6">
-                        <!-- ปุ่ม PDF -->
-                        <button @click="handleExport('pdf')"
-                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                            <!-- ไอคอน PDF -->
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                class="w-8 h-8 mr-2">
-                                <path
-                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
-                            </svg>
-                        </button>
-
-                        <!-- ปุ่ม XLSX -->
-                        <button @click="handleExport('xlsx')"
-                            :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                            <!-- ไอคอน XLSX -->
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                class="w-8 h-8 mr-2">
-                                <path
-                                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
-                            </svg>
-                        </button>
-                    </div>
-
-                    <div class="flex justify-center mb-6 space-x-20">
-                        <span class="mt-2 text-sm text-gray-600">PDF</span>
-                        <span class="mt-2 text-sm text-gray-600">XLSX</span>
-                    </div>
-
-                    <!-- ปุ่มยืนยันและยกเลิก -->
-                    <div class="flex justify-center space-x-4">
-                        <button @click="showModal = false" class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
-                            ยกเลิก
-                        </button>
-                        <button @click="exportFile" :disabled="!selectedType"
-                            class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
-                            ยืนยัน
-                        </button>
-                    </div>
-                </div>
-            </div>
-        </div>
   <div>
+    <!-- begin::Filter -->
+    <div class="relative w-full mb-6">
+      <Button :type="'btn-print2'" @click="showModal = true"
+        class="absolute right-0 transform -translate-y-1/2 top-1/2">
+        ส่งออก
+      </Button>
+    </div>
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+      <!-- ค้นหาชื่อผู้ใช้ -->
+      <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
+      <!-- โครงการ -->
+      <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
+      <!-- ประเภทค่าใช้จ่าย -->
+      <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+        :loading="loading" />
+      <!-- วันที่เริ่มต้นขอเบิก -->
+      <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+        :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+        :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
+      <!-- วันที่สิ้นสุดขอเบิก -->
+      <div class="flex flex-col">
+        <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
+          @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
+          @cancel="cancelEndDate" class="mb-2" />
+        <!-- ปุ่มค้นหาและรีเซ็ต -->
+        <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+      </div>
+    </div>
+    <!-- end::Filter -->
+
+    <!-- begin::Content -->
+    <div class="flex flex-col items-center justify-center">
+      <!-- begin::Bar chart -->
+      <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
+        <p class="mb-10 font-bold text-center text-black">
+          ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
+        </p>
+        <div class="w-3/4 h-full">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+      <!-- end::Bar chart -->
+
+      <!-- begin::Table -->
+      <div class="w-full h-fit border-[2px] flex flex-col items-start">
+        <!-- Table Header -->
+        <Ctable :table="'Table7-head'" />
+        <!-- Table Data -->
+        <table class="w-full text-center text-black table-auto">
+          <tbody>
+            <tr v-if="loading">
+              <td colspan="8" class="py-4">
+                <div class="flex justify-center items-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+                  <span class="ml-2">กำลังโหลดข้อมูล...</span>
+                </div>
+              </td>
+            </tr>
+            <tr v-else-if="!expenses?.length">
+              <td colspan="8" class="py-4">ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย</td>
+            </tr>
+            <tr v-else-if="filteredExpenses.length === 0">
+              <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
+            </tr>
+            <tr v-else v-for="(expense, index) in paginated" :key="expense ? expense.rqId : `empty-${index}`"
+              :class="expense ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+              <template v-if="expense">
+                <th class="py-3 px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                <th class="py-3 px-2 text-start w-56 truncate overflow-hidden"
+                  style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                  :title="expense.rqUsrName">
+                  {{ expense.rqUsrName }}
+                </th>
+                <th class="py-3 px-2 text-start w-56 truncate overflow-hidden"
+                  style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                  :title="expense.rqName">
+                  {{ expense.rqName }}
+                </th>
+                <th class="py-3 px-2 text-start w-56 truncate overflow-hidden"
+                  style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                  :title="expense.rqPjName">
+                  {{ expense.rqPjName }}
+                </th>
+                <th class="py-3 px-5 text-start w-44">
+                  {{ expense.rqRqtName }}
+                </th>
+                <th class="py-3 px-2 text-start w-24">
+                  {{ expense.rqPayDate }}
+                </th>
+                <th class="py-3 px-2 text-end w-40">
+                  {{
+                    new Decimal(expense.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  }}
+                </th>
+                <th class="py-[10px] px-2 w-32 text-center">
+                  <span class="flex justify-center">
+                    <Icon :icon="'viewDetails'" @click="toDetails(expense.rqId.toString())"
+                      class="cursor-pointer hover:text-[#B67D12]" />
+                  </span>
+                </th>
+              </template>
+              <template v-else>
+                <td class="py-3">&nbsp;</td>
+              </template>
+            </tr>
+          </tbody>
+          <Pagination :currentPage="currentPage" :totalPages="totalPages"
+            @update:currentPage="(page) => (currentPage = page)" />
+        </table>
+      </div>
+    </div>
+    <!-- end::Content -->
 
     <!-- Modal for export -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50"
-    >
+    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
       <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
         <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-
-        <!-- ปุ่มเลือกประเภทไฟล์ -->
         <div>
           <div class="flex justify-center space-x-6">
             <!-- ปุ่ม PDF -->
-            <button
-              @click="handleExport('pdf')"
-              :class="[
-                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
-                selectedType === 'pdf'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200',
-              ]"
-            >
-              <!-- ไอคอน PDF -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-8 h-8 mr-2"
-              >
+            <button @click="handleExport('pdf')"
+              :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mr-2">
                 <path
-                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z"
-                />
+                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
               </svg>
             </button>
-
             <!-- ปุ่ม XLSX -->
-            <button
-              @click="handleExport('xlsx')"
-              :class="[
-                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
-                selectedType === 'xlsx'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200',
-              ]"
-            >
-              <!-- ไอคอน XLSX -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-8 h-8 mr-2"
-              >
+            <button @click="handleExport('xlsx')"
+              :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mr-2">
                 <path
-                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z"
-                />
+                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
               </svg>
             </button>
           </div>
-
           <div class="flex justify-center mb-6 space-x-20">
             <span class="mt-2 text-sm text-gray-600">PDF</span>
             <span class="mt-2 text-sm text-gray-600">XLSX</span>
           </div>
-
-          <!-- ปุ่มยืนยันและยกเลิก -->
           <div class="flex justify-center space-x-4">
-            <button
-              @click="showModal = false"
-              class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400"
-            >
+            <button @click="showModal = false" class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
               ยกเลิก
             </button>
-            <button
-              @click="exportFile"
-              :disabled="!selectedType"
-              class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-            >
+            <button @click="exportFile" :disabled="!selectedType"
+              class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
               ยืนยัน
             </button>
           </div>
@@ -857,7 +777,6 @@ select option[value=""] {
   display: none;
 }
 
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   .custom-select {
     background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");

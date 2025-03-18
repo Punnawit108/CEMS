@@ -20,14 +20,14 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table1-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 h-[46px] font-bold">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-64 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-60 font-bold">ชื่อโครงการ</th>
-                <th class="py-[11px] px-5 text-start w-40 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-end w-28 font-bold">วันที่ขอเบิก</th>
-                <th class="py-[11px] px-2 text-end w-28 font-bold">วันที่เบิก</th>
-                <th class="py-[11px] px-2 text-center w-28 font-bold">รายละเอียด</th>
+                <th class="py-3 px-2 w-14 h-[46px] font-bold">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-64 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-60 font-bold">ชื่อโครงการ</th>
+                <th class="py-3 px-5 text-start w-40 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
+                <th class="py-3 px-2 text-end w-28 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-end w-28 font-bold">วันที่เบิก</th>
+                <th class="py-3 px-2 text-center w-28 font-bold">รายละเอียด</th>
             </tr>
         </thead>
         <!-- Table1-ข้อมูล -->
@@ -75,14 +75,14 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table2-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">รายการเบิก</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">โครงการ</th>
-                <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่ขอเบิก</th>
-                <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-32 font-bold">จัดการ</th>
+                <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-start font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">โครงการ</th>
+                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-end w-32 font-bold">จำนวนเงิน (บาท)</th>
+                <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table2-ข้อมูล -->
@@ -134,13 +134,13 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table3-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อโครงการ</th>
-                <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-20 font-bold">วันที่เบิก</th>
-                <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-32 font-bold">สถานะ</th>
-                <th class="py-[11px] px-2 text-center w-24 font-bold">รายละเอียด</th>
+                <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-52 font-bold">ชื่อโครงการ</th>
+                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-end w-20 font-bold">วันที่เบิก</th>
+                <th class="py-3 px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
+                <th class="py-3 px-2 text-center w-32 font-bold">สถานะ</th>
+                <th class="py-3 px-2 text-center w-24 font-bold">รายละเอียด</th>
             </tr>
         </thead>
         <!-- Table3.1-ข้อมูล -->
@@ -185,7 +185,7 @@ const props = defineProps<{
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
                 <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
                 <th class="py-3 px-2 w-auto text-start  font-bold">โครงการ</th>
-                <th class="py-3 px-2 w-60 text-end font-bold">ยอดค่าใช้จ่าย(บาท)</th>
+                <th class="py-3 px-2 w-60 text-end font-bold">ยอดเบิกค่าใช้จ่าย (บาท)</th>
             </tr>
         </thead>
         <!-- Table4-ข้อมูล -->
@@ -221,15 +221,15 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table5-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-12 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-[11px] px-2 text-center w-24 font-bold">รหัสพนักงาน</th>
-                <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-20 font-bold">แผนก</th>
-                <th class="py-[11px] px-2 text-start w-24 font-bold">ฝ่าย</th>
-                <th class="py-[11px] px-2 text-start w-20 font-bold">บทบาท</th>
-                <th class="py-[11px] px-2 text-start w-24 font-bold">สถานะ</th>
-                <th class="py-[11px] px-2 text-center w-24 font-bold">ดูรายงาน</th>
-                <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
+                <th class="py-3 px-2 w-12 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-center w-24 font-bold">รหัสพนักงาน</th>
+                <th class="py-3 px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-20 font-bold">แผนก</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">ฝ่าย</th>
+                <th class="py-3 px-2 text-start w-20 font-bold">บทบาท</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">สถานะ</th>
+                <th class="py-3 px-2 text-center w-24 font-bold">ดูรายงาน</th>
+                <th class="py-3 px-2 text-center w-24 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table5-ข้อมูล -->
@@ -279,13 +279,13 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table6-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-12 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-[11px] px-2 text-center w-28 font-bold">รหัสพนักงาน</th>
-                <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-28 font-bold">ฝ่าย</th>
-                <th class="py-[11px] px-2 text-start w-28 font-bold">บทบาท</th>
-                <th class="py-[11px] px-2 text-center w-32 font-bold">ลำดับ</th>
-                <th class="py-[11px] px-2 text-center w-20 font-bold">จัดการ</th>
+                <th class="py-3 px-2 w-12 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-center w-28 font-bold">รหัสพนักงาน</th>
+                <th class="py-3 px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-28 font-bold">ฝ่าย</th>
+                <th class="py-3 px-2 text-start w-28 font-bold">บทบาท</th>
+                <th class="py-3 px-2 text-center w-32 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table6-ข้อมูล -->
@@ -329,14 +329,14 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table7-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">รายการเบิก</th>
-                <th class="py-[11px] px-2 text-start w-56 font-bold">โครงการ</th>
-                <th class="py-[11px] px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-24 font-bold">วันที่เบิก</th>
-                <th class="py-[11px] px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-32 font-bold">รายละเอียด</th>
+                <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-56 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-56 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start w-56 font-bold">โครงการ</th>
+                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-end w-40 font-bold">จำนวนเงิน (บาท)</th>
+                <th class="py-3 px-2 text-center w-32 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table7-ข้อมูล -->
@@ -389,15 +389,14 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table8-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-40 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-40 font-bold">รายการเบิก</th>
-                <th class="py-[11px] px-2 text-start w-40 font-bold">โครงการ</th>
-                <th class="py-[11px] px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-5 text-start w-28 font-bold">วันที่ขอเบิก</th>
-                <th class="py-[11px] px-5 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-28 font-bold">สถานะ</th>
-                <th class="py-[11px] px-2 text-center w-20 font-bold">จัดการ</th>
+                <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-start font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">โครงการ</th>
+                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-start w-32 font-bold">สถานะ</th>
+                <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table8-ข้อมูล -->
@@ -450,27 +449,27 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table9-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-48 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-2 text-start w-48 font-bold">รายการเบิก</th>
-                <th class="py-[11px] px-2 text-start w-48 font-bold">โครงการ</th>
-                <th class="py-[11px] px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-20 font-bold">วันที่เบิก</th>
-                <th class="py-[11px] px-5 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-20 font-bold">จัดการ</th>
+                <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-48 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-48 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start w-48 font-bold">โครงการ</th>
+                <th class="py-3 px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-end w-20 font-bold">วันที่เบิก</th>
+                <th class="py-3 px-5 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
+                <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table 9 new รายการเบิก และ ประวัติการเบิก -->
         <thead v-if="table === 'Table9-head-New'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
-                <th class="py-[11px] px-2 text-start w-48 font-bold">รายการเบิก</th>
-                <th class="py-[11px] px-2 text-start w-48 font-bold">โครงการ</th>
-                <th class="py-[11px] px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-[11px] px-2 text-end w-20 font-bold">วันที่ขอเบิก</th>
-                <th class="py-[11px] px-5 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
-                <th class="py-[11px] px-2 text-center w-28 font-bold">สถานะ</th>
-                <th class="py-[11px] px-2 text-center w-20 font-bold">จัดการ</th>
+                <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-48 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start w-48 font-bold">โครงการ</th>
+                <th class="py-3 px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-20 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-5 text-end w-32 font-bold">จำนวนเงิน (บาท)</th>
+                <th class="py-3 px-2 text-start w-20 font-bold">สถานะ</th>
+                <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
 
@@ -524,15 +523,15 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table10-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-[11px] px-2 w-10 font-bold"></th>
-                <th class="py-[11px] px-2 w-14 font-bold">ลำดับ</th>
-                <th class="py-[11px] px-2 text-cener w-32 font-bold">รหัสพนักงาน</th>
-                <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-[11px] px-5 text-start w-36 font-bold">แผนก</th>
-                <th class="py-[11px] px-2 text-start w-40 font-bold">ฝ่าย</th>
-                <th class="py-[11px] px-5 text-start w-32 font-bold">บทบาท</th>
-                <th class="py-[11px] px-2 text-start w-28 font-bold">สถานะ</th>
-                <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
+                <th class="py-3 px-2 w-10 font-bold"></th>
+                <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 text-cener w-32 font-bold">รหัสพนักงาน</th>
+                <th class="py-3 px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-5 text-start w-36 font-bold">แผนก</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">ฝ่าย</th>
+                <th class="py-3 px-5 text-start w-32 font-bold">บทบาท</th>
+                <th class="py-3 px-2 text-start w-28 font-bold">สถานะ</th>
+                <th class="py-3 px-2 text-center w-24 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table10-ข้อมูล -->
