@@ -119,9 +119,7 @@ function updateTypevh(event: Event) {
     (type) => type.vhType === String(selectedType)
   );
   typevh.value = selectedTypevh ? selectedTypevh.vhType : "";
-  console.log("formData", typevh.value);
 }
-console.log("formData2", typevh.value);
 
 //fn หา vhPayrate ของพาหนะที่ถูกเลือก
 const selectedPayrate = computed(() => {
@@ -309,7 +307,6 @@ watch(selectedTravelType, () => {
   formData.value.rqDistance = "";
   formData.value.rqExpenses = 0;
   formData.value.rqVhId = 0;
-  console.log(formData.value)
 });
 const formatRqExpenses = () => {
   if (displayRqExpenses.value !== "") {
