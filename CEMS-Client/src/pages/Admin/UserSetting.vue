@@ -201,15 +201,23 @@ onMounted(async () => {
               <th class="py-[12px] px-2 w-20 text-start">{{ user.usrRolName }}</th>
               <th class="py-[12px] px-2 w-24 text-start">
                 <span :class="user.usrIsActive
-                    ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal'
-                    : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
+                  ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal'
+                  : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
                   {{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}
                 </span>
               </th>
               <th class="w-24">
                 <span class="flex justify-center">
-                  <input type="checkbox" :checked="user.usrIsSeeReport === 1" disabled
-                    class="w-4 h-4 border-2 border-[#BBBBBB] rounded cursor-not-allowed opacity-70">
+                  <svg v-if="user.usrIsSeeReport === 1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                    <path d="M7 13l3 3 7-7"></path>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="#999999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                  </svg>
                 </span>
               </th>
               <th class="py-[10px] px-2 w-24 text-center">
