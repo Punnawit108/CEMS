@@ -96,12 +96,13 @@ public class DetailService
 
     public byte[] GenerateDetail(string? expenseId)
     {
+
         var expense = (from e in _context.CemsRequisitions
                        join p in _context.CemsProjects on e.RqPjId equals p.PjId into projects
                        from p in projects.DefaultIfEmpty()
                        join v in _context.CemsVehicles on e.RqVhId equals v.VhId into vehicles
                        from v in vehicles.DefaultIfEmpty()
-                       join u in _context.CemsUsers on e.RqUsrId equals u.UsrId into users
+                       join u in _context.CemsUsers on e.RqDisburser equals u.UsrId into users
                        from u in users.DefaultIfEmpty()
                        where e.RqId == expenseId
                        select new
@@ -110,7 +111,8 @@ public class DetailService
                            RqPjName = p != null ? p.PjName : null,
                            e.RqPayDate,
                            e.RqWithdrawDate,
-                           RqUsrName = u != null ? $"{u.UsrFirstName} {u.UsrLastName}" : null,
+                           e.RqDisburser,
+                           RqUsrName = u != null ? $"{u.UsrFirstName} {u.UsrLastName}" : null, // แสดงชื่อผู้อนุมัติ
                            e.RqInsteadEmail,
                            RqRqtName = e.RqRqt != null ? e.RqRqt.RqtName : null,
                            e.RqExpenses,
@@ -120,8 +122,10 @@ public class DetailService
                            RqVhPayrate = v != null ? v.VhPayrate : null,
                            e.RqStartLocation,
                            e.RqEndLocation,
-                           e.RqPurpose
+                           e.RqPurpose,
+                           UsrId = u != null ? u.UsrId : null // เพิ่มการดึง UsrId เพื่อเช็คภายหลัง
                        }).FirstOrDefault();
+
 
 
         var approverCounts = _context.CemsApproverRequisitions
@@ -234,7 +238,7 @@ public class DetailService
 
                     column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้ขอเบิก               {expense.RqUsrName ?? "-"}").FontFamily(font).FontSize(14);
 
-                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้เบิกแทน              {"-"}").FontFamily(font).FontSize(14);
+                    column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ผู้เบิกแทน              {expense.RqInsteadEmail ?? "-"}").FontFamily(font).FontSize(14);
 
                     column.Item().PaddingLeft(80).PaddingBottom(10).Text($"ประเภทค่าใช้จ่าย    {expense.RqRqtName ?? "-"}").FontFamily(font).FontSize(14);
 
@@ -295,7 +299,15 @@ public class DetailService
 
         table.Cell().Element(CellStyle).AlignCenter().Text(statusText);
     }
+
+    // ตรวจสอบเงื่อนไขการเพิ่มแถวใหม่
+    if (!string.IsNullOrEmpty(expense.RqDisburser) && expense.RqDisburser == expense.UsrId)
+    {
+        table.Cell().ColumnSpan(2).Element(CellStyle).AlignLeft().PaddingLeft(20).Text($"ผู้อนุมัติเบิกจ่าย : {expense.RqUsrName ?? "-"}");
+        table.Cell().Element(CellStyle).AlignCenter().Text("อนุมัติ");
+    }
 });
+
                 });
 
                 page.Background().Element(container =>

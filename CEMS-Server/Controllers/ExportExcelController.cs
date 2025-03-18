@@ -34,6 +34,7 @@ public IActionResult ExportDataToExcel(
             PjName = e.RqPj.PjName,
             RqtName = e.RqRqt.RqtName,
             e.RqPayDate,
+            e.RqProgress,
             e.RqExpenses
         });
 
@@ -65,6 +66,7 @@ public IActionResult ExportDataToExcel(
         query = query.Where(e => e.RqPayDate <= endDateOnly);
     }
 
+    query = query.Where(e => e.RqProgress == "complete");
     var data = query.ToList();
 
     // สร้างไฟล์ Excel
@@ -75,8 +77,8 @@ public IActionResult ExportDataToExcel(
 
         // เขียน Header
         worksheet.Cells[1, 1].Value = "ลำดับ";
-        worksheet.Cells[1, 2].Value = "ชื่อผู้ใช้";
-        worksheet.Cells[1, 3].Value = "รายการเบิก";
+        worksheet.Cells[1, 2].Value = "ชื่อผู้ใช้งาน";
+        worksheet.Cells[1, 3].Value = "รายการเบิกค่าใช้จ่าย";
         worksheet.Cells[1, 4].Value = "โครงการ";
         worksheet.Cells[1, 5].Value = "ประเภทค่าใช้จ่าย";
         worksheet.Cells[1, 6].Value = "วันที่ขอเบิก";
@@ -87,9 +89,16 @@ public IActionResult ExportDataToExcel(
         {
             headerRange.Style.Font.Bold = true;
             headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            headerRange.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+            
         }
 
+         worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+         worksheet.Cells[1, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+        worksheet.Cells[1, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+        worksheet.Cells[1, 4].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+        worksheet.Cells[1, 5].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+        worksheet.Cells[1, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+        worksheet.Cells[1, 7].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
         // เขียนข้อมูล
         int row = 2;
         int index = 1;
@@ -104,13 +113,25 @@ public IActionResult ExportDataToExcel(
             worksheet.Cells[row, 7].Value = item.RqExpenses;
             worksheet.Cells[row, 7].Style.Numberformat.Format = "#,##0.00";
 
-            // เพิ่มเส้นขอบ
-            worksheet.Cells[row, 1, row, 7].Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+            worksheet.Cells[row, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            worksheet.Cells[row, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            worksheet.Cells[row, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            worksheet.Cells[row, 4].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            worksheet.Cells[row, 5].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            worksheet.Cells[row, 6].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            worksheet.Cells[row, 7].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+          
             row++;
         }
 
         // ปรับขนาดคอลัมน์
-        worksheet.Cells.AutoFitColumns();
+        worksheet.Column(1).Width = 10;
+        worksheet.Column(2).Width = 30;
+        worksheet.Column(3).Width = 30;
+        worksheet.Column(4).Width = 30;
+        worksheet.Column(5).Width = 20;
+        worksheet.Column(6).Width = 15;
+        worksheet.Column(7).Width = 20;
 
         // บันทึกไฟล์ Excel ลงใน MemoryStream
         using (var memoryStream = new MemoryStream())
