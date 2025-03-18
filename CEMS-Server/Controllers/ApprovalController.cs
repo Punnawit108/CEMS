@@ -42,6 +42,7 @@ public class ApprovalController : ControllerBase
             .Select(e => new
             {
                 e.ApUsr.UsrId,
+                e.ApUsr.UsrEmployeeId,
                 e.ApId,
                 e.ApUsr.UsrFirstName,
                 e.ApUsr.UsrLastName,

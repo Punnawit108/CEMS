@@ -69,13 +69,18 @@ const filteredApprovers = computed(() => {
   });
 });
 
+const isFree = ref(false);
+
 // ใช้ Vue Router
 const route = useRoute();
 
 // เปิด Popup Add ผู้อนุมัติ
 const openPopupAdd = () => {
   if (!checkExpenseStore.checkExpense) {
-    alert('ไม่สามารถเพิ่มได้');
+    isFree.value = true;
+    setTimeout(() => {
+      isFree.value = false;
+    }, 1500);
   } else {
     isPopupAddOpen.value = true;
   }
@@ -89,7 +94,10 @@ const closePopupAdd = () => {
 // เปิด Popup  Edit ผู้อนุมัติ
 const openPopupEdit = () => {
   if (!checkExpenseStore.checkExpense) {
-    alert('ไม่สามารถแก้ไขได้');
+    isFree.value = true;
+    setTimeout(() => {
+      isFree.value = false;
+    }, 1500);
   } else {
     isPopupEditOpen.value = true;
   }
@@ -201,7 +209,7 @@ const handleReset = () => {
   filters.value = {
     searchTerm: '',
   };
-  
+
   // รีเซ็ตค่าล่าสุดที่ใช้ค้นหา
   lastSearchedFilters.value = {
     searchTerm: '',
@@ -281,7 +289,7 @@ onMounted(async () => {
       <div v-else v-for="(approver, index) in filteredApprovers" :key="approver.usrId"
         class="h-[50px] flex items-center justify-between text-[14px] text-black border-b border-[#BBBBBB]">
         <p class="w-20 text-center">{{ index + 1 }}</p>
-        <p class="w-36 text-center">{{ "6516000" + index + 1 }}</p>
+        <p class="w-36 text-center">{{ approver.usrEmployeeId }}</p>
         <p class="w-4/5 pl-2">{{ approver.usrFirstName }} {{ approver.usrLastName }}</p>
         <div class="ml-5 w-52 text-center flex items-center justify-between">
           <div class="">
@@ -502,6 +510,25 @@ onMounted(async () => {
             ยืนยัน
           </button>
         </div>
+      </div>
+    </div>
+
+    <!-- Popup แก้ไขไม่ได้ -->
+    <div v-if="isFree" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">
+          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br>
+          กรุณาตรวจสอบ หรือปิดรับรายการ<br>
+          ก่อนทำการแก้ไขลำดับผู้อนุมัติการเบิกจ่าย
+        </h2>
       </div>
     </div>
 
