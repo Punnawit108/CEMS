@@ -445,6 +445,13 @@ onMounted(async () => {
     }, 500);
   }
 });
+const formatDate = (dateStr: string): string => {
+  if (!dateStr) return "";
+  // สมมติว่า dateStr อยู่ในรูปแบบ "YYYY-MM-DD"
+  const [year, month, day] = dateStr.split("-");
+  const buddhistYear = Number(year) + 543;
+  return `${day}/${month}/${buddhistYear}`;
+};
 </script>
 
 <template>
@@ -531,7 +538,7 @@ onMounted(async () => {
                 {{ expenseReimbursementItem.rqRqtName }}
               </th>
               <th class="py-3 px-2 w-20 text-start">
-                {{ expenseReimbursementItem.rqWithDrawDate }}
+                {{ formatDate(expenseReimbursementItem.rqWithDrawDate) }}
               </th>
               <th class="py-3 px-5 w-32 text-end">
                 {{

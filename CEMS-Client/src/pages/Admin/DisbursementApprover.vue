@@ -70,7 +70,9 @@ const filteredApprovers = computed(() => {
   });
 });
 
-const isFree = ref(false);
+const isFreeEdit = ref(false);
+const isFreeAdd = ref(false);
+const isFreeDelete = ref(false);
 
 // ใช้ Vue Router
 const route = useRoute();
@@ -78,9 +80,9 @@ const route = useRoute();
 // เปิด Popup Add ผู้อนุมัติ
 const openPopupAdd = () => {
   if (!checkExpenseStore.checkExpense) {
-    isFree.value = true;
+    isFreeAdd.value = true;
     setTimeout(() => {
-      isFree.value = false;
+      isFreeAdd.value = false;
     }, 1500);
   } else {
     isPopupAddOpen.value = true;
@@ -90,19 +92,32 @@ const openPopupAdd = () => {
 const closePopupAdd = () => {
   isPopupAddOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
+  selectUserId.value = "";
 };
 
 // เปิด Popup  Edit ผู้อนุมัติ
 const openPopupEdit = () => {
   if (!checkExpenseStore.checkExpense) {
-    isFree.value = true;
+    isFreeEdit.value = true;
     setTimeout(() => {
-      isFree.value = false;
+      isFreeEdit.value = false;
     }, 1500);
   } else {
     isPopupEditOpen.value = true;
   }
 };
+
+// สมมุติว่า userStore มี currentUser
+const currentUser = userStore.currentUser;
+
+const filteredApproversForEdit = computed(() => {
+  if (!approvalStore.approvers) return [];
+  return approvalStore.approvers.filter(approver => {
+    // คัดกรองไม่ให้แสดงผู้ใช้งานตัวเอง
+    return approver.usrId !== currentUser?.usrId;
+  });
+});
+
 
 const closePopupEdit = () => {
   isPopupEditOpen.value = false;
@@ -112,7 +127,10 @@ const closePopupEdit = () => {
 // เปิด Popup Delete ผู้อนุมัติ
 const openPopupDelete = (approverId: number) => {
   if (!checkExpenseStore.checkExpense) {
-    alert('ไม่สามารถลบได้');
+    isFreeDelete.value = true;
+    setTimeout(() => {
+      isFreeDelete.value = false;
+    }, 1500);
   } else {
     selectedApproverId.value = approverId;
     isPopupDeleteOpen.value = true;
@@ -122,6 +140,7 @@ const openPopupDelete = (approverId: number) => {
 const closePopupDelete = () => {
   isPopupDeleteOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
+  selectUserId.value = "";
 };
 
 // เปิด PopupConfirmAdd ผู้อนุมัติ
@@ -146,6 +165,7 @@ const confirmAdd = async () => {
   await approvalStore.addApprovers(selectUserId.value);
   closePopupConfirmAdd();
   isAddAlertOpen.value = true;
+  fatchApproval();
 
   setTimeout(() => {
     isAddAlertOpen.value = false;
@@ -161,12 +181,17 @@ const confirmEdit = async () => {
   setTimeout(() => {
     isEditAlertOpen.value = false;
     closePopupEdit();
+    // รีเซ็ตค่าใน dropdown แก้ไขลำดับ
+    approverSequence.apId = 0;
+    approverSequence.apSequence = 0;
   }, 1500);
 };
 
 const confirmDelete = async () => {
+  isPopupDeleteOpen.value = false;
   await approvalStore.deleteApprover(selectedApproverId.value);
   isDeleteAlertOpen.value = true;
+  fatchApproval();
 
   setTimeout(() => {
     isDeleteAlertOpen.value = false;
@@ -217,6 +242,12 @@ const handleReset = () => {
   };
 };
 
+const fatchApproval = async () => {
+  userNotRepeatWithApprovers.value = userStore.users.filter((user: any) => {
+    return !approvalStore.approvers.map((approver) => approver.usrId).includes(user.usrId)
+  });
+};
+
 // ตรวจสอบ path เมื่อ component โหลด
 onMounted(async () => {
   loading.value = true;
@@ -225,10 +256,7 @@ onMounted(async () => {
     await approvalStore.getApprovers();
     await userStore.getAllUsers();
     await checkExpenseStore.fetchCheck();
-
-    userNotRepeatWithApprovers.value = userStore.users.filter((user: any) => {
-      return !approvalStore.approvers.map((approver) => approver.usrId).includes(user.usrId)
-    })
+    await fatchApproval();
 
     if (route.path === "/systemSettings/disbursementApprover/edit") {
       isEditPage.value = true;
@@ -420,8 +448,10 @@ onMounted(async () => {
                 <option value=0 disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" :value="approver.apId" v-for="approver in approvalStore.approvers">{{
-                  approver.usrFirstName }} {{ approver.usrLastName }}</option>
+                <option class="text-black" :value="approver.apId" v-for="approver in filteredApproversForEdit"
+                  :key="approver.usrId">
+                  {{ approver.usrFirstName }} {{ approver.usrLastName }}
+                </option>
               </select>
               <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
                 <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
@@ -520,7 +550,7 @@ onMounted(async () => {
     </div>
 
     <!-- Popup แก้ไขไม่ได้ -->
-    <div v-if="isFree" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div v-if="isFreeEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
           <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
@@ -534,6 +564,44 @@ onMounted(async () => {
           รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br>
           กรุณาตรวจสอบ หรือปิดรับรายการ<br>
           ก่อนทำการแก้ไขลำดับผู้อนุมัติการเบิกจ่าย
+        </h2>
+      </div>
+    </div>
+
+    <!-- Popup เพิ่มไม่ได้ -->
+    <div v-if="isFreeAdd" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">
+          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br>
+          กรุณาตรวจสอบ หรือปิดรับรายการ<br>
+          ก่อนทำการเพิ่มผู้อนุมัติการเบิกจ่าย
+        </h2>
+      </div>
+    </div>
+
+    <!-- Popup แก้ไขไม่ได้ -->
+    <div v-if="isFreeDelete" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black mt-3">
+          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br>
+          กรุณาตรวจสอบ หรือปิดรับรายการ<br>
+          ก่อนทำการลบผู้อนุมัติการเบิกจ่าย
         </h2>
       </div>
     </div>
