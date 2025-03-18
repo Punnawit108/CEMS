@@ -271,6 +271,7 @@ const closePopupCancle = () => {
 
 const openPopupSubmit = () => {
   isPopupSubmitOpen.value = true;
+  console.log(selectedDate.value)
 };
 
 const closePopupSubmit = () => {
@@ -391,6 +392,10 @@ const validateForm = async () => {
 
 // ปรับเปลี่ยนค่าของข้อมูล เมื่อเป็นค่าใช้จ่ายทั่วไป ค่าเดินทาง และค่าใช้จ่ายอื่นๆ
 function updateFormData() {
+  formData.value.rqUsrId = user.value.usrId;
+  formData.value.rqPayDate = formatDateToThai(selectedDate.value);
+  formData.value.rqWithdrawDate = formatDateToThai(currentDate.value);
+
   if (rqtName.value != "ค่าเดินทาง") {
     formData.value.rqVhId = null;
     formData.value.rqStartLocation = null;
@@ -403,17 +408,16 @@ function updateFormData() {
   if (rqtName.value != "อื่นๆ") {
     formData.value.rqAny = null;
   }
-  formData.value.rqUsrId = user.value.usrId;
-  formData.value.rqPayDate = formatDateToThai(selectedDate.value);
-  formData.value.rqWithdrawDate = formatDateToThai(currentDate.value);
+
 }
 // ปรับรูปแบบวันเดือนปี
 const formatDateToThai = (date: Date) => {
   if (!date) return null;
-  const thaiYear = date.getFullYear() + 543;
-  const formattedDate = `${thaiYear}-${(date.getMonth() + 1)
+  const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  const thaiYear = localDate.getFullYear() + 543;
+  const formattedDate = `${thaiYear}-${(localDate.getMonth() + 1)
     .toString()
-    .padStart(2, "0")}-${date.getDate().toString().padStart(2, "0")}`;
+    .padStart(2, "0")}-${localDate.getDate().toString().padStart(2, "0")}`;
   return formattedDate;
 };
 

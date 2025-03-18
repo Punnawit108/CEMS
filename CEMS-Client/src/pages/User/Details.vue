@@ -398,7 +398,13 @@ const previewFile = (file: string) => {
           </div>
           <div class="col">
             <p class="head">จำนวนเงิน(บาท)</p>
-            <p class="item">{{ new Decimal(expenseData?.rqExpenses || '-').toFixed(2) }}</p>
+            <p class="item">
+              {{
+                expenseData?.rqExpenses
+                  ? new Decimal(expenseData.rqExpenses).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+              : "-"
+              }}
+            </p>
           </div>
           <div class="col"></div>
           <div v-if="!isPaymentOrHistoryPath" class="col"></div>
@@ -448,7 +454,7 @@ const previewFile = (file: string) => {
             <p class="head">อัปโหลดไฟล์</p>
             <FileDisplay v-for="fileObj in selectedFiles" :key="fileObj.fId" :file="fileObj.file"
               :fileName="fileObj.fileName" @preview="previewFile(fileObj.file)" class="text-[14px] text-black" />
-              <p v-if="selectedFiles.length === 0" class="item">-</p>
+            <p v-if="selectedFiles.length === 0" class="item">-</p>
           </div>
           <div class="flex-1"></div>
         </div>
