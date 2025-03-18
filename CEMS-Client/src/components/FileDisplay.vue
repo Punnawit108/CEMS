@@ -1,8 +1,14 @@
 <script setup lang="ts">
+/*
+* ชื่อไฟล์: FileDisplay.vue
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับแสดงข้อมูลไฟล์
+* ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
+* วันที่จัดทำ/แก้ไข: 18 มีนาคม 2568
+*/
 import { defineProps, computed, defineEmits } from "vue";
 import { useRoute } from "vue-router";
 
-const props = defineProps(["file", "fileName"]); // รับ file (URL หรือ File object) และ fileName
+const props = defineProps(["file", "fileName"]); 
 const emit = defineEmits(['remove', 'preview']);
 
 const route = useRoute();
@@ -24,10 +30,7 @@ const fileIcon = computed(() => {
         case 'docx':
             return '/docIcon.svg';
         case 'jpeg':
-        case 'jpg':
             return '/jpegIcon.svg';
-        default:
-            return '/defaultIcon.svg'; // ไอคอนเริ่มต้น
     }
 });
 </script>

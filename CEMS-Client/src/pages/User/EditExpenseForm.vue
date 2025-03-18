@@ -85,7 +85,7 @@ onMounted(async () => {
 
         selectedTravelType.value = data.vehicleType?.vhType || "";
         rqCode.value = data.rqCode
-        displayRqExpenses.value = data.rqExpenses;
+        displayRqExpenses.value = data.rqExpenses ? parseFloat(data.rqExpenses).toFixed(2) : "";
         const user = requisitionStore.UserInstead.find((u) => u.usrName === data.rqInsteadEmail);
         if (user) {
           formData.value.rqInsteadEmail = user.usrEmail; // ตั้งค่าเป็น email
@@ -285,9 +285,16 @@ const closePopupSubmit = () => {
 
 const displayRqExpenses = ref('');
 
+const formatRqExpenses = () => {
+  if (displayRqExpenses.value !== "") {
+    displayRqExpenses.value = parseFloat(displayRqExpenses.value).toFixed(2);
+    formData.value.rqExpenses = Number(displayRqExpenses.value);
+  }
+};
+
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
-  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+  formData.value.rqExpenses = newVal === "" ? 0 : Number(newVal);
 });
 
 // ตัวแปรเก็บ error ของแต่ละฟิลด์
@@ -640,6 +647,7 @@ const previewFile = (file: string | File) => {
               type="number"
               id="rqExpenses"
               v-model="displayRqExpenses"
+              @blur="formatRqExpenses"
               :class="[
                 'inputItem ',
                 {
