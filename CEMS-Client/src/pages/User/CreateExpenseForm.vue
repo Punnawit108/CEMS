@@ -415,7 +415,11 @@ const formatDateToThai = (date: Date) => {
   const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
   const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
   const thaiDate = new Intl.DateTimeFormat("th-TH", options).format(localDate);
-  const [day, month, year] = thaiDate.split("/");
+  let [day, month, year] = thaiDate.split("/");
+  if (parseInt(year) < 2500) {
+    year = (parseInt(year) + 543).toString();
+  }
+
   return `${year}-${month}-${day}`; 
 };
 

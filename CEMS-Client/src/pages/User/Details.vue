@@ -196,8 +196,7 @@ const handleSummit = async (status: string) => {
       aprStatus: status,
       rqReason: formData.rqReason
     };
-    detailStore.updateApprove(data);
-    handleHideApproverPopup();
+    await detailStore.updateApprove(data);
     confirmPrint(status)
     isAlertPrintOpen.value = true;
     setTimeout(() => {
@@ -205,7 +204,6 @@ const handleSummit = async (status: string) => {
       closePopupPrint();
       router.push(`/approval/list/`)
     }, 1500);
-
   }
 };
 
@@ -224,7 +222,6 @@ const handleDisburse = async () => {
       closePopupPrint();
       router.push(`/payment/List/`)
     }, 1500);
-    handleHideApproverPopup();
   }
 }
 
@@ -322,7 +319,7 @@ const previewFile = (file: string) => {
     <div v-if="expenseData.rqStatus === 'reject'"
       class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
       <p class="!text-[#ED0000] font-bold">เหตุผลการไม่อนุมัติ :</p>
-      <p class="!text-[#FF0000] ml-2 mt-2">{{ expenseData.rqReason }}</p>
+      <p class="!text-[#FF0000] ml-2 mt-2">{{ expenseData?.rqReason  }}</p>
     </div>
 
     <div v-if="isApprovalPath" class="flex justify-end">
