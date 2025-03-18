@@ -10,10 +10,6 @@ const props = defineProps({
     type: Number,
     required: true,
   },
-  columnNumber: {
-    type: Number,
-    required: true,
-  },
 });
 
 // Emits
@@ -35,35 +31,30 @@ const prevPage = () => {
 
 <template>
   <tfoot class="border-t">
-    <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
-      <!-- สร้าง <th> ตามจำนวน columnNumber -->
-      <th v-for="index in columnNumber" :key="index"></th>
-      <th class="py-[12px] text-end">
-        {{ currentPage }} of {{ totalPages }}
-      </th>
-      <th class="py-[12px] flex justify-evenly text-[14px] font-bold">
-        <span>
-          <button @click="prevPage" :disabled="currentPage === 1" class="px-3 py-1 rounded">
-            <span class="text-sm">&lt;</span>
+    <tr class="text-sm border-b-2 border-[#BBBBBB]">
+      <td colspan="100%">
+        <div class="flex justify-end items-center h-8">
+          <span class="text-gray-600 mr-10">
+            {{ currentPage }} of {{ totalPages }}
+          </span>
+          <button @click="prevPage" :disabled="currentPage === 1"
+            class="rounded-full mr-10 flex items-center justify-center">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
+              :class="currentPage === 1 ? 'fill-grayNormal' : 'fill-grayDark'">
+              <path
+                d="M19.4219 11.9062L14.8281 16.5L19.4219 21.0938L18.0156 22.5L12.0156 16.5L18.0156 10.5L19.4219 11.9062Z" />
+            </svg>
           </button>
-        </span>
-        <span>
-          <button @click="nextPage" :disabled="currentPage === totalPages" class="px-3 py-1 rounded">
-            <span class="text-sm">&gt;</span>
+          <button @click="nextPage" :disabled="currentPage === totalPages"
+            class="rounded-full flex items-center justify-center">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
+              :class="currentPage === totalPages ? 'fill-grayNormal' : ' fill-grayDark'">
+              <path
+                d="M13.9844 10.5L19.9844 16.5L13.9844 22.5L12.5781 21.0938L17.1719 16.5L12.5781 11.9062L13.9844 10.5Z" />
+            </svg>
           </button>
-        </span>
-      </th>
+        </div>
+      </td>
     </tr>
   </tfoot>
 </template>
-
-<style scoped>
-button:disabled {
-  color: #c7c8cc; 
-  cursor: not-allowed; 
-}
-
-button:not(:disabled) {
-  color: #000000; 
-}
-</style>

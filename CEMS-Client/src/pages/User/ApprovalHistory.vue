@@ -25,9 +25,16 @@ const totalPages = computed(() => {
 });
 
 const paginated = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredApprovals.value.slice(start, end);
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    const pageItems = filteredApprovals.value.slice(start, end);
+
+    // Add empty rows if fewer than 10 items
+    while (pageItems.length < itemsPerPage.value) {
+        pageItems.push(null);
+    }
+
+    return pageItems;
 });
 
 // Import filters
@@ -341,7 +348,7 @@ const toDetails = async (data: Expense) => {
         </div>
 
         <!-- ตาราง -->
-        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12 border-grayNormal">
             <Ctable :table="'Table8-head'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>
@@ -362,39 +369,41 @@ const toDetails = async (data: Expense) => {
                         <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                     </tr>
 
-                    <tr v-else v-for="(item, index) in paginated" :key="item.rqId" 
-                        class="border-b hover:bg-gray-50">
-                        <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                        <th class="py-[11px] px-2 text-start w-48 truncate overflow-hidden"
-                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            :title="item.usrName">
-                            {{ item.usrName }}
-                        </th>
-                        <th class="py-[11px] px-2 text-start w-40 truncate overflow-hidden"
-                            style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            :title="item.rqName">
-                            {{ item.rqName }}
-                        </th>
-                        <th class="py-[11px] px-2 text-start w-40">{{ item.pjName }}</th>
-                        <th class="py-[11px] px-5 text-start w-32">{{ item.rqtName }}</th>
-                        <th class="py-[11px] px-5 text-start w-28">{{ item.rqWithdrawDate }}</th>
-                        <th class="py-[11px] px-5 text-end w-32">{{new Decimal(item.rqExpenses ?? 0).toFixed(2) }}</th>
-                        <th class="py-[11px] px-2 text-center w-28 ">
-                            <span>
-                                <StatusBudge :status="'sts-' + item.rqStatus"></StatusBudge>
-                            </span>
-                        </th>
-                        <th @click="toDetails(item)" class="py-[11px] pl-10 w-20 cursor-pointer hover:text-[#B67D12]">
-                            <Icon :icon="'viewDetails'" />
-                        </th>
+                    <tr v-else v-for="(item, index) in paginated" :key="item ? item.rqId : `empty-${index}`"
+                        :class="item ? 'text-[14px] border-b hover:bg-gray-50' : ''">
+                        <template v-if="item">
+                            <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
+                            </th>
+                            <th class="py-[11px] px-2 text-start truncate overflow-hidden"
+                                style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                :title="item.usrName">
+                                {{ item.usrName }}
+                            </th>
+                            <th class="py-[11px] px-2 text-start w-40 truncate overflow-hidden"
+                                style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                                :title="item.rqName">
+                                {{ item.rqName }}
+                            </th>
+                            <th class="py-[11px] px-2 text-start w-40">{{ item.pjName }}</th>
+                            <th class="py-[11px] px-5 text-start w-44">{{ item.rqtName }}</th>
+                            <th class="py-[11px] px-2 text-start w-40">{{ item.rqWithdrawDate }}</th>
+                            <th class="py-[11px] px-2 text-start w-32 ">
+                                <span>
+                                    <StatusBudge :status="'sts-' + item.rqStatus"></StatusBudge>
+                                </span>
+                            </th>
+                            <th @click="toDetails(item)"
+                                class="py-[11px] pl-10 w-20 cursor-pointer hover:text-[#B67D12]">
+                                <Icon :icon="'viewDetails'" />
+                            </th>
+                        </template>
+                        <template v-else>
+                            <td class="py-3">&nbsp;</td>
+                        </template>
                     </tr>
                 </tbody>
-                <Pagination
-                :currentPage="currentPage"
-                :totalPages="totalPages"
-                :columnNumber="columnNumber"
-                @update:currentPage="(page) => (currentPage = page)"
-              />
+                <Pagination :currentPage="currentPage" :totalPages="totalPages"
+                    @update:currentPage="(page) => (currentPage = page)" />
             </table>
         </div>
     </div>

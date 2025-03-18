@@ -18,13 +18,20 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const columnNumber = ref(6);
 const totalPages = computed(() => {
-  return Math.ceil(filteredPayments.value.length / itemsPerPage.value);
+    return Math.ceil(filteredPayments.value.length / itemsPerPage.value);
 });
 
 const paginated = computed(() => {
-  const start = (currentPage.value - 1) * itemsPerPage.value;
-  const end = start + itemsPerPage.value;
-  return filteredPayments.value.slice(start, end);
+    const start = (currentPage.value - 1) * itemsPerPage.value;
+    const end = start + itemsPerPage.value;
+    const pageItems = filteredPayments.value.slice(start, end);
+
+    // Add empty rows if fewer than 10 items
+    while (pageItems.length < itemsPerPage.value) {
+        pageItems.push(null);
+    }
+
+    return pageItems;
 });
 
 // Import filters
@@ -83,10 +90,10 @@ const toBuddhistYear = (date: Date): Date => {
 // ฟังก์ชันตรวจสอบว่าวันที่เป็นปีพุทธศักราชหรือไม่ (โดยการเช็คว่าปีมากกว่า 2400 หรือไม่)
 const isBuddhistYear = (date: Date | string): boolean => {
     if (!date) return false;
-    
+
     try {
         let year: number;
-        
+
         if (date instanceof Date) {
             // ถ้าเป็นวัตถุ Date
             year = date.getFullYear();
@@ -94,7 +101,7 @@ const isBuddhistYear = (date: Date | string): boolean => {
             // ถ้าเป็นสตริงในรูปแบบ YYYY-MM-DD
             year = parseInt(date.split('-')[0], 10);
         }
-        
+
         // ถ้าปีมากกว่า 2500 มักจะเป็นปีพุทธศักราช (เนื่องจาก ค.ศ. 2000 = พ.ศ. 2543)
         return year > 2500;
     } catch (e) {
@@ -174,7 +181,7 @@ const filteredPayments = computed(() => {
         if (lastSearchedFilters.value.startDate && item.rqWithdrawDate) {
             // ตรวจสอบว่าวันที่ในข้อมูลเป็นรูปแบบ พ.ศ. หรือ ค.ศ.
             const isItemDateBuddhist = isBuddhistYear(item.rqWithdrawDate);
-            
+
             // แปลงวันที่จาก DatePicker เป็นรูปแบบที่ตรงกับวันที่ในข้อมูล
             let startDateStr;
             if (isItemDateBuddhist) {
@@ -202,7 +209,7 @@ const filteredPayments = computed(() => {
         if (lastSearchedFilters.value.endDate && item.rqWithdrawDate) {
             // ตรวจสอบว่าวันที่ในข้อมูลเป็นรูปแบบ พ.ศ. หรือ ค.ศ.
             const isItemDateBuddhist = isBuddhistYear(item.rqWithdrawDate);
-            
+
             // แปลงวันที่จาก DatePicker เป็นรูปแบบที่ตรงกับวันที่ในข้อมูล
             let endDateStr;
             if (isItemDateBuddhist) {
@@ -336,7 +343,7 @@ onMounted(async () => {
 
     try {
         await paymentStore.getAllPaymentList();
-        
+
         // อัปเดตข้อมูลสำหรับตัวกรอง
         projects.value = extractedProjects.value;
         requisitionTypes.value = extractedRequisitionTypes.value;
@@ -361,63 +368,33 @@ const toDetails = (id: string) => {
         <!-- Filter -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
             <!-- ค้นหา -->
-            <UserSearchInput
-                v-model="filters.searchQuery"
-                :loading="loading"
-                label="ค้นหา"
-            />
+            <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหา" />
 
             <!-- โครงการ -->
-            <ProjectFilter
-                v-model="filters.project"
-                :projects="projects"
-                :loading="loading"
-            />
+            <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
 
             <!-- ประเภทค่าใช้จ่าย -->
-            <RequisitionTypeFilter
-                v-model="filters.requisitionType"
-                :requisition-types="requisitionTypes"
-                :loading="loading"
-            />
+            <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+                :loading="loading" />
 
             <!-- วันที่เริ่มต้นขอเบิก -->
-            <DateFilter
-                v-model="startDateTemp"
-                :loading="loading"
-                label="วันที่เริ่มต้นขอเบิก"
-                :is-open="isStartDatePickerOpen"
-                @update:is-open="isStartDatePickerOpen = $event"
-                :confirmed-date="filters.startDate"
-                @confirm="confirmStartDate"
-                @cancel="cancelStartDate"
-            />
+            <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+                :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+                :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
 
             <!-- วันที่สิ้นสุดขอเบิก -->
             <div class="flex flex-col">
-                <DateFilter
-                    v-model="endDateTemp"
-                    :loading="loading"
-                    label="วันที่สิ้นสุดขอเบิก"
-                    :is-open="isEndDatePickerOpen"
-                    @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate"
-                    @confirm="confirmEndDate"
-                    @cancel="cancelEndDate"
-                    class="mb-2"
-                />
+                <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
+                    :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
+                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
 
                 <!-- ปุ่มค้นหาและรีเซ็ต -->
-                <FilterButtons 
-                    :loading="loading"
-                    @reset="handleReset"
-                    @search="handleSearch"
-                />
+                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
             </div>
         </div>
 
         <!-- Table -->
-        <div class="w-full border-t-[2px] border-r-[2px] border-l-[2px] mt-5">
+        <div class="w-full border-t-[2px] border-r-[2px] border-l-[2px] mt-5 border-grayNormal">
             <!-- ตาราง -->
             <div>
                 <Ctable :table="'Table7-head'" />
@@ -442,30 +419,41 @@ const toDetails = (id: string) => {
                             <td colspan="8" class="py-4 text-center">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
                         </tr>
 
-                        <tr v-else v-for="(paymentItem, index) in paginated" :key="paymentItem.rqId"
-                         class=" text-[14px] text-black border-b-2 border-[#BBBBBB] ">
-                            <th class="py-[12px] px-2 w-14 h-[46px]">{{index + 1 + (currentPage - 1) * itemsPerPage}}</th>
-                            <th class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                                {{paymentItem.rqUsrName}}
-                            </th>
-                            <th class="py-[12px] px-3 w-48 text-start truncate overflow-hidden"
-                            style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            >
-                            {{paymentItem.rqName}}
-                            </th>
-                            <th class="py-[12px] px-6 w-56 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                                {{paymentItem.rqPjName}}
-                            </th>
-                            <th class="py-[12px] w-32 text-start ">{{paymentItem.rqRqtName}}</th>
-                            <th class="py-[12px] px-2 w-24 text-end ">{{ paymentItem.rqWithdrawDate }}</th>
-                            <th class="py-[12px] pl-8 w-32 text-center ">{{new Decimal(paymentItem.rqExpenses ?? 0).toFixed(2) }}</th>
-                            <th class="py-[10px] px-2 w-28 text-center ">
-                                <span class="flex justify-center cursor-pointer hover:text-[#B67D12]" v-on:click="toDetails(paymentItem.rqId)">
-                                    <Icon :icon="'viewDetails'" />
-                                </span>
-                            </th>
+                        <tr v-else v-for="(paymentItem, index) in paginated"
+                            :key="paymentItem ? paymentItem.rqId : `empty-${index}`"
+                            :class="paymentItem ? 'text-[14px] text-black border-b-2 border-[#BBBBBB]' : ''">
+                            <template v-if="paymentItem">
+                                <th class="py-3 px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
+                                </th>
+                                <th class="py-3 px-2 text-start truncate overflow-hidden"
+                                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                    {{ paymentItem.rqUsrName }}
+                                </th>
+                                <th class="py-3 px-3 w-44 text-start truncate overflow-hidden"
+                                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                    {{ paymentItem.rqName }}
+                                </th>
+                                <th class="py-3 px-2 w-44 text-start truncate overflow-hidden"
+                                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                    {{ paymentItem.rqPjName }}
+                                </th>
+                                <th class="py-3 px-5 w-44 text-start ">{{ paymentItem.rqRqtName }}</th>
+                                <th class="py-3 px-2 w-32 text-start ">{{ paymentItem.rqWithdrawDate }}</th>
+                                <th class="py-3 px-2 w-40 text-end ">{{ new Decimal(paymentItem.rqExpenses ??
+                                    0).toNumber().toLocaleString("en-US", {
+                                    minimumFractionDigits: 2,
+                                    maximumFractionDigits: 2,
+                                    }) }}</th>
+                                <th class="py-3 px-2 w-20 text-center ">
+                                    <span class="flex justify-center cursor-pointer hover:text-[#B67D12]"
+                                        v-on:click="toDetails(paymentItem.rqId)">
+                                        <Icon :icon="'viewDetails'" />
+                                    </span>
+                                </th>
+                            </template>
+                            <template v-else>
+                                <td class="py-3">&nbsp;</td>
+                            </template>
                         </tr>
                     </tbody>
                     <Pagination

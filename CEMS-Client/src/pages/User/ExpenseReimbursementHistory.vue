@@ -33,7 +33,14 @@ const totalPages = computed(() => {
 const paginated = computed(() => {
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
-  return filteredHistory.value.slice(start, end);
+  const pageItems = filteredHistory.value.slice(start, end);
+
+  // Add empty rows if fewer than 10 items
+  while (pageItems.length < itemsPerPage.value) {
+    pageItems.push(null);
+  }
+
+  return pageItems;
 });
 
 const expenseReimbursementStore = useExpenseReimbursement();
@@ -442,65 +449,34 @@ onMounted(async () => {
 
 <template>
   <div class="content">
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8"
-    >
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
       <!-- ค้นหา -->
-      <RequisitionSearchInput
-        v-model="filters.searchQuery"
-        :loading="loading"
-      />
+      <RequisitionSearchInput v-model="filters.searchQuery" :loading="loading" />
 
       <!-- โครงการ -->
-      <ProjectFilter
-        v-model="filters.project"
-        :projects="projects"
-        :loading="loading"
-      />
+      <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
 
       <!-- ประเภทค่าใช้จ่าย -->
-      <RequisitionTypeFilter
-        v-model="filters.requisitionType"
-        :requisition-types="requisitionTypes"
-        :loading="loading"
-      />
+      <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+        :loading="loading" />
 
       <!-- วันที่เริ่มต้นขอเบิก -->
-      <DateFilter
-        v-model="startDateTemp"
-        :loading="loading"
-        label="วันที่เริ่มต้นขอเบิก"
-        :is-open="isStartDatePickerOpen"
-        @update:is-open="isStartDatePickerOpen = $event"
-        :confirmed-date="filters.startDate"
-        @confirm="confirmStartDate"
-        @cancel="cancelStartDate"
-      />
+      <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+        :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+        :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate" />
 
       <!-- วันที่สิ้นสุดขอเบิก -->
       <div class="flex flex-col">
-        <DateFilter
-          v-model="endDateTemp"
-          :loading="loading"
-          label="วันที่สิ้นสุดขอเบิก"
-          :is-open="isEndDatePickerOpen"
-          @update:is-open="isEndDatePickerOpen = $event"
-          :confirmed-date="filters.endDate"
-          @confirm="confirmEndDate"
-          @cancel="cancelEndDate"
-          class="mb-2"
-        />
+        <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
+          @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
+          @cancel="cancelEndDate" class="mb-2" />
 
         <!-- ปุ่มค้นหาและรีเซ็ต (ย้ายไปอยู่ใต้ filter ตัวสุดท้าย) -->
-        <FilterButtons
-          :loading="loading"
-          @reset="handleReset"
-          @search="handleSearch"
-        />
+        <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>
     </div>
 
-    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-5">
+    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-5 border-grayNormal">
       <!-- ตาราง -->
       <div>
         <Ctable :table="'Table9-head-New'" />
@@ -510,9 +486,7 @@ onMounted(async () => {
           <tr v-if="loading">
             <td colspan="8" class="py-4">
               <div class="flex justify-center items-center">
-                <div
-                  class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"
-                ></div>
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
               </div>
             </td>
@@ -530,78 +504,64 @@ onMounted(async () => {
             </td>
           </tr>
 
-          <tr
-            v-else
-            v-for="(expenseReimbursementItem, index) in paginated"
-            :key="expenseReimbursementItem.rqId"
-            class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50"
-          >
-            <th class="py-[12px] px-2 w-14">
-              {{ index + 1 + (currentPage - 1) * itemsPerPage }}
-            </th>
-            <th
-              class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
-              style="
+          <tr v-else v-for="(expenseReimbursementItem, index) in paginated"
+            :key="expenseReimbursementItem ? expenseReimbursementItem.rqId : `empty-${index}`"
+            :class="expenseReimbursementItem ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+            <template v-if="expenseReimbursementItem">
+              <th class="py-3 px-2 w-14">
+                {{ index + 1 + (currentPage - 1) * itemsPerPage }}
+              </th>
+              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" style="
                 max-width: 196px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-              "
-              :title="expenseReimbursementItem.rqName"
-            >
-              {{ expenseReimbursementItem.rqName }}
-            </th>
-            <th
-              class="py-[12px] px-2 w-48 text-start truncate overflow-hidden"
-              style="
+              " :title="expenseReimbursementItem.rqName">
+                {{ expenseReimbursementItem.rqName }}
+              </th>
+              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" style="
                 max-width: 196px;
                 white-space: nowrap;
                 text-overflow: ellipsis;
                 overflow: hidden;
-              "
-              :title="expenseReimbursementItem.rqPjName"
-            >
-              {{ expenseReimbursementItem.rqPjName }}
-            </th>
-            <th class="py-[12px] px-5 w-32 text-start font-[100]">
-              {{ expenseReimbursementItem.rqRqtName }}
-            </th>
-            <th class="py-[12px] px-2 w-20 text-end">
-              {{ expenseReimbursementItem.rqWithDrawDate }}
-            </th>
-            <th class="py-[12px] px-5 w-32 text-end">
-              {{
+              " :title="expenseReimbursementItem.rqPjName">
+                {{ expenseReimbursementItem.rqPjName }}
+              </th>
+              <th class="py-3 px-5 w-32 text-start font-[100]">
+                {{ expenseReimbursementItem.rqRqtName }}
+              </th>
+              <th class="py-3 px-2 w-20 text-start">
+                {{ expenseReimbursementItem.rqWithDrawDate }}
+              </th>
+              <th class="py-3 px-5 w-32 text-end">
+                {{
                 new Decimal(expenseReimbursementItem.rqExpenses ?? 0)
-                  .toNumber()
-                  .toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-              }}
-            </th>
-            <th class="py-[12px] px-2 w-28 text-center">
-              <span>
-                <StatusBudge
-                  :status="'sts-' + expenseReimbursementItem.rqStatus"
-                ></StatusBudge>
-              </span>
-            </th>
-            <th class="py-[10px] px-2 w-20 text-center">
-              <span
-                @click="toDetails(expenseReimbursementItem.rqId)"
-                class="flex justify-center cursor-pointer hover:text-[#B67D12]"
-              >
-                <Icon :icon="'viewDetails'" />
-              </span>
-            </th>
+                .toNumber()
+                .toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                })
+                }}
+              </th>
+              <th class="py-3 px-2 w-20 text-start">
+                <span>
+                  <StatusBudge :status="'sts-' + expenseReimbursementItem.rqStatus"></StatusBudge>
+                </span>
+              </th>
+              <th class="py-[10px] px-2 w-20 text-center">
+                <span @click="toDetails(expenseReimbursementItem.rqId)"
+                  class="flex justify-center cursor-pointer hover:text-[#B67D12]">
+                  <Icon :icon="'viewDetails'" />
+                </span>
+              </th>
+            </template>
+            <template v-else>
+              <td class="py-3">&nbsp;</td>
+            </template>
           </tr>
         </tbody>
-        <Pagination
-        :currentPage="currentPage"
-        :totalPages="totalPages"
-        :columnNumber="columnNumber"
-        @update:currentPage="(page) => (currentPage = page)"
-      />
+        <Pagination :currentPage="currentPage" :totalPages="totalPages"
+          @update:currentPage="(page) => (currentPage = page)" />
       </table>
     </div>
   </div>
