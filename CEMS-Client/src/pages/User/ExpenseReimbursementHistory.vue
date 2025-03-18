@@ -456,7 +456,7 @@ const formatDate = (dateStr: string): string => {
 
 <template>
   <div class="content">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
       <!-- ค้นหา -->
       <RequisitionSearchInput v-model="filters.searchQuery" :loading="loading" />
 
@@ -476,14 +476,14 @@ const formatDate = (dateStr: string): string => {
       <div class="flex flex-col">
         <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
           @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
-          @cancel="cancelEndDate" class="mb-6" />
+          @cancel="cancelEndDate" class="mb-4" />
 
         <!-- ปุ่มค้นหาและรีเซ็ต (ย้ายไปอยู่ใต้ filter ตัวสุดท้าย) -->
         <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>
     </div>
 
-    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-5 border-grayNormal">
+    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-4   border-grayNormal">
       <!-- ตาราง -->
       <div>
         <Ctable :table="'Table9-head-New'" />

@@ -147,7 +147,7 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col text-center">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6 w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4 w-full">
       <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
 
       <DepartmentFilter v-model="filters.department" :users="users" :loading="loading" />
