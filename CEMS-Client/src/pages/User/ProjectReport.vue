@@ -6,7 +6,7 @@
  * วันที่จัดทำ/แก้ไข: 11 มีนาคม 2568
  */
 // import Icon from '../../components/template/CIcon.vue';
-import { onMounted, ref } from "vue";
+import { onMounted, ref, computed } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from "../../components/Table/CTable.vue";
 import { useProjectsStore } from "../../store/projectsReport";
@@ -29,7 +29,19 @@ import {
   Title,
   CategoryScale,
 } from "chart.js";
+import Pagination from '../../components/Pagination.vue'
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const columnNumber = ref(1);
+const totalPages = computed(() => {
+  return Math.ceil(projectsStore.projects.length / itemsPerPage.value);
+});
 
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  return projectsStore.projects.slice(start, end);
+});
 // Register Chart.js components, including for the bar chart
 Chart.register(
   BarController,
@@ -374,7 +386,7 @@ onMounted(async () => {
               >
                 {{ project.pjName }}
               </th>
-              <th class="py-3 px-2 w-60 text-end font-[100]">
+              <th class="py-3 px-2 w-4 text-end font-[100]">
                 {{ project.pjSumAmountExpenses.toLocaleString("en-US", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
@@ -382,9 +394,13 @@ onMounted(async () => {
               </th>
             </tr>
           </tbody>
+          <Pagination
+          :currentPage="currentPage"
+          :totalPages="totalPages"
+          :columnNumber="columnNumber"
+          @update:currentPage="(page) => (currentPage = page)"
+        />          
         </table>
-        <!-- Table Footer -->
-        <Ctable :table="'Table4-footer'" />
       </div>
       <!-- end::Table -->
     </div>

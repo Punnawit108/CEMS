@@ -19,6 +19,7 @@ import Pagination from '../../components/Pagination.vue';
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const columnNumber = ref(7);
 const totalPages = computed(() => {
   return Math.ceil(filteredApprovals.value.length / itemsPerPage.value);
 });
@@ -388,8 +389,12 @@ const toDetails = async (data: Expense) => {
                         </th>
                     </tr>
                 </tbody>
-                <Pagination :currentPage="currentPage" :totalPages="totalPages"
-                @update:currentPage="(page) => (currentPage = page)" />
+                <Pagination
+                :currentPage="currentPage"
+                :totalPages="totalPages"
+                :columnNumber="columnNumber"
+                @update:currentPage="(page) => (currentPage = page)"
+              />
             </table>
         </div>
     </div>
