@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 /*
 * ชื่อไฟล์: CardNotification.vue
@@ -52,11 +51,8 @@ const getStatusMessage = (rqStatus: string, rqProgress: string): string => {
 };
 
 const sortedNotifications = computed(() => {
-    // กรองข้อมูลที่ไม่ใช่ null ก่อนเรียงลำดับ
-    const validNotifications = props.notificationInfo.filter((item: any) => item !== null);
-
-    // เรียงลำดับ unread ก่อน read
-    const sorted = validNotifications.sort((a: any, b: any) => {
+    return props.notificationInfo.sort((a: any, b: any) => {
+        // เรียงลำดับ unread ก่อน read
         if (a.ntStatus === 'unread' && b.ntStatus === 'read') return -1;
         if (a.ntStatus === 'read' && b.ntStatus === 'unread') return 1;
 
@@ -65,14 +61,6 @@ const sortedNotifications = computed(() => {
         const dateB = new Date(b.ntAprDate).getTime();
         return dateB - dateA; // จากใหม่ไปเก่า
     });
-
-    // เติมช่องว่างเปล่าให้ครบ 10 รายการ
-    const emptySlots = 10 - sorted.length;
-    if (emptySlots > 0) {
-        sorted.push(...Array(emptySlots).fill(null));
-    }
-
-    return sorted;
 });
 
 const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: string) => {
@@ -96,50 +84,31 @@ const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: st
 </script>
 
 <template>
-    <!-- ตรวจสอบว่ามีข้อมูลจริงหรือไม่ -->
-    <template v-if="sortedNotifications.some((item: any) => item !== null)">
-        <section v-for="(item, index) in sortedNotifications" :key="item ? item.ntId : index" 
-            @click="item ? () => {
-                updateStatus(item.ntId);
-                navigateToDetail(item.ntAprRqId, item.ntAprStatus, item.ntAprRqProgress);
-            } : null" 
-            class="flex justify-between py-6 pl-4 hover:cursor-pointer"
-            :class="[
-                item ? (item.ntStatus === 'unread' ? 'bg-white border-b border-solid border-b-[#B6B7BA]' : 'bg-[#f7f7f7] border-b border-solid border-b-[#B6B7BA]') : 'bg-white border-none',
-                index === 9 ? 'border-b-0' : '' // เพิ่มเงื่อนไขนี้เพื่อไม่แสดง border-bottom สำหรับรายการที่สิบ
-            ]">
-            
-            <div v-if="item" class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
-                <h2 class="text-sm text-gray-800">
-                    <span>คำขอเบิกค่าใช้จ่าย </span>
-                    <strong>{{ item.ntAprRqPjName }}</strong>
-                </h2>
-                <p class="text-xs text-gray-500 max-md:max-w-full">
-                    รหัส : {{ item.ntAprRqId }}
-                    {{ getStatusMessage(item.ntAprStatus, item.ntAprRqProgress) }}
-                </p>
-            </div>
-            <div v-else class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
-                <h2 class="text-sm text-gray-800">
-                    <span>&nbsp;</span>
-                </h2>
-                <p class="text-xs text-gray-500 max-md:max-w-full">
-                    &nbsp;
-                </p>
-            </div>
-
-            <time v-if="item" class="text-sm font-medium text-gray-400 flex justify-end mr-4 items-center">
-                {{ formatDateTime(item.ntAprDate) }}
-            </time>
-            <time v-else class="text-sm font-medium text-gray-400 flex justify-end mr-4 items-center">
-                &nbsp;
-            </time>
-        </section>
-    </template>
-    <!-- แสดงข้อความ "ไม่มีข้อมูลการแจ้งเตือน" ตรงกลางตาราง -->
-    <template v-else>
-        <div class="flex justify-center items-center h-[850px] text-gray-500 ">
-            ไม่มีข้อมูลการแจ้งเตือน
+    <section 
+        v-for="(item, index) in sortedNotifications" 
+        :key="item.ntId" 
+        @click="() => {
+            updateStatus(item.ntId);
+            navigateToDetail(item.ntAprRqId, item.ntAprStatus, item.ntAprRqProgress);
+        }" 
+        class="flex justify-between py-6 pl-4 hover:cursor-pointer"
+        :class="[
+    item.ntStatus === 'unread' ? 'bg-white' : 'bg-[#f7f7f7]',
+    index !== 9 ? 'border-b border-solid border-b-[#B6B7BA]' : ''
+]"
+    >
+        <div class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
+            <h2 class="text-sm text-gray-800">
+                <span>คำขอเบิกค่าใช้จ่าย </span>
+                <strong>{{ item.ntAprRqPjName }}</strong>
+            </h2>
+            <p class="text-xs text-gray-500 max-md:max-w-full">
+                รหัส : {{ item.ntAprRqId }}
+                {{ getStatusMessage(item.ntAprStatus, item.ntAprRqProgress) }}
+            </p>
         </div>
-    </template>
+        <time class="text-sm font-medium text-gray-400 flex justify-end mr-4 items-center">
+            {{ formatDateTime(item.ntAprDate) }}
+        </time>
+    </section>
 </template>

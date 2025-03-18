@@ -1,4 +1,3 @@
-
 <script setup lang="ts">
 /*
 * ชื่อไฟล์: Notification.vue
@@ -18,7 +17,6 @@ const user = ref<any>(null);
 // ตัวแปรสำหรับการแบ่งหน้า
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-
 
 onMounted(async () => {
     const storedUser = localStorage.getItem("user");
@@ -99,15 +97,12 @@ const paginatedNotifications = computed(() => {
     const end = start + itemsPerPage.value;
     const notifications = filteredNotifications.value.slice(start, end);
 
-    // เติมช่องว่างเปล่าให้ครบ 10 รายการ
-    const emptySlots = itemsPerPage.value - notifications.length;
-    if (emptySlots > 0) {
-        notifications.push(...Array(emptySlots).fill(null));
-    }
-
     return notifications;
 });
-
+// คำนวณจำนวนช่องว่างที่ต้องเพิ่ม
+const emptySlots = computed(() => {
+    return Math.max(0, itemsPerPage.value - paginatedNotifications.value.length);
+});
 // ฟังก์ชันสำหรับเปลี่ยนหน้า
 const nextPage = () => {
     if (currentPage.value < totalPages.value) {
@@ -125,21 +120,18 @@ const previousPage = () => {
 const totalPages = computed(() => {
     return Math.ceil(filteredNotifications.value.length / itemsPerPage.value);
 });
-
-
 </script>
 
 <template>
     <div>
         <nav class="flex overflow-hidden items-center whitespace-nowrap mb-2" aria-label="Filter options">
-            <ul
-                class="flex flex-wrap gap-4 self-stretch py-2 pr-20  my-auto text-sm leading-snug w-[1136px] max-md:pr-5 max-md:max-w-full">
+            <ul class="flex flex-wrap gap-4 self-stretch py-2 pr-20 my-auto text-sm leading-snug w-[1136px] max-md:pr-5 max-md:max-w-full">
                 <li>
                     <button @click="toggleAllNotification" :class="[
                         'flex px-4 py-1.5 bg-white rounded-3xl border-2 border-solid',
                         clickAllNotification ? 'border-blue-600 text-blue-600' : 'border-neutral-400 text-neutral-500 text-opacity-80'
                     ]">
-                        <svg :style="{ fill: clickAllNotification ? '#0066DD' : '#777777' }" width="18" height="17"
+                    <svg :style="{ fill: clickAllNotification ? '#0066DD' : '#777777' }" width="18" height="17"
                             viewBox="0 0 18 17" xmlns="http://www.w3.org/2000/svg">
                             <path
                                 d="M16.5647 5.49614C16.1523 4.48182 15.5402 3.56079 14.7647 2.78781C13.9908 2.013 13.0717 1.39834 12.06 0.978974C11.0484 0.559605 9.964 0.34375 8.86887 0.34375C7.77375 0.34375 6.68936 0.559605 5.6777 0.978974C4.66605 1.39834 3.74698 2.013 2.97304 2.78781C2.19455 3.56003 1.57955 4.48112 1.16471 5.49614C0.746995 6.50548 0.531803 7.58711 0.531374 8.67947C0.525409 9.75734 0.735077 10.8255 1.14804 11.8211L0.731374 14.8628C0.647242 15.254 0.710409 15.6625 0.908772 16.01C1.10713 16.3575 1.42675 16.6196 1.80637 16.7461C2.05387 16.8278 2.31721 16.8478 2.57304 16.8045L5.61471 16.3545C6.63646 16.7916 7.7367 17.0156 8.84804 17.0128C10.2178 17.0126 11.5664 16.6747 12.7745 16.0291C13.9826 15.3834 15.0129 14.4499 15.7743 13.3112C16.5356 12.1725 17.0045 10.8637 17.1395 9.50055C17.2744 8.13742 17.0713 6.76205 16.548 5.49614H16.5647ZM5.29804 10.0211C5.12185 10.0211 4.9474 9.98633 4.78464 9.91885C4.62188 9.85138 4.47401 9.7525 4.34946 9.62788C4.22491 9.50325 4.12613 9.35532 4.05876 9.19252C3.99139 9.02972 3.95674 8.85525 3.95679 8.67906C3.95685 8.50287 3.9916 8.32841 4.05908 8.16565C4.12655 8.0029 4.22543 7.85502 4.35005 7.73048C4.47467 7.60593 4.62261 7.50715 4.78541 7.43977C4.94821 7.3724 5.12268 7.33775 5.29887 7.33781C5.65471 7.33781 5.99596 7.47916 6.24758 7.73077C6.49919 7.98238 6.64054 8.32364 6.64054 8.67947C6.64054 9.0353 6.49919 9.37656 6.24758 9.62817C5.99596 9.87979 5.65387 10.0211 5.29804 10.0211ZM8.86554 10.0211C8.68935 10.0211 8.5149 9.98633 8.35214 9.91885C8.18938 9.85138 8.04151 9.7525 7.91696 9.62788C7.79241 9.50325 7.69363 9.35532 7.62626 9.19252C7.55889 9.02972 7.52424 8.85525 7.52429 8.67906C7.52435 8.50287 7.5591 8.32841 7.62658 8.16565C7.69405 8.0029 7.79293 7.85502 7.91755 7.73048C8.04217 7.60593 8.19011 7.50715 8.35291 7.43977C8.51571 7.3724 8.69018 7.33775 8.86637 7.33781C9.22221 7.33781 9.56346 7.47916 9.81508 7.73077C10.0667 7.98238 10.208 8.32364 10.208 8.67947C10.208 9.0353 10.0667 9.37656 9.81508 9.62817C9.56346 9.87979 9.22221 10.0211 8.86637 10.0211M12.433 10.0211C12.2569 10.0211 12.0824 9.98633 11.9196 9.91885C11.7569 9.85138 11.609 9.7525 11.4845 9.62788C11.3599 9.50325 11.2611 9.35532 11.1938 9.19252C11.1264 9.02972 11.0917 8.85525 11.0918 8.67906C11.0918 8.50287 11.1266 8.32841 11.1941 8.16565C11.2616 8.0029 11.3604 7.85502 11.4851 7.73048C11.6097 7.60593 11.7576 7.50715 11.9204 7.43977C12.0832 7.3724 12.2577 7.33775 12.4339 7.33781C12.7897 7.33781 13.131 7.47916 13.3826 7.73077C13.6342 7.98238 13.7755 8.32364 13.7755 8.67947C13.7755 9.0353 13.6342 9.37656 13.3826 9.62817C13.131 9.87979 12.7889 10.0211 12.433 10.0211Z"
@@ -148,7 +140,6 @@ const totalPages = computed(() => {
 
                         <span class="ml-1">ทั้งหมด</span>
                     </button>
-
                 </li>
                 <li>
                     <button @click="toggleReadedNotification"
@@ -173,37 +164,41 @@ const totalPages = computed(() => {
                                 :fill="clickNotReadNotification ? '#D92C20' : '#888888'" />
                         </svg>
 
+
                         <span class="ml-1">ยังไม่อ่าน</span>
                     </button>
                 </li>
             </ul>
         </nav>
         <article class="flex flex-col border border-solid border-[#B6B7BA]">
-            <CardNotification v-if="paginatedNotifications !== null" :notificationInfo="paginatedNotifications" />
+            <!-- แสดง CardNotification สำหรับข้อมูลที่มีอยู่ -->
+            <CardNotification v-if="paginatedNotifications.length > 0" :notificationInfo="paginatedNotifications" />
 
-            <footer
-                class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white  border-t border-solid border-[#B6B7BA]  min-h-[56px] max-md:max-w-full">
+            <!-- แสดงข้อความ "ไม่มีข้อมูลการแจ้งเตือน" และช่องว่างขนาด 850px เมื่อไม่มีข้อมูล -->
+            <div v-else class="flex justify-center items-center h-[850px]">
+                <p class="text-gray-500 text-lg">ไม่มีข้อมูลการแจ้งเตือน</p>
+            </div>
+
+            <!-- เพิ่มช่องว่าง div ที่มีความสูงเท่ากับ CardNotification -->
+            <div v-if="paginatedNotifications.length > 0" v-for="index in emptySlots" :key="`empty-${index}`" class="flex justify-between h-[85px] pl-4">
+                <div class="flex overflow-hidden flex-col grow shrink pr-80 leading-snug min-w-[240px] w-[788px] max-md:max-w-full">
+                    <!-- ช่องว่าง -->
+                </div>
+            </div>
+
+            <footer class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-[#B6B7BA] min-h-[56px] max-md:max-w-full">
                 <div class="flex grow shrink self-stretch my-auto h-5 min-w-[240px] w-[907px]"></div>
-                <p
-                    class="self-stretch my-auto text-xs tracking-wide leading-loose text-right text-black text-opacity-90">
+                <p class="self-stretch my-auto text-xs tracking-wide leading-loose text-right text-black text-opacity-90">
                     {{ currentPage }} of {{ totalPages }}
                 </p>
-                <button @click="previousPage"
-                    class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow"
-                    aria-label="Previous page">
+                <button @click="previousPage" class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow" aria-label="Previous page">
                     <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M19.4219 11.9062L14.8281 16.5L19.4219 21.0938L18.0156 22.5L12.0156 16.5L18.0156 10.5L19.4219 11.9062Z"
-                            fill="black" fill-opacity="0.54" />
+                        <path d="M19.4219 11.9062L14.8281 16.5L19.4219 21.0938L18.0156 22.5L12.0156 16.5L18.0156 10.5L19.4219 11.9062Z" fill="black" fill-opacity="0.54" />
                     </svg>
                 </button>
-                <button @click="nextPage"
-                    class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow"
-                    aria-label="Next page">
+                <button @click="nextPage" class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow" aria-label="Next page">
                     <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path
-                            d="M13.9844 10.5L19.9844 16.5L13.9844 22.5L12.5781 21.0938L17.1719 16.5L12.5781 11.9062L13.9844 10.5Z"
-                            fill="black" fill-opacity="0.54" />
+                        <path d="M13.9844 10.5L19.9844 16.5L13.9844 22.5L12.5781 21.0938L17.1719 16.5L12.5781 11.9062L13.9844 10.5Z" fill="black" fill-opacity="0.54" />
                     </svg>
                 </button>
             </footer>
