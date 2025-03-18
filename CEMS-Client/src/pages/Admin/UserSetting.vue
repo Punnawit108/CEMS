@@ -153,7 +153,7 @@ onMounted(async () => {
 
       <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
     </div>
-    <div class="w-full h-fit border-[2px] flex flex-col items-start">
+    <div class="w-full h-fit border-[2px] flex flex-col items-start border-grayNormal">
       <table class="table-auto w-full text-center text-black">
         <thead class="bg-[#F2F4F8]">
           <tr class="text-[16px] border-b-2 border-[#BBBBBB]">

@@ -475,7 +475,7 @@ onMounted(async () => {
       </div>
     </div>
 
-    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-5">
+    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-5 border-grayNormal">
       <!-- ตาราง -->
       <div>
         <Ctable :table="'Table9-head-New'" />
@@ -534,12 +534,12 @@ onMounted(async () => {
               </th>
               <th class="py-3 px-5 w-32 text-end">
                 {{
-                  new Decimal(expenseReimbursementItem.rqExpenses ?? 0)
-                    .toNumber()
-                    .toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
+                new Decimal(expenseReimbursementItem.rqExpenses ?? 0)
+                .toNumber()
+                .toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                })
                 }}
               </th>
               <th class="py-3 px-2 w-20 text-start">

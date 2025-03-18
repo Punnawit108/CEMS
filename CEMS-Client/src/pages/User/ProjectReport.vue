@@ -313,7 +313,7 @@ onMounted(async () => {
           <canvas id="barChart" v-show="!loading"></canvas>
         </div>
       </div>
-      <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] border-grayNormal">
+      <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] border-grayNormal border-grayNormal">
         <Ctable :table="'Table4-head'" />
         <table class="w-full text-center text-black table-auto">
           <tbody>
@@ -336,10 +336,10 @@ onMounted(async () => {
                 </th>
                 <th class="py-3 px-2 w-60 text-end font-[100]">
                   {{
-                    new Decimal(project.pjSumAmountExpenses ?? 0).toNumber().toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
+                  new Decimal(project.pjSumAmountExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  })
                   }}
                 </th>
               </template>

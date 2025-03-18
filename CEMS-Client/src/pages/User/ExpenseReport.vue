@@ -636,7 +636,7 @@ onMounted(async () => {
       <!-- end::Bar chart -->
 
       <!-- begin::Table -->
-      <div class="w-full h-fit border-[2px] flex flex-col items-start">
+      <div class="w-full h-fit border-[2px] flex flex-col items-start border-grayNormal">
         <!-- Table Header -->
         <Ctable :table="'Table7-head'" />
         <!-- Table Data -->
@@ -660,17 +660,17 @@ onMounted(async () => {
               :class="expense ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
               <template v-if="expense">
                 <th class="py-3 px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                <th class="py-3 px-2 text-start w-56 truncate overflow-hidden"
+                <th class="py-3 px-2 text-start truncate overflow-hidden"
                   style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expense.rqUsrName">
                   {{ expense.rqUsrName }}
                 </th>
-                <th class="py-3 px-2 text-start w-56 truncate overflow-hidden"
+                <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
                   style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expense.rqName">
                   {{ expense.rqName }}
                 </th>
-                <th class="py-3 px-2 text-start w-56 truncate overflow-hidden"
+                <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
                   style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expense.rqPjName">
                   {{ expense.rqPjName }}
@@ -678,18 +678,18 @@ onMounted(async () => {
                 <th class="py-3 px-5 text-start w-44">
                   {{ expense.rqRqtName }}
                 </th>
-                <th class="py-3 px-2 text-start w-24">
+                <th class="py-3 px-2 text-start w-32">
                   {{ expense.rqPayDate }}
                 </th>
                 <th class="py-3 px-2 text-end w-40">
                   {{
-                    new Decimal(expense.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
-                      minimumFractionDigits: 2,
-                      maximumFractionDigits: 2,
-                    })
+                  new Decimal(expense.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  })
                   }}
                 </th>
-                <th class="py-[10px] px-2 w-32 text-center">
+                <th class="py-3 px-2 w-20 text-center">
                   <span class="flex justify-center">
                     <Icon :icon="'viewDetails'" @click="toDetails(expense.rqId.toString())"
                       class="cursor-pointer hover:text-[#B67D12]" />
