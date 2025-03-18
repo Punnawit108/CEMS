@@ -276,18 +276,20 @@ onMounted(async () => {
 
 <template>
   <div>
-    <!-- ปุ่มเปลี่ยนเส้นทาง -->
     <div class="items-center">
       <div>
         <div class="flex justify-between items-center">
-          <!-- แทนที่ช่องค้นหาเดิมด้วยฟิลเตอร์ จาก UserSetting.vue -->
           <div class="flex flex-wrap gap-4 mb-4 lg:mb-0">
             <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
               <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
             </div>
 
             <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
-              <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+              <div class="flex flex-col">
+                <!-- ข้อความเพื่อให้ปุ่มอยู่ในระดับเดียวกับฟิลเตอร์ -->
+                <div class="py-0.5 text-[14px] text-transparent">การดำเนินการ</div>
+                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+              </div>
             </div>
           </div>
 

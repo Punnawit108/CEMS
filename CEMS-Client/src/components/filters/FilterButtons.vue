@@ -13,7 +13,7 @@ const emit = defineEmits<{
 
 <template>
   <div class="h-[32px]">
-    <div class="py-0.5 text-[14px] text-transparent">การดำเนินการ</div>
+    
     <div class="grid grid-cols-2 gap-4">
       <button 
         type="button"
