@@ -271,7 +271,6 @@ const closePopupCancle = () => {
 
 const openPopupSubmit = () => {
   isPopupSubmitOpen.value = true;
-  console.log(selectedDate.value)
 };
 
 const closePopupSubmit = () => {
@@ -414,11 +413,10 @@ function updateFormData() {
 const formatDateToThai = (date: Date) => {
   if (!date) return null;
   const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
-  const thaiYear = localDate.getFullYear() + 543;
-  const formattedDate = `${thaiYear}-${(localDate.getMonth() + 1)
-    .toString()
-    .padStart(2, "0")}-${localDate.getDate().toString().padStart(2, "0")}`;
-  return formattedDate;
+  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
+  const thaiDate = new Intl.DateTimeFormat("th-TH", options).format(localDate);
+  const [day, month, year] = thaiDate.split("/");
+  return `${year}-${month}-${day}`; 
 };
 
 // ปรับรูปแบบค่าที่ส่งเข้า db
