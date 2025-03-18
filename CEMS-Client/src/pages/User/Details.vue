@@ -198,7 +198,7 @@ const handleSummit = async (status: string) => {
       aprStatus: status,
       rqReason: formData.rqReason
     };
-    //detailStore.updateApprove(data);
+    detailStore.updateApprove(data);
     handleHideApproverPopup();
     confirmPrint(status)
     isAlertPrintOpen.value = true;
