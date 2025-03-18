@@ -239,8 +239,22 @@ const confirmCancle = async () => {
                                 </div>
                             </template>
                             <template v-else>
-                                <input type="checkbox" id="viewReportPermission" v-model="user.viewReportPermission"
-                                    class="w-5 h-5 border-2 border-solid border-zinc-400 rounded outline-none focus:ring-0 accent-gray-400" />
+                                <div class="w-[18px]">
+                                    <svg v-if="user.viewReportPermission"
+                                        @click="user.viewReportPermission = !user.viewReportPermission"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="#999999" stroke-width="2" cursor="pointer"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                        <path d="M7 13l3 3 7-7"></path>
+                                    </svg>
+                                    <svg v-else @click="user.viewReportPermission = !user.viewReportPermission"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" cursor="pointer"
+                                        viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                    </svg>
+                                </div>
                             </template>
                         </div>
                         <label class="text-sm leading-snug text-black">
