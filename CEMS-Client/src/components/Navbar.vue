@@ -59,7 +59,7 @@ const showLogout = () => {
     <div class="mr-6 inline-flex h-9 relative">
 
       <div v-if="isShowLogout"
-        class="absolute right-0 top-12 bg-white shadow-lg rounded-lg w-[230px] flex justify-center flex-col p-2">
+        class="absolute right-0 top-12 bg-white shadow-lg rounded-lg w-[230px] flex justify-center flex-col p-2 z-50">
         <div class="flex flex-col items-center">
           <div class="flex items-center">
             <svg class="mr-2 w-[32px] h-[32px] text-gray-800 dark:text-white" aria-hidden="true"

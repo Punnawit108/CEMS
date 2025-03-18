@@ -681,13 +681,15 @@ const confirmDeleteExpense = async () => {
     <div v-if="!isHiddenPublic" class="flex flex-col space-y-4">
       <div class="flex items-center justify-between w-full">
         <div class="flex w-1/3 space-x-4">
-          <p class="text-sm text-black">ลำดับ</p>
-          <p class="text-sm text-black">ประเภทรถส่วนตัว</p>
+          <p class="text-sm text-black font-bold">ลำดับ</p>
+          <p class="text-sm text-black font-bold">ประเภทรถส่วนตัว</p>
         </div>
-        <p class="w-1/2 text-sm text-right text-black">
+        <p class="w-1/2 text-sm text-right text-black font-bold">
           อัตราค่าเดินทาง (บาท/กิโลเมตร)
         </p>
-        <p class="text-sm text-right text-black">จัดการ</p>
+        <div class = "w-[100px] flex justify-center">
+          <p class="text-sm text-right text-black font-bold">จัดการ</p>
+        </div>
       </div>
       <div
         v-for="(item, index) in vehiclePrivate"
@@ -808,11 +810,13 @@ const confirmDeleteExpense = async () => {
     <div v-if="!isHiddenPrivate" class="flex flex-col space-y-4">
       <div class="flex items-center justify-between w-full">
         <div class="flex w-1/3 space-x-4">
-          <p class="text-sm text-black">ลำดับ</p>
-          <p class="text-sm text-black">ประเภทรถสาธารณะ</p>
+          <p class="text-sm text-black font-bold">ลำดับ</p>
+          <p class="text-sm text-black font-bold">ประเภทรถสาธารณะ</p>
         </div>
         <p class="w-1/2 text-sm text-right text-black"></p>
-        <p class="text-sm text-right text-black">จัดการ</p>
+        <div class = "w-[100px] flex justify-center">
+          <p class="text-sm text-right text-black font-bold">จัดการ</p>
+        </div>
       </div>
 
       <div
@@ -933,11 +937,13 @@ const confirmDeleteExpense = async () => {
     <div v-if="!isHiddenPrivate" class="flex flex-col space-y-4">
       <div class="flex items-center justify-between w-full">
         <div class="flex w-1/3 space-x-4">
-          <p class="text-sm text-black">ลำดับ</p>
-          <p class="text-sm text-black">ประเภทค่าใช้จ่าย</p>
+          <p class="text-sm text-black font-bold">ลำดับ</p>
+          <p class="text-sm text-black font-bold">ประเภทค่าใช้จ่าย</p>
         </div>
         <p class="w-1/2 text-sm text-right text-black"></p>
-        <p class="text-sm text-right text-black">จัดการ</p>
+        <div class = "w-[100px] flex justify-center">
+          <p class="text-sm text-right text-black font-bold">จัดการ</p>
+        </div>
       </div>
 
       <div
