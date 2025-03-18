@@ -456,7 +456,7 @@ const formatDate = (dateStr: string): string => {
 
 <template>
   <div class="content">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6">
       <!-- ค้นหา -->
       <RequisitionSearchInput v-model="filters.searchQuery" :loading="loading" />
 
@@ -476,7 +476,7 @@ const formatDate = (dateStr: string): string => {
       <div class="flex flex-col">
         <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
           @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
-          @cancel="cancelEndDate" class="mb-2" />
+          @cancel="cancelEndDate" class="mb-6" />
 
         <!-- ปุ่มค้นหาและรีเซ็ต (ย้ายไปอยู่ใต้ filter ตัวสุดท้าย) -->
         <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
@@ -493,7 +493,7 @@ const formatDate = (dateStr: string): string => {
           <tr v-if="loading">
             <td colspan="8" class="py-4">
               <div class="flex justify-center items-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
               </div>
             </td>

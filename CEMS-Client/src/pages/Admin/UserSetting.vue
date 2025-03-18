@@ -8,25 +8,25 @@
 
 import Icon from '../../components/Icon/CIcon.vue'
 import { useRouter } from 'vue-router'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import Pagination from '../../components/Pagination.vue'
 import { useUserStore } from '../../store/user'
 import { storeToRefs } from 'pinia'
-import type { User } from '../../types'
+
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-const columnNumber = ref(7);
 const totalPages = computed(() => {
   return Math.ceil(filteredUsers.value.length / itemsPerPage.value);
 });
 
 const paginated = computed(() => {
+  if (loading.value) return [];
+  
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
   const pageItems = filteredUsers.value.slice(start, end);
 
-  // Add empty rows if fewer than 10 items
   while (pageItems.length < itemsPerPage.value) {
     pageItems.push(null);
   }
@@ -45,7 +45,7 @@ import FilterButtons from '../../components/filters/FilterButtons.vue'
 const router = useRouter()
 const store = useUserStore()
 const { users } = storeToRefs(store)
-const loading = ref(false)
+const loading = ref(true)
 
 
 
@@ -72,7 +72,7 @@ watch(lastSearchedFilters, () => {
 
 // Filtered users computation
 const filteredUsers = computed(() => {
-  if (!users.value) return []
+  if (loading.value || !users.value) return []
 
   return users.value.filter(user => {
     const fullName = `${user.usrFirstName} ${user.usrLastName}`.toLowerCase()
@@ -136,6 +136,7 @@ onMounted(async () => {
     await Promise.all([
       store.getAllUsers()
     ])
+    await nextTick()
   } catch (error) {
     console.error('Error in mounted:', error)
   } finally {
@@ -146,7 +147,7 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col text-center">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-12 w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-6 w-full">
       <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
 
       <DepartmentFilter v-model="filters.department" :users="users" :loading="loading" />
@@ -154,8 +155,12 @@ onMounted(async () => {
       <DivisionFilter v-model="filters.division" :users="users" :loading="loading" />
 
       <RoleFilter v-model="filters.role" :users="users" :loading="loading" />
-
-      <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+      <div class="flex flex-col">
+        <!-- ข้อความเพื่อให้ปุ่มอยู่ในระดับเดียวกับฟิลเตอร์ -->
+        <div class="py-0.5 text-[14px] text-transparent">การดำเนินการ</div>
+        <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+      </div>
+      
     </div>
     <div class="w-full h-fit border-[2px] flex flex-col items-start border-grayNormal">
       <table class="table-auto w-full text-center text-black">
@@ -172,8 +177,9 @@ onMounted(async () => {
             <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-if="loading">
+        <!-- แยก tbody สำหรับสถานะโหลด -->
+        <tbody v-if="loading">
+          <tr>
             <td colspan="9" class="py-4">
               <div class="flex justify-center items-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -181,14 +187,18 @@ onMounted(async () => {
               </div>
             </td>
           </tr>
-
-          <tr v-else-if="!users?.length">
+        </tbody>
+        
+        <!-- tbody สำหรับแสดงข้อมูลหลังโหลดเสร็จ -->
+        <tbody v-else>
+          <tr v-if="!users?.length">
             <td colspan="9" class="py-4">ไม่มีข้อมูลผู้ใช้</td>
           </tr>
 
           <tr v-else-if="filteredUsers.length === 0">
             <td colspan="9" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
           </tr>
+          
           <tr v-for="(user, index) in paginated" :key="user?.usrId ?? `empty-${index}`"
             :class="user ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
             <template v-if="user">
