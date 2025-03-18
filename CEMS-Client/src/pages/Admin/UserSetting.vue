@@ -16,6 +16,7 @@ import type { User } from '../../types'
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const columnNumber = ref(7);
 const totalPages = computed(() => {
   return Math.ceil(filteredUsers.value.length / itemsPerPage.value);
 });

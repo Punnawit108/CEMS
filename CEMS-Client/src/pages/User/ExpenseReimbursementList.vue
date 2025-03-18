@@ -27,6 +27,7 @@ import Pagination from "../../components/Pagination.vue";
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const columnNumber = ref(6);
 const totalPages = computed(() => {
   return Math.ceil(filteredList.value.length / itemsPerPage.value);
 });
@@ -513,7 +514,6 @@ onMounted(async () => {
             </template>
           </tr>
         </tbody>
-
         <Pagination :current-page="currentPage" :total-pages="totalPages"
           @update:currentPage="(page) => (currentPage = page)" />
       </table>

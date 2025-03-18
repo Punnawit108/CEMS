@@ -23,6 +23,7 @@ import { useRouter } from "vue-router";
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const columnNumber = ref(6);
 const totalPages = computed(() => {
   return Math.ceil(filteredExpenses.value.length / itemsPerPage.value);
 });
@@ -634,7 +635,6 @@ onMounted(async () => {
         </div>
       </div>
       <!-- end::Bar chart -->
-
       <!-- begin::Table -->
       <div class="w-full h-fit border-[2px] flex flex-col items-start border-grayNormal">
         <!-- Table Header -->

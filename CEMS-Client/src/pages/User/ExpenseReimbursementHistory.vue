@@ -25,6 +25,7 @@ import Pagination from "../../components/Pagination.vue";
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const columnNumber = ref(6);
 const totalPages = computed(() => {
   return Math.ceil(filteredHistory.value.length / itemsPerPage.value);
 });
