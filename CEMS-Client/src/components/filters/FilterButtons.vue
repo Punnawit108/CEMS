@@ -13,7 +13,6 @@ const emit = defineEmits<{
 
 <template>
   <div class="h-[32px]">
-    
     <div class="grid grid-cols-2 gap-4">
       <button 
         type="button"
