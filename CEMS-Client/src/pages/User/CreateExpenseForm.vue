@@ -119,9 +119,7 @@ function updateTypevh(event: Event) {
     (type) => type.vhType === String(selectedType)
   );
   typevh.value = selectedTypevh ? selectedTypevh.vhType : "";
-  console.log("formData", typevh.value);
 }
-console.log("formData2", typevh.value);
 
 //fn หา vhPayrate ของพาหนะที่ถูกเลือก
 const selectedPayrate = computed(() => {
@@ -309,15 +307,18 @@ watch(selectedTravelType, () => {
   formData.value.rqDistance = "";
   formData.value.rqExpenses = 0;
   formData.value.rqVhId = 0;
-  console.log(formData.value)
 });
+const formatRqExpenses = () => {
+  if (displayRqExpenses.value !== "") {
+    displayRqExpenses.value = parseFloat(displayRqExpenses.value).toFixed(2);
+    formData.value.rqExpenses = Number(displayRqExpenses.value);
+  }
+};
 
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
   formData.value.rqExpenses = newVal === "" ? 0 : Number(newVal);
-  console.log(formData.value)
 });
-
 // ตัวแปรเก็บ error ของแต่ละฟิลด์
 const errors = ref<{ [key: string]: boolean }>({});
 
@@ -667,16 +668,14 @@ const previewFile = (file: File) => {
           <div>
             <label for="rqExpenses" class="block text-sm font-medium py-2"
               :class="{ 'text-red-500': errors.rqExpenses }">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
-            <input type="number" id="rqExpenses" v-model="displayRqExpenses" :class="[
-              'inputItem ',
+            <input type="number" id="rqExpenses" v-model="displayRqExpenses" @blur="formatRqExpenses" :class="[
+              'inputItem',
               {
                 error: errors.rqExpenses,
-                'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
-                  rqtName === 'ค่าเดินทาง' &&
-                  selectedTravelType === 'private',
+                'bg-gray-200 text-gray-500 cursor-not-allowed bg-[#F7F7F7] text-[#BABBBE]':
+                  rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private',
               },
-            ]" :disabled="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
-              " />
+            ]" :disabled="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'" />
           </div>
 
           <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->

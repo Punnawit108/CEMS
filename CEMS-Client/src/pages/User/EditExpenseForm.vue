@@ -79,13 +79,12 @@ onMounted(async () => {
       await requisitionStore.getUserEmail(user.value.usrId)
       const data = await requisitionStore.getExpenseById(id);
       if (data) {
-        console.log(data)
         Object.assign(formData.value, data);
         vhId.value = data.rqVhId;
 
         selectedTravelType.value = data.vehicleType?.vhType || "";
         rqCode.value = data.rqCode
-        displayRqExpenses.value = data.rqExpenses;
+        displayRqExpenses.value = data.rqExpenses ? parseFloat(data.rqExpenses).toFixed(2) : "";
         const user = requisitionStore.UserInstead.find((u) => u.usrName === data.rqInsteadEmail);
         if (user) {
           formData.value.rqInsteadEmail = user.usrEmail; // ตั้งค่าเป็น email
@@ -101,8 +100,6 @@ onMounted(async () => {
             fileName: file.fName,
           };
         });
-
-        console.log(selectedFiles.value)
       }
     } catch (error) {
       console.log("Error loading user:", error);
@@ -173,7 +170,6 @@ const handleFileChange = async (event: Event) => {
 const removeFile = async (fIdToRemove: number | null, fileNameToRemove?: string) => {
   if (fIdToRemove !== null) {
     await requisitionStore.deleteFile(fIdToRemove);
-    console.log(fIdToRemove)
     selectedFiles.value = selectedFiles.value.filter(item => item.fId !== fIdToRemove);
   } else if (fileNameToRemove) {
     selectedFiles.value = selectedFiles.value.filter(item => item.file.name !== fileNameToRemove);
@@ -239,8 +235,6 @@ const uploadFiles = async (files: File[]) => {
   if (errors.length > 0) {
     alert(errors.join("\n"));
   }
-
-  console.log(selectedFiles.value)
 };
 
 const handleSubmit = async () => {
@@ -285,9 +279,16 @@ const closePopupSubmit = () => {
 
 const displayRqExpenses = ref('');
 
+const formatRqExpenses = () => {
+  if (displayRqExpenses.value !== "") {
+    displayRqExpenses.value = parseFloat(displayRqExpenses.value).toFixed(2);
+    formData.value.rqExpenses = Number(displayRqExpenses.value);
+  }
+};
+
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
-  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+  formData.value.rqExpenses = newVal === "" ? 0 : Number(newVal);
 });
 
 // ตัวแปรเก็บ error ของแต่ละฟิลด์
@@ -398,7 +399,6 @@ const confirmSave = async (event: Event) => {
   const fd = await createFormData(formData.value, filesOnly);
   await requisitionStore.updateExpense(id, fd);
   isAlertSaveOpen.value = true;
-  console.log(formData)
   setTimeout(() => {
     isAlertSaveOpen.value = false;
     closePopupSave();
@@ -640,6 +640,7 @@ const previewFile = (file: string | File) => {
               type="number"
               id="rqExpenses"
               v-model="displayRqExpenses"
+              @blur="formatRqExpenses"
               :class="[
                 'inputItem ',
                 {
