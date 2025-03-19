@@ -35,6 +35,7 @@ public IActionResult ExportDataToExcel(
             RqtName = e.RqRqt.RqtName,
             e.RqPayDate,
             e.RqProgress,
+            e.RqStatus,
             e.RqExpenses
         });
 
@@ -66,7 +67,9 @@ public IActionResult ExportDataToExcel(
         query = query.Where(e => e.RqPayDate <= endDateOnly);
     }
 
-    query = query.Where(e => e.RqProgress == "complete");
+    
+
+    query = query.Where(e => e.RqProgress == "complete" && e.RqStatus == "accept");
     var data = query.ToList();
 
     // สร้างไฟล์ Excel
