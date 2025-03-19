@@ -496,7 +496,7 @@ const formatDate = (dateString: string | null) => {
                 {{ item.rqRqtName }}
               </th>
               <th class="py-3 px-2 w-32 text-start">
-                {{ formatDate(item.rqWithDrawDate) }}
+                {{ item.rqWithDrawDate }}
               </th>
               <th class="py-3 px-5 w-32 text-end">
                 {{

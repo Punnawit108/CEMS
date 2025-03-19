@@ -54,13 +54,17 @@ public class ExpenseController : ControllerBase
                 (u.RqStatus == "waiting" || u.RqStatus == "sketch" || u.RqStatus == "edit")
                 && u.RqUsrId.Equals(id)
             )
+            .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
                 RqName = u.RqName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqWithDrawDate = u.RqWithdrawDate,
+                RqWithDrawDate = u.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
@@ -82,13 +86,17 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
             .Where(u => (u.RqStatus == "reject" || u.RqStatus == "accept") && u.RqUsrId.Equals(id)) // เพิ่มเงื่อนไข Where
+            .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
                 RqName = u.RqName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqWithDrawDate = u.RqWithdrawDate,
+                RqWithDrawDate = u.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
@@ -242,13 +250,13 @@ public class ExpenseController : ControllerBase
         string newRqCode = await GenerateNextRqCodeAsync();
 
         var payDate = DateOnly.ParseExact(
-            expenseDto.RqPayDate,   // ตัวอย่าง "2568-03-19"
+            expenseDto.RqPayDate, // ตัวอย่าง "2568-03-19"
             "yyyy-MM-dd",
             CultureInfo.InvariantCulture
         );
 
         var withDrawDate = DateOnly.ParseExact(
-            expenseDto.RqWithDrawDate,  // ตัวอย่าง "2568-03-20"
+            expenseDto.RqWithDrawDate, // ตัวอย่าง "2568-03-20"
             "yyyy-MM-dd",
             CultureInfo.InvariantCulture
         );
