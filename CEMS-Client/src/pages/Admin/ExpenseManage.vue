@@ -1277,7 +1277,7 @@ const confirmDeleteExpense = async () => {
       <h2 class="text-[16px] font-bold text-center text-black mb-3">
         แก้ไขข้อมูลประเภทค่าใช้จ่าย
       </h2>
-      <div class="w-full my-3 flex justify-center">
+      <div class="w-full mt-3 flex justify-center">
         <form>
           <div class="relative mb-6">
             <input type="text" required placeholder="error" v-model="formRequisitionTypeEdit.rqtName"
