@@ -278,7 +278,7 @@ onMounted(async () => {
   <div>
     <div class="items-center">
       <div>
-        <div class="flex justify-between items-center">
+        <div class="flex justify-between">
           <div class="flex flex-wrap gap-4 mb-4 lg:mb-0">
             <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
               <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
@@ -293,15 +293,15 @@ onMounted(async () => {
             </div>
           </div>
 
-          <div class="flex space-x-4 my-5 justify-end">
-            <Button :type="'btn-editProject'" @click="openPopupEdit" class="my-5 px-5">แก้ไขลำดับ</Button>
+          <div class="flex space-x-4 justify-end items-end">
+            <Button :type="'btn-editProject'" @click="openPopupEdit">แก้ไขลำดับ</Button>
             <button
-              class="bg-[#B6B7BA] text-white rounded-[6px] h-[40px] px-8 flex items-center text-[14px] font-thin mt-5"
+              class="bg-[#B6B7BA] text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin mt-5"
               @click="openPopupConfirmLock">
               {{ lockStore.isLocked ? 'เปิดรับคำขอ' : 'ปิดรับคำขอ' }}
             </button>
             <button @click="openPopupAdd"
-              class="my-5 bg-green text-white rounded-[6px] h-[40px] px-8 flex items-center text-[14px] font-thin justify-center">เพิ่มผู้มีสิทธิ์อนุมัติ</button>
+              class=" bg-green text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin justify-center">เพิ่มผู้มีสิทธิ์อนุมัติ</button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
