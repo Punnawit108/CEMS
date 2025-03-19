@@ -506,13 +506,14 @@ public class ApprovalController : ControllerBase
         _context.CemsRequisitions.Update(requisition);
         _context.CemsProjects.Update(project);
 
-        var notification = new CemsNotification
+        var notificationForUser = new CemsNotification
         {
             NtDate = DateTime.Now,
+            NtAprId = null,
             NtStatus = "unread",
             NtUsrId = requisition.RqUsrId,
         };
-        _context.CemsNotifications.Add(notification);
+        _context.CemsNotifications.Add(notificationForUser);
         await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
         return NoContent();
