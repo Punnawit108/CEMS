@@ -445,13 +445,7 @@ onMounted(async () => {
     }, 500);
   }
 });
-const formatDate = (dateStr: string): string => {
-  if (!dateStr) return "";
-  // สมมติว่า dateStr อยู่ในรูปแบบ "YYYY-MM-DD"
-  const [year, month, day] = dateStr.split("-");
-  const buddhistYear = Number(year) + 543;
-  return `${day}/${month}/${buddhistYear}`;
-};
+
 </script>
 
 <template>
@@ -518,47 +512,35 @@ const formatDate = (dateStr: string): string => {
               <th class="py-3 px-2 w-14">
                 {{ index + 1 + (currentPage - 1) * itemsPerPage }}
               </th>
-              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" style="
-                max-width: 196px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-              " :title="expenseReimbursementItem.rqName">
+              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" :title="expenseReimbursementItem.rqName">
                 {{ expenseReimbursementItem.rqName }}
               </th>
-              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" style="
-                max-width: 196px;
-                white-space: nowrap;
-                text-overflow: ellipsis;
-                overflow: hidden;
-              " :title="expenseReimbursementItem.rqPjName">
+              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" :title="expenseReimbursementItem.rqPjName">
                 {{ expenseReimbursementItem.rqPjName }}
               </th>
               <th class="py-3 px-5 w-32 text-start font-[100]">
                 {{ expenseReimbursementItem.rqRqtName }}
               </th>
-              <th class="py-3 px-2 w-20 text-start">
-                {{ formatDate(expenseReimbursementItem.rqWithDrawDate) }}
+              <th class="py-3 px-2 w-32 text-start">
+                {{ expenseReimbursementItem.rqWithDrawDate }}
               </th>
               <th class="py-3 px-5 w-32 text-end">
                 {{
-                new Decimal(expenseReimbursementItem.rqExpenses ?? 0)
-                .toNumber()
-                .toLocaleString("en-US", {
-                minimumFractionDigits: 2,
+                  new Decimal(expenseReimbursementItem.rqExpenses ?? 0)
+                    .toNumber()
+                    .toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
                 maximumFractionDigits: 2,
                 })
                 }}
               </th>
-              <th class="py-3 px-2 w-20 text-start">
-                <span>
-                  <StatusBudge :status="'sts-' + expenseReimbursementItem.rqStatus"></StatusBudge>
-                </span>
+              <th class="py-3 px-2 w-20 text-center">
+                <StatusBudge :status="'sts-' + expenseReimbursementItem.rqStatus" />
               </th>
               <th class="py-[10px] px-2 w-20 text-center">
-                <span @click="toDetails(expenseReimbursementItem.rqId)"
-                  class="flex justify-center cursor-pointer hover:text-[#B67D12]">
-                  <Icon :icon="'viewDetails'" />
+                <span class="flex justify-center">
+                  <Icon :icon="'viewDetails'" @click="toDetails(expenseReimbursementItem.rqId)"
+                    class="cursor-pointer hover:text-[#B67D12]" />
                 </span>
               </th>
             </template>

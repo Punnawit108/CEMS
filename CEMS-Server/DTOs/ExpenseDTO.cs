@@ -18,7 +18,7 @@ namespace CEMS_Server.DTOs
 
         public string RqRqtName { get; set; } = null!;
 
-        public DateOnly RqWithDrawDate { get; set; }
+        public string RqWithDrawDate { get; set; } = null!;
 
         public string RqStatus { get; set; } = null!;
 

@@ -46,7 +46,11 @@ onMounted(async () => {
 const rqPayDateFormatted = computed(() => formatDate(expenseData.value?.rqPayDate));
 const rqWithdrawDateFormatted = computed(() => formatDate(expenseData.value?.rqWithDrawDate));
 const rqVhTypeFormatted = computed(() => {
-  return expenseData.value?.rqVhType === "public" ? "รถสาธารณะ" : "รถส่วนตัว";
+  return expenseData.value?.rqVhType === "public"
+    ? "รถสาธารณะ"
+    : expenseData.value?.rqVhType === "private"
+      ? "รถส่วนตัว"
+      : "-";
 });
 
 const formatDate = (dateString: string | null) => {
@@ -319,7 +323,7 @@ const previewFile = (file: string) => {
     <div v-if="expenseData.rqStatus === 'reject'"
       class="border border-[#E00000] p-[15px] rounded-[10px] bg-[#FFECEC] mb-[24px]">
       <p class="!text-[#ED0000] font-bold">เหตุผลการไม่อนุมัติ :</p>
-      <p class="!text-[#FF0000] ml-2 mt-2">{{ expenseData?.rqReason  }}</p>
+      <p class="!text-[#FF0000] ml-2 mt-2">{{ expenseData?.rqReason }}</p>
     </div>
 
     <div v-if="isApprovalPath" class="flex justify-end">
@@ -344,7 +348,7 @@ const previewFile = (file: string) => {
               class="!text-white px-4 py-[4px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
-          <div class="flex flex-row pr-[42px] gap-4">
+          <div class="flex flex-row pr-[36px] gap-4">
             <RouterLink
               v-if="(expenseData.rqStatus === 'edit' || expenseData.rqStatus === 'sketch') && route.name === 'listWithdrawDetail'"
               :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
@@ -399,7 +403,7 @@ const previewFile = (file: string) => {
               {{
                 expenseData?.rqExpenses
                   ? new Decimal(expenseData.rqExpenses).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
-              : "-"
+                  : "-"
               }}
             </p>
           </div>

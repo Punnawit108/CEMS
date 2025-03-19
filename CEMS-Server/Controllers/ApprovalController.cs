@@ -500,35 +500,22 @@ public class ApprovalController : ControllerBase
         requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
 
-        // Debug ก่อนอัปเดตค่า pj_amount_expenses
-        Console.WriteLine(
-            $"[Before] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
-        );
-
         // อัปเดตค่า pj_amount_expenses
         project.PjAmountExpenses += requisition.RqExpenses;
-
-        // Debug หลังจากอัปเดตค่า pj_amount_expenses
-        Console.WriteLine(
-            $"[After] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
-        );
 
         _context.CemsRequisitions.Update(requisition);
         _context.CemsProjects.Update(project);
 
-        // var notification = new CemsNotification
-        // {
-        //     NtDate = DateTime.Now,
-        //     NtStatus = "unread",
-        //     NtUsrId = requisition.RqUsrId,
-        // };
-        // _context.CemsNotifications.Add(notification);
-        // await _context.SaveChangesAsync();
-
-        // _context.CemsRequisitions.Update(requisition);
-        // await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        var notificationForUser = new CemsNotification
+        {
+            NtDate = DateTime.Now,
+            NtAprId = null,
+            NtStatus = "unread",
+            NtUsrId = requisition.RqUsrId,
+        };
+        _context.CemsNotifications.Add(notificationForUser);
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
-
         return NoContent();
     }
 }
