@@ -6,6 +6,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Text.Json;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
@@ -240,6 +241,18 @@ public class ExpenseController : ControllerBase
 
         string newRqCode = await GenerateNextRqCodeAsync();
 
+        var payDate = DateOnly.ParseExact(
+            expenseDto.RqPayDate,   // ตัวอย่าง "2568-03-19"
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
+        var withDrawDate = DateOnly.ParseExact(
+            expenseDto.RqWithDrawDate,  // ตัวอย่าง "2568-03-20"
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
         var expense = new CemsRequisition
         {
             RqId = rqId,
@@ -248,8 +261,8 @@ public class ExpenseController : ControllerBase
             RqRqtId = expenseDto.RqRqtId,
             RqVhId = expenseDto.RqVhId,
             RqName = expenseDto.RqName,
-            RqPayDate = expenseDto.RqPayDate,
-            RqWithdrawDate = expenseDto.RqWithDrawDate,
+            RqPayDate = payDate,
+            RqWithdrawDate = withDrawDate,
             RqCode = newRqCode,
             RqInsteadEmail = expenseDto.RqInsteadEmail,
             RqExpenses = expenseDto.RqExpenses,
@@ -438,13 +451,26 @@ public class ExpenseController : ControllerBase
         {
             return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
         }
+
+        var payDate = DateOnly.ParseExact(
+            expenseDto.RqPayDate,
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
+        var withDrawDate = DateOnly.ParseExact(
+            expenseDto.RqWithDrawDate,
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
         expense.RqUsrId = expenseDto.RqUsrId;
         expense.RqPjId = expenseDto.RqPjId;
         expense.RqRqtId = expenseDto.RqRqtId;
         expense.RqVhId = expenseDto.RqVhId;
         expense.RqName = expenseDto.RqName;
-        expense.RqPayDate = expenseDto.RqPayDate;
-        expense.RqWithdrawDate = expenseDto.RqWithDrawDate;
+        expense.RqPayDate = payDate;
+        expense.RqWithdrawDate = withDrawDate;
         expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
         expense.RqExpenses = expenseDto.RqExpenses;
         expense.RqStartLocation = expenseDto.RqStartLocation;

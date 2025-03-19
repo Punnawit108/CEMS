@@ -240,8 +240,11 @@ public class ApprovalController : ControllerBase
         var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
         var nowInThailand = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
 
+        var thaiCalendar = new ThaiBuddhistCalendar();
+        int beYear = thaiCalendar.GetYear(nowInThailand);
+
         approver.AprDate = new DateTime(
-            nowInThailand.Year + 543,
+            beYear,
             nowInThailand.Month,
             nowInThailand.Day,
             nowInThailand.Hour,
