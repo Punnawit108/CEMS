@@ -103,7 +103,7 @@ const navigateToDetail = (ntId: number, ntAprStatus: string, ntAprRqProgress: st
                 <strong>{{ item.ntAprRqPjName }}</strong>
             </h2>
             <p class="text-xs text-gray-500 max-md:max-w-full">
-                รหัส : {{ item.ntAprRqId }}
+                รหัส : {{ item.ntAprRqCode }}
                 {{ getStatusMessage(item.ntAprStatus, item.ntAprRqProgress) }}
             </p>
         </div>
