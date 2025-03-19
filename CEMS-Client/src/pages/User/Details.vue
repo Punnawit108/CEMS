@@ -41,7 +41,7 @@ onMounted(async () => {
       };
     });
   }
-})
+});
 
 const rqPayDateFormatted = computed(() => formatDate(expenseData.value?.rqPayDate));
 const rqWithdrawDateFormatted = computed(() => formatDate(expenseData.value?.rqWithDrawDate));
