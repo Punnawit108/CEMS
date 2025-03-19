@@ -532,7 +532,7 @@ const formatDate = (dateString: string | null) => {
     <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
       <div class="modal-box bg-white w-[460px] h-[295px] rounded-lg shadow-lg">
         <div class="flex justify-center mt-[25px]">
-          <svg width="70px" height="70px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <svg width="90px" height="90px" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
             <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
             <g id="SVGRepo_tracerCarrier" stroke-linecap="round" stroke-linejoin="round"></g>
             <g id="SVGRepo_iconCarrier">
@@ -545,10 +545,10 @@ const formatDate = (dateString: string | null) => {
         <p class="text-2xl font-bold text-black mt-1 flex justify-center">
           ยืนยันการลบรายการเบิกค่าใช้จ่าย
         </p>
-        <p class="text-[18px] text-center text-[#7E7E7E] my-2">
+        <p class="text-[18px] text-center text-[#7E7E7E] mt-2">
           คุณยืนยันการลบรายการเบิกค่าใช้จ่ายหรือไม่?
         </p>
-        <div class="modal-action flex justify-center">
+        <div class="mt-4 flex justify-center">
           <form method="dialog">
             <button @click="closeModal"
               class="bg-white border-solid border-[#B6B7BA] border-2 rounded px-7 py-2 text-[#B6B7BA] text-sm font-normal mr-3">
