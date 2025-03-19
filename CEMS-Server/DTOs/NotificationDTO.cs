@@ -13,6 +13,7 @@ namespace CEMS_Server.DTOs
         public string NtStatus { get; set; } = null!;
         public string? NtAprRqPjName { get; set; }
         public string? NtAprRqId { get; set; }
+        public string? NtAprRqCode { get; set; }
         public string? NtAprStatus { get; set; }
         public DateTime? NtAprDate { get; set; }
         public string? NtAprRqUsrId { get; set; } 
