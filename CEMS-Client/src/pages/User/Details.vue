@@ -573,10 +573,10 @@ const previewFile = (file: string) => {
         </svg>
       </div>
       <h2 class="text-[24px] font-bold text-center text-black mb-4">
-        ยืนยันส่งออกคำขอเบิกค่าใช้จ่าย
+        ยืนยันส่งออกรายการเบิกค่าใช้จ่าย
       </h2>
       <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-        คุณยืนยันส่งออกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+        คุณยืนยันส่งออกรายการเบิกค่าใช้จ่ายหรือไม่ ?
       </h2>
       <div class="flex justify-center space-x-4">
         <button @click="closePopupPrint"
