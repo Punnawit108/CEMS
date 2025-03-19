@@ -321,7 +321,7 @@ const toDetails = async (data: Expense) => {
     <!-- content -->
     <div>
         <!-- Filter -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
             <!-- ค้นหาชื่อผู้ใช้ -->
             <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
 
@@ -341,7 +341,7 @@ const toDetails = async (data: Expense) => {
             <div class="flex flex-col">
                 <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
                     :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
+                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-4" />
 
                 <!-- ปุ่มค้นหาและรีเซ็ต -->
                 <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
@@ -349,7 +349,7 @@ const toDetails = async (data: Expense) => {
         </div>
 
         <!-- ตาราง -->
-        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12 border-grayNormal">
+        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-4 border-grayNormal">
             <Ctable :table="'Table2-head'" />
             <table class="table-auto w-full text-center text-black">
                 <tbody>

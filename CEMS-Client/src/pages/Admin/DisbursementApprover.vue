@@ -61,9 +61,12 @@ const filteredApprovers = computed(() => {
   if (!approvalStore.approvers) return [];
 
   return approvalStore.approvers.filter(approver => {
+    const fullName = `${approver.usrFirstName} ${approver.usrLastName}`.toLowerCase()
+
     const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
       approver.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       approver.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+      fullName.includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       approver.usrEmployeeId.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase());
 
     return matchesSearch;
@@ -273,30 +276,32 @@ onMounted(async () => {
 
 <template>
   <div>
-    <!-- ปุ่มเปลี่ยนเส้นทาง -->
     <div class="items-center">
       <div>
-        <div class="flex justify-between items-center">
-          <!-- แทนที่ช่องค้นหาเดิมด้วยฟิลเตอร์ จาก UserSetting.vue -->
+        <div class="flex justify-between">
           <div class="flex flex-wrap gap-4 mb-4 lg:mb-0">
             <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
               <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
             </div>
 
             <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
-              <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+              <div class="flex flex-col">
+                <!-- ข้อความเพื่อให้ปุ่มอยู่ในระดับเดียวกับฟิลเตอร์ -->
+                <div class="py-0.5 text-[14px] text-transparent">การดำเนินการ</div>
+                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+              </div>
             </div>
           </div>
 
-          <div class="flex space-x-4 my-5 justify-end">
-            <Button :type="'btn-editProject'" @click="openPopupEdit" class="my-5 px-5">แก้ไขลำดับ</Button>
+          <div class="flex space-x-4 justify-end items-end">
+            <Button :type="'btn-editProject'" @click="openPopupEdit">แก้ไขลำดับ</Button>
             <button
-              class="bg-[#B6B7BA] text-white rounded-[6px] h-[40px] px-8 flex items-center text-[14px] font-thin mt-5"
+              class="bg-[#B6B7BA] text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin mt-5"
               @click="openPopupConfirmLock">
               {{ lockStore.isLocked ? 'เปิดรับคำขอ' : 'ปิดรับคำขอ' }}
             </button>
             <button @click="openPopupAdd"
-              class="my-5 bg-green text-white rounded-[6px] h-[40px] px-8 flex items-center text-[14px] font-thin justify-center">เพิ่มผู้มีสิทธิ์อนุมัติ</button>
+              class=" bg-green text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin justify-center">เพิ่มผู้มีสิทธิ์อนุมัติ</button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->

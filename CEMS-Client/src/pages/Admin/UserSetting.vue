@@ -8,25 +8,25 @@
 
 import Icon from '../../components/Icon/CIcon.vue'
 import { useRouter } from 'vue-router'
-import { ref, onMounted, computed, watch } from 'vue'
+import { ref, onMounted, computed, watch, nextTick } from 'vue'
 import Pagination from '../../components/Pagination.vue'
 import { useUserStore } from '../../store/user'
 import { storeToRefs } from 'pinia'
-import type { User } from '../../types'
+
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-const columnNumber = ref(7);
 const totalPages = computed(() => {
   return Math.ceil(filteredUsers.value.length / itemsPerPage.value);
 });
 
 const paginated = computed(() => {
+  if (loading.value) return [];
+  
   const start = (currentPage.value - 1) * itemsPerPage.value;
   const end = start + itemsPerPage.value;
   const pageItems = filteredUsers.value.slice(start, end);
 
-  // Add empty rows if fewer than 10 items
   while (pageItems.length < itemsPerPage.value) {
     pageItems.push(null);
   }
@@ -45,7 +45,7 @@ import FilterButtons from '../../components/filters/FilterButtons.vue'
 const router = useRouter()
 const store = useUserStore()
 const { users } = storeToRefs(store)
-const loading = ref(false)
+const loading = ref(true)
 
 
 
@@ -72,12 +72,15 @@ watch(lastSearchedFilters, () => {
 
 // Filtered users computation
 const filteredUsers = computed(() => {
-  if (!users.value) return []
+  if (loading.value || !users.value) return []
 
   return users.value.filter(user => {
+    const fullName = `${user.usrFirstName} ${user.usrLastName}`.toLowerCase()
+
     const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
       user.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       user.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+      fullName.includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       user.usrEmployeeId.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase())
 
     const matchesDepartment = lastSearchedFilters.value.department === '' ||
@@ -133,6 +136,7 @@ onMounted(async () => {
     await Promise.all([
       store.getAllUsers()
     ])
+    await nextTick()
   } catch (error) {
     console.error('Error in mounted:', error)
   } finally {
@@ -143,7 +147,7 @@ onMounted(async () => {
 
 <template>
   <div class="flex flex-col text-center">
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-12 w-full">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4 w-full">
       <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
 
       <DepartmentFilter v-model="filters.department" :users="users" :loading="loading" />
@@ -151,8 +155,12 @@ onMounted(async () => {
       <DivisionFilter v-model="filters.division" :users="users" :loading="loading" />
 
       <RoleFilter v-model="filters.role" :users="users" :loading="loading" />
-
-      <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+      <div class="flex flex-col">
+        <!-- ข้อความเพื่อให้ปุ่มอยู่ในระดับเดียวกับฟิลเตอร์ -->
+        <div class="py-0.5 text-[14px] text-transparent">การดำเนินการ</div>
+        <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+      </div>
+      
     </div>
     <div class="w-full h-fit border-[2px] flex flex-col items-start border-grayNormal">
       <table class="table-auto w-full text-center text-black">
@@ -169,8 +177,9 @@ onMounted(async () => {
             <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
           </tr>
         </thead>
-        <tbody>
-          <tr v-if="loading">
+        <!-- แยก tbody สำหรับสถานะโหลด -->
+        <tbody v-if="loading">
+          <tr>
             <td colspan="9" class="py-4">
               <div class="flex justify-center items-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
@@ -178,14 +187,18 @@ onMounted(async () => {
               </div>
             </td>
           </tr>
-
-          <tr v-else-if="!users?.length">
+        </tbody>
+        
+        <!-- tbody สำหรับแสดงข้อมูลหลังโหลดเสร็จ -->
+        <tbody v-else>
+          <tr v-if="!users?.length">
             <td colspan="9" class="py-4">ไม่มีข้อมูลผู้ใช้</td>
           </tr>
 
           <tr v-else-if="filteredUsers.length === 0">
             <td colspan="9" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
           </tr>
+          
           <tr v-for="(user, index) in paginated" :key="user?.usrId ?? `empty-${index}`"
             :class="user ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
             <template v-if="user">
@@ -201,15 +214,23 @@ onMounted(async () => {
               <th class="py-[12px] px-2 w-20 text-start">{{ user.usrRolName }}</th>
               <th class="py-[12px] px-2 w-24 text-start">
                 <span :class="user.usrIsActive
-                    ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal'
-                    : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
+                  ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal'
+                  : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
                   {{ user.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ' }}
                 </span>
               </th>
               <th class="w-24">
                 <span class="flex justify-center">
-                  <input type="checkbox" :checked="user.usrIsSeeReport === 1" disabled
-                    class="w-4 h-4 border-2 border-[#BBBBBB] rounded cursor-not-allowed opacity-70">
+                  <svg v-if="user.usrIsSeeReport === 1" xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                    viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2" stroke-linecap="round"
+                    stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                    <path d="M7 13l3 3 7-7"></path>
+                  </svg>
+                  <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="#999999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                  </svg>
                 </span>
               </th>
               <th class="py-[10px] px-2 w-24 text-center">
