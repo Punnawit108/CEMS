@@ -6,45 +6,53 @@
 * วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
 */
 import { useRoute } from "vue-router";
-import { computed, onMounted, ref } from "vue";
+import { computed, onMounted, onBeforeUnmount, ref } from "vue";
 import Icon from "./Icon/CIcon.vue";
 import Button from "./Buttons/Button.vue";
 import { useLockStore } from "../store/lockSystem";
-
 
 const route = useRoute();
 const lockStore = useLockStore();
 const isShowLogout = ref(false);
 const userData = ref();
+const logoutMenu = ref<HTMLElement | null>(null);
 
 const navbarTitle = computed(() => {
   if (route.query.fromNotification) {
-    return "การแจ้งเตือน"; // แสดง "การแจ้งเตือน" เมื่อมาจากการแจ้งเตือน
+    return "การแจ้งเตือน";
   }
-  return route.meta.breadcrumb; // แสดง breadcrumb ตามปกติ
+  return route.meta.breadcrumb;
 });
 
 let name_navbar = computed(() => {
   if (route.query.fromNotification === 'true') {
-    return 'notification'; // แสดงไอคอนการแจ้งเตือนเมื่อมาจากการแจ้งเตือน
+    return 'notification';
   }
-  return route.name as string; // แสดงไอคอนตามชื่อเส้นทางปกติ
-});
-
-onMounted(async () => {
-  userData.value = JSON.parse(localStorage.getItem("user") || "{}");
-  await lockStore.fetchLockStatus();
-
+  return route.name as string;
 });
 
 const showLogout = () => {
   isShowLogout.value = !isShowLogout.value;
 };
 
+const handleClickOutside = (event: MouseEvent) => {
+  if (logoutMenu.value && !logoutMenu.value.contains(event.target as Node)) {
+    isShowLogout.value = false;
+  }
+};
+
+onMounted(async () => {
+  userData.value = JSON.parse(localStorage.getItem("user") || "{}");
+  await lockStore.fetchLockStatus();
+  document.addEventListener("click", handleClickOutside);
+});
+
+onBeforeUnmount(() => {
+  document.removeEventListener("click", handleClickOutside);
+});
 </script>
 
 <template>
-  <!-- navbar -->
   <div class="w-full inline-flex justify-between items-center pt-6">
     <div class="ml-6 inline-flex items-center">
       <div>
@@ -57,8 +65,7 @@ const showLogout = () => {
       </div>
     </div>
     <div class="mr-6 inline-flex h-9 relative">
-
-      <div v-if="isShowLogout"
+      <div v-if="isShowLogout" ref="logoutMenu"
         class="absolute right-0 top-12 bg-white shadow-lg rounded-lg w-[230px] flex justify-center flex-col p-2 z-50">
         <div class="flex flex-col items-center">
           <div class="flex items-center">
@@ -73,14 +80,12 @@ const showLogout = () => {
               <p class="text-xs w-fit text-grayDark">{{ userData.usrRolName }}</p>
             </div>
           </div>
-          
           <div class="bg-grayNormal h-[1px] w-[180px] my-2"></div>
-          <Button :type="'btn-logout'"></Button>
+          <Button :type="'btn-logout'" />
         </div>
-
       </div>
       <div class="inline-flex justify-center items-center">
-        <div @click="showLogout" class="cursor-pointer">
+        <div @click.stop="showLogout" class="cursor-pointer">
           <Icon :icon="'profile'" :size="32" />
         </div>
       </div>

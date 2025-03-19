@@ -763,7 +763,7 @@ const previewFile = (file: File) => {
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button @click="confirmSave"
+          <button @click.once="confirmSave"
             class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
@@ -793,7 +793,7 @@ const previewFile = (file: File) => {
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button @click="confirmSubmit"
+          <button @click.once="confirmSubmit"
             class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
