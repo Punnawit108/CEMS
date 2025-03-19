@@ -366,7 +366,7 @@ const toDetails = (id: string) => {
     <!-- content -->
     <div>
         <!-- Filter -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
             <!-- ค้นหา -->
             <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหา" />
 
@@ -386,7 +386,7 @@ const toDetails = (id: string) => {
             <div class="flex flex-col">
                 <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก"
                     :is-open="isEndDatePickerOpen" @update:is-open="isEndDatePickerOpen = $event"
-                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-2" />
+                    :confirmed-date="filters.endDate" @confirm="confirmEndDate" @cancel="cancelEndDate" class="mb-4" />
 
                 <!-- ปุ่มค้นหาและรีเซ็ต -->
                 <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
@@ -394,7 +394,7 @@ const toDetails = (id: string) => {
         </div>
 
         <!-- Table -->
-        <div class="w-full border-t-[2px] border-r-[2px] border-l-[2px] mt-5 border-grayNormal">
+        <div class="w-full border-t-[2px] border-r-[2px] border-l-[2px] mt-4 border-grayNormal">
             <!-- ตาราง -->
             <div>
                 <Ctable :table="'Table7-head'" />

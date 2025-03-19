@@ -624,7 +624,7 @@ const formatDate = (dateStr: string): string => {
       <div class="flex flex-col">
         <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
           @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
-          @cancel="cancelEndDate" class="mb-2" />
+          @cancel="cancelEndDate" class="mb-4" />
         <!-- ปุ่มค้นหาและรีเซ็ต -->
         <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>

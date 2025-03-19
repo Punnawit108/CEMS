@@ -5,6 +5,7 @@ using System.Linq;
 using OfficeOpenXml;
 using CEMS_Server.AppContext;
 using CEMS_Server.Models;
+using CEMS_Server.DTOs;  // เพิ่ม import DTO ของ ProjectDto
 
 [ApiController]
 [Route("api/excelproject")]
@@ -20,16 +21,13 @@ public class ExportExcelProjectController : ControllerBase
     [HttpGet("export")]
     public IActionResult ExportDataToExcel()
     {
-        // ดึงข้อมูลจากฐานข้อมูล
-        var data = _dbContext.CemsRequisitions
-            .Join(_dbContext.CemsUsers, e => e.RqUsrId, u => u.UsrId, (e, u) => new
+        // ดึงข้อมูลจากฐานข้อมูลและแปลงให้เป็น ProjectDto
+        var data = _dbContext.CemsProjects
+            .Select(p => new ProjectDto
             {
-                UserFullName = u.UsrFirstName + " " + u.UsrLastName,
-                e.RqName,
-                PjName = e.RqPj.PjName,
-                RqtName = e.RqRqt.RqtName,
-                e.RqPayDate,
-                e.RqExpenses
+                PjId = p.PjId,  
+                PjName = p.PjName,  
+                PjSumAmountExpenses = p.PjAmountExpenses  
             })
             .ToList();
 
@@ -41,37 +39,47 @@ public class ExportExcelProjectController : ControllerBase
         {
             var worksheet = package.Workbook.Worksheets.Add("Expenses");
 
-            // เขียน Header
+            // ✅ 1) เขียน Header
             worksheet.Cells[1, 1].Value = "ลำดับ";
             worksheet.Cells[1, 2].Value = "โครงการ";
-            worksheet.Cells[1, 3].Value = "จำนวนเงิน (บาท)";
+            worksheet.Cells[1, 3].Value = "ยอดเบิกค่าใช้จ่าย (บาท)";
 
-            // จัดรูปแบบ Header
+            // ✅ 2) จัดรูปแบบ Header
             using (var headerRange = worksheet.Cells[1, 1, 1, 3])
             {
                 headerRange.Style.Font.Bold = true;
-                headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                headerRange.Style.VerticalAlignment = OfficeOpenXml.Style.ExcelVerticalAlignment.Center;
-                headerRange.Style.Border.BorderAround(OfficeOpenXml.Style.ExcelBorderStyle.Thin);
+               
+                
             }
+            worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center; // "ลำดับ" -> ตรงกลาง
+            worksheet.Cells[1, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;   // "โครงการ" -> ซ้าย
+            worksheet.Cells[1, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;  // "ยอดเบิกค่าใช้จ่าย (บาท)" -> ขวา
 
-            // เขียนข้อมูล
             int row = 2;
             int index = 1;
+
+            // ✅ 3) เขียนข้อมูลและเพิ่มเส้นขอบ
             foreach (var item in data)
             {
-                worksheet.Cells[row, 1].Value = index++;
-                worksheet.Cells[row, 2].Value = item.PjName;
-                worksheet.Cells[row, 3].Value = item.RqExpenses;
+                worksheet.Cells[row, 1].Value = index++;  // ลำดับ
+                worksheet.Cells[row, 2].Value = item.PjName;  // ชื่อโครงการ
+                worksheet.Cells[row, 3].Value = item.PjSumAmountExpenses;  // จำนวนเงิน
                 worksheet.Cells[row, 3].Style.Numberformat.Format = "#,##0.00"; // จัดรูปแบบตัวเลข
+
+                // จัดแนวคอลัมน์
+                worksheet.Cells[row, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                worksheet.Cells[row, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+                worksheet.Cells[row, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+
+                
+
                 row++;
             }
 
-            // ปรับขนาดคอลัมน์
-            worksheet.Column(1).Width = 10; // ลำดับ
-            worksheet.Column(2).Width = 30; // โครงการ
-            worksheet.Column(3).Width = 20; // จำนวนเงิน (บาท)
-            worksheet.Cells.AutoFitColumns();
+            // ✅ 5) ปรับขนาดคอลัมน์ให้อ่านง่ายขึ้น
+            worksheet.Column(1).Width = 10;  // ลำดับ
+            worksheet.Column(2).Width = 50;  // โครงการ
+            worksheet.Column(3).Width = 30;  // จำนวนเงิน (บาท)
 
             // บันทึกไฟล์ Excel ลงใน path
             package.SaveAs(new FileInfo(filePath));

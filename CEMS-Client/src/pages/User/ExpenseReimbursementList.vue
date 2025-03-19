@@ -96,6 +96,8 @@ const handleClick = () => {
   }
 };
 
+
+
 // showModal และ selectedItemId สำหรับการลบรายการ
 const showModal = ref(false);
 const selectedItemId = ref<string | null>(null);
@@ -415,12 +417,11 @@ onMounted(async () => {
   }
 });
 
-const formatDate = (dateStr: string): string => {
-  if (!dateStr) return "";
-  // สมมติว่า dateStr อยู่ในรูปแบบ "YYYY-MM-DD"
-  const [year, month, day] = dateStr.split("-");
-  const buddhistYear = Number(year) + 543;
-  return `${day}/${month}/${buddhistYear}`;
+const formatDate = (dateString: string | null) => {
+  if (!dateString) return "-";
+  const parts = dateString.split("-");
+  if (parts.length !== 3) return dateString;
+  return `${parts[2]}/${parts[1]}/${parts[0]}`;
 };
 
 </script>
@@ -433,7 +434,7 @@ const formatDate = (dateStr: string): string => {
       </RouterLink>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
       <!-- ค้นหา -->
       <RequisitionSearchInput v-model="filters.searchQuery" :loading="loading" />
 
@@ -453,22 +454,21 @@ const formatDate = (dateStr: string): string => {
       <div class="flex flex-col">
         <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
           @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
-          @cancel="cancelEndDate" class="mb-2" />
-
+          @cancel="cancelEndDate" class="mb-4"/>
         <!-- ปุ่มค้นหาและรีเซ็ต -->
         <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>
     </div>
 
     <!-- Table -->
-    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-5 border-grayNormal">
+    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-4 border-grayNormal">
       <Ctable :table="'Table9-head-New'" />
       <table class="table-auto w-full text-center text-black">
         <tbody>
           <tr v-if="loading">
             <td colspan="8" class="py-4">
               <div class="flex justify-center items-center">
-                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
+                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
               </div>
             </td>
@@ -500,10 +500,10 @@ const formatDate = (dateStr: string): string => {
               </th>
               <th class="py-3 px-5 w-32 text-end">
                 {{
-                new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2,
-                })
+                  new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })
                 }}
               </th>
               <th class="py-3 px-2 w-20 text-center">

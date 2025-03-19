@@ -225,22 +225,36 @@ const confirmCancle = async () => {
                         <div class="flex items-center h-[58px] w-[25px]">
                             <template v-if="!isEditing">
                                 <div class="w-[18px]">
-                                    <div role="checkbox" tabindex="0" :aria-checked="user.viewReportPermission" :class="[
-                                        'flex shrink-0 rounded-md border-2 border-solid h-[18px] outline-none focus:ring-0 relative',
-                                        user.viewReportPermission ? 'bg-blue-500 border-blue-500' : 'border-stone-300'
-                                    ]">
-                                        <!-- เครื่องหมายถูกจะแสดงเมื่อ viewReportPermission เป็น true -->
-                                        <svg v-if="user.viewReportPermission"
-                                            class="absolute top-0 left-0 w-full h-full text-white" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M5 12l5 5l10 -10" stroke-width="3" />
-                                        </svg>
-                                    </div>
+                                    <svg v-if="user.viewReportPermission" xmlns="http://www.w3.org/2000/svg" width="20"
+                                        height="20" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                        <path d="M7 13l3 3 7-7"></path>
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                    </svg>
                                 </div>
                             </template>
                             <template v-else>
-                                <input type="checkbox" id="viewReportPermission" v-model="user.viewReportPermission"
-                                    class="w-5 h-5 border-2 border-solid border-zinc-400 rounded outline-none focus:ring-0" />
+                                <div class="w-[18px]">
+                                    <svg v-if="user.viewReportPermission"
+                                        @click="user.viewReportPermission = !user.viewReportPermission"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="#999999" stroke-width="2" cursor="pointer"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                        <path d="M7 13l3 3 7-7"></path>
+                                    </svg>
+                                    <svg v-else @click="user.viewReportPermission = !user.viewReportPermission"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" cursor="pointer"
+                                        viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                    </svg>
+                                </div>
                             </template>
                         </div>
                         <label class="text-sm leading-snug text-black">

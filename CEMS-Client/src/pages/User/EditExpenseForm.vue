@@ -79,13 +79,12 @@ onMounted(async () => {
       await requisitionStore.getUserEmail(user.value.usrId)
       const data = await requisitionStore.getExpenseById(id);
       if (data) {
-        console.log(data)
         Object.assign(formData.value, data);
         vhId.value = data.rqVhId;
 
         selectedTravelType.value = data.vehicleType?.vhType || "";
         rqCode.value = data.rqCode
-        displayRqExpenses.value = data.rqExpenses;
+        displayRqExpenses.value = data.rqExpenses ? parseFloat(data.rqExpenses).toFixed(2) : "";
         const user = requisitionStore.UserInstead.find((u) => u.usrName === data.rqInsteadEmail);
         if (user) {
           formData.value.rqInsteadEmail = user.usrEmail; // ตั้งค่าเป็น email
@@ -101,8 +100,6 @@ onMounted(async () => {
             fileName: file.fName,
           };
         });
-
-        console.log(selectedFiles.value)
       }
     } catch (error) {
       console.log("Error loading user:", error);
@@ -173,7 +170,6 @@ const handleFileChange = async (event: Event) => {
 const removeFile = async (fIdToRemove: number | null, fileNameToRemove?: string) => {
   if (fIdToRemove !== null) {
     await requisitionStore.deleteFile(fIdToRemove);
-    console.log(fIdToRemove)
     selectedFiles.value = selectedFiles.value.filter(item => item.fId !== fIdToRemove);
   } else if (fileNameToRemove) {
     selectedFiles.value = selectedFiles.value.filter(item => item.file.name !== fileNameToRemove);
@@ -239,8 +235,6 @@ const uploadFiles = async (files: File[]) => {
   if (errors.length > 0) {
     alert(errors.join("\n"));
   }
-
-  console.log(selectedFiles.value)
 };
 
 const handleSubmit = async () => {
@@ -285,9 +279,16 @@ const closePopupSubmit = () => {
 
 const displayRqExpenses = ref('');
 
+const formatRqExpenses = () => {
+  if (displayRqExpenses.value !== "") {
+    displayRqExpenses.value = parseFloat(displayRqExpenses.value).toFixed(2);
+    formData.value.rqExpenses = Number(displayRqExpenses.value);
+  }
+};
+
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
-  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+  formData.value.rqExpenses = newVal === "" ? 0 : Number(newVal);
 });
 
 // ตัวแปรเก็บ error ของแต่ละฟิลด์
@@ -369,9 +370,11 @@ function updateFormData() {
 // ปรับรูปแบบวันเดือนปี
 const formatDateToThai = (date: Date) => {
   if (!date) return null;
-  const thaiYear = date.getFullYear() + 543;
-  const formattedDate = `${thaiYear}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-  return formattedDate;
+  const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
+  const thaiDate = new Intl.DateTimeFormat("th-TH", options).format(localDate);
+  const [day, month, year] = thaiDate.split("/");
+  return `${year}-${month}-${day}`;
 };
 
 // ปรับรูปแบบค่าที่ส่งเข้า db
@@ -398,7 +401,6 @@ const confirmSave = async (event: Event) => {
   const fd = await createFormData(formData.value, filesOnly);
   await requisitionStore.updateExpense(id, fd);
   isAlertSaveOpen.value = true;
-  console.log(formData)
   setTimeout(() => {
     isAlertSaveOpen.value = false;
     closePopupSave();
@@ -630,29 +632,18 @@ const previewFile = (file: string | File) => {
 
           <!-- ช่อง "จำนวนเงิน (บาท) *" -->
           <div>
-            <label
-              for="rqExpenses"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqExpenses }"
-              >จำนวนเงิน (บาท) <span class="text-red-500">*</span></label
-            >
-            <input
-              type="number"
-              id="rqExpenses"
-              v-model="displayRqExpenses"
-              :class="[
-                'inputItem ',
-                {
-                  error: errors.rqExpenses,
-                  'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
-                    rqtName === 'ค่าเดินทาง' &&
-                    selectedTravelType === 'private',
-                },
-              ]"
-              :disabled="
-                rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
-              "
-            />
+            <label for="rqExpenses" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqExpenses }">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
+            <input type="number" id="rqExpenses" v-model="displayRqExpenses" @blur="formatRqExpenses" :class="[
+              'inputItem ',
+              {
+                error: errors.rqExpenses,
+                'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
+                  rqtName === 'ค่าเดินทาง' &&
+                  selectedTravelType === 'private',
+              },
+            ]" :disabled="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
+                " />
           </div>
 
           <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->
@@ -660,13 +651,10 @@ const previewFile = (file: string | File) => {
             <label for="rqInsteadEmail" class="block text-sm font-medium py-2">ชื่อผู้ขอเบิกแทน </label>
             <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem">
               <option :value="null" disabled selected>Select User</option>
-<option
-                  :value="user.usrEmail"
-                  v-for="user in requisitionStore.UserInstead"
-                  :key="user.usrEmail"
-                >
-                  {{ user.usrName }}
-                </option>            </select>
+              <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead" :key="user.usrEmail">
+                {{ user.usrName }}
+              </option>
+            </select>
             <button v-if="formData.rqInsteadEmail" @click="formData.rqInsteadEmail = null"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm bg-gray-200 p-1 rounded-full">
               X

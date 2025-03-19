@@ -45,6 +45,7 @@ public class NotificationController : ControllerBase
                 NtStatus = u.NtStatus,                      //สถานะการแจ้งเตือน
                 NtAprRqPjName = u.NtApr.AprRq.RqPj.PjName,  //ชื่อโครงการ
                 NtAprRqId = u.NtApr.AprRq.RqId,             //รหัสใบคำขอเบิก
+                NtAprRqCode = u.NtApr.AprRq.RqCode,             //รหัสใบคำขอเบิก
                 NtAprStatus = u.NtApr.AprStatus,            //สถานะคำขอเบิก
                 NtAprDate = u.NtApr.AprDate,                //วันที่เบิก
                 NtAprRqUsrId = u.NtApr.AprRq.RqUsrId,       //ไอดีผู้สร้างใบเบิก
