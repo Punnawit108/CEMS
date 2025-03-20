@@ -428,7 +428,7 @@ const formatDate = (dateString: string | null) => {
 
 <template>
   <div>
-    <div class="mr-6 items-end flex justify-end mb-4">
+    <div class=" items-end flex justify-end mb-4">
       <RouterLink to="/disbursement/listWithdraw/createExpenseForm" v-if="!lockStore.isLocked">
         <Button :type="'btn-expense'" @click="handleClick"></Button>
       </RouterLink>

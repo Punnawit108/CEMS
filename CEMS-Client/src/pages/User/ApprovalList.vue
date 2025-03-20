@@ -373,18 +373,18 @@ const toDetails = async (data: Expense) => {
                     <tr v-else v-for="(item, index) in paginated" :key="item ? item.rqId : `empty-${index}`"
                         :class="item ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
                         <template v-if="item">
-                            <th class="py-3 px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                            <th class="py-3 px-2 text-start truncate overflow-hidden"
+                            <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                            <th class="py-[11px] px-2 text-start truncate overflow-hidden"
                                 style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.usrName">
                                 {{ item.usrName }}
                             </th>
-                            <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
+                            <th class="py-[11px] px-6 text-start w-40 truncate overflow-hidden"
                                 style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.rqName">
                                 {{ item.rqName }}
                             </th>
-                            <th class="py-3 px-2 text-start w-44">{{ item.pjName }}</th>
+                            <th class="py-3 px-6 text-start w-44">{{ item.pjName }}</th>
                             <th class="py-3 px-5 text-start w-44">{{ item.rqtName }}</th>
                             <th class="py-3 px-2 text-start w-32">{{ item.rqWithdrawDate }}</th>
                             <th class="py-3 px-2 text-end w-40">

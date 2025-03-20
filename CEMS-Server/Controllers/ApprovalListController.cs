@@ -4,6 +4,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายจักรวรรดิ หงวนเจริญ
 * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
 */
+using System.Globalization;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
 using CEMS_Server.Models;
@@ -42,7 +43,10 @@ public class ApprovalList : ControllerBase
                 u.AprRq.RqName,
                 u.AprRq.RqPj.PjName,
                 u.AprRq.RqRqt.RqtName,
-                RqWithdrawDate = u.AprRq.RqWithdrawDate.ToString("dd/MM/yyyy"),
+                RqWithdrawDate = u.AprRq.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 u.AprRq.RqExpenses,
             })
             .ToListAsync();
@@ -71,7 +75,10 @@ public class ApprovalList : ControllerBase
                 u.AprRq.RqName,
                 u.AprRq.RqPj.PjName,
                 u.AprRq.RqRqt.RqtName,
-                RqWithdrawDate = u.AprRq.RqWithdrawDate.ToString("dd/MM/yyyy"),
+                RqWithdrawDate = u.AprRq.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 u.AprRq.RqExpenses,
                 u.AprRq.RqStatus,
             })

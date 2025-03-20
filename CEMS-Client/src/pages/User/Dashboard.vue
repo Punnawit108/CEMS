@@ -388,56 +388,60 @@ onMounted(async () => {
 </script>
 <template>
   <!-- path for test = / -->
-  <div class="flex flex-col items-center text-center">
+  <div class="flex flex-col ">
     <!-- content -->
 
-    <div class="mainfloat clearFix">
+    <div class="flex flex-row justify-between mb-6">
       <!-- Summary section -->
-      <div class="grid summaryfloat grid-cols-4 gap-4 w-[817px] h-[128px] m-6 justify-items-stretch">
-        <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox">
-          <p class="font16">{{ item.key }}</p>
-          <p class="font35">{{ formatNumber(item.value) }}</p>
+      <div class="w-[80%]">
+        <div class="grid  grid-cols-4 gap-12 w-full h-[128px] justify-between">
+          <div v-for="(item, index) in dashboardDetailStore.dashboard" :key="index" class="columnDashboard shadowBox">
+            <p class="font16">{{ item.key }}</p>
+            <p class="font35">{{ formatNumber(item.value) }}</p>
+          </div>
+        </div>
+
+        <!-- Pie chart -->
+        <div class="shadowBox pieChartBox items-center">
+          <p class="font16 font-bold m-3 text-left">
+            ประเภทค่าใช้จ่ายของรายการเบิก
+          </p>
+          <div>
+            <canvas id="pieChart"></canvas>
+          </div>
         </div>
       </div>
 
       <!-- Top project withdrawal table -->
-      <div class="w-[295px] h-[555px] shadowBox projectfloat mr-6 my-6 p-1">
+      <div class="w-[295px] shadowBox ">
         <table class="projectWithDraw w-full text-left">
           <thead>
             <tr>
-              <th colspan="3" class="w-max text-center p-2 font-bold text-lg">
+              <th colspan="3" class="w-max pl-4 font-bold text-lg text-left">
                 ลำดับการเบิกสูงสุดของโครงการ
               </th>
             </tr>
-            <tr>
+            <!-- <tr>
               <th class="w-[40px]">ลำดับ</th>
               <th class="w-[150px]">โครงการ</th>
               <th class="w-[80px] text-right">จำนวนเงิน</th>
-            </tr>
+            </tr> -->
           </thead>
           <tbody>
             <tr v-for="(project, index) in sortedProjectData" :key="index">
-              <td class="text-right">{{ index + 1 }}</td>
+              <td class="w-max pl-4 text-left">{{ index + 1 }}</td>
               <td class="textOverflow">{{ project.pjName }}</td>
-              <td class="text-right">{{ formatDecimal(project.totalPjExpense ?? 0) }}</td>
+              <td class="text-right pr-4">{{ formatDecimal(project.totalPjExpense ?? 0) }}</td>
             </tr>
           </tbody>
         </table>
       </div>
 
-      <!-- Pie chart -->
-      <div class="shadowBox summaryfloat pieChartBox items-center">
-        <p class="font16 font-bold m-3 text-left">
-          ประเภทค่าใช้จ่ายของรายการเบิก
-        </p>
-        <div>
-          <canvas id="pieChart"></canvas>
-        </div>
-      </div>
+
     </div>
 
     <!-- Line chart -->
-    <div class="w-[1136px] h-[550px] items-center shadowBox mx-6 mb-6">
+    <div class="w-full h-[550px] items-center shadowBox mb-6">
       <p class="font16 font-bold m-3 text-left">ยอดการเบิกจ่ายจริง</p>
       <canvas id="lineChart"></canvas>
     </div>
