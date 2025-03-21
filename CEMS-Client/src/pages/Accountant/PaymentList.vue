@@ -394,76 +394,70 @@ const toDetails = (id: string) => {
         </div>
 
         <!-- Table -->
-        <div class="w-full border-t-[2px] border-r-[2px] border-l-[2px] mt-4 border-grayNormal">
+        <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
             <!-- ตาราง -->
-            <div>
-                <Ctable :table="'Table7-head'" />
-            </div>
-            <div>
-                <table class="w-full ">
-                    <tbody>
-                        <tr v-if="loading">
-                            <td colspan="8" class="py-4 text-center">
-                                <div class="flex justify-center items-center">
-                                    <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
-                                    <span class="ml-2">กำลังโหลดข้อมูล...</span>
-                                </div>
-                            </td>
-                        </tr>
+            <Ctable :table="'Table7-head'" />
+            <table class="w-full text-center text-black table-auto">
+                <tbody>
+                    <tr v-if="loading">
+                        <td colspan="100%" class="py-4 text-center">
+                            <div class="flex justify-center items-center">
+                                <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
+                                <span class="ml-2">กำลังโหลดข้อมูล...</span>
+                            </div>
+                        </td>
+                    </tr>
 
-                        <tr v-else-if="!expense?.length">
-                            <td colspan="8" class="py-4 text-center">ไม่มีข้อมูลรายการรอนำจ่าย</td>
-                        </tr>
+                    <tr v-else-if="!expense?.length || filteredPayments.length === 0" v-for="n in 10" :key="n"
+                        class="h-[50px]">
+                        <td colspan="100%" class="py-4 text-center">
+                            <span v-if="n === 5">
+                                {{ !expense?.length ? 'ไม่มีข้อมูลรายการรอนำจ่าย' :
+                                'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา' }}
+                            </span>
+                        </td>
+                    </tr>
 
-                        <tr v-else-if="filteredPayments.length === 0">
-                            <td colspan="8" class="py-4 text-center">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
-                        </tr>
-
-                        <tr v-else v-for="(paymentItem, index) in paginated"
-                            :key="paymentItem ? paymentItem.rqId : `empty-${index}`"
-                            :class="paymentItem ? 'text-[14px] text-black border-b-2 border-[#BBBBBB]' : ''">
-                            <template v-if="paymentItem">
-                                <th class="py-3 px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
-                                </th>
-                                <th class="py-3 px-2 text-start truncate overflow-hidden"
-                                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                                    {{ paymentItem.rqUsrName }}
-                                </th>
-                                <th class="py-3 px-3 w-44 text-start truncate overflow-hidden"
-                                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                                    {{ paymentItem.rqName }}
-                                </th>
-                                <th class="py-3 px-2 w-44 text-start truncate overflow-hidden"
-                                    style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
-                                    {{ paymentItem.rqPjName }}
-                                </th>
-                                <th class="py-3 px-5 w-44 text-start ">{{ paymentItem.rqRqtName }}</th>
-                                <th class="py-3 px-2 w-32 text-start ">{{ paymentItem.rqWithdrawDate }}</th>
-                                <th class="py-3 px-2 w-40 text-end ">{{ new Decimal(paymentItem.rqExpenses ??
-                                    0).toNumber().toLocaleString("en-US", {
-                                    minimumFractionDigits: 2,
-                                    maximumFractionDigits: 2,
-                                    }) }}</th>
-                                <th class="py-3 px-2 w-20 text-center ">
-                                    <span class="flex justify-center cursor-pointer hover:text-[#B67D12]"
-                                        v-on:click="toDetails(paymentItem.rqId)">
-                                        <Icon :icon="'viewDetails'" />
-                                    </span>
-                                </th>
-                            </template>
-                            <template v-else>
-                                <td class="py-3">&nbsp;</td>
-                            </template>
-                        </tr>
-                    </tbody>
-                    <Pagination
-                    :currentPage="currentPage"
-                    :totalPages="totalPages"
-                    :columnNumber="columnNumber"
-                    @update:currentPage="(page) => (currentPage = page)"
-                  />
-                </table>
-            </div>
+                    <tr v-else v-for="(paymentItem, index) in paginated"
+                        :key="paymentItem ? paymentItem.rqId : `empty-${index}`"
+                        :class="paymentItem ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
+                        <template v-if="paymentItem">
+                            <th class="py-3 px-2 w-12 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
+                            </th>
+                            <th class="py-3 px-2 text-start w-1/4 truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                {{ paymentItem.rqUsrName }}
+                            </th>
+                            <th class="py-3 px-2 w-44 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                {{ paymentItem.rqName }}
+                            </th>
+                            <th class="py-3 px-2 w-44 text-start truncate overflow-hidden"
+                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                                {{ paymentItem.rqPjName }}
+                            </th>
+                            <th class="py-3 px-2 w-32 text-start ">{{ paymentItem.rqRqtName }}</th>
+                            <th class="py-3 px-2 w-24 text-start ">{{ paymentItem.rqWithdrawDate }}</th>
+                            <th class="py-3 px-2 w-32 text-end ">{{ new Decimal(paymentItem.rqExpenses ??
+                                0).toNumber().toLocaleString("en-US", {
+                                minimumFractionDigits: 2,
+                                maximumFractionDigits: 2,
+                                }) }}</th>
+                            <th class="py-3 px-2 w-20 text-center ">
+                                <span class="flex justify-center cursor-pointer hover:text-[#B67D12]"
+                                    v-on:click="toDetails(paymentItem.rqId)">
+                                    <Icon :icon="'viewDetails'" />
+                                </span>
+                            </th>
+                        </template>
+                        <template v-else>
+                            <td class="py-3">&nbsp;</td>
+                        </template>
+                    </tr>
+                </tbody>
+                <Pagination :currentPage="currentPage" :totalPages="totalPages" :columnNumber="columnNumber"
+                    @update:currentPage="(page) => (currentPage = page)" />
+            </table>
         </div>
     </div>
     <!-- content -->

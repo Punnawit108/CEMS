@@ -5,7 +5,7 @@
  * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
  * วันที่จัดทำ/แก้ไข: 11 มีนาคม 2568
  */
-import { onMounted, ref, computed } from "vue"; 
+import { onMounted, ref, computed } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
 import Ctable from "../../components/Table/CTable.vue";
 import { useProjectsStore } from "../../store/projectsReport";
@@ -74,21 +74,24 @@ const paginated = computed(() => {
   return pageItems;
 });
 
-const handleExport = (type: string) => {
-  selectedType.value = type; // อัปเดตประเภทที่เลือก
-};
+// const handleExport = (type: string) => {
+//   selectedType.value = type; // อัปเดตประเภทที่เลือก
+// };
+
+const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
 
 const exportFile = async () => {
-  if (!selectedType.value) return;
-
   try {
-    await exportProjectReportStore.exportFile(selectedType.value);
-    selectedType.value = null;
+    await exportProjectReportStore.exportFile('xlsx');
     showModal.value = false;
+    isAlertPrintOpen.value = true;
+    setTimeout(() => {
+      isAlertPrintOpen.value = false; // ปิด popup หลังจาก 3 วินาที
+    }, 1500);
   } catch (error) {
     console.error("Error exporting file:", error);
     if (selectedType.value) {
-      alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`);
+      alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์`);
     }
   }
 };
@@ -134,7 +137,7 @@ const customYAxisTitle = {
 onMounted(async () => {
   loading.value = true;
   try {
-    await projectsStore.getAllProjects();
+    await projectsStore.getProjectsActive();
 
     // อัปเดตข้อมูลสำหรับตัวกรอง
     projectsStore.projects.forEach((item: ProjectReport) => {
@@ -254,46 +257,49 @@ onMounted(async () => {
         </Button>
       </div>
       <!-- Modal -->
-      <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-        <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
-          <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-          <div>
-            <div class="flex justify-center space-x-6">
-              <!-- ปุ่ม PDF -->
-              <button @click="handleExport('pdf')" :class="[
-                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
-                selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
-              ]">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mr-2">
-                  <path
-                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
-                </svg>
-              </button>
-              <!-- ปุ่ม XLSX -->
-              <button @click="handleExport('xlsx')" :class="[
-                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
-                selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200'
-              ]">
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mr-2">
-                  <path
-                    d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
-                </svg>
-              </button>
-            </div>
-            <div class="flex justify-center mb-6 space-x-20">
-              <span class="mt-2 text-sm text-gray-600">PDF</span>
-              <span class="mt-2 text-sm text-gray-600">XLSX</span>
-            </div>
-            <div class="flex justify-center space-x-4">
-              <button @click="showModal = false" class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
-                ยกเลิก
-              </button>
-              <button @click="exportFile" :disabled="!selectedType"
-                class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
-                ยืนยัน
-              </button>
-            </div>
+      <!-- Popup สำหรับยืนยันการส่งออกรายงานโครงการ -->
+      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+          <div class="flex justify-center mb-4">
+            <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+              <path fill-rule="evenodd"
+                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                clip-rule="evenodd" />
+            </svg>
           </div>
+          <h2 class="text-[24px] font-bold text-center text-black mb-4">
+            ยืนยันส่งออกรายงานโครงการ
+          </h2>
+          <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+            คุณยืนยันส่งออกรายงานโครงการหรือไม่ ?
+          </h2>
+          <div class="flex justify-center space-x-4">
+            <button @click="showModal = false"
+              class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+              ยกเลิก
+            </button>
+
+            <button @click="exportFile"
+              class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+              ยืนยัน
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg flex flex-col justify-center items-center">
+          <div class="mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <path
+                d="M40 0C17.9433 0 0 17.9433 0 40C0 62.0567 17.9433 80 40 80C62.0567 80 80 62.0567 80 40C80 17.9433 62.0567 0 40 0ZM39.6967 51.3967C38.4067 52.6867 36.71 53.33 35.0067 53.33C33.3033 53.33 31.59 52.68 30.2867 51.38L21.0133 42.3933L25.6567 37.6033L34.9667 46.6267L54.33 27.6233L59.01 32.3733L39.6967 51.3967Z"
+                fill="#12B669" />
+            </svg>
+          </div>
+          <h2 class="text-[24px] font-bold text-center text-black" style="white-space: pre-line;">
+            ส่งออกรายงานโครงการสำเร็จ
+          </h2>
         </div>
       </div>
     </div>
@@ -313,12 +319,12 @@ onMounted(async () => {
           <canvas id="barChart" v-show="!loading"></canvas>
         </div>
       </div>
-      <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] border-grayNormal border-grayNormal">
+      <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
         <Ctable :table="'Table4-head'" />
         <table class="w-full text-center text-black table-auto">
           <tbody>
             <tr v-if="loading">
-              <td colspan="8" class="py-4">
+              <td colspan="100%" class="py-4">
                 <div class="flex justify-center items-center">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
                   <span class="ml-2">กำลังโหลดข้อมูล...</span>
@@ -326,9 +332,9 @@ onMounted(async () => {
               </td>
             </tr>
             <tr v-else v-for="(project, index) in paginated" :key="project ? project.pjId : `empty-${index}`"
-              :class="project ? 'text-[16px] border-b-2 border-[#BBBBBB] h-[46px]' : ''">
+              :class="project ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
               <template v-if="project">
-                <th class="px-2 py-3 w-14">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                <th class="px-2 py-3 w-12">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
                 <th class="w-auto px-2 py-3 overflow-hidden truncate text-start"
                   style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">

@@ -39,11 +39,6 @@ import ForUseStatus from '../components/ForUse/ForUseStatus.vue';
 const router = createRouter({
   history: createWebHistory(),
   routes: [
-    // {
-    //   path: '/test',
-    //   name: 'test',
-    //   component: Test
-    // },
     {
       path: '/temp/icon',
       name: 'icon',
@@ -207,6 +202,15 @@ const router = createRouter({
       meta: {
         breadcrumb: 'รายงานเบิกค่าใช้จ่าย',
         parent: 'report'
+      }
+    },
+    {
+      path: '/report/expense/detail/:id',
+      name: 'reportExpenseDetail',
+      component: Details,
+      meta: {
+        breadcrumb: 'รายละเอียด',
+        parent: 'reportExpense'
       }
     },
     //การอนุมัติ

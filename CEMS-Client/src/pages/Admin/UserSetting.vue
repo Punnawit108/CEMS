@@ -160,27 +160,27 @@ onMounted(async () => {
         <div class="py-0.5 text-[14px] text-transparent">การดำเนินการ</div>
         <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>
-      
+
     </div>
-    <div class="w-full h-fit border-[2px] flex flex-col items-start border-grayNormal">
+    <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
       <table class="table-auto w-full text-center text-black">
         <thead class="bg-[#F2F4F8]">
-          <tr class="text-[16px] border-b-2 border-[#BBBBBB]">
-            <th class="py-[11px] px-2 w-12 font-bold h-[46px]">ลำดับ</th>
-            <th class="py-[11px] px-2 text-center w-24 font-bold">รหัสพนักงาน</th>
-            <th class="py-[11px] px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
-            <th class="py-[11px] px-2 text-start w-20 font-bold">แผนก</th>
-            <th class="py-[11px] px-2 text-start w-24 font-bold">ฝ่าย</th>
-            <th class="py-[11px] px-2 text-start w-20 font-bold">บทบาท</th>
-            <th class="py-[11px] px-2 text-start w-24 font-bold">สถานะ</th>
-            <th class="py-[11px] px-2 text-center w-24 font-bold">ดูรายงาน</th>
-            <th class="py-[11px] px-2 text-center w-24 font-bold">จัดการ</th>
+          <tr class="text-[16px] h-[46px] border-b-2 border-[#BBBBBB]">
+            <th class="py-3 px-2 w-12 font-bold">ลำดับ</th>
+            <th class="py-3 px-2 text-center w-24 font-bold">รหัสพนักงาน</th>
+            <th class="py-3 px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
+            <th class="py-3 px-2 text-start w-20 font-bold">แผนก</th>
+            <th class="py-3 px-2 text-start w-24 font-bold">ฝ่าย</th>
+            <th class="py-3 px-2 text-start w-24 font-bold">บทบาท</th>
+            <th class="py-3 px-2 text-start w-24 font-bold">สถานะ</th>
+            <th class="py-3 px-2 text-center w-24 font-bold">ดูรายงาน</th>
+            <th class="py-3 px-2 text-center w-24 font-bold">จัดการ</th>
           </tr>
         </thead>
         <!-- แยก tbody สำหรับสถานะโหลด -->
         <tbody v-if="loading">
           <tr>
-            <td colspan="9" class="py-4">
+            <td colspan="100%" class="py-4">
               <div class="flex justify-center items-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
@@ -188,31 +188,32 @@ onMounted(async () => {
             </td>
           </tr>
         </tbody>
-        
+
         <!-- tbody สำหรับแสดงข้อมูลหลังโหลดเสร็จ -->
         <tbody v-else>
-          <tr v-if="!users?.length">
-            <td colspan="9" class="py-4">ไม่มีข้อมูลผู้ใช้</td>
+
+          <tr v-if="!users?.length || filteredUsers.length === 0" v-for="n in 10" :key="n" class="h-[50px]">
+            <td colspan="100%" class="py-4 text-center">
+              <span v-if="n === 5">
+                {{ !users?.length ? 'ไม่มีข้อมูลผู้ใช้' : 'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา' }}
+              </span>
+            </td>
           </tr>
 
-          <tr v-else-if="filteredUsers.length === 0">
-            <td colspan="9" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
-          </tr>
-          
           <tr v-for="(user, index) in paginated" :key="user?.usrId ?? `empty-${index}`"
-            :class="user ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+            :class="user ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[46px]'">
             <template v-if="user">
-              <th class="py-[12px] px-2 w-12 h-[46px]">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
-              <th class="py-[12px] px-2 w-24">{{ user.usrEmployeeId }}</th>
-              <th class="py-[12px] px-2 w-52 text-start truncate overflow-hidden"
+              <th class="py-3 px-2 w-12">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
+              <th class="py-3 px-2 w-24">{{ user.usrEmployeeId }}</th>
+              <th class="py-3 px-2 x text-start truncate overflow-hidden"
                 style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                 :title="`${user.usrFirstName} ${user.usrLastName}`">
                 {{ user.usrFirstName }} {{ user.usrLastName }}
               </th>
-              <th class="py-[12px] px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
-              <th class="py-[12px] px-2 w-24 text-start">{{ user.usrStName }}</th>
-              <th class="py-[12px] px-2 w-20 text-start">{{ user.usrRolName }}</th>
-              <th class="py-[12px] px-2 w-24 text-start">
+              <th class="py-3 px-2 w-20 text-start font-[100]">{{ user.usrDptName }}</th>
+              <th class="py-3 px-2 w-24 text-start">{{ user.usrStName }}</th>
+              <th class="py-3 px-2 w-24 text-start">{{ user.usrRolName }}</th>
+              <th class="py-3 px-2 w-24 text-start">
                 <span :class="user.usrIsActive
                   ? 'bg-[#12B669] text-white px-3 py-1 rounded-full text-sm font-normal'
                   : 'bg-[#E1032B] text-white px-3 py-1 rounded-full text-sm font-normal'">
@@ -243,7 +244,7 @@ onMounted(async () => {
               </th>
             </template>
             <template v-else>
-              <td class="py-3">&nbsp;</td>
+              <td>&nbsp;</td>
             </template>
           </tr>
         </tbody>

@@ -21,7 +21,7 @@ const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const columnNumber = ref(7);
 const totalPages = computed(() => {
-  return Math.ceil(filteredApprovals.value.length / itemsPerPage.value);
+    return Math.ceil(filteredApprovals.value.length / itemsPerPage.value);
 });
 
 const paginated = computed(() => {
@@ -294,7 +294,7 @@ onMounted(async () => {
         }
         if (user.value) {
             await approvalStore.getApprovalHistory(user.value.usrId); // เรียกใช้ฟังก์ชันดึงข้อมูลประวัติการอนุมัติ
-            
+
             // อัปเดตข้อมูลสำหรับตัวกรอง
             projects.value = extractedProjects.value;
             requisitionTypes.value = extractedRequisitionTypes.value;
@@ -348,53 +348,54 @@ const toDetails = async (data: Expense) => {
         </div>
 
         <!-- ตาราง -->
-        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-4 border-grayNormal">
+        <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
             <Ctable :table="'Table8-head'" />
-            <table class="table-auto w-full text-center text-black">
+            <table class="w-full text-center text-black table-auto">
                 <tbody>
                     <tr v-if="loading">
-                        <td colspan="8" class="py-4">
+                        <td colspan="100%" class="py-4">
                             <div class="flex justify-center items-center">
                                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
                                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
                             </div>
                         </td>
                     </tr>
-
-                    <tr v-else-if="!approvalHistory?.length">
-                        <td colspan="8" class="py-4">ไม่มีข้อมูลประวัติการอนุมัติ</td>
+                    <tr v-else-if="!approvalHistory?.length || filteredApprovals.length === 0" v-for="n in 10" :key="n"
+                        class="h-[50px]">
+                        <td colspan="100%" class="py-4 text-center">
+                            <span v-if="n === 5">
+                                {{ !approvalHistory?.length ? 'ไม่มีข้อมูลประวัติการอนุมัติ' :
+                                'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา' }}
+                            </span>
+                        </td>
                     </tr>
-
-                    <tr v-else-if="filteredApprovals.length === 0">
-                        <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
-                    </tr>
-
                     <tr v-else v-for="(item, index) in paginated" :key="item ? item.rqId : `empty-${index}`"
-                        :class="item ? 'text-[14px] border-b hover:bg-gray-50' : ''">
+                        :class="item ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
                         <template v-if="item">
-                            <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
+                            <th class="py-3 px-2 w-12 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
                             </th>
-                            <th class="py-[11px] px-2 text-start truncate overflow-hidden"
+                            <th class="py-3 px-2 text-start w-1/4 truncate overflow-hidden"
                                 style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.usrName">
                                 {{ item.usrName }}
                             </th>
-                            <th class="py-[11px] px-2 text-start w-40 truncate overflow-hidden"
+                            <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
                                 style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.rqName">
                                 {{ item.rqName }}
                             </th>
-                            <th class="py-[11px] px-2 text-start w-40">{{ item.pjName }}</th>
-                            <th class="py-[11px] px-5 text-start w-44">{{ item.rqtName }}</th>
-                            <th class="py-[11px] px-2 text-start w-40">{{ item.rqWithdrawDate }}</th>
-                            <th class="py-[11px] px-2 text-start w-32 ">
+                            <th class="py-3 px-2 text-start w-44">{{ item.pjName }}</th>
+                            <th class="py-3 px-2 text-start w-32">{{ item.rqtName }}</th>
+                            <th class="py-3 px-2 text-start w-24">{{ item.rqWithdrawDate }}</th>
+                            <th class="py-3 px-2 text-start w-28 ">
                                 <span>
                                     <StatusBudge :status="'sts-' + item.rqStatus"></StatusBudge>
                                 </span>
                             </th>
-                            <th @click="toDetails(item)"
-                                class="py-[11px] pl-10 w-20 cursor-pointer hover:text-[#B67D12]">
-                                <Icon :icon="'viewDetails'" />
+                            <th @click="toDetails(item)" class="py-3 px-2 w-20 cursor-pointer hover:text-[#B67D12]">
+                                <span class="flex justify-center">
+                                    <Icon :icon="'viewDetails'" />
+                                </span>
                             </th>
                         </template>
                         <template v-else>

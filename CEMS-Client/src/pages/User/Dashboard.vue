@@ -91,18 +91,18 @@ const totalExpense = ref<any>();
 
 //ตัวแปรเดือน Line chart
 const labels = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "มกราคม",
+  "กุมภาพันธ์",
+  "มีนาคม",
+  "เมษายน",
+  "พฤษภาคม",
+  "มิถุนายน",
+  "กรกฎาคม",
+  "สิงหาคม",
+  "กันยายน",
+  "ตุลาคม",
+  "พฤศจิกายน",
+  "ธันวาคม",
 ];
 
 const sortedProjectData = computed(() => {
@@ -292,6 +292,8 @@ onMounted(async () => {
     });
   }
 
+  console.log(totalExpense.value[0].totalExpense.toLocaleString());
+
   //Line chart
   if (totalExpense.value != null) {
     const linechart = document.getElementById("lineChart") as HTMLCanvasElement;
@@ -303,6 +305,7 @@ onMounted(async () => {
           datasets: [
             {
               label: "ยอดรวมการเบิกจ่าย (บาท)",
+              // เก็บค่าเป็นตัวเลขไว้
               data: totalExpense.value[0].totalExpense,
               fill: false,
               borderColor: "#8979FF",
@@ -312,11 +315,15 @@ onMounted(async () => {
               datalabels: {
                 align: "top",
                 anchor: "center",
-                color: "rgba(0, 0, 0, 0.7)", // ตัวอักษรสีจาง
+                color: "rgba(0, 0, 0, 0.7)",
                 font: {
                   weight: "normal",
                   size: 10,
                   family: "Sarabun",
+                },
+                formatter: (value: number) => {
+                  // Format ค่าให้มีเครื่องหมายคั่นหลักพันและมีทศนิยม 2 ตำแหน่ง
+                  return value.toLocaleString();
                 },
               },
             },

@@ -89,10 +89,14 @@ watch(
   },
   { deep: true }
 );
+const isLock = ref(false);
 
 const handleClick = () => {
   if (lockStore.isLocked) {
-    alert("ไม่สามารถทำรายการเบิกได้ในขณะนี้");
+    isLock.value = true;
+    setTimeout(() => {
+      isLock.value = false;
+    }, 1500);
   }
 };
 
@@ -416,22 +420,17 @@ onMounted(async () => {
     }, 500);
   }
 });
-
-const formatDate = (dateString: string | null) => {
-  if (!dateString) return "-";
-  const parts = dateString.split("-");
-  if (parts.length !== 3) return dateString;
-  return `${parts[2]}/${parts[1]}/${parts[0]}`;
-};
-
 </script>
 
 <template>
   <div>
     <div class=" items-end flex justify-end mb-4">
       <RouterLink to="/disbursement/listWithdraw/createExpenseForm" v-if="!lockStore.isLocked">
-        <Button :type="'btn-expense'" @click="handleClick"></Button>
+        <Button :type="'btn-expense'"></Button>
       </RouterLink>
+      <div v-else>
+        <Button :type="'btn-expense'" @click="handleClick"></Button>
+      </div>
     </div>
 
     <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-4">
@@ -454,19 +453,19 @@ const formatDate = (dateString: string | null) => {
       <div class="flex flex-col">
         <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
           @update:is-open="isEndDatePickerOpen = $event" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
-          @cancel="cancelEndDate" class="mb-4"/>
+          @cancel="cancelEndDate" class="mb-4" />
         <!-- ปุ่มค้นหาและรีเซ็ต -->
         <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>
     </div>
 
     <!-- Table -->
-    <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-4 border-grayNormal">
+    <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
       <Ctable :table="'Table9-head-New'" />
-      <table class="table-auto w-full text-center text-black">
+      <table class="w-full text-center text-black table-auto">
         <tbody>
           <tr v-if="loading">
-            <td colspan="8" class="py-4">
+            <td colspan="100%" class="py-4">
               <div class="flex justify-center items-center">
                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-black"></div>
                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
@@ -474,39 +473,43 @@ const formatDate = (dateString: string | null) => {
             </td>
           </tr>
 
-          <tr v-else-if="filteredList.length === 0">
-            <td colspan="8" class="py-4">
-              ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
+          <tr v-else-if="!expenseReimbursementList?.length || filteredList.length === 0" v-for="n in 10" :key="n"
+            class="h-[50px]">
+            <td colspan="100%" class="py-4 text-center">
+              <span v-if="n === 5">
+                {{ !expenseReimbursementList?.length ? 'ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย' :
+                'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา' }}
+              </span>
             </td>
           </tr>
 
           <tr v-else v-for="(item, index) in paginated" :key="item ? item.rqId : `empty-${index}`"
-            :class="item ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+            :class="item ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
             <template v-if="item">
-              <th class="py-3 px-2 w-14">
+              <th class="py-3 px-2 w-12">
                 {{ index + 1 + (currentPage - 1) * itemsPerPage }}
               </th>
-              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" :title="item.rqName">
+              <th class="py-3 px-2 w-1/4 text-start truncate overflow-hidden" :title="item.rqName">
                 {{ item.rqName }}
               </th>
-              <th class="py-3 px-2 w-48 text-start truncate overflow-hidden" :title="item.rqPjName">
+              <th class="py-3 px-2 text-start truncate overflow-hidden" :title="item.rqPjName">
                 {{ item.rqPjName }}
               </th>
-              <th class="py-3 px-5 w-32 text-start font-[100]">
+              <th class="py-3 px-2 w-32 text-start font-[100]">
                 {{ item.rqRqtName }}
               </th>
-              <th class="py-3 px-2 w-32 text-start">
+              <th class="py-3 px-2 w-24 text-start">
                 {{ item.rqWithDrawDate }}
               </th>
-              <th class="py-3 px-5 w-32 text-end">
+              <th class="py-3 px-2 w-32 text-end">
                 {{
-                  new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
+                new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2,
+                })
                 }}
               </th>
-              <th class="py-3 px-2 w-20 text-center">
+              <th class="py-3 px-2 w-28 text-start">
                 <StatusBudge :status="'sts-' + item.rqStatus" />
               </th>
               <th class="py-[10px] px-2 w-20 text-center">
@@ -519,7 +522,7 @@ const formatDate = (dateString: string | null) => {
               </th>
             </template>
             <template v-else>
-              <td class="py-3">&nbsp;</td>
+              <td>&nbsp;</td>
             </template>
           </tr>
         </tbody>
@@ -560,6 +563,22 @@ const formatDate = (dateString: string | null) => {
             </button>
           </form>
         </div>
+      </div>
+    </div>
+
+    <div v-if="isLock" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-3">
+          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black">
+           ระบบปิดรับรายเบิกค่าใช้จ่าย
+        </h2>
       </div>
     </div>
   </div>
