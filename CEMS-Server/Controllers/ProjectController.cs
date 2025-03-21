@@ -42,4 +42,21 @@ public class ProjectController : ControllerBase
 
         return Ok(project);
     }
+
+    [HttpGet("active")]
+    public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProjectActive()
+    {
+        var project = await _context
+            .CemsProjects
+            .Where(u => u.PjIsActive == 1)
+            .Select(u => new ProjectDto
+            {
+                PjId = u.PjId,
+                PjName = u.PjName,
+                PjSumAmountExpenses = u.PjAmountExpenses
+            })
+            .ToListAsync();
+
+        return Ok(project);
+    }
 }

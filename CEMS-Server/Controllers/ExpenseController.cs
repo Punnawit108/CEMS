@@ -119,7 +119,7 @@ public class ExpenseController : ControllerBase
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
-            .Where(u => u.RqStatus == "accept")
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "complete")
             .Select(u => new ExpenseReportDto
             {
                 RqId = u.RqId,
@@ -127,7 +127,10 @@ public class ExpenseController : ControllerBase
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqPayDate = u.RqPayDate,
+                RqWithDrawDate = u.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 RqExpenses = u.RqExpenses,
             })
             .ToListAsync();
@@ -147,7 +150,7 @@ public class ExpenseController : ControllerBase
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqRqt)
-            .Where(u => u.RqStatus == "accept")
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "complete")
             .GroupBy(e => e.RqRqt.RqtName)
             .Select(g => new { RqRqtName = g.Key, RqSumExpenses = g.Sum(u => u.RqExpenses) })
             .ToListAsync();

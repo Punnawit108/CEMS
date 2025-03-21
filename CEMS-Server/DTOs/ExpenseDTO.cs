@@ -112,7 +112,7 @@ namespace CEMS_Server.DTOs
 
         public string RqRqtName { get; set; } = null!;
 
-        public DateOnly RqPayDate { get; set; }
+        public string RqWithDrawDate { get; set; } = null!;
 
         public double RqExpenses { get; set; }
     }
