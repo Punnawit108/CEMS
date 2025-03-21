@@ -8,6 +8,7 @@
 import { ref, computed, onMounted } from 'vue';
 import { useNotificationStore } from '../../store/notification';
 import CardNotification from '../../components/CardNotification.vue';
+import Pagination from '../../components/Pagination.vue'; // นำเข้า Pagination component
 import Icon from '../../components/Icon/CIcon.vue';
 
 let filterNotification = ref("All");
@@ -99,27 +100,21 @@ const paginatedNotifications = computed(() => {
 
     return notifications;
 });
+
 // คำนวณจำนวนช่องว่างที่ต้องเพิ่ม
 const emptySlots = computed(() => {
     return Math.max(0, itemsPerPage.value - paginatedNotifications.value.length);
 });
-// ฟังก์ชันสำหรับเปลี่ยนหน้า
-const nextPage = () => {
-    if (currentPage.value < totalPages.value) {
-        currentPage.value++;
-    }
-};
-
-const previousPage = () => {
-    if (currentPage.value > 1) {
-        currentPage.value--;
-    }
-};
 
 // คำนวณจำนวนหน้าทั้งหมด
 const totalPages = computed(() => {
     return Math.ceil(filteredNotifications.value.length / itemsPerPage.value);
 });
+
+// ฟังก์ชันสำหรับเปลี่ยนหน้า
+const changePage = (page: number) => {
+    currentPage.value = page;
+};
 </script>
 
 <template>
@@ -164,7 +159,6 @@ const totalPages = computed(() => {
                                 :fill="clickNotReadNotification ? '#D92C20' : '#888888'" />
                         </svg>
 
-
                         <span class="ml-1">ยังไม่อ่าน</span>
                     </button>
                 </li>
@@ -186,22 +180,12 @@ const totalPages = computed(() => {
                 </div>
             </div>
 
-            <footer class="flex overflow-hidden flex-wrap gap-9 items-center px-2 w-full text-2xl leading-none text-center bg-white border-t border-solid border-t-[#B6B7BA] min-h-[56px] max-md:max-w-full">
-                <div class="flex grow shrink self-stretch my-auto h-5 min-w-[240px] w-[907px]"></div>
-                <p class="self-stretch my-auto text-xs tracking-wide leading-loose text-right text-black text-opacity-90">
-                    {{ currentPage }} of {{ totalPages }}
-                </p>
-                <button @click="previousPage" class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow" aria-label="Previous page">
-                    <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M19.4219 11.9062L14.8281 16.5L19.4219 21.0938L18.0156 22.5L12.0156 16.5L18.0156 10.5L19.4219 11.9062Z" fill="black" fill-opacity="0.54" />
-                    </svg>
-                </button>
-                <button @click="nextPage" class="rounded-full w-10 h-10 flex items-center justify-center hover:shadow-xl transition-shadow" aria-label="Next page">
-                    <svg width="32" height="33" viewBox="0 0 32 33" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M13.9844 10.5L19.9844 16.5L13.9844 22.5L12.5781 21.0938L17.1719 16.5L12.5781 11.9062L13.9844 10.5Z" fill="black" fill-opacity="0.54" />
-                    </svg>
-                </button>
-            </footer>
+            <!-- Component Pagination.vue -->
+            <Pagination  class="flex justify-end"
+                :currentPage="currentPage" 
+                :totalPages="totalPages" 
+                @update:currentPage="changePage"
+            />
         </article>
     </div>
 </template>

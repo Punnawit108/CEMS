@@ -30,8 +30,8 @@ const prevPage = () => {
 </script>
 
 <template>
-  <tfoot class="border-t">
-    <tr class="text-sm border-b-2 border-[#BBBBBB]">
+  <tfoot class="border-t border-solid border-[#B6B7BA]">
+    <tr class="text-sm ">
       <td colspan="100%">
         <div class="flex justify-end items-center h-8">
           <span class="text-gray-600 mr-10">
