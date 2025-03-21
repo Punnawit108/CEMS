@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using System.Linq;
 using QuestPDF.Helpers;
 using QuestPDF.Drawing;
-
+using System.Globalization;
 public class DetailService
 {
     private readonly CemsContext _context;
@@ -121,8 +121,10 @@ public class DetailService
                            e.RqDistance,
                            RqVhPayrate = v != null ? v.VhPayrate : null,
                            e.RqStartLocation,
+                           e.RqDisburseDate,
                            e.RqEndLocation,
                            e.RqPurpose,
+                           e.RqStatus,
                            UsrId = u != null ? u.UsrId : null // เพิ่มการดึง UsrId เพื่อเช็คภายหลัง
                        }).FirstOrDefault();
 
@@ -153,35 +155,19 @@ public class DetailService
             return Array.Empty<byte>();
         }
 
-        string watermarkText = "อนุมัติ"; // กำหนดค่าเริ่มต้นเป็น accept
+        string watermarkText = "รออนุมัติ"; // กำหนดค่าเริ่มต้นเป็น accept
 
-        // ตรวจสอบผ่านทุกๆ สถานะใน approverCounts
-        for (int i = 0; i < approverCounts.Count; i++)
+        if(expense.RqStatus == "accept")
         {
-            var approver = approverCounts[i];
-
-            // หากพบค่าสถานะเป็น "-" หรือเป็น null จะนับเป็น reject
-            if (string.IsNullOrEmpty(approver.AprStatus) || approver.AprStatus == "-")
-            {
-                watermarkText = "ไม่อนุมัติ";
-                break;
-            }
-
-            // ตรวจสอบสถานะสุดท้าย ถ้าเป็น reject ให้เป็น "ไม่อนุมัติ"
-            if (approver.AprStatus == "reject")
-            {
-                watermarkText = "ไม่อนุมัติ";
-                break;
-            }
+            watermarkText = "";
         }
-
-        // ตรวจสอบกรณีทั้งหมดเป็น "accept" ยกเว้นอันสุดท้าย
-        if (watermarkText == "accept" && approverCounts.Last().AprStatus == "reject")
+        else if(expense.RqStatus == "waiting")
         {
-            watermarkText = "ไม่อนุมัติ";
+            watermarkText = "รออนุมัติ";
         }
+        
 
-
+        
         var fontPath = "Fonts/THSarabunNew.ttf";
         using (var fontStream = new FileStream(fontPath, FileMode.Open, FileAccess.Read))
         {
@@ -211,11 +197,11 @@ public class DetailService
         .Bold().FontSize(22).FontFamily(font);
 
     row.RelativeItem().AlignRight().PaddingRight(50)
-        .Text($"วันที่เกิดค่าใช้จ่าย: {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}")
+        .Text($"วันที่เกิดค่าใช้จ่าย: {(expense.RqPayDate != null ? new DateOnly(expense.RqPayDate.Year - 543, expense.RqPayDate.Month, expense.RqPayDate.Day).ToString("dd/MM/yyyy", new CultureInfo("th-TH")) : "-")}")
         .FontFamily(font).FontSize(14);
 
 });
-                    column.Item().AlignRight().PaddingLeft(150).PaddingBottom(10).PaddingRight(82).Text($"วันที่เบิก: {(expense.RqWithdrawDate != null ? expense.RqWithdrawDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font).FontSize(14);
+                    column.Item().AlignRight().PaddingLeft(150).PaddingBottom(10).PaddingRight(82).Text($"วันที่เบิก: {(expense.RqWithdrawDate != null ? new DateOnly(expense.RqWithdrawDate.Year - 543, expense.RqWithdrawDate.Month, expense.RqWithdrawDate.Day).ToString("dd/MM/yyyy", new CultureInfo("th-TH")) : "-")}").FontFamily(font).FontSize(14);
 
                     column.Item().PaddingBottom(10).Row(row =>
                     {
@@ -223,7 +209,10 @@ public class DetailService
                         row.RelativeItem().PaddingLeft(80).Text($"รหัสรายการเบิก     {expense.RqCode ?? "-"}").FontFamily(font).FontSize(14);
 
                         // ชื่อผู้เบิกแทน
-                        row.RelativeItem().PaddingLeft(80).Text($"วันที่อนุมัติ              {(expense.RqPayDate != null ? expense.RqPayDate.ToString("dd/MM/yyyy") : "-")}").FontFamily(font).FontSize(14);
+                        row.RelativeItem().PaddingLeft(80).Text($"วันที่อนุมัติ: {(expense.RqDisburseDate.HasValue
+    ? new DateOnly(expense.RqDisburseDate.Value.Year - 543, expense.RqDisburseDate.Value.Month, expense.RqDisburseDate.Value.Day)
+        .ToString("dd/MM/yyyy", new CultureInfo("th-TH"))
+    : "-")}").FontFamily(font).FontSize(14);
                     });
                     column.Item();
 
@@ -263,7 +252,11 @@ public class DetailService
                         row.RelativeItem().PaddingLeft(80).Text($"อัตราค่าเดินทาง      {GetVehicleTypeDescription(expense.RqVhType) ?? "-"}").FontFamily(font).FontSize(14);
 
                         // ชื่อผู้เบิกแทน
-                        row.RelativeItem().PaddingLeft(83).Text($"จำนวนเงิน (บาท)      {expense.RqExpenses.ToString("")}").FontFamily(font).FontSize(14);
+                        row.RelativeItem().PaddingLeft(83)
+    .Text($"จำนวนเงิน (บาท)      {expense.RqExpenses.ToString("#,##0.00")}")
+    .FontFamily(font)
+    .FontSize(14);
+
                     });
 
                     column.Item().PaddingLeft(80).PaddingBottom(30).Text($"รายละเอียด           {expense.RqPurpose ?? "-"}").FontFamily(font).FontSize(14);
@@ -294,6 +287,7 @@ public class DetailService
         {
             "accept" => "อนุมัติ",
             "reject" => "ไม่อนุมัติ",
+            "waiting" => "รออนุมัติ",
             _ => approver.AprStatus ?? "-"
         };
 
@@ -301,9 +295,9 @@ public class DetailService
     }
 
     // ตรวจสอบเงื่อนไขการเพิ่มแถวใหม่
-    if (!string.IsNullOrEmpty(expense.RqDisburser) && expense.RqDisburser == expense.UsrId)
+    if (expense.RqDisburser == expense.UsrId)
     {
-        table.Cell().ColumnSpan(2).Element(CellStyle).AlignLeft().PaddingLeft(20).Text($"ผู้อนุมัติเบิกจ่าย : {expense.RqUsrName ?? "-"}");
+        table.Cell().ColumnSpan(2).Element(CellStyle).AlignLeft().PaddingLeft(20).Text($"ผู้อนุมัติเบิกจ่าย : {expense.RqUsrName ?? "                                    -"}");
         table.Cell().Element(CellStyle).AlignCenter().Text("อนุมัติ");
     }
 });
