@@ -23,7 +23,7 @@ const props = defineProps<{
                 <th class="py-3 px-2 w-14 h-[46px] font-bold">ลำดับ</th>
                 <th class="py-3 px-2 text-start w-64 font-bold">ชื่อ-นามสกุล</th>
                 <th class="py-3 px-2 text-start w-60 font-bold">ชื่อโครงการ</th>
-                <th class="py-3 px-5 text-start w-40 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-40 font-bold">ประเภทค่าใช้จ่าย</th>
                 <th class="py-3 px-2 text-end w-32 font-bold">จำนวนเงิน(บาท)</th>
                 <th class="py-3 px-2 text-end w-28 font-bold">วันที่ขอเบิก</th>
                 <th class="py-3 px-2 text-end w-28 font-bold">วันที่เบิก</th>
@@ -44,7 +44,7 @@ const props = defineProps<{
                     title="กระซับมิตรความสัมพันธ์ในองค์กรทีม 4 Elegant">
                     กระซับมิตรความสัมพันธ์ในองค์กรทีม 4 Elegant
                 </th>
-                <th class="py-[12px] px-5 w-40 text-start">ค่าเดินทาง</th>
+                <th class="py-[12px] px-2 w-40 text-start">ค่าเดินทาง</th>
                 <th class="py-[12px] px-2 w-32 text-end">200.00</th>
                 <th class="py-[12px] px-2 w-28 text-end">07/10/2567</th>
                 <th class="py-[12px] px-2 w-28 text-end">08/10/2567</th>
@@ -75,13 +75,13 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table2-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-3 px-2 text-start font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-3 px-2 text-start w-40 font-bold">รายการเบิก</th>
-                <th class="py-3 px-2 text-start w-40 font-bold">โครงการ</th>
-                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-3 px-2 text-start w-40 font-bold">วันที่ขอเบิก</th>
-                <th class="py-3 px-2 text-end w-32 font-bold">จำนวนเงิน (บาท)</th>
+                <th class="py-3 px-2 w-12 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-1/4 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-44 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start w-44 font-bold">โครงการ</th>
+                <th class="py-3 px-2 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-end w-36 font-bold">จำนวนเงิน (บาท)</th>
                 <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
@@ -104,7 +104,7 @@ const props = defineProps<{
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
-                <th class="py-[12px] px-5 w-44 text-start ">ค่าเดินทาง</th>
+                <th class="py-[12px] px-2 w-44 text-start ">ค่าเดินทาง</th>
                 <th class="py-[12px] px-2 w-24 text-end ">08/10/2567</th>
                 <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
                 <th class="py-[10px] px-2 w-32 text-center">
@@ -136,7 +136,7 @@ const props = defineProps<{
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
                 <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
                 <th class="py-3 px-2 text-start w-52 font-bold">ชื่อโครงการ</th>
-                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
                 <th class="py-3 px-2 text-end w-20 font-bold">วันที่เบิก</th>
                 <th class="py-3 px-2 text-end w-40 font-bold">จำนวนเงิน(บาท)</th>
                 <th class="py-3 px-2 text-center w-32 font-bold">สถานะ</th>
@@ -152,7 +152,7 @@ const props = defineProps<{
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     สัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
-                <th class="py-[12px] px-5 w-44 text-start font-[100]">ค่าเดินทาง</th>
+                <th class="py-[12px] px-2 w-44 text-start font-[100]">ค่าเดินทาง</th>
                 <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
                 <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
                 <th class="py-[12px] px-2 w-32 text-center ">รออนุมัติ</th>
@@ -183,7 +183,7 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table4-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
-                <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 w-12 font-bold">ลำดับ</th>
                 <th class="py-3 px-2 w-auto text-start  font-bold">โครงการ</th>
                 <th class="py-3 px-2 w-60 text-end font-bold">ยอดเบิกค่าใช้จ่าย (บาท)</th>
             </tr>
@@ -329,13 +329,13 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table7-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-3 px-2 text-start font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 w-12 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-1/4 font-bold">ชื่อ-นามสกุล</th>
                 <th class="py-3 px-2 text-start w-44 font-bold">รายการเบิก</th>
                 <th class="py-3 px-2 text-start w-44 font-bold">โครงการ</th>
-                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-3 px-2 text-start w-32 font-bold">วันที่ขอเบิก</th>
-                <th class="py-3 px-2 text-end w-40 font-bold">จำนวนเงิน (บาท)</th>
+                <th class="py-3 px-2 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-end w-32 font-bold">จำนวนเงิน (บาท)</th>
                 <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
@@ -358,7 +358,7 @@ const props = defineProps<{
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
-                <th class="py-[12px] px-5 w-44 text-start ">ค่าเดินทาง</th>
+                <th class="py-[12px] px-2 w-44 text-start ">ค่าเดินทาง</th>
                 <th class="py-[12px] px-2 w-24 text-end ">08/10/2567</th>
                 <th class="py-[12px] px-2 w-40 text-end ">200.00</th>
                 <th class="py-[10px] px-2 w-32 text-center ">
@@ -389,13 +389,13 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table8-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-3 px-2 w-14 font-bold h-[46px]">ลำดับ</th>
-                <th class="py-3 px-2 text-start font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-3 px-2 text-start w-40 font-bold">รายการเบิก</th>
-                <th class="py-3 px-2 text-start w-40 font-bold">โครงการ</th>
-                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-3 px-2 text-start w-40 font-bold">วันที่ขอเบิก</th>
-                <th class="py-3 px-2 text-start w-32 font-bold">สถานะ</th>
+                <th class="py-3 px-2 w-12 font-bold h-[46px]">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-1/4 font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 text-start w-44 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start w-44 font-bold">โครงการ</th>
+                <th class="py-3 px-2 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-start w-28 font-bold">สถานะ</th>
                 <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
@@ -418,8 +418,8 @@ const props = defineProps<{
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
-                <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
-                <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
+                <th class="py-[12px] px-2 w-32 text-start font-[100]">ค่าเดินทาง</th>
+                <th class="py-[12px] px-2 w-32 text-end ">200.00</th>
                 <th class="py-[12px] px-2 w-28 text-center text-green-500">อนุมัติแล้ว</th>
                 <th class="py-[10px] px-2 w-20 text-center ">
                     <span class="flex justify-center">
@@ -449,26 +449,26 @@ const props = defineProps<{
     <table class="table-auto w-full text-center text-black">
         <thead v-if="table === 'Table9-head'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
-                <th class="py-3 px-2 text-start font-bold">ชื่อ-นามสกุล</th>
+                <th class="py-3 px-2 w-12 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-1/4 font-bold">ชื่อ-นามสกุล</th>
                 <th class="py-3 px-2 text-start w-44 font-bold">รายการเบิก</th>
                 <th class="py-3 px-2 text-start w-44 font-bold">โครงการ</th>
-                <th class="py-3 px-5 text-start w-44 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-3 px-2 text-start w-32 font-bold">วันที่ขอเบิก</th>
-                <th class="py-3 px-2 text-end w-40 font-bold">จำนวนเงิน (บาท)</th>
+                <th class="py-3 px-2 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-end w-32 font-bold">จำนวนเงิน (บาท)</th>
                 <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
         <!-- Table 9 new รายการเบิก และ ประวัติการเบิก -->
         <thead v-if="table === 'Table9-head-New'" class="bg-[#F2F4F8]">
             <tr class="text-[16px] border-b-2 border-[#BBBBBB] ">
-                <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
-                <th class="py-3 px-2 text-start w-48 font-bold">รายการเบิก</th>
-                <th class="py-3 px-2 text-start w-48 font-bold">โครงการ</th>
-                <th class="py-3 px-5 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
-                <th class="py-3 px-2 text-start w-32 font-bold">วันที่ขอเบิก</th>
-                <th class="py-3 px-5 text-end w-32 font-bold">จำนวนเงิน (บาท)</th>
-                <th class="py-3 px-2 text-start w-20 font-bold">สถานะ</th>
+                <th class="py-3 px-2 w-12 font-bold">ลำดับ</th>
+                <th class="py-3 px-2 text-start w-1/4 font-bold">รายการเบิก</th>
+                <th class="py-3 px-2 text-start font-bold">โครงการ</th>
+                <th class="py-3 px-2 text-start w-32 font-bold">ประเภทค่าใช้จ่าย</th>
+                <th class="py-3 px-2 text-start w-24 font-bold">วันที่ขอเบิก</th>
+                <th class="py-3 px-2 text-end w-32 font-bold">จำนวนเงิน (บาท)</th>
+                <th class="py-3 px-2 text-start w-28 font-bold">สถานะ</th>
                 <th class="py-3 px-2 text-center w-20 font-bold">จัดการ</th>
             </tr>
         </thead>
@@ -492,9 +492,9 @@ const props = defineProps<{
                     title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
                     กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant
                 </th>
-                <th class="py-[12px] px-5 w-32 text-start font-[100]">ค่าเดินทาง</th>
+                <th class="py-[12px] px-2 w-32 text-start font-[100]">ค่าเดินทาง</th>
                 <th class="py-[12px] px-2 w-20 text-end ">08/10/2567</th>
-                <th class="py-[12px] px-5 w-32 text-end ">200.00</th>
+                <th class="py-[12px] px-2 w-32 text-end ">200.00</th>
                 <th class="py-[10px] px-2 w-20 text-center ">
                     <span class="flex justify-center">
                         <Icon :icon="'viewDetails'" />
@@ -527,9 +527,9 @@ const props = defineProps<{
                 <th class="py-3 px-2 w-14 font-bold">ลำดับ</th>
                 <th class="py-3 px-2 text-cener w-32 font-bold">รหัสพนักงาน</th>
                 <th class="py-3 px-2 text-start w-52 font-bold">ชื่อ-นามสกุล</th>
-                <th class="py-3 px-5 text-start w-36 font-bold">แผนก</th>
+                <th class="py-3 px-2 text-start w-36 font-bold">แผนก</th>
                 <th class="py-3 px-2 text-start w-40 font-bold">ฝ่าย</th>
-                <th class="py-3 px-5 text-start w-32 font-bold">บทบาท</th>
+                <th class="py-3 px-2 text-start w-32 font-bold">บทบาท</th>
                 <th class="py-3 px-2 text-start w-28 font-bold">สถานะ</th>
                 <th class="py-3 px-2 text-center w-24 font-bold">จัดการ</th>
             </tr>
@@ -549,9 +549,9 @@ const props = defineProps<{
                     title="นายเทียนชัย คูเมือง">
                     นายเทียนชัย คูเมือง
                 </th>
-                <th class="py-[12px] px-5 w-36 text-start ">การตลาด</th>
+                <th class="py-[12px] px-2 w-36 text-start ">การตลาด</th>
                 <th class="py-[12px] px-2 w-40 text-start ">การตลาด</th>
-                <th class="py-[12px] px-5 w-32 text-start ">ผู้ใช้งาน</th>
+                <th class="py-[12px] px-2 w-32 text-start ">ผู้ใช้งาน</th>
                 <th class="py-[12px] px-2 w-28 text-start">อยู่ในระบบ</th>
                 <th class="py-[10px] px-2 w-24 text-center ">
                     <span class="flex justify-center">
