@@ -20,7 +20,6 @@ import UserSetting from '../pages/Admin/UserSetting.vue';
 import DetailUserSetting from '../pages/Admin/DetailUserSetting.vue';
 import DisbursementApprover from '../pages/Admin/DisbursementApprover.vue';
 import ExpenseManage from '../pages/Admin/ExpenseManage.vue';
-import TravelManage from '../pages/Admin/TravelManage.vue';
 import PaymentList from '../pages/Accountant/PaymentList.vue';
 import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
 import ApprovalList from '../pages/User/ApprovalList.vue';
@@ -348,36 +347,7 @@ const router = createRouter({
         parent: 'systemSettingsDisbursementTypeExpense'
       }
     },
-    //จัดการประเภทการเดินทาง
-    {
-      path: '/systemSettings/disbursementType/vehicle',
-      name: 'systemSettingsDisbursementTypeVehicle',
-      component: TravelManage,
-      meta: {
-        breadcrumb: 'จัดการประเภทการเดินทาง',
-        parent: 'systemSettingsDisbursementType'
-      }
-    },
-    //เพิ่มประเภทรถสาธารณะ
-    {
-      path: '/systemSettings/disbursementType/vehicle/addPublic',
-      name: 'systemSettingsDisbursementTypeVehicleAddPublic',
-      component: TravelManage,
-      meta: {
-        breadcrumb: 'เพิ่มประเภทรถสาธารณะ',
-        parent: 'systemSettingsDisbursementTypeVehicle'
-      }
-    },
-    //เพิ่มประเภทรถส่วนตัว
-    {
-      path: '/systemSettings/disbursementType/vehicle/addPrivate',
-      name: 'systemSettingsDisbursementTypeVehicleAddPrivate',
-      component: TravelManage,
-      meta: {
-        breadcrumb: 'เพิ่มประเภทรถส่วนตัว',
-        parent: 'systemSettingsDisbursementTypeVehicle'
-      }
-    },
+    
     //นักบัญชี
     //การนำจ่าย
     {
