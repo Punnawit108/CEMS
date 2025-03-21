@@ -120,11 +120,11 @@ export interface ExpenseReportGraph {
 //ข้อมูลแสดงผลของตาราง expense
 export interface ExpenseReportList {
     rqId: number;
-    rqName: number;
+    rqName: string;
     rqUsrName: string;
     rqPjName: string;
     rqRqtName: string;
-    rqPayDate: String;
+    rqWithDrawDate: String;
     rqExpenses: number;
     // rqSumExpenses: number;
 }
