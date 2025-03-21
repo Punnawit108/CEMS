@@ -23,7 +23,6 @@ import { useRouter } from "vue-router";
 
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
-const columnNumber = ref(6);
 const totalPages = computed(() => {
   return Math.ceil(filteredExpenses.value.length / itemsPerPage.value);
 });
@@ -84,7 +83,7 @@ Chart.register(
 const router = useRouter();
 
 const toDetails = (id: string) => {
-  router.push(`/disbursement/listWithdraw/detail/${id}`);
+  router.push(`/report/expense/detail/${id}`);
 };
 
 // ตัวแปรแสดง/ซ่อน Modal
@@ -245,33 +244,33 @@ const filteredExpenses = computed(() => {
     let matchesStartDate = true;
     let matchesEndDate = true;
 
-    if (lastSearchedFilters.value.startDate && item.rqPayDate) {
+    if (lastSearchedFilters.value.startDate && item.rqWithDrawDate) {
       // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
       const startDateStr = formatToBuddhistYYYYMMDD(
         lastSearchedFilters.value.startDate
       );
 
       // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
-      matchesStartDate = item.rqPayDate >= startDateStr;
+      matchesStartDate = item.rqWithDrawDate >= startDateStr;
 
       // Debug
       console.log(
-        `เปรียบเทียบ "${item.rqPayDate}" >= "${startDateStr}" = ${matchesStartDate}`
+        `เปรียบเทียบ "${item.rqWithDrawDate}" >= "${startDateStr}" = ${matchesStartDate}`
       );
     }
 
-    if (lastSearchedFilters.value.endDate && item.rqPayDate) {
+    if (lastSearchedFilters.value.endDate && item.rqWithDrawDate) {
       // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
       const endDateStr = formatToBuddhistYYYYMMDD(
         lastSearchedFilters.value.endDate
       );
 
       // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
-      matchesEndDate = item.rqPayDate <= endDateStr;
+      matchesEndDate = item.rqWithDrawDate <= endDateStr;
 
       // Debug
       console.log(
-        `เปรียบเทียบ "${item.rqPayDate}" <= "${endDateStr}" = ${matchesEndDate}`
+        `เปรียบเทียบ "${item.rqWithDrawDate}" <= "${endDateStr}" = ${matchesEndDate}`
       );
     }
 
@@ -398,13 +397,13 @@ const cancelEndDate = () => {
   }
 };
 
-const handleExport = (type: string) => {
-  selectedType.value = type; // อัปเดตประเภทที่เลือก
-};
+// const handleExport = (type: string) => {
+//   selectedType.value = type; // อัปเดตประเภทที่เลือก
+// };
+
+const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
 
 const exportFile = async () => {
-  if (!selectedType.value) return;
-
   // กำหนดค่าฟิลเตอร์ที่จะส่งไป
   const filters = {
     searchQuery: lastSearchedFilters.value.searchQuery,
@@ -416,15 +415,17 @@ const exportFile = async () => {
 
   try {
     // ส่งฟิลเตอร์ไปยัง store
-    await exportReportStore.exportFile(selectedType.value, filters);
-
-    selectedType.value = null;
+    await exportReportStore.exportFile('xlsx', filters);
     showModal.value = false;
+    isAlertPrintOpen.value = true;
+    setTimeout(() => {
+      isAlertPrintOpen.value = false; // ปิด popup หลังจาก 3 วินาที
+    }, 1500);
   } catch (error) {
     console.error("Error exporting file:", error);
     if (selectedType.value) {
       alert(
-        `เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`
+        `เกิดข้อผิดพลาดในการส่งออกไฟล์`
       );
     }
   }
@@ -589,20 +590,12 @@ onMounted(async () => {
     console.error("Canvas element for bar chart not found");
   }
 });
-
-const formatDate = (dateStr: string): string => {
-  if (!dateStr) return "";
-  // สมมติว่า dateStr อยู่ในรูปแบบ "YYYY-MM-DD"
-  const [year, month, day] = dateStr.split("-");
-  const buddhistYear = Number(year) + 543;
-  return `${day}/${month}/${buddhistYear}`;
-};
 </script>
 
 <template>
   <div>
     <!-- begin::Filter -->
-    <div class="relative w-full mb-6">
+    <div class="relative w-full pb-[66px]">
       <Button :type="'btn-print2'" @click="showModal = true"
         class="absolute right-0 transform -translate-y-1/2 top-1/2">
         ส่งออก
@@ -638,37 +631,43 @@ const formatDate = (dateStr: string): string => {
         <p class="mb-10 font-bold text-center text-black">
           ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
         </p>
+        <div v-if="loading" class="flex justify-center items-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <span class="ml-2">กำลังโหลดข้อมูล...</span>
+        </div>
         <div class="w-3/4 h-full">
-          <canvas id="barChart"></canvas>
+          <canvas id="barChart" v-show="!loading"></canvas>
         </div>
       </div>
       <!-- end::Bar chart -->
       <!-- begin::Table -->
-      <div class="w-full h-fit border-[2px] flex flex-col items-start border-grayNormal">
+      <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
         <!-- Table Header -->
         <Ctable :table="'Table7-head'" />
         <!-- Table Data -->
         <table class="w-full text-center text-black table-auto">
           <tbody>
             <tr v-if="loading">
-              <td colspan="8" class="py-4">
+              <td colspan="100%" class="py-4">
                 <div class="flex justify-center items-center">
                   <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <span class="ml-2">กำลังโหลดข้อมูล...</span>
                 </div>
               </td>
             </tr>
-            <tr v-else-if="!expenses?.length">
-              <td colspan="8" class="py-4">ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย</td>
-            </tr>
-            <tr v-else-if="filteredExpenses.length === 0">
-              <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
+            <tr v-else-if="!expenses?.length || filteredExpenses.length === 0" v-for="n in 10" :key="n"
+              class="h-[50px]">
+              <td colspan="100%" class="py-4 text-center">
+                <span v-if="n === 5">
+                  {{ !expenses?.length ? 'ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย' : 'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา' }}
+                </span>
+              </td>
             </tr>
             <tr v-else v-for="(expense, index) in paginated" :key="expense ? expense.rqId : `empty-${index}`"
-              :class="expense ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+              :class="expense ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
               <template v-if="expense">
-                <th class="py-3 px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                <th class="py-3 px-2 text-start truncate overflow-hidden"
+                <th class="py-3 px-2 w-12 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                <th class="py-3 px-2 text-start w-1/4 truncate overflow-hidden"
                   style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expense.rqUsrName">
                   {{ expense.rqUsrName }}
@@ -683,13 +682,13 @@ const formatDate = (dateStr: string): string => {
                   :title="expense.rqPjName">
                   {{ expense.rqPjName }}
                 </th>
-                <th class="py-3 px-5 text-start w-44">
+                <th class="py-3 px-5 text-start w-32">
                   {{ expense.rqRqtName }}
                 </th>
-                <th class="py-3 px-2 text-start w-32">
-                  {{ expense.rqPayDate }}
+                <th class="py-3 px-2 text-start w-24">
+                  {{ expense.rqWithDrawDate }}
                 </th>
-                <th class="py-3 px-2 text-end w-40">
+                <th class="py-3 px-2 text-end w-32">
                   {{
                   new Decimal(expense.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
                   minimumFractionDigits: 2,
@@ -705,7 +704,7 @@ const formatDate = (dateStr: string): string => {
                 </th>
               </template>
               <template v-else>
-                <td class="py-3">&nbsp;</td>
+                <td class="">&nbsp;</td>
               </template>
             </tr>
           </tbody>
@@ -717,42 +716,50 @@ const formatDate = (dateStr: string): string => {
     <!-- end::Content -->
 
     <!-- Modal for export -->
-    <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50">
-      <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
-        <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-        <div>
-          <div class="flex justify-center space-x-6">
-            <!-- ปุ่ม PDF -->
-            <button @click="handleExport('pdf')"
-              :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mr-2">
-                <path
-                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
-              </svg>
-            </button>
-            <!-- ปุ่ม XLSX -->
-            <button @click="handleExport('xlsx')"
-              :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mr-2">
-                <path
-                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
-              </svg>
-            </button>
-          </div>
-          <div class="flex justify-center mb-6 space-x-20">
-            <span class="mt-2 text-sm text-gray-600">PDF</span>
-            <span class="mt-2 text-sm text-gray-600">XLSX</span>
-          </div>
-          <div class="flex justify-center space-x-4">
-            <button @click="showModal = false" class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
-              ยกเลิก
-            </button>
-            <button @click="exportFile" :disabled="!selectedType"
-              class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
-              ยืนยัน
-            </button>
-          </div>
+    <!-- Popup สำหรับยืนยันการส่งออกรายงานเบิกค่าใช้จ่าย -->
+    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
         </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยืนยันส่งออกรายงานเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยืนยันส่งออกรายงานเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="showModal = false"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+
+          <button @click="exportFile"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup สำหรับแสดงผลลัพธ์ -->
+    <div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg flex flex-col justify-center items-center">
+        <div class="mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <path
+              d="M40 0C17.9433 0 0 17.9433 0 40C0 62.0567 17.9433 80 40 80C62.0567 80 80 62.0567 80 40C80 17.9433 62.0567 0 40 0ZM39.6967 51.3967C38.4067 52.6867 36.71 53.33 35.0067 53.33C33.3033 53.33 31.59 52.68 30.2867 51.38L21.0133 42.3933L25.6567 37.6033L34.9667 46.6267L54.33 27.6233L59.01 32.3733L39.6967 51.3967Z"
+              fill="#12B669" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black" style="white-space: pre-line;">
+          ส่งออกรายงานเบิกค่าใช้จ่ายสำเร็จ
+        </h2>
       </div>
     </div>
   </div>

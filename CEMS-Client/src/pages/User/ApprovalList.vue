@@ -349,45 +349,47 @@ const toDetails = async (data: Expense) => {
         </div>
 
         <!-- ตาราง -->
-        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-4 border-grayNormal">
+        <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
             <Ctable :table="'Table2-head'" />
-            <table class="table-auto w-full text-center text-black">
+            <table class="w-full text-center text-black table-auto">
                 <tbody>
                     <tr v-if="loading">
-                        <td colspan="8" class="py-4">
+                        <td colspan="100%" class="py-4">
                             <div class="flex justify-center items-center">
                                 <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
                                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
                             </div>
                         </td>
                     </tr>
-
-                    <tr v-else-if="!approvalList?.length">
-                        <td colspan="8" class="py-4">ไม่มีข้อมูลรายการอนุมัติ</td>
-                    </tr>
-
-                    <tr v-else-if="filteredApprovals.length === 0">
-                        <td colspan="8" class="py-4">ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา</td>
+                    <tr v-else-if="!approvalList?.length || filteredApprovals.length === 0" v-for="n in 10" :key="n"
+                        class="h-[50px]">
+                        <td colspan="100%" class="py-4 text-center">
+                            <span v-if="n === 5">
+                                {{ !approvalList?.length ? 'ไม่มีข้อมูลรายการอนุมัติ' :
+                                'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา' }}
+                            </span>
+                        </td>
                     </tr>
 
                     <tr v-else v-for="(item, index) in paginated" :key="item ? item.rqId : `empty-${index}`"
-                        :class="item ? 'text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : ''">
+                        :class="item ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
                         <template v-if="item">
-                            <th class="py-[11px] px-2 w-14 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                            <th class="py-[11px] px-2 text-start truncate overflow-hidden"
+                            <th class="py-3 px-2 w-12">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
+                            </th>
+                            <th class="py-3 px-2 w-1/4 text-start truncate overflow-hidden"
                                 style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.usrName">
                                 {{ item.usrName }}
                             </th>
-                            <th class="py-[11px] px-6 text-start w-40 truncate overflow-hidden"
+                            <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
                                 style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.rqName">
                                 {{ item.rqName }}
                             </th>
-                            <th class="py-3 px-6 text-start w-44">{{ item.pjName }}</th>
-                            <th class="py-3 px-5 text-start w-44">{{ item.rqtName }}</th>
-                            <th class="py-3 px-2 text-start w-32">{{ item.rqWithdrawDate }}</th>
-                            <th class="py-3 px-2 text-end w-40">
+                            <th class="py-3 px-2 text-start w-44">{{ item.pjName }}</th>
+                            <th class="py-3 px-2 text-start w-32">{{ item.rqtName }}</th>
+                            <th class="py-3 px-2 text-start w-24">{{ item.rqWithdrawDate }}</th>
+                            <th class="py-3 px-2 text-end w-36">
                                 {{ new Decimal(item.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
                                 minimumFractionDigits: 2,
                                 maximumFractionDigits: 2,
