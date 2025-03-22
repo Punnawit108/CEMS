@@ -715,7 +715,7 @@ const confirmDeleteExpense = async () => {
           <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">{{ item.payRate.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-            }) }}</p>
+          }) }}</p>
         </div>
 
         <!-- ปุ่มจัดการ -->
@@ -960,15 +960,15 @@ const confirmDeleteExpense = async () => {
   <div v-if="isPopupConfirmAddExpenseOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-4">
-        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+      <div class="flex justify-center mb-2">
+        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
             clip-rule="evenodd" />
         </svg>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mb-4">
+      <h2 class="text-[24px] font-bold text-center text-black mb-2">
         ยืนยันการเพิ่มข้อมูลประเภทค่าใช้จ่าย
       </h2>
       <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
@@ -990,7 +990,7 @@ const confirmDeleteExpense = async () => {
   <div v-if="isAddExpenseAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
@@ -1010,13 +1010,13 @@ const confirmDeleteExpense = async () => {
       <h2 class="text-[24px] font-bold text-center text-black mb-3">
         เพิ่มประเภทค่าเดินทางส่วนตัว
       </h2>
-      <div class="w-full my-3 flex justify-center">
+      <div class="w-full mb-3 flex justify-center">
         <form>
           <label for="rqName" class="block text-sm font-medium mb-1 items-end" :class="[
             isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
               ? 'text-redNormal '
               : 'border-[#d9d9d9]',
-          ]">ประเภทค่าเดินทางส่วนตัว<span class="text-red-500">*</span></label>
+          ]">ประเภทค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
           <div class="relative mb-3">
             <form>
               <div class="relative">
@@ -1033,7 +1033,7 @@ const confirmDeleteExpense = async () => {
             isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
               ? 'text-redNormal '
               : 'border-[#d9d9d9]',
-          ]">อัตราค่าเดินทางส่วนตัว<span class="text-red-500">*</span></label>
+          ]">อัตราค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
           <div class="relative">
             <input type="text" required v-model="formData.vhPayrate" placeholder="กรอกอัตราค่าเดินทาง" :class="[
               'w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none',
@@ -1049,7 +1049,7 @@ const confirmDeleteExpense = async () => {
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยกเลิก
         </button>
-        <button @click="openPopupConfirmAddPrivatecar"
+        <button @click="confirmAddPrivatecar"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
         </button>
@@ -1057,11 +1057,11 @@ const confirmDeleteExpense = async () => {
     </div>
   </div>
   <!-- Popup เพิ่ม2 ยืนยัน + ประเภทรถส่วนตัว -->
-  <div v-if="isPopupConfirmAddPrivatecarOpen"
+  <!-- <div v-if="isPopupConfirmAddPrivatecarOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-4">
-        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+      <div class="flex justify-center mb-2">
+        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -1085,13 +1085,13 @@ const confirmDeleteExpense = async () => {
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
   <!-- Alert เพิ่ม3 + ประเภทรถส่วนตัว -->
   <div v-if="isAddPrivatecarAlertOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
@@ -1144,8 +1144,8 @@ const confirmDeleteExpense = async () => {
   <div v-if="isPopupConfirmAddPublictravelOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-4">
-        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+      <div class="flex justify-center mb-2">
+        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -1175,7 +1175,7 @@ const confirmDeleteExpense = async () => {
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
@@ -1191,15 +1191,15 @@ const confirmDeleteExpense = async () => {
   <!-- Popup ลบ1 ประเภทค่าเดินทาง-->
   <div v-if="isPopupDeleteOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-4">
-        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+      <div class="flex justify-center mb-2">
+        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
             clip-rule="evenodd" />
         </svg>
       </div>
-      <h2 class="text-[24px] font-bold text-center text-black mb-4">
+      <h2 class="text-[24px] font-bold text-center text-black mb-2">
         ยืนยันการลบประเภทค่าเดินทาง
       </h2>
       <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
@@ -1223,7 +1223,7 @@ const confirmDeleteExpense = async () => {
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
@@ -1272,7 +1272,7 @@ const confirmDeleteExpense = async () => {
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
@@ -1324,8 +1324,8 @@ const confirmDeleteExpense = async () => {
   <div v-if="isPopupConfirmEditExpenseOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-4">
-        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+      <div class="flex justify-center mb-2">
+        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -1354,7 +1354,7 @@ const confirmDeleteExpense = async () => {
   <div v-if="isEditExpenseAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
@@ -1371,31 +1371,42 @@ const confirmDeleteExpense = async () => {
   <div v-if="isPopupEditPrivatecarOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <h2 class="text-[16px] font-bold text-center text-black mb-3">
-        แก้ไขข้อมูลประเภทค่าเดินทางส่วนตัว
+      <h2 class="text-[24px] font-bold text-center text-black mb-3">
+        แก้ไขประเภทค่าเดินทางส่วนตัว
       </h2>
-      <div class="w-full my-3 flex justify-center">
+      <div class="w-full mb-3 flex justify-center">
         <form>
-          <div class="relative mb-6">
-            <input type="text" required placeholder="ข้อมูลประเภทค่าเดินทางส่วนตัวใหม่"
+          <div class="relative mb-3">
+            <label for="rqName" class="block text-sm font-medium mb-1 items-end" :class="[
+              isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
+                ? 'text-redNormal '
+                : 'border-[#d9d9d9]',
+            ]">ประเภทค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
+            <input type="text" required placeholder="กรอกข้อมูลประเภทค่าเดินทางส่วนตัว"
               v-model="formVehiclePrivateEdit.vhVehicle"
               class="w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none"
               :class="formVehiclePrivateEdit.vhVehicle.trim() === '' ? 'border-red-500' : 'border-[#d9d9d9]'" />
           </div>
           <div class="relative">
-            <input type="text" required placeholder="อัตราประเภทค่าเดินทางส่วนตัวใหม่"
+            <label for="rqName" class="block text-sm font-medium mb-1 items-end" :class="[
+              isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
+                ? 'text-redNormal '
+                : 'border-[#d9d9d9]',
+            ]">อัตราค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
+
+            <input type="text" required placeholder="กรอกอัตราประเภทค่าเดินทางส่วนตัว"
               v-model="formVehiclePrivateEdit.vhPayrate"
               class="w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none"
               :class="String(formVehiclePrivateEdit.vhPayrate).trim() === '' ? 'border-red-500' : 'border-[#d9d9d9]'" />
           </div>
         </form>
       </div>
-      <div class="flex justify-center space-x-4 mt-3">
+      <div class="flex justify-center space-x-4 ">
         <button @click="closePopupEditPrivatecar"
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยกเลิก
         </button>
-        <button @click="openPopupConfirmEditPrivatecar"
+        <button @click="confirmEditPrivatecar"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
         </button>
@@ -1403,11 +1414,11 @@ const confirmDeleteExpense = async () => {
     </div>
   </div>
   <!-- Popup แก้ไข2 ยืนยัน + ประเภทรถส่วนตัว -->
-  <div v-if="isPopupConfirmEditPrivatecarOpen"
+  <!-- <div v-if="isPopupConfirmEditPrivatecarOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-4">
-        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+      <div class="flex justify-center mb-2">
+        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -1431,13 +1442,13 @@ const confirmDeleteExpense = async () => {
         </button>
       </div>
     </div>
-  </div>
+  </div> -->
   <!-- Alert แก้ไข3 + ประเภทรถส่วนตัว -->
   <div v-if="isEditPrivatecarAlertOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
@@ -1483,8 +1494,8 @@ const confirmDeleteExpense = async () => {
   <div v-if="isPopupConfirmEditPubliccarOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-4">
-        <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+      <div class="flex justify-center mb-2">
+        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -1514,7 +1525,7 @@ const confirmDeleteExpense = async () => {
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
       <div class="flex justify-center">
-        <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+        <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
           <path fill-rule="evenodd"
             d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
