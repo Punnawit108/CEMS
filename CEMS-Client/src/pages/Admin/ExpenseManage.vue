@@ -708,7 +708,10 @@ const confirmDeleteExpense = async () => {
 
         <!-- อัตราค่าเดินทาง -->
         <div class="w-[30%] flex justify-end px-3">
-          <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">{{ item.payRate }}</p>
+          <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">{{ item.payRate.toLocaleString("en-US", {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2,
+          }) }}</p>
         </div>
 
         <!-- ปุ่มจัดการ -->
