@@ -1060,7 +1060,7 @@ const confirmDeleteExpense = async () => {
       </h2>
       <label
         for="rqName"
-        class="block text-sm font-medium ml-[58px] mb-1 items-end"
+        class="block text-[14px] text-sm font-medium ml-[58px] mb-2 items-end"
         :class="[
           isFormSubmitted && formRequisitiontype.rqtName.trim() === ''
             ? 'text-redNormal '
@@ -1089,7 +1089,7 @@ const confirmDeleteExpense = async () => {
           </form>
         </div>
       </div>
-      <div class="flex justify-center space-x-4 mt-3">
+      <div class="flex justify-center space-x-4 mt-4">
         <button
           @click="closePopupAddExpense"
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
@@ -1644,10 +1644,10 @@ const confirmDeleteExpense = async () => {
     <div
       class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
     >
-      <h2 class="text-[24px] font-bold text-center text-black mb-3">
+      <h2 class="text-[24px] font-bold text-center text-black ">
         แก้ไขข้อมูลประเภทค่าใช้จ่าย
       </h2>
-      <div class="w-full mt-3 flex justify-center">
+      <div class="w-full mt-4 flex justify-center">
         <form>
           <div class="relative ">
             <input
@@ -1660,7 +1660,7 @@ const confirmDeleteExpense = async () => {
           </div>
         </form>
       </div>
-      <div class="flex justify-center space-x-4 mt-3">
+      <div class="flex justify-center space-x-4 mt-4">
         <!-- here -->
         <button
           @click="closePopupUpdateExpense"
@@ -1685,9 +1685,9 @@ const confirmDeleteExpense = async () => {
     <div
       class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
     >
-      <div class="flex justify-center mb-4">
+      <div class="flex justify-center mb-3">
         <svg
-          :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`"
+          :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="20"
@@ -1734,7 +1734,7 @@ const confirmDeleteExpense = async () => {
     >
       <div class="flex justify-center">
         <svg
-          :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`"
+          :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`"
           aria-hidden="true"
           xmlns="http://www.w3.org/2000/svg"
           width="24"
