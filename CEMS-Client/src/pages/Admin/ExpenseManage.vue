@@ -927,7 +927,7 @@ const confirmDeleteExpense = async () => {
         isFormSubmitted && formRequisitiontype.rqtName.trim() === ''
           ? 'text-redNormal '
           : 'border-[#d9d9d9]',
-      ]">ประเภทค่าใช้จ่าย<span class="text-red-500">*</span></label>
+      ]">ประเภทค่าใช้จ่าย <span class="text-red-500">*</span></label>
       <div class="w-full flex justify-center">
         <!-- ฟอร์ม -->
         <div>
@@ -1292,7 +1292,12 @@ const confirmDeleteExpense = async () => {
       <h2 class="text-[24px] font-bold text-center text-black mb-3">
         แก้ไขข้อมูลประเภทค่าใช้จ่าย
       </h2>
-      <div class="w-full mt-4 flex justify-center">
+      <label for="rqName" class="block text-sm font-medium ml-[58px] mb-1 items-end" :class="[
+        isFormSubmitted && formRequisitiontype.rqtName.trim() === ''
+          ? 'text-redNormal '
+          : 'border-[#d9d9d9]',
+      ]">ประเภทค่าใช้จ่าย <span class="text-red-500">*</span></label>
+      <div class="w-full flex justify-center">
         <form>
           <div class="relative ">
             <input type="text" required placeholder="กรอกข้อมูลประเภทค่าใช้จ่าย"
