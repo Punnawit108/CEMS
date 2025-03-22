@@ -16,8 +16,8 @@ import { useCheckExpenseStore } from '../../store/checkExpense';
 import { useLockStore } from '../../store/lockSystem';
 
 // Import filters
-import UserSearchInput from '../../components/filters/UserSearchInput.vue'
-import FilterButtons from '../../components/filters/FilterButtons.vue'
+import FilterButtons from '../../components/Filter/FilterButtons.vue'
+import UserSearchInput from '../../components/Filter/UserSearchInput.vue';
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
