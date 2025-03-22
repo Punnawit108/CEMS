@@ -376,13 +376,13 @@ const toDetails = async (data: Expense) => {
                         <template v-if="item">
                             <th class="py-3 px-2 w-12">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
                             </th>
-                            <th class="py-3 px-2 w-1/4 text-start truncate overflow-hidden"
-                                style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            <th class="py-3 px-2 w-1/4 text-start "
+                                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.usrName">
                                 {{ item.usrName }}
                             </th>
-                            <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
-                                style="max-width: 196px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                            <th class="py-3 px-2 text-start w-44 "
+                                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                                 :title="item.rqName">
                                 {{ item.rqName }}
                             </th>

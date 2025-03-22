@@ -9,7 +9,6 @@ import { ref, computed, onMounted } from 'vue';
 import { useNotificationStore } from '../../store/notification';
 import CardNotification from '../../components/CardNotification.vue';
 import Pagination from '../../components/Pagination.vue'; // นำเข้า Pagination component
-import Icon from '../../components/Icon/CIcon.vue';
 
 let filterNotification = ref("All");
 const notificationStore = useNotificationStore();

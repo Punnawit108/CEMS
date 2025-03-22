@@ -667,18 +667,18 @@ onMounted(async () => {
               :class="expense ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
               <template v-if="expense">
                 <th class="py-3 px-2 w-12 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                <th class="py-3 px-2 text-start w-1/4 truncate overflow-hidden"
-                  style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                <th class="py-3 px-2 text-start w-1/4 "
+                  style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expense.rqUsrName">
                   {{ expense.rqUsrName }}
                 </th>
-                <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
-                  style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                <th class="py-3 px-2 text-start w-44 "
+                  style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expense.rqName">
                   {{ expense.rqName }}
                 </th>
-                <th class="py-3 px-2 text-start w-44 truncate overflow-hidden"
-                  style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                <th class="py-3 px-2 text-start w-44 "
+                  style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                   :title="expense.rqPjName">
                   {{ expense.rqPjName }}
                 </th>
