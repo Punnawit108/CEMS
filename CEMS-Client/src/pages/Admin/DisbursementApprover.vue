@@ -167,6 +167,9 @@ const cancelmAdd = async () => {
 };
 
 const confirmAdd = async () => {
+  if (!isAddValid.value) {
+    return;
+  }
   // ปิด modal ทันทีเมื่อกดยืนยัน
   closePopupAdd();
   try {
@@ -192,6 +195,9 @@ const cancelEdit = async () => {
 
 
 const confirmEdit = async () => {
+  if (!isEditValid.value) {
+    return;
+  }
   // ปิด modal ทันทีเมื่อกดยืนยัน
   closePopupEdit();
 
@@ -329,6 +335,14 @@ watch(
     }
   }
 );
+
+const isAddValid = computed(() => {
+  return selectUserId.value.trim() !== "";
+});
+
+const isEditValid = computed(() => {
+  return approverSequence.apId !== 0 && approverSequence.apSequence !== 0;
+});
 </script>
 
 <template>
