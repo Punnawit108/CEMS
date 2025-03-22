@@ -451,7 +451,7 @@ const toDetails = (id: string) => {
                             </th>
                         </template>
                         <template v-else>
-                            <td class="py-3">&nbsp;</td>
+                            <td>&nbsp;</td>
                         </template>
                     </tr>
                 </tbody>

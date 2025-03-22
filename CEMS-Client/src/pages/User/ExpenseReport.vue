@@ -704,7 +704,7 @@ onMounted(async () => {
                 </th>
               </template>
               <template v-else>
-                <td class="">&nbsp;</td>
+                <td>&nbsp;</td>
               </template>
             </tr>
           </tbody>
