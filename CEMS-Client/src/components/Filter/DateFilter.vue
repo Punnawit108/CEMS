@@ -7,6 +7,7 @@ interface Props {
   label: string // ชื่อ label (วันที่เริ่มต้น/วันที่สิ้นสุด)
   isOpen: boolean // สถานะการเปิด/ปิด datepicker
   confirmedDate?: Date // วันที่ที่ยืนยันแล้ว
+  minDate?: Date // วันที่ต่ำสุดที่สามารถเลือกได้
 }
 
 defineProps<Props>()
@@ -27,13 +28,14 @@ defineEmits<{
         <SingleDatePicker
           :model-value="modelValue"
           @update:model-value="$emit('update:modelValue', $event)"
-          placeholder="mm/dd/yyyy"
+          placeholder="dd/mm/yyyy"
           :disabled="loading"
           class="w-full"
           @confirm="$emit('confirm', $event)"
           @cancel="$emit('cancel')"
           :confirmedDate="confirmedDate"
           :isOpen="isOpen"
+          :min-date="minDate"
           @update:isOpen="$emit('update:isOpen', $event)"
         />
       </div>
