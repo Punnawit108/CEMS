@@ -335,9 +335,7 @@ onMounted(async () => {
               :class="project ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
               <template v-if="project">
                 <th class="px-2 py-3 w-12">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
-                <th class="w-auto px-2 py-3 overflow-hidden truncate text-start"
-                  style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                  title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
+                <th class="w-auto px-2 py-3 text-start" :title="project.pjName">
                   {{ project.pjName }}
                 </th>
                 <th class="py-3 px-2 w-60 text-end font-[100]">

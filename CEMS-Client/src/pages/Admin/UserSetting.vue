@@ -205,8 +205,8 @@ onMounted(async () => {
             <template v-if="user">
               <th class="py-3 px-2 w-12">{{ ((currentPage - 1) * itemsPerPage) + index + 1 }}</th>
               <th class="py-3 px-2 w-24">{{ user.usrEmployeeId }}</th>
-              <th class="py-3 px-2 x text-start truncate overflow-hidden"
-                style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+              <th class="py-3 px-2 x text-start "
+                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
                 :title="`${user.usrFirstName} ${user.usrLastName}`">
                 {{ user.usrFirstName }} {{ user.usrLastName }}
               </th>

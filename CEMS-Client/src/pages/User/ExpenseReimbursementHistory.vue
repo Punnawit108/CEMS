@@ -507,10 +507,12 @@ onMounted(async () => {
               <th class="py-3 px-2 w-12">
                 {{ index + 1 + (currentPage - 1) * itemsPerPage }}
               </th>
-              <th class="py-3 px-2 w-1/4 text-start truncate overflow-hidden" :title="expenseReimbursementItem.rqName">
+              <th class="py-3 px-2 w-1/4 text-start " :title="expenseReimbursementItem.rqName"
+                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                 {{ expenseReimbursementItem.rqName }}
               </th>
-              <th class="py-3 px-2 text-start truncate overflow-hidden" :title="expenseReimbursementItem.rqPjName">
+              <th class="py-3 px-2 text-start " :title="expenseReimbursementItem.rqPjName"
+                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                 {{ expenseReimbursementItem.rqPjName }}
               </th>
               <th class="py-3 px-2 w-32 text-start font-[100]">

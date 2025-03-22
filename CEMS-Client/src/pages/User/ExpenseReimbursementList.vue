@@ -489,12 +489,15 @@ onMounted(async () => {
               <th class="py-3 px-2 w-12">
                 {{ index + 1 + (currentPage - 1) * itemsPerPage }}
               </th>
-              <th class="py-3 px-2 w-1/4 text-start truncate overflow-hidden" :title="item.rqName">
+              <th class="py-3 px-2 w-1/4 text-start" :title="item.rqName"
+                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                 {{ item.rqName }}
               </th>
-              <th class="py-3 px-2 text-start truncate overflow-hidden" :title="item.rqPjName">
+              <th class=" py-3 px-2 text-start " :title="item.rqPjName"
+                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                 {{ item.rqPjName }}
               </th>
+
               <th class="py-3 px-2 w-32 text-start font-[100]">
                 {{ item.rqRqtName }}
               </th>
@@ -577,7 +580,7 @@ onMounted(async () => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black">
-           ระบบปิดรับรายเบิกค่าใช้จ่าย
+          ระบบปิดรับรายเบิกค่าใช้จ่าย
         </h2>
       </div>
     </div>

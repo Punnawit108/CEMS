@@ -424,16 +424,16 @@ const toDetails = (id: string) => {
                         <template v-if="paymentItem">
                             <th class="py-3 px-2 w-12 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}
                             </th>
-                            <th class="py-3 px-2 text-start w-1/4 truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                            <th class="py-3 px-2 text-start w-1/4 "
+                                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                                 {{ paymentItem.rqUsrName }}
                             </th>
-                            <th class="py-3 px-2 w-44 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                            <th class="py-3 px-2 w-44 text-start "
+                                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                                 {{ paymentItem.rqName }}
                             </th>
-                            <th class="py-3 px-2 w-44 text-start truncate overflow-hidden"
-                                style="max-width: 224px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
+                            <th class="py-3 px-2 w-44 text-start "
+                                style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;">
                                 {{ paymentItem.rqPjName }}
                             </th>
                             <th class="py-3 px-2 w-32 text-start ">{{ paymentItem.rqRqtName }}</th>
