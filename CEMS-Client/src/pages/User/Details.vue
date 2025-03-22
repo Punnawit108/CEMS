@@ -348,7 +348,7 @@ const previewFile = (file: string) => {
               class="!text-white px-4 py-[4px] rounded-[10px] text-xs font-thin ml-[15px]">{{
                 statusInfo.label }}</span>
           </h3>
-          <div class="flex flex-row pr-[36px] gap-4">
+          <div class="flex flex-row pr-[42px] gap-4">
             <RouterLink
               v-if="(expenseData.rqStatus === 'edit' || expenseData.rqStatus === 'sketch') && route.name === 'listWithdrawDetail'"
               :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
