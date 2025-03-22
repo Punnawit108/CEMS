@@ -1009,7 +1009,7 @@ const confirmDeleteExpense = async () => {
               : 'border-[#d9d9d9]',
           ]">อัตราค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
           <div class="relative">
-            <input type="text" required v-model="formData.vhPayrate" placeholder="กรอกอัตราค่าเดินทาง" :class="[
+            <input type="number" required v-model="formData.vhPayrate" placeholder="กรอกอัตราค่าเดินทาง" :class="[
               'w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none',
               isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
                 ? 'border-red-500'
@@ -1309,7 +1309,7 @@ const confirmDeleteExpense = async () => {
                 : 'border-[#d9d9d9]',
             ]">อัตราค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
 
-            <input type="text" required placeholder="กรอกอัตราประเภทค่าเดินทางส่วนตัว"
+            <input type="number" required placeholder="กรอกอัตราประเภทค่าเดินทางส่วนตัว"
               v-model="formVehiclePrivateEdit.vhPayrate"
               class="w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none"
               :class="String(formVehiclePrivateEdit.vhPayrate).trim() === '' ? 'border-red-500' : 'border-[#d9d9d9]'" />
