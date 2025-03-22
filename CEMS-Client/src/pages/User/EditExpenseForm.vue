@@ -394,7 +394,6 @@ const createFormData = (formData: createRequisition, selectedFiles: File[]): For
 //เมื่อกดปุ่มบันทึก
 const confirmSave = async (event: Event) => {
   event.preventDefault();
-  formData.value.rqStatus = "edit";
   formData.value.rqProgress = "accepting"
   await updateFormData()
   const filesOnly = selectedFiles.value.filter(item => item.fId === null).map(item => item.file);
