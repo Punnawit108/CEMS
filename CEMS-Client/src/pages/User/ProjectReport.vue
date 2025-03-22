@@ -137,7 +137,7 @@ const customYAxisTitle = {
 onMounted(async () => {
   loading.value = true;
   try {
-    await projectsStore.getProjectsActive();
+    await projectsStore.getAllProjects();
 
     // อัปเดตข้อมูลสำหรับตัวกรอง
     projectsStore.projects.forEach((item: ProjectReport) => {
