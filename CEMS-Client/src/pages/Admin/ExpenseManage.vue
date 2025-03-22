@@ -949,36 +949,6 @@ const confirmDeleteExpense = async () => {
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยกเลิก
         </button>
-        <button @click="openPopupConfirmAddExpense"
-          class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-          ยืนยัน
-        </button>
-      </div>
-    </div>
-  </div>
-  <!-- Popup เพิ่ม2 ยืนยัน + ประเภทค่าใช้จ่าย -->
-  <div v-if="isPopupConfirmAddExpenseOpen"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-2">
-        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-          <path fill-rule="evenodd"
-            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-            clip-rule="evenodd" />
-        </svg>
-      </div>
-      <h2 class="text-[24px] font-bold text-center text-black mb-2">
-        ยืนยันการเพิ่มข้อมูลประเภทค่าใช้จ่าย
-      </h2>
-      <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-        คุณยืนยันการเพิ่มข้อมูลประเภทค่าใช้จ่ายหรือไม่ ?
-      </h2>
-      <div class="flex justify-center space-x-4">
-        <button @click="closePopupConfirmAddExpense"
-          class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-          ยกเลิก
-        </button>
         <button @click="confirmAddExpense"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
@@ -986,6 +956,7 @@ const confirmDeleteExpense = async () => {
       </div>
     </div>
   </div>
+  
   <!-- Alert เพิ่ม3 + ประเภทค่าใช้จ่าย -->
   <div v-if="isAddExpenseAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
@@ -1313,36 +1284,6 @@ const confirmDeleteExpense = async () => {
           class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยกเลิก
         </button>
-        <button @click="openPopupConfirmEditExpense"
-          class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-          ยืนยัน
-        </button>
-      </div>
-    </div>
-  </div>
-  <!-- Popup แก้ไข2 ยืนยัน + ประเภทค่าใช้จ่าย -->
-  <div v-if="isPopupConfirmEditExpenseOpen"
-    class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-      <div class="flex justify-center mb-2">
-        <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-          xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-          <path fill-rule="evenodd"
-            d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-            clip-rule="evenodd" />
-        </svg>
-      </div>
-      <h2 class="text-[24px] font-bold text-center text-black mb-3">
-        ยืนยันการแก้ไขข้อมูลประเภทค่าใช้จ่าย
-      </h2>
-      <h2 class="text-[16px] text-center text-[#7E7E7E] mb-4">
-        คุณยืนยันการแก้ไขข้อมูลประเภทค่าใช้จ่ายหรือไม่ ?
-      </h2>
-      <div class="flex justify-center space-x-4">
-        <button @click="closePopupConfirmEditExpense"
-          class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-          ยกเลิก
-        </button>
         <button @click="confirmUpdateExpense"
           class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
           ยืนยัน
@@ -1350,6 +1291,7 @@ const confirmDeleteExpense = async () => {
       </div>
     </div>
   </div>
+  
   <!-- Alert แก้ไข3 + ประเภทค่าใช้จ่าย -->
   <div v-if="isEditExpenseAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
     <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
