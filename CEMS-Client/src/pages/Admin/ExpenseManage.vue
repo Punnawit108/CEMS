@@ -712,10 +712,12 @@ const confirmDeleteExpense = async () => {
 
         <!-- อัตราค่าเดินทาง -->
         <div class="w-[30%] flex justify-end px-3">
-          <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">{{ item.payRate.toLocaleString("en-US", {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2,
-          }) }}</p>
+          <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">
+            {{ item.payRate ? item.payRate.toLocaleString("en-US", {
+              minimumFractionDigits: 2,
+              maximumFractionDigits: 2
+            }) : '0.00' }}
+          </p>
         </div>
 
         <!-- ปุ่มจัดการ -->
@@ -1407,7 +1409,7 @@ const confirmDeleteExpense = async () => {
       </div>
     </div>
   </div>
-  
+
   <!-- Alert แก้ไข3 + ประเภทรถส่วนตัว -->
   <div v-if="isEditPubliccarAlertOpen"
     class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">

@@ -19,7 +19,7 @@ import { useRoute } from "vue-router";
 const requisitionStore = useRequisitionStore();
 const user = ref<any>(null);
 const vehicleType = ref<any>(null);
-const selectedTravelType = ref<string>('');
+const selectedTravelType = ref<string | null>("");
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const route = useRoute();
@@ -67,12 +67,14 @@ const parseDate = (dateStr: string): Date => {
   return new Date(year - 543, month - 1, day); // แปลง พ.ศ. เป็น ค.ศ.
 };
 
+const isMounted = ref(false);
+
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
-  vehicleType.value = await requisitionStore.getAllvehicleType();
+  vehicleType.value = await requisitionStore.getAllVehicleType();
   const storedUser = localStorage.getItem("user");
-
+  console.log(vehicleType)
   if (storedUser) {
     try {
       user.value = await JSON.parse(storedUser);
@@ -80,9 +82,19 @@ onMounted(async () => {
       const data = await requisitionStore.getExpenseById(id);
       if (data) {
         Object.assign(formData.value, data);
-        vhId.value = data.rqVhId;
+        vhId.value = data.rqVhId; //rqVhName : "รถเมย์"
+        const selectedType = requisitionStore.requisitionType.find(
+          (type) => type.rqtId === data.rqRqtId
+        );
+        rqtName.value = selectedType ? selectedType.rqtName : '';
 
-        selectedTravelType.value = data.vehicleType?.vhType || "";
+        const selectedVehicle = vehicleType.value.find(
+          (vehicle: TravelManage) => vehicle.vhVehicle === data.rqVhName
+        );
+        if (selectedVehicle) {
+          vhId.value = selectedVehicle.vhId;
+        }
+        selectedTravelType.value = data.rqVhType || "";
         rqCode.value = data.rqCode
         displayRqExpenses.value = data.rqExpenses ? parseFloat(data.rqExpenses).toFixed(2) : "";
         const user = requisitionStore.UserInstead.find((u) => u.usrName === data.rqInsteadEmail);
@@ -100,6 +112,7 @@ onMounted(async () => {
             fileName: file.fName,
           };
         });
+        isMounted.value = true;
       }
     } catch (error) {
       console.log("Error loading user:", error);
@@ -107,14 +120,20 @@ onMounted(async () => {
   }
 });
 
+const formatRqExpenses = () => {
+  if (displayRqExpenses.value !== "") {
+    displayRqExpenses.value = parseFloat(displayRqExpenses.value).toFixed(2);
+    formData.value.rqExpenses = Number(displayRqExpenses.value);
+  }
+};
+
 // กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 0
 const filteredVehicleType = computed(() => {
-  return vehicleType.value
-    ? vehicleType.value.filter((vehicle: TravelManage) =>
-      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 0
-    )
-    : [];
-})
+  if (!selectedTravelType.value) {
+    return vehicleType.value; // ถ้าไม่ได้เลือกประเภทการเดินทางให้แสดงทั้งหมด
+  }
+  return vehicleType.value.filter((vehicle: TravelManage) => vehicle.vhType === selectedTravelType.value);
+});
 
 // กรองประเภทการเดินทางที่ไม่ซ้ำ
 const uniqueTravelTypes = computed(() => {
@@ -134,13 +153,24 @@ function updateRqtName(event: Event) {
 
 //fn หา vhPayrate ของพาหนะที่ถูกเลือก
 const selectedPayrate = computed(() => {
+  if (!vehicleType.value || !vhId.value) {
+    return '';
+  }
+
   const selectedVehicle = vehicleType.value.find(
     (vehicle: any) => vehicle.vhId.toString() === vhId.value.toString()
   );
-
+  
   return selectedVehicle ? selectedVehicle.vhPayrate : '';
 });
 
+const calculateExpenses = () => {
+  if (formData.value.rqDistance && selectedPayrate.value) {
+    const expenses = Number(formData.value.rqDistance) * Number(selectedPayrate.value);
+    displayRqExpenses.value = expenses.toString();
+    formData.value.rqExpenses = expenses;
+  }
+};
 
 //fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
@@ -176,6 +206,14 @@ const removeFile = async (fIdToRemove: number | null, fileNameToRemove?: string)
   }
 };
 
+watch(rqtName, (newValue) => {
+  displayRqExpenses.value = "";
+  if (newValue !== 'ค่าเดินทาง') {
+    selectedTravelType.value = null;
+  } else {
+    selectedTravelType.value = 'public';
+  }
+});
 
 //fn ตัวตรวจสอบไฟล์
 const uploadFiles = async (files: File[]) => {
@@ -278,13 +316,6 @@ const closePopupSubmit = () => {
 };
 
 const displayRqExpenses = ref('');
-
-const formatRqExpenses = () => {
-  if (displayRqExpenses.value !== "") {
-    displayRqExpenses.value = parseFloat(displayRqExpenses.value).toFixed(2);
-    formData.value.rqExpenses = Number(displayRqExpenses.value);
-  }
-};
 
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
@@ -394,6 +425,7 @@ const createFormData = (formData: createRequisition, selectedFiles: File[]): For
 //เมื่อกดปุ่มบันทึก
 const confirmSave = async (event: Event) => {
   event.preventDefault();
+  formData.value.rqStatus = "sketch";
   formData.value.rqProgress = "accepting"
   await updateFormData()
   const filesOnly = selectedFiles.value.filter(item => item.fId === null).map(item => item.file);
@@ -619,7 +651,7 @@ const previewFile = (file: string | File) => {
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <label for="rqDistance" class="block text-sm font-medium py-2"
               :class="{ 'text-red-500': errors.rqDistance }">ระยะทาง <span class="text-red-500">*</span></label>
-            <input type="text" id="rqDistance" v-model="formData.rqDistance"
+            <input type="text" id="rqDistance" v-model="formData.rqDistance" @input="calculateExpenses"
               :class="['inputItem', { 'error': errors.rqDistance }]" />
           </div>
 
@@ -642,7 +674,7 @@ const previewFile = (file: string | File) => {
                   selectedTravelType === 'private',
               },
             ]" :disabled="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
-                " />
+              " />
           </div>
 
           <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->
