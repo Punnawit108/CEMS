@@ -18,11 +18,11 @@ import { useLockStore } from "../../store/lockSystem";
 import { storeToRefs } from "pinia";
 
 // Import filters
-import RequisitionSearchInput from "../../components/filters/RequisitionSearchInput.vue";
-import ProjectFilter from "../../components/filters/ProjectFilter.vue";
-import RequisitionTypeFilter from "../../components/filters/RequisitionTypeFilter.vue";
-import DateFilter from "../../components/filters/DateFilter.vue";
-import FilterButtons from "../../components/filters/FilterButtons.vue";
+import RequisitionSearchInput from "../../components/Filter/RequisitionSearchInput.vue";
+import ProjectFilter from "../../components/Filter/ProjectFilter.vue";
+import RequisitionTypeFilter from "../../components/Filter/RequisitionTypeFilter.vue";
+import DateFilter from "../../components/Filter/DateFilter.vue";
+import FilterButtons from "../../components/Filter/FilterButtons.vue";
 import Pagination from "../../components/Pagination.vue";
 
 const currentPage = ref(1);

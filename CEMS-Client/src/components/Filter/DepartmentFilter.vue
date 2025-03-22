@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { User } from '../../../types'
+import { User } from '../../types'
 
 interface Props {
   modelValue: string

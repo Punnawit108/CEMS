@@ -16,11 +16,11 @@ import { useExpenseReimbursement } from "../../store/expenseReimbursement";
 import { storeToRefs } from "pinia";
 
 // Import filters
-import RequisitionSearchInput from "../../components/Filters/RequisitionSearchInput.vue";
-import ProjectFilter from "../../components/Filters/ProjectFilter.vue";
-import RequisitionTypeFilter from "../../components/Filters/RequisitionTypeFilter.vue";
-import DateFilter from "../../components/Filters/DateFilter.vue";
-import FilterButtons from "../../components/Filters/FilterButtons.vue";
+import RequisitionSearchInput from "../../components/Filter/RequisitionSearchInput.vue";
+import ProjectFilter from "../../components/Filter/ProjectFilter.vue";
+import RequisitionTypeFilter from "../../components/Filter/RequisitionTypeFilter.vue";
+import DateFilter from "../../components/Filter/DateFilter.vue";
+import FilterButtons from "../../components/Filter/FilterButtons.vue";
 import Pagination from "../../components/Pagination.vue";
 
 const currentPage = ref(1);
