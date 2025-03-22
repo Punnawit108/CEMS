@@ -354,7 +354,8 @@ const previewFile = (file: string) => {
               :to="'/disbursement/listWithdraw/detail/' + route.params.id + '/editExpenseForm'">
               <Button :type="'btn-editRequest'"></Button>
             </RouterLink>
-            <Button :type="'btn-print2'" class="w-[95px] h-[40px]" @click="openPopupPrint"></Button>
+            <Button :type="'btn-print2'" class="w-[95px] h-[40px]" @click="openPopupPrint"
+              v-if="expenseData.rqStatus === 'waiting' || expenseData.rqStatus === 'accept'"></Button>
           </div>
         </div>
 
