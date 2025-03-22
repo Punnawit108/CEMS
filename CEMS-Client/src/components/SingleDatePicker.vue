@@ -438,9 +438,13 @@ const calendarDays = computed((): CalendarDay[] => {
 
 <template>
   <div class="relative h-[32px] w-[200px] justify-center items-center" ref="pickerRef">
+    <!-- ปรับปรุง input style ใน template ของ SingleDatePicker.vue -->
     <input type="text"
-      class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8"
-      :value="props.confirmedDate ? formatDate(props.confirmedDate) : ''" :placeholder="placeholder" readonly
+      class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8"
+      :class="[
+        $attrs.class || '',
+        { 'border-black': !$attrs.class || (typeof $attrs.class === 'string' && !$attrs.class.includes('border-red-500')) }
+      ]" :value="props.confirmedDate ? formatDate(props.confirmedDate) : ''" :placeholder="placeholder" readonly
       :disabled="disabled" @click="handleInputClick" />
     <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
       <Calendar class="w-4 h-4 text-black" />
@@ -449,25 +453,23 @@ const calendarDays = computed((): CalendarDay[] => {
     <div v-if="isOpen" class="absolute mt-1 bg-white border rounded shadow-lg p-2 z-50 w-[250px]">
       <div class="flex justify-between items-center mb-2">
         <ChevronLeft class="h-4 w-4 cursor-pointer text-gray-600 hover:text-gray-800" :class="{
-            'opacity-50 cursor-not-allowed': 
-              currentMonth.getFullYear() === effectiveMinDate.getFullYear() && 
-              currentMonth.getMonth() === effectiveMinDate.getMonth()
-          }" @click="handleMonthChange(-1)" />
+          'opacity-50 cursor-not-allowed':
+            currentMonth.getFullYear() === effectiveMinDate.getFullYear() &&
+            currentMonth.getMonth() === effectiveMinDate.getMonth()
+        }" @click="handleMonthChange(-1)" />
         <div class="flex gap-1 text-sm">
           <select class="border rounded px-1 py-0.5 text-sm cursor-pointer hover:border-gray-400"
             :value="months[currentMonth.getMonth()]" @change="handleMonthSelect">
-            <option v-for="(month, index) in months" :key="month" :disabled="
-                (currentMonth.getFullYear() === today.getFullYear() && index > today.getMonth()) ||
-                (currentMonth.getFullYear() === effectiveMinDate.getFullYear() && index < effectiveMinDate.getMonth())
+            <option v-for="(month, index) in months" :key="month" :disabled="(currentMonth.getFullYear() === today.getFullYear() && index > today.getMonth()) ||
+              (currentMonth.getFullYear() === effectiveMinDate.getFullYear() && index < effectiveMinDate.getMonth())
               ">
               {{ month }}
             </option>
           </select>
           <select class="border rounded px-1 py-0.5 text-sm cursor-pointer hover:border-gray-400"
             :value="toBuddhistYear(currentMonth.getFullYear())" @change="handleYearSelect">
-            <option v-for="year in years" :key="year" :disabled="
-                toCivilYear(year) > today.getFullYear() ||
-                toCivilYear(year) < effectiveMinDate.getFullYear()
+            <option v-for="year in years" :key="year" :disabled="toCivilYear(year) > today.getFullYear() ||
+              toCivilYear(year) < effectiveMinDate.getFullYear()
               ">
               {{ year }}
             </option>
