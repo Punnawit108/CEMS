@@ -343,7 +343,7 @@ onMounted(async () => {
     <!-- Popup Delete -->
     <div v-if="isPopupDeleteOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-        <div class="flex justify-center mb-4">
+        <div class="flex justify-center mb-2">
           <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
@@ -351,11 +351,11 @@ onMounted(async () => {
               clip-rule="evenodd" />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+        <h2 class="text-[24px] font-bold text-center text-black mb-3">
           ยืนยันการลบผู้มีสิทธิ์อนุมัติ
         </h2>
-        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันการลบผู้มีสิทธิ์อนุมัติหรือไม่ ?
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-3">
+          คุณลบผู้มีสิทธิ์อนุมัติหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
           <button @click="closePopupDelete"
@@ -404,10 +404,12 @@ onMounted(async () => {
     <!-- POPUP +ผู้มีสิทธิ์อนุมัติ -->
     <div v-if="isPopupAddOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-        <h2 class="text-[16px] font-bold text-center text-black mb-3">
-          การเพิ่มผู้มีสิทธิ์อนุมัติ
+        <h2 class="text-[24px] font-bold text-center text-black mb-3">
+          การเพิ่มลำดับผู้มีสิทธิ์อนุมัติ
         </h2>
-        <div class="w-full my-3 flex justify-center">
+        
+        <label class="block text-sm font-medium mb-2 items-end ml-8">เพิ่มผู้มีสิทธิ์อนุมัติลำดับ <span class="text-red-500">*</span></label>
+        <div class="w-full mb-3 flex justify-center">
           <form>
             <div class="relative">
               <select required v-model="selectUserId"
@@ -427,12 +429,12 @@ onMounted(async () => {
             </div>
           </form>
         </div>
-        <div class="flex justify-center space-x-4 mt-3">
+        <div class="flex justify-center space-x-4 mt-2">
           <button @click="closePopupAdd"
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
-          <button @click="openPopupConfirmAdd"
+          <button @click="confirmAdd"
             class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยืนยัน
           </button>
@@ -442,8 +444,8 @@ onMounted(async () => {
     <!-- POPUP แก้ไขลำดับผู้อนุมัติ -->
     <div v-else-if="isPopupEditOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-        <h2 class="text-[16px] font-bold text-center text-black mb-3">
-          แก้ไขลำดับผู้อนุมัติ
+        <h2 class="text-[24px] font-bold text-center text-black mb-2">
+          การแก้ไขลำดับผู้มีสิทธิ์อนุมัติ
         </h2>
         <div class="w-full my-3 flex justify-center">
           <form>
@@ -480,69 +482,8 @@ onMounted(async () => {
           </select>
         </div>
 
-        <div class="flex justify-center space-x-4 mt-3">
+        <div class="flex justify-center space-x-4 mt-2">
           <button @click="closePopupEdit"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-            ยกเลิก
-          </button>
-          <button @click="openPopupConfirmEdit"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-            ยืนยัน
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Popup ยืนยัน Add -->
-    <div v-if="isPopupConfirmAddOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-        <div class="flex justify-center mb-4">
-          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
-              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd" />
-          </svg>
-        </div>
-        <h2 class="text-[24px] font-bold text-center text-black mb-4">
-          ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติ
-        </h2>
-        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติหรือไม่ ?
-        </h2>
-        <div class="flex justify-center space-x-4">
-          <button @click="closePopupConfirmAdd"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-            ยกเลิก
-          </button>
-          <button @click="confirmAdd"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-            ยืนยัน
-          </button>
-        </div>
-      </div>
-    </div>
-    <!-- Popup ยืนยัน Edit -->
-    <div v-if="isPopupConfirmEditOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-        <div class="flex justify-center mb-4">
-          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
-              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd" />
-          </svg>
-        </div>
-        <h2 class="text-[24px] font-bold text-center text-black mb-4">
-          ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติ
-        </h2>
-        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติหรือไม่ ?
-        </h2>
-        <div class="flex justify-center space-x-4">
-          <button @click="closePopupConfirmEdit"
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
@@ -616,14 +557,14 @@ onMounted(async () => {
       <div
         class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
               clip-rule="evenodd" />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+        <h2 class="text-[24px] font-bold text-center text-black">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
       </div>
     </div>
 
@@ -632,14 +573,14 @@ onMounted(async () => {
       <div
         class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="flex justify-center">
-          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
               clip-rule="evenodd" />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black mt-3">
+        <h2 class="text-[24px] font-bold text-center text-black">
           ยืนยันการ{{ lockStore.isLocked ? 'ปิดรับ' : 'เปิดรับ' }}รายการเบิกค่าใช้จ่ายสำเร็จ
         </h2>
       </div>
@@ -649,14 +590,14 @@ onMounted(async () => {
       <div
         class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
               clip-rule="evenodd" />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+        <h2 class="text-[24px] font-bold text-center text-black">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
       </div>
     </div>
 
@@ -664,14 +605,14 @@ onMounted(async () => {
       <div
         class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
+          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
               clip-rule="evenodd" />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black mt-3">ยืนยันการลบผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+        <h2 class="text-[24px] font-bold text-center text-black">ยืนยันการลบผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
       </div>
     </div>
   </div>
