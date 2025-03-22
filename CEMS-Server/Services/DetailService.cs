@@ -155,7 +155,7 @@ public class DetailService
             return Array.Empty<byte>();
         }
 
-        string watermarkText = "รออนุมัติ"; // กำหนดค่าเริ่มต้นเป็น accept
+        string watermarkText = "รออนุมัติ";
 
         if(expense.RqStatus == "accept")
         {

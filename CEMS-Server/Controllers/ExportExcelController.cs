@@ -5,6 +5,7 @@ using System.Linq;
 using OfficeOpenXml;
 using CEMS_Server.AppContext;
 using CEMS_Server.Models;
+using System.Globalization;
 
 [ApiController]
 [Route("api/excel")]
@@ -85,7 +86,7 @@ public IActionResult ExportDataToExcel(
         worksheet.Cells[1, 4].Value = "โครงการ";
         worksheet.Cells[1, 5].Value = "ประเภทค่าใช้จ่าย";
         worksheet.Cells[1, 6].Value = "วันที่ขอเบิก";
-        worksheet.Cells[1, 7].Value = "จำนวนเงิน(บาท)";
+        worksheet.Cells[1, 7].Value = "จำนวนเงิน (บาท)";
 
         // จัดรูปแบบ Header
         using (var headerRange = worksheet.Cells[1, 1, 1, 7])
@@ -112,7 +113,7 @@ public IActionResult ExportDataToExcel(
             worksheet.Cells[row, 3].Value = item.RqName;
             worksheet.Cells[row, 4].Value = item.PjName;
             worksheet.Cells[row, 5].Value = item.RqtName;
-            worksheet.Cells[row, 6].Value = item.RqPayDate.ToString("dd/MM/yyyy");
+            worksheet.Cells[row, 6].Value = item.RqPayDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
             worksheet.Cells[row, 7].Value = item.RqExpenses;
             worksheet.Cells[row, 7].Style.Numberformat.Format = "#,##0.00";
 
