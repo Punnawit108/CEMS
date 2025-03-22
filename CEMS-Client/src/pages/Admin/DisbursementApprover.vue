@@ -30,8 +30,6 @@ const newApproverName = ref(""); // เก็บค่าชื่อที่�
 const isPopupAddOpen = ref(false); // สำหรับเปิด/ปิด Popup Add
 const isPopupEditOpen = ref(false); // สำหรับเปิด/ปิด Popup Edit
 const isPopupDeleteOpen = ref(false); // สำหรับเปิด/ปิด Popup Delete
-const isPopupConfirmAddOpen = ref(false); // สำหรับเปิด/ปิด Popup ConfirmAdd
-const isPopupConfirmEditOpen = ref(false); // สำหรับเปิด/ปิด Popup ConfirmEdit
 const isAddAlertOpen = ref(false); // ควบคุมการแสดง Alert Add
 const isEditAlertOpen = ref(false); // ควบคุมการแสดง Alert Edit
 const isDeleteAlertOpen = ref(false); // ควบคุมการแสดง Alert delete
@@ -95,8 +93,13 @@ const openPopupAdd = () => {
 const closePopupAdd = () => {
   isPopupAddOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
-  selectUserId.value = "";
 };
+
+const alertMessage = ref("ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว");
+
+const canEditOrder = computed(() => {
+  return approvalStore.approvers && approvalStore.approvers.length > 1;
+});
 
 // เปิด Popup  Edit ผู้อนุมัติ
 const openPopupEdit = () => {
@@ -105,10 +108,22 @@ const openPopupEdit = () => {
     setTimeout(() => {
       isFreeEdit.value = false;
     }, 1500);
+  } else if (!canEditOrder.value) {
+    // สลับข้อความทุกครั้งที่เปิด pop up
+    if (alertMessage.value === "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว") {
+      alertMessage.value = "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
+    } else {
+      alertMessage.value = "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว";
+    }
+    isFreeEdit.value = true;
+    setTimeout(() => {
+      isFreeEdit.value = false;
+    }, 1500);
   } else {
     isPopupEditOpen.value = true;
   }
 };
+
 
 // สมมุติว่า userStore มี currentUser
 const currentUser = userStore.currentUser;
@@ -143,51 +158,57 @@ const openPopupDelete = (approverId: number) => {
 const closePopupDelete = () => {
   isPopupDeleteOpen.value = false;
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
+};
+
+const cancelmAdd = async () => {
+  // ปิด modal ทันทีเมื่อกดยืนยัน
+  closePopupAdd();
   selectUserId.value = "";
 };
 
-// เปิด PopupConfirmAdd ผู้อนุมัติ
-const openPopupConfirmAdd = () => {
-  isPopupConfirmAddOpen.value = true;
-};
-const closePopupConfirmAdd = () => {
-  isPopupConfirmAddOpen.value = false;
-  newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
-};
-
-// เปิด PopupConfirmEdit ผู้อนุมัติ
-const openPopupConfirmEdit = () => {
-  isPopupConfirmEditOpen.value = true;
-};
-const closePopupConfirmEdit = () => {
-  isPopupConfirmEditOpen.value = false;
-  newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
-};
-
 const confirmAdd = async () => {
-  await approvalStore.addApprovers(selectUserId.value);
-  closePopupConfirmAdd();
-  isAddAlertOpen.value = true;
-  fatchApproval();
-
-  setTimeout(() => {
-    isAddAlertOpen.value = false;
-    closePopupAdd();
-  }, 1500);
+  // ปิด modal ทันทีเมื่อกดยืนยัน
+  closePopupAdd();
+  try {
+    await approvalStore.addApprovers(selectUserId.value);
+    isAddAlertOpen.value = true;
+    fatchApproval();
+    selectUserId.value = "";
+    setTimeout(() => {
+      isAddAlertOpen.value = false;
+    }, 1500);
+  } catch (error) {
+    console.error(error);
+    // หากต้องการแสดง error ให้ผู้ใช้เห็น อาจเปิด modal หรือแจ้งเตือนได้
+  }
 };
+
+const cancelEdit = async () => {
+  // ปิด modal ทันทีเมื่อกดยืนยัน
+  closePopupEdit();
+  approverSequence.apId = 0
+  approverSequence.apSequence = 0
+};
+
 
 const confirmEdit = async () => {
-  await approvalStore.changeSequence(approverSequence);
-  closePopupConfirmEdit();
-  isEditAlertOpen.value = true;
+  // ปิด modal ทันทีเมื่อกดยืนยัน
+  closePopupEdit();
 
-  setTimeout(() => {
-    isEditAlertOpen.value = false;
-    closePopupEdit();
-    // รีเซ็ตค่าใน dropdown แก้ไขลำดับ
-    approverSequence.apId = 0;
-    approverSequence.apSequence = 0;
-  }, 1500);
+  try {
+    await approvalStore.changeSequence(approverSequence);
+    isEditAlertOpen.value = true;
+    approverSequence.apId = 0
+    approverSequence.apSequence = 0
+    setTimeout(() => {
+      isEditAlertOpen.value = false;
+      // รีเซ็ตค่าใน dropdown หากต้องการให้ modal พร้อมใช้งานครั้งถัดไป
+      approverSequence.apId = 0;
+      approverSequence.apSequence = 0;
+    }, 1500);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 const confirmDelete = async () => {
@@ -211,19 +232,22 @@ const closePopupConfirmLock = () => {
 };
 
 const confirmLock = async () => {
-  await lockStore.toggleLock();
+  // ปิด modal ทันทีที่กดยืนยัน
   closePopupConfirmLock();
-  isLockAlertOpen.value = true;
 
-  setTimeout(() => {
-    isLockAlertOpen.value = false;
-  }, 1500);
+  // (ถ้าต้องการป้องกันการกดซ้ำ สามารถใช้ flag isProcessing ได้เหมือนกับตัวอย่าง confirmAdd)
+  try {
+    await lockStore.toggleLock();
+    isLockAlertOpen.value = true;
+    setTimeout(() => {
+      isLockAlertOpen.value = false;
+    }, 1500);
+  } catch (error) {
+    console.error(error);
+    // หากต้องการจัดการ error เช่น แสดง modal แจ้งเตือนอีกครั้ง
+  }
 };
 
-// ฟังก์ชันล็อคระบบ
-const lockSystem = () => {
-  lockStore.toggleLock();
-};
 
 // ฟังก์ชันสำหรับการค้นหา
 const handleSearch = () => {
@@ -272,6 +296,39 @@ onMounted(async () => {
     loading.value = false;
   }
 });
+
+const selectedApprover = computed(() => {
+  // หาผู้อนุมัติที่ถูกเลือกจาก filteredApproversForEdit โดยใช้ approverSequence.apId
+  return filteredApproversForEdit.value.find(
+    (approver) => approver.apId === approverSequence.apId
+  );
+});
+
+const availableSequences = computed(() => {
+  // จำนวนผู้อนุมัติทั้งหมดใน approvalStore
+  const total = approvalStore.approvers.length;
+  const sequences: number[] = [];
+
+  for (let i = 1; i <= total; i++) {
+    // ถ้ามีการเลือกผู้อนุมัติแล้ว และลำดับเดิม (apSequence) ของผู้อนุมัติคนนั้นตรงกับ i
+    // ให้ข้ามลำดับนั้นไป (ไม่ใส่ใน sequences)
+    if (selectedApprover.value && selectedApprover.value.apSequence === i) {
+      continue;
+    }
+    sequences.push(i);
+  }
+  return sequences;
+});
+
+watch(
+  () => approverSequence.apId,
+  (newVal, oldVal) => {
+    if (newVal !== oldVal) {
+      // เมื่อ apId เปลี่ยน (เลือกชื่อใหม่) ก็ล้างลำดับ
+      approverSequence.apSequence = 0;
+    }
+  }
+);
 </script>
 
 <template>
@@ -294,7 +351,9 @@ onMounted(async () => {
           </div>
 
           <div class="flex space-x-4 justify-end items-end">
-            <Button :type="'btn-editProject'" @click="openPopupEdit">แก้ไขลำดับ</Button>
+            <Button :type="'btn-editProject'" @click="openPopupEdit">
+              แก้ไขลำดับ
+            </Button>
             <button
               class="bg-[#B6B7BA] text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin mt-5"
               @click="openPopupConfirmLock">
@@ -407,8 +466,9 @@ onMounted(async () => {
         <h2 class="text-[24px] font-bold text-center text-black mb-3">
           การเพิ่มลำดับผู้มีสิทธิ์อนุมัติ
         </h2>
-        
-        <label class="block text-sm font-medium mb-2 items-end ml-8">เพิ่มผู้มีสิทธิ์อนุมัติลำดับ <span class="text-red-500">*</span></label>
+
+        <label class="block text-sm font-medium mb-2 items-end ml-8">เพิ่มผู้มีสิทธิ์อนุมัติลำดับ <span
+            class="text-red-500">*</span></label>
         <div class="w-full mb-3 flex justify-center">
           <form>
             <div class="relative">
@@ -417,25 +477,21 @@ onMounted(async () => {
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" :value="user.usrId" v-for="user in userNotRepeatWithApprovers">
+                <option class="text-black" :value="user.usrId" v-for="user in userNotRepeatWithApprovers"
+                  :key="user.usrId">
                   {{ user.usrFirstName }} {{ user.usrLastName }}</option>
               </select>
-              <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
             </div>
           </form>
         </div>
         <div class="flex justify-center space-x-4 mt-2">
-          <button @click="closePopupAdd"
+          <button @click="cancelmAdd"
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
           <button @click="confirmAdd"
             class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            <!-- ถ้าอยากให้แสดง loading icon หรือข้อความตอนกด -->
             ยืนยัน
           </button>
         </div>
@@ -460,12 +516,6 @@ onMounted(async () => {
                   {{ approver.usrFirstName }} {{ approver.usrLastName }}
                 </option>
               </select>
-              <div class="absolute right-3 top-1/2 transform -translate-y-1/2 pointer-events-none">
-                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor" stroke-width="2">
-                  <path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
             </div>
           </form>
         </div>
@@ -473,17 +523,17 @@ onMounted(async () => {
         <div class="w-full my-3 flex justify-center">
           <select v-model="approverSequence.apSequence"
             class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
-            <option value=0 disabled selected hidden>
+            <option value="0" disabled selected hidden>
               ลำดับผู้อนุมัติ
             </option>
-            <option v-for="i in approvalStore.approvers.length" :key="i" :value="i" class="text-black">
-              {{ "ลำดับที่ " + i }}
+            <option v-for="seq in availableSequences" :key="seq" :value="seq" class="text-black">
+              {{ "ลำดับที่ " + seq }}
             </option>
           </select>
         </div>
 
         <div class="flex justify-center space-x-4 mt-2">
-          <button @click="closePopupEdit"
+          <button @click="cancelEdit"
             class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
             ยกเลิก
           </button>
@@ -506,11 +556,7 @@ onMounted(async () => {
               clip-rule="evenodd" />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black">
-          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br>
-          กรุณาตรวจสอบ หรือปิดรับรายการ<br>
-          ก่อนทำการแก้ไขลำดับผู้อนุมัติการเบิกจ่าย
-        </h2>
+        <h2 class="text-[24px] font-bold text-center text-black" v-html="alertMessage"></h2>
       </div>
     </div>
 
