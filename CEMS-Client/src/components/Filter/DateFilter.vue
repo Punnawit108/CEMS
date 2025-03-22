@@ -8,9 +8,13 @@ interface Props {
   isOpen: boolean // สถานะการเปิด/ปิด datepicker
   confirmedDate?: Date // วันที่ที่ยืนยันแล้ว
   minDate?: Date // วันที่ต่ำสุดที่สามารถเลือกได้
+  error?: boolean // สถานะข้อผิดพลาด (เพิ่มใหม่)
 }
 
-defineProps<Props>()
+const props = withDefaults(defineProps<Props>(), {
+  loading: false,
+  error: false
+});
 
 defineEmits<{
   'update:modelValue': [value: Date]
@@ -23,13 +27,14 @@ defineEmits<{
 <template>
   <div class="h-[32px] min-w-[200px] flex-1">
     <form class="grid">
-      <label class="py-0.5 text-[14px] text-black text-start">{{ label }}</label>
+      <label class="py-0.5 text-[14px] text-start" :class="error ? 'text-red-500' : 'text-black'">{{ label }}</label>
       <div class="relative h-[32px] w-full date-picker-container">
         <SingleDatePicker
           :model-value="modelValue"
           @update:model-value="$emit('update:modelValue', $event)"
           placeholder="dd/mm/yyyy"
           :disabled="loading"
+          :class="{ 'border-red-500': error }"
           class="w-full"
           @confirm="$emit('confirm', $event)"
           @cancel="$emit('cancel')"
