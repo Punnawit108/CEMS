@@ -41,11 +41,11 @@ const paginated = computed(() => {
 });
 
 // Import filters
-import UserSearchInput from "../../components/filters/UserSearchInput.vue";
-import ProjectFilter from "../../components/Filters/ProjectFilter.vue";
-import RequisitionTypeFilter from "../../components/Filters/RequisitionTypeFilter.vue";
-import DateFilter from "../../components/Filters/DateFilter.vue";
-import FilterButtons from "../../components/Filters/FilterButtons.vue";
+import UserSearchInput from "../../components/Filter/UserSearchInput.vue";
+import ProjectFilter from "../../components/Filter/ProjectFilter.vue";
+import RequisitionTypeFilter from "../../components/Filter/RequisitionTypeFilter.vue";
+import DateFilter from "../../components/Filter/DateFilter.vue";
+import FilterButtons from "../../components/Filter/FilterButtons.vue";
 
 import {
   Chart,

@@ -5,7 +5,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
 * วันที่จัดทำ/แก้ไข: 11 กุมภาพันธ์ 2568
 */
-import { Project } from '../../../types'
+import { Project } from '../../types'
 
 defineProps<{
   modelValue: string | number | undefined

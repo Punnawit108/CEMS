@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { computed } from 'vue'
-import { User } from '../../../types'
+import { User } from '../../types'
 
 interface Props {
   modelValue: string
@@ -14,26 +14,26 @@ const emit = defineEmits<{
   'update:modelValue': [value: string]
 }>()
 
-const divisions = computed(() => {
-  const divs = new Set(props.users.map(user => user.usrStName))
-  return Array.from(divs).sort()
+const roles = computed(() => {
+  const roles = new Set(props.users.map(user => user.usrRolName))
+  return Array.from(roles).sort()
 })
 </script>
 
 <template>
   <div class="h-[32px] min-w-[200px] flex-1">
     <form class="grid">
-      <label for="SelectDivision" class="py-0.5 text-[14px] text-black text-start">ฝ่าย</label>
+      <label for="SelectRole" class="py-0.5 text-[14px] text-black text-start">บทบาท</label>
       <div class="relative h-[32px] w-full justify-center items-center">
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
-          id="SelectDivision"
+          id="SelectRole"
           :disabled="loading"
           class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8"
         >
           <option value="">ทั้งหมด</option>
-          <option v-for="div in divisions" :key="div" :value="div">{{ div }}</option>
+          <option v-for="role in roles" :key="role" :value="role">{{ role }}</option>
         </select>
         <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
           <svg width="13" height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">

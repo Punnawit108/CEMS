@@ -36,12 +36,11 @@ const paginated = computed(() => {
 
 
 // Import filters
-import UserSearchInput from '../../components/filters/UserSearchInput.vue'
-import DepartmentFilter from '../../components/filters/DepartmentFilter.vue'
-import DivisionFilter from '../../components/filters/DivisionFilter.vue'
-import RoleFilter from '../../components/filters/RoleFilter.vue'
-import FilterButtons from '../../components/filters/FilterButtons.vue'
-
+import UserSearchInput from '../../components/Filter/UserSearchInput.vue';
+import DepartmentFilter from '../../components/Filter/DepartmentFilter.vue'
+import DivisionFilter from '../../components/Filter/DivisionFilter.vue'
+import RoleFilter from '../../components/Filter/RoleFilter.vue'
+import FilterButtons from '../../components/Filter/FilterButtons.vue'
 const router = useRouter()
 const store = useUserStore()
 const { users } = storeToRefs(store)
