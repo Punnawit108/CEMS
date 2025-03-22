@@ -304,6 +304,7 @@ const confirmAddExpense = async () => {
 const isFormSubmittedPrivate = ref(false);
 
 const openPopupAddPrivatecar = () => {
+  formData.vhPayrate = 7;
   isPopupAddPrivatecarOpen.value = true;
   isFormSubmittedPrivate.value = false;
 };
