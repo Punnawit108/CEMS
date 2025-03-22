@@ -88,7 +88,7 @@ export const useRequisitionStore = defineStore('dropdown', {
         * ชื่อผู้เขียน/แก้ไข: อังคณา อุ่นเสียม
         * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
         */
-        async getAllvehicleType() {
+        async getAllVehicleType() {
             try {
                 const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/dataType/vehicle`);
                 this.vehicleType = result.data;

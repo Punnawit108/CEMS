@@ -57,7 +57,7 @@ onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
   rqCode.value = await requisitionStore.getRqCode();
-  vehicleType.value = await requisitionStore.getAllvehicleType();
+  vehicleType.value = await requisitionStore.getAllVehicleType();
   const storedUser = localStorage.getItem("user");
   if (storedUser) {
     try {
