@@ -481,9 +481,13 @@ const isPopupConfirmEditPubliccarOpen = ref(false);
 
 const closePopupEditPubliccar = () => {
   isPopupEditPubliccarOpen.value = false;
+  formVehiclePublicEdit.vhVehicle = "";
 };
 
 const openPopupConfirmEditPubliccar = () => {
+  if (!formVehiclePublicEdit.vhVehicle.trim()) {
+    return;
+  }
   isPopupConfirmEditPubliccarOpen.value = true;
 };
 const closePopupConfirmEditPubliccar = () => {
@@ -711,7 +715,7 @@ const confirmDeleteExpense = async () => {
           <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">{{ item.payRate.toLocaleString("en-US", {
             minimumFractionDigits: 2,
             maximumFractionDigits: 2,
-          }) }}</p>
+            }) }}</p>
         </div>
 
         <!-- ปุ่มจัดการ -->
@@ -1453,7 +1457,8 @@ const confirmDeleteExpense = async () => {
           <div class="relative mb-6">
             <input type="text" required placeholder="ข้อมูลประเภทค่าเดินทางสาธารณะใหม่"
               v-model="formVehiclePublicEdit.vhVehicle"
-              class="w-[300px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 text-[14px] text-black focus:outline-none" />
+              class="w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none"
+              :class="String(formVehiclePublicEdit.vhVehicle).trim() === '' ? 'border-red-500' : 'border-[#d9d9d9]'" />
           </div>
         </form>
       </div>
