@@ -1,4 +1,11 @@
-<script setup lang="ts">defineProps<{
+<script setup lang="ts">
+/*
+ * ชื่อไฟล์: CIconSystemSettingsDisbursementTypeVehicle.vue
+ * คำอธิบาย: ไฟล์นี้แสดง components ไอคอนประเภทรถ
+ * ชื่อผู้เขียน/แก้ไข: จักรวรรดิ
+ * วันที่จัดทำ/แก้ไข: 15 กุมภาพันธ์ 2568
+ */
+defineProps<{
     size?: number;
 }>();
 </script>

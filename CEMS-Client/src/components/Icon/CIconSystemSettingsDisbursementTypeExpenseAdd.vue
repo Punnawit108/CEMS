@@ -1,4 +1,11 @@
-<script setup lang="ts"> defineProps<{
+<script setup lang="ts"> 
+/*
+ * ชื่อไฟล์: CIconSystemSettingsDisbursementTypeExpenseAdd.vue
+ * คำอธิบาย: ไฟล์นี้แสดง components ไอคอนเพิ่มประเภทเบิกค่าใช้จ่าย
+ * ชื่อผู้เขียน/แก้ไข: จักรวรรดิ
+ * วันที่จัดทำ/แก้ไข: 15 กุมภาพันธ์ 2568
+ */
+defineProps<{
     size?: number;
 }>();
 </script>

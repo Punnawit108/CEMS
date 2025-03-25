@@ -1,4 +1,10 @@
-<script setup lang="ts">defineProps<{
+<script setup lang="ts">
+/*
+ * ชื่อไฟล์: CIconDisbursement.vue
+ * คำอธิบาย: ไฟล์นี้แสดง components ไอคอนการเบิกค่าใช้จ่าย
+ * วันที่จัดทำ/แก้ไข: 15 กุมภาพันธ์ 2568
+ */
+defineProps<{
     size?: number;
 }>();
 </script>
