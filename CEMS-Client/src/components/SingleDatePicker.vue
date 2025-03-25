@@ -1,4 +1,3 @@
-# SingleDatePicker.vue
 <script setup lang="ts">
 /**
  * ชื่อไฟล์: SingleDatePicker.vue
@@ -6,7 +5,7 @@
  * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
  * วันที่จัดทำ/แก้ไข: 15 มกราคม 2568
  */
-import { ref, computed, onMounted, onUnmounted } from "vue";
+import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-vue-next";
 
 interface Props {
@@ -15,6 +14,7 @@ interface Props {
   placeholder?: string;
   disabled?: boolean;
   isOpen?: boolean;
+  minDate?: Date; // เพิ่ม prop สำหรับวันที่ต่ำสุดที่สามารถเลือกได้
 }
 
 interface Emits {
@@ -26,10 +26,11 @@ interface Emits {
 
 const props = withDefaults(defineProps<Props>(), {
   modelValue: () => new Date(),
-  confirmedDate: () => new Date(),
-  placeholder: "Select date",
+  confirmedDate: undefined,
+  placeholder: "dd/mm/yyyy",
   disabled: false,
   isOpen: false,
+  minDate: undefined,
 });
 
 const emit = defineEmits<Emits>();
@@ -47,11 +48,34 @@ const today = computed(() => {
 });
 
 // คำนวณวันที่ย้อนหลัง 10 ปี
-const minDate = computed(() => {
+const defaultMinDate = computed(() => {
   const date = new Date(today.value);
   date.setFullYear(date.getFullYear() - 10);
   date.setDate(1);
   return date;
+});
+
+// คำนวณวันที่ต่ำสุดที่สามารถเลือกได้ (ใช้ minDate ที่กำหนดหรือค่าเริ่มต้น)
+const effectiveMinDate = computed(() => {
+  if (props.minDate) {
+    const date = new Date(props.minDate);
+    date.setHours(0, 0, 0, 0);
+    return date;
+  }
+  return defaultMinDate.value;
+});
+
+// ตรวจสอบการเปลี่ยนแปลงของ minDate
+watch(() => props.minDate, (newMinDate) => {
+  if (newMinDate) {
+    // ตรวจสอบว่าวันที่ที่เลือกอยู่น้อยกว่า minDate หรือไม่
+    if (tempSelectedDate.value < newMinDate) {
+      // ถ้าน้อยกว่า ให้เปลี่ยนเป็น minDate
+      tempSelectedDate.value = new Date(newMinDate);
+      currentMonth.value = new Date(newMinDate);
+      selectedDay.value = tempSelectedDate.value.getDate();
+    }
+  }
 });
 
 // Handle outside clicks
@@ -121,7 +145,7 @@ const getFirstDayOfMonth = (date: Date): number => {
 const isDateInAllowedRange = (date: Date): boolean => {
   const startOfDay = new Date(date);
   startOfDay.setHours(0, 0, 0, 0);
-  return startOfDay >= minDate.value && startOfDay <= today.value;
+  return startOfDay >= effectiveMinDate.value && startOfDay <= today.value;
 };
 
 const handleMonthChange = (offset: number): void => {
@@ -160,7 +184,11 @@ const handleMonthChange = (offset: number): void => {
       }
     }
   } else {
-    if (newDate >= minDate.value) {
+    // ตรวจสอบว่าเดือนที่เลื่อนไปไม่น้อยกว่า effectiveMinDate
+    const minDateYear = effectiveMinDate.value.getFullYear();
+    const minDateMonth = effectiveMinDate.value.getMonth();
+
+    if (newYear > minDateYear || (newYear === minDateYear && newMonth >= minDateMonth)) {
       // เก็บวันที่เดิมไว้
       const currentDay = tempSelectedDate.value.getDate();
       currentMonth.value = newDate;
@@ -179,6 +207,12 @@ const handleMonthChange = (offset: number): void => {
         newSelectedDate.setDate(Math.min(currentDay, daysInNewMonth));
       }
 
+      // ถ้าอยู่ในเดือนเดียวกับ minDate ให้ตรวจสอบว่าวันที่ไม่น้อยกว่า minDate
+      if (newYear === minDateYear && newMonth === minDateMonth) {
+        const minDateDay = effectiveMinDate.value.getDate();
+        newSelectedDate.setDate(Math.max(minDateDay, newSelectedDate.getDate()));
+      }
+
       if (isDateInAllowedRange(newSelectedDate)) {
         tempSelectedDate.value = newSelectedDate;
         selectedDay.value = newSelectedDate.getDate();
@@ -192,8 +226,17 @@ const handleMonthSelect = (event: Event): void => {
   const selectedMonthIndex = months.indexOf(target.value);
   const newDate = new Date(currentMonth.value);
 
+  // ตรวจสอบว่าเดือนที่เลือกไม่เกินเดือนปัจจุบัน
   if (newDate.getFullYear() === today.value.getFullYear() &&
     selectedMonthIndex > today.value.getMonth()) {
+    return;
+  }
+
+  // ตรวจสอบว่าเดือนที่เลือกไม่น้อยกว่า minDate
+  const minDateYear = effectiveMinDate.value.getFullYear();
+  const minDateMonth = effectiveMinDate.value.getMonth();
+
+  if (newDate.getFullYear() === minDateYear && selectedMonthIndex < minDateMonth) {
     return;
   }
 
@@ -218,6 +261,12 @@ const handleMonthSelect = (event: Event): void => {
       newSelectedDate.setDate(Math.min(currentDay, daysInNewMonth));
     }
 
+    // ถ้าอยู่ในเดือนเดียวกับ minDate ให้ตรวจสอบว่าวันที่ไม่น้อยกว่า minDate
+    if (newDate.getFullYear() === minDateYear && selectedMonthIndex === minDateMonth) {
+      const minDateDay = effectiveMinDate.value.getDate();
+      newSelectedDate.setDate(Math.max(minDateDay, newSelectedDate.getDate()));
+    }
+
     if (isDateInAllowedRange(newSelectedDate)) {
       tempSelectedDate.value = newSelectedDate;
       selectedDay.value = newSelectedDate.getDate();
@@ -230,7 +279,14 @@ const handleYearSelect = (event: Event): void => {
   const selectedYear = toCivilYear(parseInt(target.value));
   const newDate = new Date(currentMonth.value);
 
+  // ตรวจสอบว่าปีที่เลือกไม่เกินปีปัจจุบัน
   if (selectedYear > today.value.getFullYear()) {
+    return;
+  }
+
+  // ตรวจสอบว่าปีที่เลือกไม่น้อยกว่า minDate
+  const minDateYear = effectiveMinDate.value.getFullYear();
+  if (selectedYear < minDateYear) {
     return;
   }
 
@@ -238,9 +294,15 @@ const handleYearSelect = (event: Event): void => {
   const currentDay = tempSelectedDate.value.getDate();
   newDate.setFullYear(selectedYear);
 
+  // ถ้าเลือกปีเท่ากับปีปัจจุบัน แต่เดือนเกินเดือนปัจจุบัน
   if (selectedYear === today.value.getFullYear() &&
     newDate.getMonth() > today.value.getMonth()) {
     newDate.setMonth(today.value.getMonth());
+  }
+
+  // ถ้าเลือกปีเท่ากับปี minDate แต่เดือนน้อยกว่าเดือน minDate
+  if (selectedYear === minDateYear && newDate.getMonth() < effectiveMinDate.value.getMonth()) {
+    newDate.setMonth(effectiveMinDate.value.getMonth());
   }
 
   if (isDateInAllowedRange(newDate)) {
@@ -258,6 +320,12 @@ const handleYearSelect = (event: Event): void => {
     } else {
       // ถ้าเป็นเดือนอื่น ใช้วันที่เดิมหรือวันสุดท้ายของเดือน
       newSelectedDate.setDate(Math.min(currentDay, daysInNewMonth));
+    }
+
+    // ถ้าอยู่ในปีและเดือนเดียวกับ minDate ให้ตรวจสอบว่าวันที่ไม่น้อยกว่า minDate
+    if (selectedYear === minDateYear && newDate.getMonth() === effectiveMinDate.value.getMonth()) {
+      const minDateDay = effectiveMinDate.value.getDate();
+      newSelectedDate.setDate(Math.max(minDateDay, newSelectedDate.getDate()));
     }
 
     if (isDateInAllowedRange(newSelectedDate)) {
@@ -370,9 +438,13 @@ const calendarDays = computed((): CalendarDay[] => {
 
 <template>
   <div class="relative h-[32px] w-[200px] justify-center items-center" ref="pickerRef">
+    <!-- ปรับปรุง input style ใน template ของ SingleDatePicker.vue -->
     <input type="text"
-      class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8"
-      :value="props.confirmedDate ? formatDate(props.confirmedDate) : ''" :placeholder="placeholder" readonly
+      class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8"
+      :class="[
+        $attrs.class || '',
+        { 'border-black': !$attrs.class || (typeof $attrs.class === 'string' && !$attrs.class.includes('border-red-500')) }
+      ]" :value="props.confirmedDate ? formatDate(props.confirmedDate) : ''" :placeholder="placeholder" readonly
       :disabled="disabled" @click="handleInputClick" />
     <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
       <Calendar class="w-4 h-4 text-black" />
@@ -380,15 +452,27 @@ const calendarDays = computed((): CalendarDay[] => {
 
     <div v-if="isOpen" class="absolute mt-1 bg-white border rounded shadow-lg p-2 z-50 w-[250px]">
       <div class="flex justify-between items-center mb-2">
-        <ChevronLeft class="h-4 w-4 cursor-pointer text-gray-600 hover:text-gray-800" @click="handleMonthChange(-1)" />
+        <ChevronLeft class="h-4 w-4 cursor-pointer text-gray-600 hover:text-gray-800" :class="{
+          'opacity-50 cursor-not-allowed':
+            currentMonth.getFullYear() === effectiveMinDate.getFullYear() &&
+            currentMonth.getMonth() === effectiveMinDate.getMonth()
+        }" @click="handleMonthChange(-1)" />
         <div class="flex gap-1 text-sm">
           <select class="border rounded px-1 py-0.5 text-sm cursor-pointer hover:border-gray-400"
             :value="months[currentMonth.getMonth()]" @change="handleMonthSelect">
-            <option v-for="month in months" :key="month">{{ month }}</option>
+            <option v-for="(month, index) in months" :key="month" :disabled="(currentMonth.getFullYear() === today.getFullYear() && index > today.getMonth()) ||
+              (currentMonth.getFullYear() === effectiveMinDate.getFullYear() && index < effectiveMinDate.getMonth())
+              ">
+              {{ month }}
+            </option>
           </select>
           <select class="border rounded px-1 py-0.5 text-sm cursor-pointer hover:border-gray-400"
             :value="toBuddhistYear(currentMonth.getFullYear())" @change="handleYearSelect">
-            <option v-for="year in years" :key="year">{{ year }}</option>
+            <option v-for="year in years" :key="year" :disabled="toCivilYear(year) > today.getFullYear() ||
+              toCivilYear(year) < effectiveMinDate.getFullYear()
+              ">
+              {{ year }}
+            </option>
           </select>
         </div>
         <ChevronRight class="h-4 w-4 cursor-pointer text-gray-600 hover:text-gray-800" :class="{

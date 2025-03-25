@@ -42,6 +42,7 @@ public class ApprovalController : ControllerBase
             .Select(e => new
             {
                 e.ApUsr.UsrId,
+                e.ApUsr.UsrEmployeeId,
                 e.ApId,
                 e.ApUsr.UsrFirstName,
                 e.ApUsr.UsrLastName,
@@ -112,7 +113,9 @@ public class ApprovalController : ControllerBase
             e.UsrFirstName,
             e.UsrLastName,
             e.AprName,
-            AprDate = e.AprDate.HasValue ? e.AprDate.Value.ToString("dd/MM/yy HH:mm") : null,
+            AprDate = e.AprDate.HasValue
+                ? e.AprDate.Value.ToString("dd/MM/yy HH:mm", new CultureInfo("en-EN"))
+                : null,
             e.AprStatus,
         });
 
@@ -231,17 +234,22 @@ public class ApprovalController : ControllerBase
         {
             return NotFound($"ไม่มีข้อมูลของ id {approverUpdate.AprId} ในระบบ");
         }
-        var now = DateTime.Now;
 
         approver.AprApId = approverUpdate.AprApId;
         approver.AprName = approverUpdate.AprName;
+        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+        var nowInThailand = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+
+        var thaiCalendar = new ThaiBuddhistCalendar();
+        int beYear = thaiCalendar.GetYear(nowInThailand);
+
         approver.AprDate = new DateTime(
-            now.Year + 543,
-            now.Month,
-            now.Day,
-            now.Hour,
-            now.Minute,
-            now.Second
+            beYear,
+            nowInThailand.Month,
+            nowInThailand.Day,
+            nowInThailand.Hour,
+            nowInThailand.Minute,
+            nowInThailand.Second
         );
         approver.AprStatus = approverUpdate.AprStatus;
 
@@ -492,35 +500,22 @@ public class ApprovalController : ControllerBase
         requisition.RqDisburseDate = new DateOnly(now.Year + 543, now.Month, now.Day);
         requisition.RqProgress = "complete";
 
-        // Debug ก่อนอัปเดตค่า pj_amount_expenses
-        Console.WriteLine(
-            $"[Before] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
-        );
-
         // อัปเดตค่า pj_amount_expenses
         project.PjAmountExpenses += requisition.RqExpenses;
-
-        // Debug หลังจากอัปเดตค่า pj_amount_expenses
-        Console.WriteLine(
-            $"[After] Project ID: {project.PjId}, PjAmountExpenses: {project.PjAmountExpenses}"
-        );
 
         _context.CemsRequisitions.Update(requisition);
         _context.CemsProjects.Update(project);
 
-        // var notification = new CemsNotification
-        // {
-        //     NtDate = DateTime.Now,
-        //     NtStatus = "unread",
-        //     NtUsrId = requisition.RqUsrId,
-        // };
-        // _context.CemsNotifications.Add(notification);
-        // await _context.SaveChangesAsync();
-
-        // _context.CemsRequisitions.Update(requisition);
-        // await _hubContext.Clients.All.SendAsync("ReceiveNotification");
+        var notificationForUser = new CemsNotification
+        {
+            NtDate = DateTime.Now,
+            NtAprId = null,
+            NtStatus = "unread",
+            NtUsrId = requisition.RqUsrId,
+        };
+        _context.CemsNotifications.Add(notificationForUser);
+        await _hubContext.Clients.All.SendAsync("ReceiveNotification");
         await _context.SaveChangesAsync();
-
         return NoContent();
     }
 }

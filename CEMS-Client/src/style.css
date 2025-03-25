@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .columnDashboard {
-  width: 186px;
+  width: 100%;
   height: max-content;
   border-radius: 20px;
   text-align: center;
@@ -79,7 +79,7 @@ td {
 }
 
 .pieChartBox{
-  width: 817px !important;
+  width: 100% !important;
   height: 400px !important;
   color: black;
 }

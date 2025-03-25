@@ -18,7 +18,7 @@ namespace CEMS_Server.DTOs
 
         public string RqRqtName { get; set; } = null!;
 
-        public DateOnly RqWithDrawDate { get; set; }
+        public string RqWithDrawDate { get; set; } = null!;
 
         public string RqStatus { get; set; } = null!;
 
@@ -76,9 +76,9 @@ namespace CEMS_Server.DTOs
         public int RqRqtId { get; set; }
         public int? RqVhId { get; set; }
         public string RqName { get; set; } = null!;
-        public DateOnly RqPayDate { get; set; }
+        public string RqPayDate { get; set; } = null!;
 
-        public DateOnly RqWithDrawDate { get; set; }
+        public string RqWithDrawDate { get; set; } = null!;
 
         public string? RqInsteadEmail { get; set; }
 
@@ -112,7 +112,7 @@ namespace CEMS_Server.DTOs
 
         public string RqRqtName { get; set; } = null!;
 
-        public DateOnly RqPayDate { get; set; }
+        public string RqWithDrawDate { get; set; } = null!;
 
         public double RqExpenses { get; set; }
     }

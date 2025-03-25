@@ -1,6 +1,12 @@
-<script setup lang="ts">defineProps<{
+<script setup lang="ts">
+
+defineProps<{
     size?: number;
+    function: Function;
 }>();
+
+
+
 </script>
 
 <template>

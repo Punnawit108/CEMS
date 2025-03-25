@@ -6,6 +6,7 @@
 */
 
 using System;
+using System.Globalization;
 using System.Text.Json;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
@@ -53,13 +54,17 @@ public class ExpenseController : ControllerBase
                 (u.RqStatus == "waiting" || u.RqStatus == "sketch" || u.RqStatus == "edit")
                 && u.RqUsrId.Equals(id)
             )
+            .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
                 RqName = u.RqName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqWithDrawDate = u.RqWithdrawDate,
+                RqWithDrawDate = u.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
@@ -81,13 +86,17 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
             .Where(u => (u.RqStatus == "reject" || u.RqStatus == "accept") && u.RqUsrId.Equals(id)) // เพิ่มเงื่อนไข Where
+            .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new ExpenseGetDto
             {
                 RqId = u.RqId,
                 RqName = u.RqName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqWithDrawDate = u.RqWithdrawDate,
+                RqWithDrawDate = u.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 RqExpenses = u.RqExpenses,
                 RqStatus = u.RqStatus,
             })
@@ -110,7 +119,7 @@ public class ExpenseController : ControllerBase
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
-            .Where(u => u.RqProgress == "complete")
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "complete")
             .Select(u => new ExpenseReportDto
             {
                 RqId = u.RqId,
@@ -118,7 +127,10 @@ public class ExpenseController : ControllerBase
                 RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
                 RqPjName = u.RqPj.PjName,
                 RqRqtName = u.RqRqt.RqtName,
-                RqPayDate = u.RqPayDate,
+                RqWithDrawDate = u.RqWithdrawDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                ),
                 RqExpenses = u.RqExpenses,
             })
             .ToListAsync();
@@ -138,7 +150,7 @@ public class ExpenseController : ControllerBase
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqRqt)
-            .Where(u => u.RqProgress == "complete")
+            .Where(u => u.RqStatus == "accept" && u.RqProgress == "complete")
             .GroupBy(e => e.RqRqt.RqtName)
             .Select(g => new { RqRqtName = g.Key, RqSumExpenses = g.Sum(u => u.RqExpenses) })
             .ToListAsync();
@@ -240,6 +252,18 @@ public class ExpenseController : ControllerBase
 
         string newRqCode = await GenerateNextRqCodeAsync();
 
+        var payDate = DateOnly.ParseExact(
+            expenseDto.RqPayDate, // ตัวอย่าง "2568-03-19"
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
+        var withDrawDate = DateOnly.ParseExact(
+            expenseDto.RqWithDrawDate, // ตัวอย่าง "2568-03-20"
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
         var expense = new CemsRequisition
         {
             RqId = rqId,
@@ -248,8 +272,8 @@ public class ExpenseController : ControllerBase
             RqRqtId = expenseDto.RqRqtId,
             RqVhId = expenseDto.RqVhId,
             RqName = expenseDto.RqName,
-            RqPayDate = expenseDto.RqPayDate,
-            RqWithdrawDate = expenseDto.RqWithDrawDate,
+            RqPayDate = payDate,
+            RqWithdrawDate = withDrawDate,
             RqCode = newRqCode,
             RqInsteadEmail = expenseDto.RqInsteadEmail,
             RqExpenses = expenseDto.RqExpenses,
@@ -309,15 +333,37 @@ public class ExpenseController : ControllerBase
             await _context.SaveChangesAsync();
         }
 
-        if (expenseDto.RqStatus != "sketch")
+        await HandleApproverRequisitions(rqId, expenseDto.RqStatus);
+
+        return CreatedAtAction(
+            nameof(GetExpenseList),
+            new { id = expense.RqId },
+            expenseDto.RqStatus == "sketch"
+                ? new
+                {
+                    Message = "The requisition has been created in sketch status.",
+                    Id = expense.RqId,
+                }
+                : expenseDto
+        );
+    }
+
+    /// <summary>สร้างข้อมูลผู้อนุมัติ</summary>
+    /// <param name="rqId"> รหัสคำขอเบิก /param>
+    /// <param name="rqStatus"> สถานะคำขอเบิก /param>
+    /// <returns>สถานะการสร้างข้อมูลผู้อนุมัติ /returns>
+    /// <remarks>แก้ไขล่าสุด: 16 มีนาคม 2568 โดย นายพงศธร บุญญามา</remark>
+    private async Task HandleApproverRequisitions(string rqId, string rqStatus)
+    {
+        if (rqStatus != "sketch")
         {
-            ///หาข้อมูล AprId ตัวสุดท้าย
-            var lastAprId = _context
+            // หาข้อมูล AprId ตัวสุดท้าย
+            var lastAprId = await _context
                 .CemsApproverRequisitions.OrderByDescending(x => x.AprId)
                 .Select(x => x.AprId)
-                .FirstOrDefault();
+                .FirstOrDefaultAsync();
 
-            ///ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
+            // ตัวแปร index ที่ต้องการเพิ่มข้อมูลของ AprId
             int newAprId = (lastAprId ?? 0) + 1;
 
             var approverIds = await _context
@@ -354,17 +400,7 @@ public class ExpenseController : ControllerBase
             }
             await _hubContext.Clients.All.SendAsync("ReceiveNotification");
             await _context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetExpenseList), new { id = expense.RqId }, expenseDto);
         }
-        return CreatedAtAction(
-            nameof(GetExpenseList),
-            new { id = expense.RqId },
-            new
-            {
-                Message = "The requisition has been created in sketch status.",
-                Id = expense.RqId,
-            }
-        );
     }
 
     /// <summary>หาค่า RqCode ล่าสุด</summary>
@@ -426,13 +462,26 @@ public class ExpenseController : ControllerBase
         {
             return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
         }
+
+        var payDate = DateOnly.ParseExact(
+            expenseDto.RqPayDate,
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
+        var withDrawDate = DateOnly.ParseExact(
+            expenseDto.RqWithDrawDate,
+            "yyyy-MM-dd",
+            CultureInfo.InvariantCulture
+        );
+
         expense.RqUsrId = expenseDto.RqUsrId;
         expense.RqPjId = expenseDto.RqPjId;
         expense.RqRqtId = expenseDto.RqRqtId;
         expense.RqVhId = expenseDto.RqVhId;
         expense.RqName = expenseDto.RqName;
-        expense.RqPayDate = expenseDto.RqPayDate;
-        expense.RqWithdrawDate = expenseDto.RqWithDrawDate;
+        expense.RqPayDate = payDate;
+        expense.RqWithdrawDate = withDrawDate;
         expense.RqInsteadEmail = expenseDto.RqInsteadEmail;
         expense.RqExpenses = expenseDto.RqExpenses;
         expense.RqStartLocation = expenseDto.RqStartLocation;
@@ -477,28 +526,30 @@ public class ExpenseController : ControllerBase
                     FFileType = file.ContentType,
                     FSize = (int)file.Length,
                     FUniqueName = uniqueFileName,
-                    FPath = $"/assets/upload/{uniqueFileName}", // เส้นทางไฟล์ใน server
+                    FPath = $"/assets/upload/{uniqueFileName}",
                 };
-
-                // เพิ่มข้อมูลไฟล์ลงในฐานข้อมูล
                 _context.CemsFiles.Add(cemsFile);
             }
-
-            // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
             await _context.SaveChangesAsync();
         }
 
         if (expenseDto.RqStatus == "waiting")
         {
-            var approvers = await _context
-                .CemsApproverRequisitions.Where(a => a.AprRqId == id && a.AprStatus == "edit")
-                .ToListAsync();
+            var approver = await _context.CemsApproverRequisitions.FirstOrDefaultAsync(a =>
+                a.AprRqId == id && a.AprStatus == "edit"
+            );
 
-            foreach (var approver in approvers)
+            if (approver != null)
             {
                 approver.AprStatus = "waiting";
                 approver.AprName = null;
                 approver.AprDate = null;
+
+                await _context.SaveChangesAsync();
+            }
+            else
+            {
+                await HandleApproverRequisitions(id, expenseDto.RqStatus);
             }
         }
         await _context.SaveChangesAsync();

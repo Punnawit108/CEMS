@@ -1,97 +1,60 @@
-# Pagination.vue
+<!-- Pagination.vue -->
 <script setup lang="ts">
-/**
-* ชื่อไฟล์: Pagination.vue
-* คำอธิบาย: Generic Pagination component สำหรับใช้งานกับข้อมูลทุกประเภท
-* วันที่จัดทำ: 24 ธันวาคม 2567
-*/
-import { computed } from 'vue';
-
-interface Props<T> {
-    // รายการข้อมูลทั้งหมด
-    items: T[];
-    // จำนวนรายการต่อหน้า
-    itemsPerPage: number;
-    // หน้าปัจจุบัน
-    currentPage: number;
-    // จำนวนช่องว่างที่ต้องการแสดงเพิ่มเติม (optional)
-    showEmptyRows?: boolean;
-}
-
-interface Emits {
-    (e: 'update:currentPage', value: number): void;
-    // Generic type T สำหรับ paginatedItems
-    <T>(e: 'update:paginatedItems', value: T[]): void;
-}
-
-const props = defineProps<Props<any>>();
-const emit = defineEmits<Emits>();
-
-// คำนวณจำนวนหน้าทั้งหมด
-const totalPages = computed(() => Math.ceil(props.items.length / props.itemsPerPage));
-
-// คำนวณรายการที่จะแสดงในหน้าปัจจุบัน
-const paginatedItems = computed(() => {
-    const start = (props.currentPage - 1) * props.itemsPerPage;
-    const end = start + props.itemsPerPage;
-    const items = props.items.slice(start, end);
-    emit('update:paginatedItems', items);
-    return items;
+// Props
+const props = defineProps({
+  currentPage: {
+    type: Number,
+    required: true,
+  },
+  totalPages: {
+    type: Number,
+    required: true,
+  },
 });
 
-// คำนวณจำนวนแถวที่เหลือที่ต้องเติมให้เต็มหน้า
-const remainingRows = computed(() => {
-    if (!props.showEmptyRows) return 0;
-    const currentRows = paginatedItems.value.length;
-    return currentRows < props.itemsPerPage ? props.itemsPerPage - currentRows : 0;
-});
+// Emits
+const emit = defineEmits(['update:currentPage']);
 
-// ฟังก์ชันเปลี่ยนหน้า
-const prevPage = () => {
-    if (props.currentPage > 1) {
-        emit('update:currentPage', props.currentPage - 1);
-    }
+// Methods
+const nextPage = () => {
+  if (props.currentPage < props.totalPages) {
+    emit('update:currentPage', props.currentPage + 1);
+  }
 };
 
-const nextPage = () => {
-    if (props.currentPage < totalPages.value) {
-        emit('update:currentPage', props.currentPage + 1);
-    }
+const prevPage = () => {
+  if (props.currentPage > 1) {
+    emit('update:currentPage', props.currentPage - 1);
+  }
 };
 </script>
 
 <template>
-    <tfoot class="border-t">
-        <template v-if="showEmptyRows && remainingRows > 0">
-            <tr v-for="index in remainingRows" :key="'empty-row' + index">
-                <td v-for="i in 9" :key="'empty-cell' + i" class="py-[12px] px-2 h-[46px]">&nbsp;</td>
-            </tr>
-        </template>
-        <tr class="text-[14px] border-b-2 border-[#BBBBBB]">
-            <th colspan="7"></th>
-            <th class="py-[5px] text-center">
-                {{ currentPage }} of {{ totalPages }}
-            </th>
-            <th class="py-[5px] flex justify-between text-[14px] font-bold">
-                <span class="text-[#A0A0A0]">
-                    <button @click="prevPage"
-                        class="p-2 rounded-md justify-start transition-colors duration-200 hover:bg-gray-100" :class="{
-                            'text-[#BBBBBB] cursor-not-allowed hover:bg-transparent': currentPage === 1,
-                            'text-black': currentPage !== 1
-                        }" :disabled="currentPage === 1">
-                        <span class="text-sm">&lt;</span>
-                    </button>
-                </span>
-                <span class="text-[#A0A0A0]">
-                    <button @click="nextPage" class="p-2 rounded-md transition-colors duration-200 hover:bg-gray-100"
-                        :class="{
-                            'text-[#BBBBBB] cursor-not-allowed hover:bg-transparent': currentPage === totalPages,
-                            'text-black': currentPage !== totalPages
-                        }" :disabled="currentPage === totalPages">
-                        <span class="text-sm">&gt;</span>
-                    </button>
-                </span>
-            </th>
-        </tr>
-    </tfoot>
+  <tfoot class="border-t-2 border-solid border-[#B6B7BA]">
+    <tr class="text-sm ">
+      <td colspan="100%">
+        <div class="flex justify-end items-center h-8">
+          <span class="text-gray-600 mr-10">
+            {{ currentPage }} of {{ totalPages }}
+          </span>
+          <button @click="prevPage" :disabled="currentPage === 1"
+            class="rounded-full mr-10 flex items-center justify-center">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
+              :class="currentPage === 1 ? 'fill-[#BBBBBB]' : 'fill-grayDark'">
+              <path
+                d="M19.4219 11.9062L14.8281 16.5L19.4219 21.0938L18.0156 22.5L12.0156 16.5L18.0156 10.5L19.4219 11.9062Z" />
+            </svg>
+          </button>
+          <button @click="nextPage" :disabled="currentPage === totalPages"
+            class="rounded-full flex items-center justify-center">
+            <svg width="30" height="30" viewBox="0 0 30 30" fill="none" xmlns="http://www.w3.org/2000/svg"
+              :class="currentPage === totalPages ? 'fill-[#BBBBBB]' : ' fill-grayDark'">
+              <path
+                d="M13.9844 10.5L19.9844 16.5L13.9844 22.5L12.5781 21.0938L17.1719 16.5L12.5781 11.9062L13.9844 10.5Z" />
+            </svg>
+          </button>
+        </div>
+      </td>
+    </tr>
+  </tfoot>
 </template>

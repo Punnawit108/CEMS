@@ -62,55 +62,55 @@ const originalUser = {
 const user = reactive({ ...originalUser });
 
 onMounted(async () => {
-  try {
-    // โหลดข้อมูลผู้ใช้ทั้งหมดหากยังไม่ได้โหลด
-    if (users.value.length === 0) {
-      await store.getAllUsers();
-    }
-    
-    // เพิ่มส่วนนี้: สร้าง API request ใหม่เพื่อดึงข้อมูลผู้ใช้เฉพาะราย
-    // แม้ว่าข้อมูลจะมีอยู่แล้วใน store แต่เราจะเรียก API อีกครั้งเพื่อให้มี HTTP request
-    // สำหรับการทดสอบ และป้องกันการแคชด้วยการเพิ่ม timestamp
     try {
-      const userIdStr = Array.isArray(userId) ? userId[0] : userId;
-      // ป้องกันการแคชโดยเพิ่ม timestamp เป็น query parameter
-      const timestamp = new Date().getTime();
-      const response = await axios.get(`/api/user/${userIdStr}?t=${timestamp}`, {
-        headers: {
-          // เพิ่ม headers เพื่อป้องกันการแคช
-          'Cache-Control': 'no-cache, no-store, must-revalidate',
-          'Pragma': 'no-cache',
-          'Expires': '0'
+        // โหลดข้อมูลผู้ใช้ทั้งหมดหากยังไม่ได้โหลด
+        if (users.value.length === 0) {
+            await store.getAllUsers();
         }
-      });
-      console.log('Fetched specific user details:', response.data);
-      // ยังคงใช้ข้อมูลจาก store เพื่อไม่ให้กระทบกับการทำงานเดิม
+
+        // เพิ่มส่วนนี้: สร้าง API request ใหม่เพื่อดึงข้อมูลผู้ใช้เฉพาะราย
+        // แม้ว่าข้อมูลจะมีอยู่แล้วใน store แต่เราจะเรียก API อีกครั้งเพื่อให้มี HTTP request
+        // สำหรับการทดสอบ และป้องกันการแคชด้วยการเพิ่ม timestamp
+        try {
+            const userIdStr = Array.isArray(userId) ? userId[0] : userId;
+            // ป้องกันการแคชโดยเพิ่ม timestamp เป็น query parameter
+            const timestamp = new Date().getTime();
+            const response = await axios.get(`/api/user/${userIdStr}?t=${timestamp}`, {
+                headers: {
+                    // เพิ่ม headers เพื่อป้องกันการแคช
+                    'Cache-Control': 'no-cache, no-store, must-revalidate',
+                    'Pragma': 'no-cache',
+                    'Expires': '0'
+                }
+            });
+            console.log('Fetched specific user details:', response.data);
+            // ยังคงใช้ข้อมูลจาก store เพื่อไม่ให้กระทบกับการทำงานเดิม
+        } catch (error) {
+            console.log('Extra API call for testing purposes only:', error);
+        }
+
+        // โค้ดเดิมที่ใช้ข้อมูลจาก store
+        const foundUser = users.value.find(u => u.usrId === userId);
+        if (foundUser) {
+            user.firstName = foundUser.usrFirstName;
+            user.lastName = foundUser.usrLastName;
+            user.employeeId = foundUser.usrEmployeeId;
+            user.phoneNumber = foundUser.usrPhoneNumber || '';
+            user.email = foundUser.usrEmail;
+            user.affiliation = foundUser.usrCpnName;
+            user.position = foundUser.usrPstName;
+            user.department = foundUser.usrDptName;
+            user.division = foundUser.usrStName;
+            // แปลง role จากอังกฤษเป็นไทย
+            user.role = reverseRoleMapping[foundUser.usrRolName] || foundUser.usrRolName;
+            user.status = foundUser.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ';
+            user.viewReportPermission = foundUser.usrIsSeeReport === 1;
+
+            Object.assign(originalUser, user);
+        }
     } catch (error) {
-      console.log('Extra API call for testing purposes only:', error);
+        console.error('Failed to load user data:', error);
     }
-
-    // โค้ดเดิมที่ใช้ข้อมูลจาก store
-    const foundUser = users.value.find(u => u.usrId === userId);
-    if (foundUser) {
-      user.firstName = foundUser.usrFirstName;
-      user.lastName = foundUser.usrLastName;
-      user.employeeId = foundUser.usrEmployeeId;
-      user.phoneNumber = foundUser.usrPhoneNumber || '';
-      user.email = foundUser.usrEmail;
-      user.affiliation = foundUser.usrCpnName;
-      user.position = foundUser.usrPstName;
-      user.department = foundUser.usrDptName;
-      user.division = foundUser.usrStName;
-      // แปลง role จากอังกฤษเป็นไทย
-      user.role = reverseRoleMapping[foundUser.usrRolName] || foundUser.usrRolName;
-      user.status = foundUser.usrIsActive ? 'อยู่ในระบบ' : 'ไม่อยู่ในระบบ';
-      user.viewReportPermission = foundUser.usrIsSeeReport === 1;
-
-      Object.assign(originalUser, user);
-    }
-  } catch (error) {
-    console.error('Failed to load user data:', error);
-  }
 });
 
 // ฟังก์ชันสลับโหมดแก้ไข
@@ -166,10 +166,7 @@ const openPopupSubmit = () => {
 const closePopupSubmit = () => {
     isPopupSubmitOpen.value = false;
 };
-// เปิด/ปิด Popup ยกเลิก ผู้อนุมัติ
-const openPopupCancle = () => {
-    isPopupCancleOpen.value = true;
-};
+
 const closePopupCancle = () => {
     isPopupCancleOpen.value = false;
 };
@@ -204,19 +201,21 @@ const confirmCancle = async () => {
                     <div class="flex justify-end">
                         <template v-if="!isEditing">
                             <button @click="toggleEdit"
-                                class="btn-แก้ไขผู้ใช้ bg-yellow text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center">
-                                แก้ไข
+                                class="btn- แก้ไขผู้ใช้ bg-yellow text-white rounded-[6px] h-[35px] w-[100px]  px-4 flex items-center text-[14px] font-thin justify-center">
+                                แก้ไขผู้ใช้
                             </button>
                         </template>
                         <template v-else>
-                            <button @click="openPopupSubmit"
-                                class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center mr-2">
-                                ยืนยัน
-                            </button>
-                            <button @click="openPopupCancle"
-                                class="btn-ยกเลิก bg-red-600 text-white rounded-[6px] h-[40px] p-4 flex items-center text-[14px] font-thin justify-center">
-                                ยกเลิก
-                            </button>
+                            <div class="flex gap-4">
+                                <button @click="confirmCancle"
+                                    class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[35px] w-[100px] px-6 flex items-center justify-center text-[14px] font-thin">
+                                    ยกเลิก
+                                </button>
+                                <button @click="openPopupSubmit"
+                                    class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[35px] w-[100px] px-6 flex items-center justify-center text-[14px] font-thin">
+                                    ยืนยัน
+                                </button>
+                            </div>
                         </template>
                     </div>
                 </div>
@@ -226,22 +225,36 @@ const confirmCancle = async () => {
                         <div class="flex items-center h-[58px] w-[25px]">
                             <template v-if="!isEditing">
                                 <div class="w-[18px]">
-                                    <div role="checkbox" tabindex="0" :aria-checked="user.viewReportPermission" :class="[
-                                        'flex shrink-0 rounded-md border-2 border-solid h-[18px] outline-none focus:ring-0 relative',
-                                        user.viewReportPermission ? 'bg-blue-500 border-blue-500' : 'border-stone-300'
-                                    ]">
-                                        <!-- เครื่องหมายถูกจะแสดงเมื่อ viewReportPermission เป็น true -->
-                                        <svg v-if="user.viewReportPermission"
-                                            class="absolute top-0 left-0 w-full h-full text-white" viewBox="0 0 24 24"
-                                            fill="none" stroke="currentColor" stroke-width="2">
-                                            <path d="M5 12l5 5l10 -10" stroke-width="3" />
-                                        </svg>
-                                    </div>
+                                    <svg v-if="user.viewReportPermission" xmlns="http://www.w3.org/2000/svg" width="20"
+                                        height="20" viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                        <path d="M7 13l3 3 7-7"></path>
+                                    </svg>
+                                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="20" height="20"
+                                        viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                    </svg>
                                 </div>
                             </template>
                             <template v-else>
-                                <input type="checkbox" id="viewReportPermission" v-model="user.viewReportPermission"
-                                    class="w-5 h-5 border-2 border-solid border-zinc-400 rounded outline-none focus:ring-0" />
+                                <div class="w-[18px]">
+                                    <svg v-if="user.viewReportPermission"
+                                        @click="user.viewReportPermission = !user.viewReportPermission"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                                        fill="none" stroke="#999999" stroke-width="2" cursor="pointer"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                        <path d="M7 13l3 3 7-7"></path>
+                                    </svg>
+                                    <svg v-else @click="user.viewReportPermission = !user.viewReportPermission"
+                                        xmlns="http://www.w3.org/2000/svg" width="20" height="20" cursor="pointer"
+                                        viewBox="0 0 24 24" fill="none" stroke="#999999" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="3" y="3" width="18" height="18" rx="4" ry="4"></rect>
+                                    </svg>
+                                </div>
                             </template>
                         </div>
                         <label class="text-sm leading-snug text-black">
@@ -316,18 +329,18 @@ const confirmCancle = async () => {
     <!-- Popup ยืนยัน -->
     <div v-if="isPopupSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-            <div class="flex justify-center mb-4">
-                <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+            <div class="flex justify-center mb-2">
+                <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
                         d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
                         clip-rule="evenodd" />
                 </svg>
             </div>
-            <h2 class="text-[24px] font-bold text-center text-black mb-4">
+            <h2 class="text-[24px] font-bold text-center text-black mb-3">
                 ยืนยันการแก้ไขผู้ใช้
             </h2>
-            <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+            <h2 class="text-[18px] text-center text-[#7E7E7E] mb-3">
                 คุณยืนยันการแก้ไขผู้ใช้หรือไม่ ?
             </h2>
             <div class="flex justify-center space-x-4">
@@ -343,41 +356,13 @@ const confirmCancle = async () => {
         </div>
     </div>
 
-    <!-- Popup ยกเลิก -->
-    <div v-if="isPopupCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
-            <div class="flex justify-center mb-4">
-                <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <h2 class="text-[24px] font-bold text-center text-black mb-4">
-                ยกเลิกการแก้ไขผู้ใช้
-            </h2>
-            <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-                คุณยกเลิกการแก้ไขผู้ใช้หรือไม่ ?
-            </h2>
-            <div class="flex justify-center space-x-4">
-                <button @click="closePopupCancle"
-                    class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-                    ยกเลิก
-                </button>
-                <button @click="confirmCancle"
-                    class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
-                    ยืนยัน
-                </button>
-            </div>
-        </div>
-    </div>
+
 
     <!-- Alert ยืนยัน -->
     <div v-if="isAlertSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div
             class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-            <div class="mb-4">
+            <div class="mb-3">
                 <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
                     xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
                     <path fill-rule="evenodd"
@@ -388,75 +373,4 @@ const confirmCancle = async () => {
             <h2 class="text-[24px] font-bold text-center text-black mb-3">ยืนยันการแก้ไขผู้ใช้สำเร็จ</h2>
         </div>
     </div>
-
-    <!-- Alert ยกเลิก -->
-    <div v-if="isAlertCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div
-            class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-            <div class="mb-4">
-                <svg :class="`w-[96px] h-[96px] text-gray-800 dark:text-white`" aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-                    <path fill-rule="evenodd"
-                        d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-                        clip-rule="evenodd" />
-                </svg>
-            </div>
-            <h2 class="text-[24px] font-bold text-center text-black mb-3">ยกเลิกการแก้ไขผู้ใช้สำเร็จ</h2>
-        </div>
-    </div>
 </template>
-
-<style scoped>
-.disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-input:disabled {
-    opacity: 0.5;
-    background-color: #f0f0f0;
-}
-
-select:disabled {
-    opacity: 0.5;
-    background-color: #f0f0f0;
-}
-
-button:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-}
-
-button {
-    font-size: 1rem;
-    font-weight: 600;
-    border-radius: 6px;
-    transition: all 0.3s ease;
-}
-
-button:hover {
-    transform: translateY(-1px);
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-}
-
-button:active {
-    transform: translateY(0);
-    box-shadow: none;
-}
-
-input[type="checkbox"] {
-    border: 2px solid #d1d5db;
-    border-radius: 4px;
-    background-color: white;
-}
-
-input[type="checkbox"]:checked {
-    background-color: #3b82f6;
-    border-color: #3b82f6;
-}
-
-input[type="checkbox"]:disabled {
-    background-color: #f3f4f6;
-    border-color: #d1d5db;
-}
-</style>

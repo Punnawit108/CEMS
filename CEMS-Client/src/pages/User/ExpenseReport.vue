@@ -16,15 +16,36 @@ import {
 import ExpenseReportGraph from "../../types/index";
 import { useExportExpenseReportStore } from "../../store/exportExpenseReport";
 import Button from "../../components/Buttons/Button.vue";
-// import Decimal from "decimal.js";
+import Decimal from "decimal.js";
 import { storeToRefs } from "pinia";
+import Pagination from "../../components/Pagination.vue";
+import { useRouter } from "vue-router";
+
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(filteredExpenses.value.length / itemsPerPage.value);
+});
+
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  const pageItems = filteredExpenses.value.slice(start, end);
+
+  // Add empty rows if fewer than 10 items
+  while (pageItems.length < itemsPerPage.value) {
+    pageItems.push(null);
+  }
+
+  return pageItems;
+});
 
 // Import filters
-import UserSearchInput from "../../components/filters/UserSearchInput.vue";
-import ProjectFilter from "../../components/Filters/ProjectFilter.vue";
-import RequisitionTypeFilter from "../../components/Filters/RequisitionTypeFilter.vue";
-import DateFilter from "../../components/Filters/DateFilter.vue";
-import FilterButtons from "../../components/Filters/FilterButtons.vue";
+import UserSearchInput from "../../components/Filter/UserSearchInput.vue";
+import ProjectFilter from "../../components/Filter/ProjectFilter.vue";
+import RequisitionTypeFilter from "../../components/Filter/RequisitionTypeFilter.vue";
+import DateFilter from "../../components/Filter/DateFilter.vue";
+import FilterButtons from "../../components/Filter/FilterButtons.vue";
 
 import {
   Chart,
@@ -59,6 +80,12 @@ Chart.register(
   ChartDataLabels
 );
 
+const router = useRouter();
+
+const toDetails = (id: string) => {
+  router.push(`/report/expense/detail/${id}`);
+};
+
 // ตัวแปรแสดง/ซ่อน Modal
 const showModal = ref(false);
 const selectedType = ref<string | null>(null);
@@ -91,12 +118,32 @@ const lastSearchedFilters = ref({
   startDate: undefined as Date | undefined,
   endDate: undefined as Date | undefined,
 });
+const exportFilteredFile = async (fileType: string) => {
+  // ตรวจสอบว่ามีการกรอกฟิลเตอร์หรือไม่
+  const filters = {
+    searchQuery: lastSearchedFilters.value.searchQuery,
+    project: lastSearchedFilters.value.project,
+    requisitionType: lastSearchedFilters.value.requisitionType,
+    startDate: lastSearchedFilters.value.startDate ? lastSearchedFilters.value.startDate.toISOString() : undefined,
+    endDate: lastSearchedFilters.value.endDate ? lastSearchedFilters.value.endDate.toISOString() : undefined,
+  };
 
+  // เรียกใช้งาน store เพื่อส่งค่าฟิลเตอร์ไปพร้อมกับการส่งออกไฟล์
+  try {
+    const exportStore = useExportExpenseReportStore();
+    await exportStore.exportFile(fileType, filters);
+  } catch (error) {
+    console.error("Error during file export:", error);
+  }
+};
 // Date picker state
 const startDateTemp = ref(new Date());
 const endDateTemp = ref(new Date());
 const isStartDatePickerOpen = ref(false);
 const isEndDatePickerOpen = ref(false);
+
+// เพิ่มตัวแปรเก็บสถานะข้อผิดพลาด
+const startDateError = ref(false);
 
 // Reset pagination when filters change
 watch(
@@ -137,6 +184,125 @@ const formatDateForDisplay = (date: Date): string => {
   return `${day}/${month}/${buddhistYear}`;
 };
 
+// เพิ่มฟังก์ชันเช็ควันที่
+// ฟังก์ชันแปลงวันที่จากรูปแบบสตริง DD/MM/YYYY เป็น Date object
+const parseDateString = (dateStr: string): Date | null => {
+  if (!dateStr) return null;
+
+  try {
+    // รองรับรูปแบบ DD/MM/YYYY
+    const parts = dateStr.split('/');
+    if (parts.length === 3) {
+      const day = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1; // เดือนใน JavaScript เริ่มที่ 0
+      let year = parseInt(parts[2], 10);
+
+      // ถ้าเป็นปีพุทธศักราช ให้แปลงเป็นคริสต์ศักราช
+      if (year > 2500) {
+        year = year - 543;
+      }
+
+      const date = new Date(year, month, day);
+      date.setHours(0, 0, 0, 0);
+
+      // ตรวจสอบว่าวันที่ถูกต้อง
+      if (
+        date.getDate() === day &&
+        date.getMonth() === month &&
+        date.getFullYear() === year
+      ) {
+        return date;
+      }
+    }
+  } catch (e) {
+    console.error("Error parsing date string:", dateStr, e);
+  }
+
+  return null;
+};
+
+// ฟังก์ชันเปรียบเทียบวันที่ ไม่ว่าจะอยู่ในรูปแบบใด
+const compareDates = (date1: string | Date | null | undefined, date2: string | Date | null | undefined): number => {
+  if (!date1 && !date2) return 0;
+  if (!date1) return -1;
+  if (!date2) return 1;
+
+  // แปลงวันที่ให้เป็น Date objects
+  let d1: Date | null = null;
+  let d2: Date | null = null;
+
+  if (date1 instanceof Date) {
+    d1 = new Date(date1);
+    d1.setHours(0, 0, 0, 0);
+  } else if (typeof date1 === 'string') {
+    // ตรวจสอบรูปแบบของสตริง
+    if (date1.includes('/')) {
+      // รูปแบบ DD/MM/YYYY
+      d1 = parseDateString(date1);
+    } else if (date1.includes('-')) {
+      // รูปแบบ YYYY-MM-DD
+      const parts = date1.split('-');
+      let year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      // ตรวจสอบปีพุทธศักราช
+      if (year > 2500) {
+        year = year - 543;
+      }
+
+      d1 = new Date(year, month, day);
+      d1.setHours(0, 0, 0, 0);
+    }
+  }
+
+  if (date2 instanceof Date) {
+    d2 = new Date(date2);
+    d2.setHours(0, 0, 0, 0);
+  } else if (typeof date2 === 'string') {
+    // ตรวจสอบรูปแบบของสตริง
+    if (date2.includes('/')) {
+      // รูปแบบ DD/MM/YYYY
+      d2 = parseDateString(date2);
+    } else if (date2.includes('-')) {
+      // รูปแบบ YYYY-MM-DD
+      const parts = date2.split('-');
+      let year = parseInt(parts[0], 10);
+      const month = parseInt(parts[1], 10) - 1;
+      const day = parseInt(parts[2], 10);
+
+      // ตรวจสอบปีพุทธศักราช
+      if (year > 2500) {
+        year = year - 543;
+      }
+
+      d2 = new Date(year, month, day);
+      d2.setHours(0, 0, 0, 0);
+    }
+  }
+
+  // ถ้าไม่สามารถแปลงเป็น Date ได้
+  if (!d1 && !d2) return 0;
+  if (!d1) return -1;
+  if (!d2) return 1;
+
+  // เปรียบเทียบวันที่
+  if (d1 < d2) return -1;
+  if (d1 > d2) return 1;
+  return 0;
+};
+
+// เพิ่มฟังก์ชันสำหรับจัดการการเปิด DatePicker ของวันที่สิ้นสุด
+const handleEndDatePickerOpen = (isOpen: boolean) => {
+  if (isOpen && !filters.value.startDate) {
+    // ถ้าผู้ใช้พยายามเปิด datepicker ของวันที่สิ้นสุดโดยที่ยังไม่ได้เลือกวันที่เริ่มต้น
+    startDateError.value = true; // แสดงข้อผิดพลาดที่วันที่เริ่มต้น
+    isEndDatePickerOpen.value = false; // ไม่เปิด datepicker ของวันที่สิ้นสุด
+  } else {
+    isEndDatePickerOpen.value = isOpen; // เปิดหรือปิด datepicker ตามปกติ
+  }
+};
+
 const filteredExpenses = computed(() => {
   if (!expenses.value) return [];
 
@@ -148,31 +314,15 @@ const filteredExpenses = computed(() => {
 
   if (lastSearchedFilters.value.startDate) {
     console.log(
-      "Start date for filtering (แบบคริสต์ศักราช):",
+      "Start date for filtering:",
       lastSearchedFilters.value.startDate
-    );
-    console.log(
-      "Start date for filtering (แบบพุทธศักราช):",
-      formatDateForDisplay(lastSearchedFilters.value.startDate)
-    );
-    console.log(
-      "Start date formatted (YYYY-MM-DD พุทธศักราช):",
-      formatToBuddhistYYYYMMDD(lastSearchedFilters.value.startDate)
     );
   }
 
   if (lastSearchedFilters.value.endDate) {
     console.log(
-      "End date for filtering (แบบคริสต์ศักราช):",
+      "End date for filtering:",
       lastSearchedFilters.value.endDate
-    );
-    console.log(
-      "End date for filtering (แบบพุทธศักราช):",
-      formatDateForDisplay(lastSearchedFilters.value.endDate)
-    );
-    console.log(
-      "End date formatted (YYYY-MM-DD พุทธศักราช):",
-      formatToBuddhistYYYYMMDD(lastSearchedFilters.value.endDate)
     );
   }
 
@@ -196,38 +346,31 @@ const filteredExpenses = computed(() => {
       (item.rqRqtName &&
         item.rqRqtName === lastSearchedFilters.value.requisitionType);
 
-    // ตรวจสอบวันที่ด้วยการเปรียบเทียบสตริง YYYY-MM-DD แบบพุทธศักราช
+    // ตรวจสอบวันที่ด้วยการใช้ฟังก์ชัน compareDates
     let matchesStartDate = true;
     let matchesEndDate = true;
 
-    if (lastSearchedFilters.value.startDate && item.rqPayDate) {
-      // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
-      const startDateStr = formatToBuddhistYYYYMMDD(
-        lastSearchedFilters.value.startDate
-      );
+    // ตรวจสอบว่ามีวันที่ในฟิลเตอร์และในข้อมูล
+    if (lastSearchedFilters.value.startDate && item.rqWithDrawDate) {
+      // แปลง String object เป็น string primitive ถ้าจำเป็น
+      const itemDate = typeof item.rqWithDrawDate === 'object' && item.rqWithDrawDate instanceof String
+        ? item.rqWithDrawDate.toString()
+        : item.rqWithDrawDate;
 
-      // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
-      matchesStartDate = item.rqPayDate >= startDateStr;
-
-      // Debug
-      console.log(
-        `เปรียบเทียบ "${item.rqPayDate}" >= "${startDateStr}" = ${matchesStartDate}`
-      );
+      // เปรียบเทียบวันที่เริ่มต้นกับวันที่ในข้อมูล
+      matchesStartDate = compareDates(itemDate, lastSearchedFilters.value.startDate) >= 0;
+      console.log(`Start date check: "${itemDate}" >= "${lastSearchedFilters.value.startDate}" = ${matchesStartDate}`);
     }
 
-    if (lastSearchedFilters.value.endDate && item.rqPayDate) {
-      // แปลงวันที่จาก DatePicker (คริสต์ศักราช) เป็นรูปแบบ YYYY-MM-DD แบบพุทธศักราช
-      const endDateStr = formatToBuddhistYYYYMMDD(
-        lastSearchedFilters.value.endDate
-      );
+    if (lastSearchedFilters.value.endDate && item.rqWithDrawDate) {
+      // แปลง String object เป็น string primitive ถ้าจำเป็น
+      const itemDate = typeof item.rqWithDrawDate === 'object' && item.rqWithDrawDate instanceof String
+        ? item.rqWithDrawDate.toString()
+        : item.rqWithDrawDate;
 
-      // เปรียบเทียบกับวันที่ในฐานข้อมูล (ซึ่งเป็นพุทธศักราช)
-      matchesEndDate = item.rqPayDate <= endDateStr;
-
-      // Debug
-      console.log(
-        `เปรียบเทียบ "${item.rqPayDate}" <= "${endDateStr}" = ${matchesEndDate}`
-      );
+      // เปรียบเทียบวันที่สิ้นสุดกับวันที่ในข้อมูล
+      matchesEndDate = compareDates(itemDate, lastSearchedFilters.value.endDate) <= 0;
+      console.log(`End date check: "${itemDate}" <= "${lastSearchedFilters.value.endDate}" = ${matchesEndDate}`);
     }
 
     return (
@@ -316,11 +459,15 @@ const handleReset = () => {
   // รีเซ็ตวันที่
   startDateTemp.value = new Date();
   endDateTemp.value = new Date();
+
+  // ล้างสถานะข้อผิดพลาด
+  startDateError.value = false;
 };
 
 // Date handlers
 const confirmStartDate = (date: Date) => {
   filters.value.startDate = date;
+  startDateError.value = false; // ล้างข้อผิดพลาดเมื่อเลือกวันที่เริ่มต้นแล้ว
   console.log("Start date confirmed (คริสต์ศักราช):", date);
   console.log(
     "Start date confirmed (พุทธศักราช):",
@@ -353,23 +500,35 @@ const cancelEndDate = () => {
   }
 };
 
-const handleExport = (type: string) => {
-  selectedType.value = type; // อัปเดตประเภทที่เลือก
-};
+// const handleExport = (type: string) => {
+//   selectedType.value = type; // อัปเดตประเภทที่เลือก
+// };
+
+const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
 
 const exportFile = async () => {
-  if (!selectedType.value) return;
+  // กำหนดค่าฟิลเตอร์ที่จะส่งไป
+  const filters = {
+    searchQuery: lastSearchedFilters.value.searchQuery,
+    project: lastSearchedFilters.value.project,
+    requisitionType: lastSearchedFilters.value.requisitionType,
+    startDate: lastSearchedFilters.value.startDate,
+    endDate: lastSearchedFilters.value.endDate,
+  };
 
   try {
-    await exportReportStore.exportFile(selectedType.value);
-
-    selectedType.value = null;
+    // ส่งฟิลเตอร์ไปยัง store
+    await exportReportStore.exportFile('xlsx', filters);
     showModal.value = false;
+    isAlertPrintOpen.value = true;
+    setTimeout(() => {
+      isAlertPrintOpen.value = false; // ปิด popup หลังจาก 3 วินาที
+    }, 1500);
   } catch (error) {
     console.error("Error exporting file:", error);
     if (selectedType.value) {
       alert(
-        `เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`
+        `เกิดข้อผิดพลาดในการส่งออกไฟล์`
       );
     }
   }
@@ -538,74 +697,33 @@ onMounted(async () => {
 
 <template>
   <div>
-    <!-- path for test = /report/project -->
     <!-- begin::Filter -->
-    <div class="relative w-full mb-6">
-      <Button
-        :type="'btn-print2'"
-        @click="showModal = true"
-        class="absolute right-0 transform -translate-y-1/2 top-1/2"
-      >
+    <div class="relative w-full pb-[66px]">
+      <Button :type="'btn-print2'" @click="showModal = true"
+        class="absolute right-0 transform -translate-y-1/2 top-1/2">
         ส่งออก
       </Button>
     </div>
-
-    <div
-      class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8"
-    >
+    <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4 mb-8">
       <!-- ค้นหาชื่อผู้ใช้ -->
-      <UserSearchInput
-        v-model="filters.searchQuery"
-        :loading="loading"
-        label="ค้นหาชื่อผู้ใช้"
-      />
-
+      <UserSearchInput v-model="filters.searchQuery" :loading="loading" label="ค้นหาชื่อผู้ใช้" />
       <!-- โครงการ -->
-      <ProjectFilter
-        v-model="filters.project"
-        :projects="projects"
-        :loading="loading"
-      />
-
+      <ProjectFilter v-model="filters.project" :projects="projects" :loading="loading" />
       <!-- ประเภทค่าใช้จ่าย -->
-      <RequisitionTypeFilter
-        v-model="filters.requisitionType"
-        :requisition-types="requisitionTypes"
-        :loading="loading"
-      />
-
+      <RequisitionTypeFilter v-model="filters.requisitionType" :requisition-types="requisitionTypes"
+        :loading="loading" />
       <!-- วันที่เริ่มต้นขอเบิก -->
-      <DateFilter
-        v-model="startDateTemp"
-        :loading="loading"
-        label="วันที่เริ่มต้นขอเบิก"
-        :is-open="isStartDatePickerOpen"
-        @update:is-open="isStartDatePickerOpen = $event"
-        :confirmed-date="filters.startDate"
-        @confirm="confirmStartDate"
-        @cancel="cancelStartDate"
-      />
-
+      <DateFilter v-model="startDateTemp" :loading="loading" label="วันที่เริ่มต้นขอเบิก"
+        :is-open="isStartDatePickerOpen" @update:is-open="isStartDatePickerOpen = $event"
+        :confirmed-date="filters.startDate" @confirm="confirmStartDate" @cancel="cancelStartDate"
+        :error="startDateError" />
       <!-- วันที่สิ้นสุดขอเบิก -->
       <div class="flex flex-col">
-        <DateFilter
-          v-model="endDateTemp"
-          :loading="loading"
-          label="วันที่สิ้นสุดขอเบิก"
-          :is-open="isEndDatePickerOpen"
-          @update:is-open="isEndDatePickerOpen = $event"
-          :confirmed-date="filters.endDate"
-          @confirm="confirmEndDate"
-          @cancel="cancelEndDate"
-          class="mb-2"
-        />
-
+        <DateFilter v-model="endDateTemp" :loading="loading" label="วันที่สิ้นสุดขอเบิก" :is-open="isEndDatePickerOpen"
+          @update:is-open="handleEndDatePickerOpen" :confirmed-date="filters.endDate" @confirm="confirmEndDate"
+          @cancel="cancelEndDate" :min-date="filters.startDate" class="mb-4" />
         <!-- ปุ่มค้นหาและรีเซ็ต -->
-        <FilterButtons
-          :loading="loading"
-          @reset="handleReset"
-          @search="handleSearch"
-        />
+        <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
       </div>
     </div>
     <!-- end::Filter -->
@@ -618,9 +736,7 @@ onMounted(async () => {
           ยอดการเบิกของค่าใช้จ่ายแต่ละประเภท
         </p>
         <div v-if="loading" class="flex justify-center items-center">
-          <div
-            class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
-          ></div>
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
           <span class="ml-2">กำลังโหลดข้อมูล...</span>
         </div>
         <div class="w-3/4 h-full">
@@ -628,189 +744,126 @@ onMounted(async () => {
         </div>
       </div>
       <!-- end::Bar chart -->
-
       <!-- begin::Table -->
-      <div class="w-full h-fit border-[2px] flex flex-col items-start">
+      <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
         <!-- Table Header -->
         <Ctable :table="'Table7-head'" />
         <!-- Table Data -->
         <table class="w-full text-center text-black table-auto">
           <tbody>
             <tr v-if="loading">
-              <td colspan="8" class="py-4">
+              <td colspan="100%" class="py-4">
                 <div class="flex justify-center items-center">
-                  <div
-                    class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
-                  ></div>
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
                   <span class="ml-2">กำลังโหลดข้อมูล...</span>
                 </div>
               </td>
             </tr>
-
-            <tr v-else-if="!expenses?.length">
-              <td colspan="8" class="py-4">ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย</td>
-            </tr>
-
-            <tr v-else-if="filteredExpenses.length === 0">
-              <td colspan="8" class="py-4">
-                ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
+            <tr v-else-if="!expenses?.length || filteredExpenses.length === 0" v-for="n in 10" :key="n"
+              class="h-[50px]">
+              <td colspan="100%" class="py-4 text-center">
+                <span v-if="n === 5">
+                  {{ !expenses?.length ? 'ไม่มีข้อมูลรายการเบิกค่าใช้จ่าย' : 'ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา' }}
+                </span>
               </td>
             </tr>
-
-            <tr
-              v-else
-              v-for="(expense, index) in filteredExpenses"
-              :key="index"
-              class="text-[14px] border-b-2 border-[#BBBBBB] hover:bg-gray-50"
-            >
-              <th class="py-[12px] px-2 w-14 h-[46px]">{{ index + 1 }}</th>
-              <th
-                class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                style="
-                  max-width: 224px;
-                  white-space: nowrap;
-                  text-overflow: ellipsis;
-                  overflow: hidden;
-                "
-                :title="expense.rqUsrName"
-              >
-                {{ expense.rqUsrName }}
-              </th>
-              <th
-                class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                style="
-                  max-width: 224px;
-                  white-space: nowrap;
-                  text-overflow: ellipsis;
-                  overflow: hidden;
-                "
-                :title="expense.rqName"
-              >
-                {{ expense.rqName }}
-              </th>
-              <th
-                class="py-[12px] px-2 w-56 text-start truncate overflow-hidden"
-                style="
-                  max-width: 224px;
-                  white-space: nowrap;
-                  text-overflow: ellipsis;
-                  overflow: hidden;
-                "
-                :title="expense.rqPjName"
-              >
-                {{ expense.rqPjName }}
-              </th>
-              <th class="py-[12px] px-5 w-44 text-start">
-                {{ expense.rqRqtName }}
-              </th>
-              <th class="py-[12px] px-2 w-24 text-end">
-                {{ expense.rqPayDate }}
-              </th>
-              <th class="py-[12px] px-2 w-40 text-end">
-                {{
-                  expense.rqExpenses.toLocaleString("en-US", {
-                    minimumFractionDigits: 2,
-                    maximumFractionDigits: 2,
-                  })
-                }}
-              </th>
-              <th class="py-[10px] px-2 w-32 text-center">
-                <span class="flex justify-center">
-                  <Icon
-                    :icon="'viewDetails'"
-                    class="cursor-pointer hover:text-blue-500"
-                  />
-                </span>
-              </th>
+            <tr v-else v-for="(expense, index) in paginated" :key="expense ? expense.rqId : `empty-${index}`"
+              :class="expense ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
+              <template v-if="expense">
+                <th class="py-3 px-2 w-12 h-[46px]">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                <th class="py-3 px-2 text-start w-1/4 "
+                  style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                  :title="expense.rqUsrName">
+                  {{ expense.rqUsrName }}
+                </th>
+                <th class="py-3 px-2 text-start w-44 "
+                  style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                  :title="expense.rqName">
+                  {{ expense.rqName }}
+                </th>
+                <th class="py-3 px-2 text-start w-44 "
+                  style="max-width: 200px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
+                  :title="expense.rqPjName">
+                  {{ expense.rqPjName }}
+                </th>
+                <th class="py-3 px-5 text-start w-32">
+                  {{ expense.rqRqtName }}
+                </th>
+                <th class="py-3 px-2 text-start w-24">
+                  {{ expense.rqWithDrawDate }}
+                </th>
+                <th class="py-3 px-2 text-end w-32">
+                  {{
+                    new Decimal(expense.rqExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })
+                  }}
+                </th>
+                <th class="py-3 px-2 w-20 text-center">
+                  <span class="flex justify-center">
+                    <Icon :icon="'viewDetails'" @click="toDetails(expense.rqId.toString())"
+                      class="cursor-pointer hover:text-[#B67D12]" />
+                  </span>
+                </th>
+              </template>
+              <template v-else>
+                <td>&nbsp;</td>
+              </template>
             </tr>
           </tbody>
+          <Pagination :currentPage="currentPage" :totalPages="totalPages"
+            @update:currentPage="(page) => (currentPage = page)" />
         </table>
-        <!-- Table Footer -->
-        <Ctable :table="'Table7-footer'" />
       </div>
     </div>
     <!-- end::Content -->
 
     <!-- Modal for export -->
-    <div
-      v-if="showModal"
-      class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50 z-50"
-    >
-      <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
-        <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-
-        <!-- ปุ่มเลือกประเภทไฟล์ -->
-        <div>
-          <div class="flex justify-center space-x-6">
-            <!-- ปุ่ม PDF -->
-            <button
-              @click="handleExport('pdf')"
-              :class="[
-                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
-                selectedType === 'pdf'
-                  ? 'bg-blue-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200',
-              ]"
-            >
-              <!-- ไอคอน PDF -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-8 h-8 mr-2"
-              >
-                <path
-                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z"
-                />
-              </svg>
-            </button>
-
-            <!-- ปุ่ม XLSX -->
-            <button
-              @click="handleExport('xlsx')"
-              :class="[
-                'px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200',
-                selectedType === 'xlsx'
-                  ? 'bg-green-500 text-white'
-                  : 'bg-gray-100 hover:bg-gray-200',
-              ]"
-            >
-              <!-- ไอคอน XLSX -->
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                class="w-8 h-8 mr-2"
-              >
-                <path
-                  d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z"
-                />
-              </svg>
-            </button>
-          </div>
-
-          <div class="flex justify-center mb-6 space-x-20">
-            <span class="mt-2 text-sm text-gray-600">PDF</span>
-            <span class="mt-2 text-sm text-gray-600">XLSX</span>
-          </div>
-
-          <!-- ปุ่มยืนยันและยกเลิก -->
-          <div class="flex justify-center space-x-4">
-            <button
-              @click="showModal = false"
-              class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400"
-            >
-              ยกเลิก
-            </button>
-            <button
-              @click="exportFile"
-              :disabled="!selectedType"
-              class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300"
-            >
-              ยืนยัน
-            </button>
-          </div>
+    <!-- Popup สำหรับยืนยันการส่งออกรายงานเบิกค่าใช้จ่าย -->
+    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+        <div class="flex justify-center mb-4">
+          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+            <path fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+              clip-rule="evenodd" />
+          </svg>
         </div>
+        <h2 class="text-[24px] font-bold text-center text-black mb-4">
+          ยืนยันส่งออกรายงานเบิกค่าใช้จ่าย
+        </h2>
+        <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+          คุณยืนยันส่งออกรายงานเบิกค่าใช้จ่ายหรือไม่ ?
+        </h2>
+        <div class="flex justify-center space-x-4">
+          <button @click="showModal = false"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยกเลิก
+          </button>
+
+          <button @click="exportFile"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+            ยืนยัน
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Popup สำหรับแสดงผลลัพธ์ -->
+    <div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg flex flex-col justify-center items-center">
+        <div class="mb-4">
+          <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" fill="none">
+            <path
+              d="M40 0C17.9433 0 0 17.9433 0 40C0 62.0567 17.9433 80 40 80C62.0567 80 80 62.0567 80 40C80 17.9433 62.0567 0 40 0ZM39.6967 51.3967C38.4067 52.6867 36.71 53.33 35.0067 53.33C33.3033 53.33 31.59 52.68 30.2867 51.38L21.0133 42.3933L25.6567 37.6033L34.9667 46.6267L54.33 27.6233L59.01 32.3733L39.6967 51.3967Z"
+              fill="#12B669" />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black" style="white-space: pre-line;">
+          ส่งออกรายงานเบิกค่าใช้จ่ายสำเร็จ
+        </h2>
       </div>
     </div>
   </div>
@@ -843,7 +896,6 @@ select option[value=""] {
   display: none;
 }
 
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
 @media screen and (-webkit-min-device-pixel-ratio: 0) {
   .custom-select {
     background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");

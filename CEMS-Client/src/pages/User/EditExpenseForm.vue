@@ -19,7 +19,7 @@ import { useRoute } from "vue-router";
 const requisitionStore = useRequisitionStore();
 const user = ref<any>(null);
 const vehicleType = ref<any>(null);
-const selectedTravelType = ref<string>('');
+const selectedTravelType = ref<string | null>("");
 const fileInput = ref<HTMLInputElement | null>(null);
 
 const route = useRoute();
@@ -67,41 +67,36 @@ const parseDate = (dateStr: string): Date => {
   return new Date(year - 543, month - 1, day); // แปลง พ.ศ. เป็น ค.ศ.
 };
 
-const base64ToBlob = (base64: string, mimeType: string): Blob => {
-  const byteCharacters = atob(base64); // แปลง Base64 ให้เป็น string ของ byte
-  const byteArrays = [];
-
-  for (let offset = 0; offset < byteCharacters.length; offset += 1024) {
-    const slice = byteCharacters.slice(offset, offset + 1024);
-    const byteNumbers = new Array(slice.length);
-    for (let i = 0; i < slice.length; i++) {
-      byteNumbers[i] = slice.charCodeAt(i);
-    }
-    byteArrays.push(new Uint8Array(byteNumbers));
-  }
-
-  return new Blob(byteArrays, { type: mimeType });
-};
+const isMounted = ref(false);
 
 onMounted(async () => {
   await requisitionStore.getAllProject();
   await requisitionStore.getAllRequisitionType();
-  vehicleType.value = await requisitionStore.getAllvehicleType();
+  vehicleType.value = await requisitionStore.getAllVehicleType();
   const storedUser = localStorage.getItem("user");
-
+  console.log(vehicleType)
   if (storedUser) {
     try {
       user.value = await JSON.parse(storedUser);
       await requisitionStore.getUserEmail(user.value.usrId)
       const data = await requisitionStore.getExpenseById(id);
       if (data) {
-        console.log(data)
         Object.assign(formData.value, data);
-        vhId.value = data.rqVhId;
+        vhId.value = data.rqVhId; //rqVhName : "รถเมย์"
+        const selectedType = requisitionStore.requisitionType.find(
+          (type) => type.rqtId === data.rqRqtId
+        );
+        rqtName.value = selectedType ? selectedType.rqtName : '';
 
-        selectedTravelType.value = data.vehicleType?.vhType || "";
+        const selectedVehicle = vehicleType.value.find(
+          (vehicle: TravelManage) => vehicle.vhVehicle === data.rqVhName
+        );
+        if (selectedVehicle) {
+          vhId.value = selectedVehicle.vhId;
+        }
+        selectedTravelType.value = data.rqVhType || "";
         rqCode.value = data.rqCode
-        displayRqExpenses.value = data.rqExpenses;
+        displayRqExpenses.value = data.rqExpenses ? parseFloat(data.rqExpenses).toFixed(2) : "";
         const user = requisitionStore.UserInstead.find((u) => u.usrName === data.rqInsteadEmail);
         if (user) {
           formData.value.rqInsteadEmail = user.usrEmail; // ตั้งค่าเป็น email
@@ -117,8 +112,7 @@ onMounted(async () => {
             fileName: file.fName,
           };
         });
-
-        console.log(selectedFiles.value)
+        isMounted.value = true;
       }
     } catch (error) {
       console.log("Error loading user:", error);
@@ -126,14 +120,20 @@ onMounted(async () => {
   }
 });
 
+const formatRqExpenses = () => {
+  if (displayRqExpenses.value !== "") {
+    displayRqExpenses.value = parseFloat(displayRqExpenses.value).toFixed(2);
+    formData.value.rqExpenses = Number(displayRqExpenses.value);
+  }
+};
+
 // กรองข้อมูลที่ vhType เป็นประเภทที่เลือกและ vhVisible == 0
 const filteredVehicleType = computed(() => {
-  return vehicleType.value
-    ? vehicleType.value.filter((vehicle: TravelManage) =>
-      vehicle.vhType === selectedTravelType.value && vehicle.vhVisible === 0
-    )
-    : [];
-})
+  if (!selectedTravelType.value) {
+    return vehicleType.value; // ถ้าไม่ได้เลือกประเภทการเดินทางให้แสดงทั้งหมด
+  }
+  return vehicleType.value.filter((vehicle: TravelManage) => vehicle.vhType === selectedTravelType.value);
+});
 
 // กรองประเภทการเดินทางที่ไม่ซ้ำ
 const uniqueTravelTypes = computed(() => {
@@ -153,14 +153,24 @@ function updateRqtName(event: Event) {
 
 //fn หา vhPayrate ของพาหนะที่ถูกเลือก
 const selectedPayrate = computed(() => {
+  if (!vehicleType.value || !vhId.value) {
+    return '';
+  }
+
   const selectedVehicle = vehicleType.value.find(
     (vehicle: any) => vehicle.vhId.toString() === vhId.value.toString()
   );
-
+  
   return selectedVehicle ? selectedVehicle.vhPayrate : '';
 });
 
-//const selectedFiles = ref<File[]>([]);
+const calculateExpenses = () => {
+  if (formData.value.rqDistance && selectedPayrate.value) {
+    const expenses = Number(formData.value.rqDistance) * Number(selectedPayrate.value);
+    displayRqExpenses.value = expenses.toString();
+    formData.value.rqExpenses = expenses;
+  }
+};
 
 //fn การกดอัพโหลดไฟล์
 const triggerFileInput = () => {
@@ -190,13 +200,20 @@ const handleFileChange = async (event: Event) => {
 const removeFile = async (fIdToRemove: number | null, fileNameToRemove?: string) => {
   if (fIdToRemove !== null) {
     await requisitionStore.deleteFile(fIdToRemove);
-    console.log(fIdToRemove)
     selectedFiles.value = selectedFiles.value.filter(item => item.fId !== fIdToRemove);
   } else if (fileNameToRemove) {
     selectedFiles.value = selectedFiles.value.filter(item => item.file.name !== fileNameToRemove);
   }
 };
 
+watch(rqtName, (newValue) => {
+  displayRqExpenses.value = "";
+  if (newValue !== 'ค่าเดินทาง') {
+    selectedTravelType.value = null;
+  } else {
+    selectedTravelType.value = 'public';
+  }
+});
 
 //fn ตัวตรวจสอบไฟล์
 const uploadFiles = async (files: File[]) => {
@@ -256,8 +273,6 @@ const uploadFiles = async (files: File[]) => {
   if (errors.length > 0) {
     alert(errors.join("\n"));
   }
-
-  console.log(selectedFiles.value)
 };
 
 const handleSubmit = async () => {
@@ -304,7 +319,7 @@ const displayRqExpenses = ref('');
 
 //ตรวจสอบสถานะของ rqExpense มีการแก้ไขหรือไม่ และ ให้แสดงค่าว่าง
 watch(displayRqExpenses, (newVal) => {
-  formData.value.rqExpenses = newVal === '' ? 0 : Number(newVal);
+  formData.value.rqExpenses = newVal === "" ? 0 : Number(newVal);
 });
 
 // ตัวแปรเก็บ error ของแต่ละฟิลด์
@@ -386,9 +401,11 @@ function updateFormData() {
 // ปรับรูปแบบวันเดือนปี
 const formatDateToThai = (date: Date) => {
   if (!date) return null;
-  const thaiYear = date.getFullYear() + 543;
-  const formattedDate = `${thaiYear}-${(date.getMonth() + 1).toString().padStart(2, '0')}-${date.getDate().toString().padStart(2, '0')}`;
-  return formattedDate;
+  const localDate = new Date(date.getTime() + date.getTimezoneOffset() * 60000);
+  const options: Intl.DateTimeFormatOptions = { year: "numeric", month: "2-digit", day: "2-digit" };
+  const thaiDate = new Intl.DateTimeFormat("th-TH", options).format(localDate);
+  const [day, month, year] = thaiDate.split("/");
+  return `${year}-${month}-${day}`;
 };
 
 // ปรับรูปแบบค่าที่ส่งเข้า db
@@ -415,7 +432,6 @@ const confirmSave = async (event: Event) => {
   const fd = await createFormData(formData.value, filesOnly);
   await requisitionStore.updateExpense(id, fd);
   isAlertSaveOpen.value = true;
-
   setTimeout(() => {
     isAlertSaveOpen.value = false;
     closePopupSave();
@@ -635,7 +651,7 @@ const previewFile = (file: string | File) => {
           <div v-if="rqtName === 'ค่าเดินทาง'">
             <label for="rqDistance" class="block text-sm font-medium py-2"
               :class="{ 'text-red-500': errors.rqDistance }">ระยะทาง <span class="text-red-500">*</span></label>
-            <input type="text" id="rqDistance" v-model="formData.rqDistance"
+            <input type="text" id="rqDistance" v-model="formData.rqDistance" @input="calculateExpenses"
               :class="['inputItem', { 'error': errors.rqDistance }]" />
           </div>
 
@@ -647,29 +663,18 @@ const previewFile = (file: string | File) => {
 
           <!-- ช่อง "จำนวนเงิน (บาท) *" -->
           <div>
-            <label
-              for="rqExpenses"
-              class="block text-sm font-medium py-2"
-              :class="{ 'text-red-500': errors.rqExpenses }"
-              >จำนวนเงิน (บาท) <span class="text-red-500">*</span></label
-            >
-            <input
-              type="number"
-              id="rqExpenses"
-              v-model="displayRqExpenses"
-              :class="[
-                'inputItem ',
-                {
-                  error: errors.rqExpenses,
-                  'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
-                    rqtName === 'ค่าเดินทาง' &&
-                    selectedTravelType === 'private',
-                },
-              ]"
-              :disabled="
-                rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
-              "
-            />
+            <label for="rqExpenses" class="block text-sm font-medium py-2"
+              :class="{ 'text-red-500': errors.rqExpenses }">จำนวนเงิน (บาท) <span class="text-red-500">*</span></label>
+            <input type="number" id="rqExpenses" v-model="displayRqExpenses" @blur="formatRqExpenses" :class="[
+              'inputItem ',
+              {
+                error: errors.rqExpenses,
+                'bg-gray-200 text-gray-500 cursor-not-allowed  bg-[#F7F7F7] text-[#BABBBE]':
+                  rqtName === 'ค่าเดินทาง' &&
+                  selectedTravelType === 'private',
+              },
+            ]" :disabled="rqtName === 'ค่าเดินทาง' && selectedTravelType === 'private'
+              " />
           </div>
 
           <!-- ช่อง "ชื่อผู้ขอเบิกแทน" -->
@@ -677,13 +682,10 @@ const previewFile = (file: string | File) => {
             <label for="rqInsteadEmail" class="block text-sm font-medium py-2">ชื่อผู้ขอเบิกแทน </label>
             <select type="text" id="rqInsteadEmail" v-model="formData.rqInsteadEmail" class="inputItem">
               <option :value="null" disabled selected>Select User</option>
-<option
-                  :value="user.usrEmail"
-                  v-for="user in requisitionStore.UserInstead"
-                  :key="user.usrEmail"
-                >
-                  {{ user.usrName }}
-                </option>            </select>
+              <option :value="user.usrEmail" v-for="user in requisitionStore.UserInstead" :key="user.usrEmail">
+                {{ user.usrName }}
+              </option>
+            </select>
             <button v-if="formData.rqInsteadEmail" @click="formData.rqInsteadEmail = null"
               class="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm bg-gray-200 p-1 rounded-full">
               X
@@ -729,7 +731,7 @@ const previewFile = (file: string | File) => {
     <div v-if="isPopupSaveOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -737,10 +739,10 @@ const previewFile = (file: string | File) => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-4">
-          ยืนยันการบันทึกคำขอเบิกค่าใช้จ่าย
+          ยืนยันการบันทึกรายการเบิกค่าใช้จ่าย
         </h2>
         <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
-          คุณยืนยันการบันทึกคำขอเบิกค่าใช้จ่ายหรือไม่ ?
+          คุณยืนยันการบันทึกรายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
           <button @click="closePopupSave"
@@ -759,7 +761,7 @@ const previewFile = (file: string | File) => {
     <div v-if="isPopupCancleOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -789,7 +791,7 @@ const previewFile = (file: string | File) => {
     <div v-if="isPopupSubmitOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[72px] h-[72px] text-gray-800 dark:text-white`" aria-hidden="true"
+          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
             xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
             <path fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
@@ -828,7 +830,7 @@ const previewFile = (file: string | File) => {
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mt-3">
-          บันทึกการทำรายการเบิกค่าใช้จ่ายสำเร็จ
+          ยืนยันการบันทึกรายการเบิกค่าใช้จ่ายสำเร็จ
         </h2>
       </div>
     </div>
