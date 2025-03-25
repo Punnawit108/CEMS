@@ -56,6 +56,8 @@ public class VehicleController : ControllerBase
         return Ok(vehicleDetails);
     }
 
+    // ฟังก์ชันสำหรับดึงข้อมูลรถสาธารณะทั้งหมด
+    // GET: api/vehicle/public
     [HttpGet("public")]
     public IActionResult GetVehiclePublic()
     {
@@ -159,6 +161,8 @@ public class VehicleController : ControllerBase
     }
 
     // PUT Private
+     // ฟังก์ชันสำหรับอัปเดตข้อมูลรถส่วนตัว
+    // PUT: api/vehicle/update/private
     [HttpPut("update/private")]
     public async Task<IActionResult> UpdatePrivate(VehiclePrivateUpdateDTO vehicleDTO)
     {
@@ -188,7 +192,7 @@ public class VehicleController : ControllerBase
 
         try
         {
-            await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลง
         }
         catch (DbUpdateConcurrencyException ex)
         {
@@ -202,6 +206,8 @@ public class VehicleController : ControllerBase
     }
 
     // PUT Public
+     // ฟังก์ชันสำหรับอัปเดตข้อมูลรถสาธารณะ
+    // PUT: api/vehicle/update/public
     [HttpPut("update/public")]
     public async Task<IActionResult> UpdatePublic(VehiclePublicUpdateDTO vehicleDTO)
     {
@@ -243,9 +249,12 @@ public class VehicleController : ControllerBase
         return Ok(new { message = "Public vehicle updated successfully." });
     }
 
+    // ฟังก์ชันสำหรับตรวจสอบว่ามีการใช้รถอยู่หรือไม่
+    // GET: api/vehicle/validation/5
     [HttpGet("validation/{VhId}")]
     public async Task<IActionResult> CheckVehicleUsage(int VhId)
     {
+        // ตรวจสอบว่ามี Requisition ที่ใช้รถนี้อยู่หรือไม่
         var isInUse = await _context.CemsRequisitions.AnyAsync(vh => vh.RqVhId == VhId);
         return Ok(new { VhId, isInUse });
     }

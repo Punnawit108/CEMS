@@ -1,8 +1,8 @@
 /*
  * ชื่อไฟล์: expenseManageStore.ts
  * คำอธิบาย: ไฟล์ store API ของประเภทค่าเดินทางและประเภทรถ
- * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน
- * วันที่จัดทำ/แก้ไข: 27 พฤศจิกายน 2567
+ * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน และนางสาวนครียา วัฒนศรี
+ * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
  */
 import { defineStore } from "pinia";
 import axios from "axios";
@@ -83,6 +83,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
     },
     //post vehicle
     async createVehicle(vehicle: any) {
+      /*
+   * คำอธิบาย: เพิ่มประเภทรถใหม่และบันทึกลงฐานข้อมูล
+   * Input: ข้อมูลประเภทรถ 
+   * Output: ข้อมูลที่สร้างสำเร็จจาก API
+   */
       try {
         const result = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle`,
@@ -94,6 +99,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async createRequisitionType(requisitiontype: any) {
+    /*
+   * คำอธิบาย: สร้างประเภทคำขอใหม่และบันทึกลงฐานข้อมูล
+   * Input: ข้อมูลประเภทคำขอ (requisitiontype)
+   * Output: ข้อมูลที่สร้างสำเร็จจาก API
+   */
       try {
         const result = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype`,
@@ -105,6 +115,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async changeRequisitionType(rqtId : number) {
+      /*
+   * คำอธิบาย: เปลี่ยนสถานะการใช้งานของประเภทคำขอ (เปิด/ปิด)
+   * Input: รหัสประเภทคำขอ (rqtId)
+   * Output: อัปเดตสถานะและดึงข้อมูลประเภทคำขอใหม่
+   */
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/update/${rqtId}`
@@ -115,6 +130,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async updateRequisitionType(data : any) {
+       /*
+   * คำอธิบาย: อัปเดตข้อมูลประเภทคำขอ
+   * Input: ข้อมูลประเภทคำขอที่ต้องการอัปเดต
+   * Output: อัปเดตข้อมูลและดึงข้อมูลประเภทคำขอใหม่
+   */
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype`,
@@ -126,6 +146,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async changeVehicle(vhId: number) {
+      /*
+   * คำอธิบาย: เปลี่ยนสถานะการใช้งานของประเภทรถ
+   * Input: รหัสประเภทรถที่ต้องการเปลี่ยนสถานะ
+   * Output: สถานะการใช้งานถูกเปลี่ยนและดึงข้อมูลประเภทรถใหม่
+   */
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`
@@ -135,6 +160,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async deleteVehicle(vhId: number) {
+      /*
+   * คำอธิบาย: ลบข้อมูลประเภทรถตามรหัสที่กำหนด
+   * Input: รหัสประเภทรถ (vhId)
+   * Output: ลบข้อมูลสำเร็จและดึงข้อมูลประเภทรถส่วนตัวใหม่
+   */
       try {
         const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`);
         this.getVehiclePrivate(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
@@ -146,6 +176,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async deleteExpense(rqtId: number) {
+      /*
+   * คำอธิบาย: ลบข้อมูลประเภทค่าใช้จ่ายตามรหัสที่กำหนด
+   * Input: รหัสประเภทค่าใช้จ่าย (rqtId)
+   * Output: ผลลัพธ์จากการลบ
+   */
       try {
         const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`);
         //this.getRequisitionType(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
@@ -157,6 +192,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async validationRequisitionTypes(rqtId: number) {
+       /*
+   * คำอธิบาย: ตรวจสอบว่าประเภทคำขอถูกใช้งานในระบบหรือไม่
+   * Input: รหัสประเภทคำขอ (rqtId)
+   * Output: สถานะการใช้งาน (isInUse)
+   */
       try {
         const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/validation/${rqtId}`);
         return result.data.isInUse;
@@ -166,6 +206,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async validationVehicle(VhId: number) {
+      /*
+   * คำอธิบาย: ตรวจสอบว่าประเภทรถถูกใช้งานในระบบหรือไม่
+   * Input: รหัสประเภทรถ (VhId)
+   * Output: สถานะการใช้งาน (isInUse)
+   */
       try {
         console.log(VhId)
         const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/vehicle/validation/${VhId}`);
@@ -176,6 +221,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async changeVehiclePublic(data: any) {
+       /*
+   * คำอธิบาย: อัปเดตข้อมูลประเภทรถสาธารณะ
+   * Input: ข้อมูลประเภทรถสาธารณะที่ต้องการอัปเดต
+   * Output: ส่งคำขออัปเดตไปยัง API
+   */
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/public`,data
@@ -185,6 +235,11 @@ export const useExpenseManageStore = defineStore("expenseManage", {
       }
     },
     async changeVehiclePrivate(data: any) {
+      /*
+   * คำอธิบาย: อัปเดตข้อมูลประเภทรถส่วนตัว
+   * Input: ข้อมูลประเภทรถส่วนตัวที่ต้องการอัปเดต
+   * Output: ส่งคำขออัปเดตไปยัง API
+   */
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/private`,data

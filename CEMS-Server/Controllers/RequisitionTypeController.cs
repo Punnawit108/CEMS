@@ -44,9 +44,12 @@ public class RequisitionTypeController : ControllerBase
         return Ok(requisitionTypes); // ส่งข้อมูลกลับในรูปแบบ JSON
     }
 
+    // ฟังก์ชันสำหรับสลับสถานะการแสดงผลของประเภทคำขอ
+    // PUT: api/requisitiontype/update/{rqtId}
     [HttpPut("update/{rqtId}")]
     public async Task<ActionResult> ToggleVisibility(int rqtId)
     {
+        // ค้นหาประเภทคำขอตามรหัสที่ระบุ
         var requisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(e =>
             e.RqtId == rqtId
         );
@@ -132,23 +135,9 @@ public class RequisitionTypeController : ControllerBase
         return Ok(new { message = "Requisition Type updated successfully." });
     }
 
-    // ลบข้อมูล
+
+    // ฟังก์ชันสำหรับลบประเภทคำขอ
     // DELETE: api/requisitiontype/{id}
-    // [HttpDelete("{id}")]
-    // public async Task<ActionResult> DeleteExpense(int id)
-    // {
-    //     // ค้นหาข้อมูลที่ต้องการลบ
-    //     var existingRequisitionType = await _context.CemsRequisitionTypes.FindAsync(id);
-    //     if (existingRequisitionType == null)
-    //     {
-    //         return NotFound(); // ส่งสถานะ 404 หากไม่พบข้อมูล
-    //     }
-
-    //     _context.CemsRequisitionTypes.Remove(existingRequisitionType); // ลบข้อมูลออกจากบริบท
-    //     await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
-
-    //     return NoContent(); // ส่งสถานะ 204 (ไม่มีข้อมูลตอบกลับ)
-    // }
     [HttpDelete("{id}")]
     public IActionResult DeleteExpense(int id)
     {
@@ -167,10 +156,14 @@ public class RequisitionTypeController : ControllerBase
         return NoContent();
     }
 
+    // ฟังก์ชันสำหรับตรวจสอบว่าประเภทคำขอถูกใช้งานอยู่หรือไม่
+    // GET: api/requisitiontype/validation/{rqtId}
     [HttpGet("validation/{rqtId}")]
     public async Task<IActionResult> CheckRequisitionTypeUsage(int rqtId)
     {
+        // ตรวจสอบว่ามีคำขอที่ใช้ประเภทนี้อยู่หรือไม่
         var isInUse = await _context.CemsRequisitions.AnyAsync(r => r.RqRqtId == rqtId);
+        // ส่งผลลัพธ์กลับไป
         return Ok(new { rqtId, isInUse });
     }
 }
