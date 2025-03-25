@@ -1,4 +1,10 @@
 <script setup lang="ts">
+/*
+ * ชื่อไฟล์: ButtonLogout.vue
+ * คำอธิบาย: ไฟล์นี้แสดง components ButtonLogout
+ * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำ/แก้ไข: 12 กุมภาพันธ์ 2568
+ */
 import { useRouter } from 'vue-router';
 
 const routes = useRouter();

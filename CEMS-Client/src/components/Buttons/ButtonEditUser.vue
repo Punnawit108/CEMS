@@ -1,4 +1,11 @@
-<script setup lang="ts"></script>
+<script setup lang="ts">
+/*
+ * ชื่อไฟล์: ButtonEditUser.vue
+ * คำอธิบาย: ไฟล์นี้แสดง components ButtonEditUser
+ * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
+ * วันที่จัดทำ/แก้ไข: 12 กุมภาพันธ์ 2568
+ */
+</script>
 <template>
       <!-- แก้ไขผู้ใช้ -->
   <button

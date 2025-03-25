@@ -2,7 +2,7 @@
 /*
  * ชื่อไฟล์: Button.vue
  * คำอธิบาย: ไฟล์นี้แสดง components ปุ่มทั้งระบบ
- * ชื่อผู้เขียน/แก้ไข: พรชัย
+ * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
  * วันที่จัดทำ/แก้ไข: 12 กุมภาพันธ์ 2568
  */
  import { ref, defineAsyncComponent, defineProps, onMounted, type Component } from "vue";

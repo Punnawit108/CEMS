@@ -1,3 +1,9 @@
+/*
+* ชื่อไฟล์: AuthController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับจัดการการรักษาความปลอดภัยต่างๆ
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: 25 มีนาคม 2568
+*/
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
