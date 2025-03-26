@@ -4,13 +4,13 @@
 * ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
 * วันที่จัดทำ/แก้ไข: 25 มีนาคม 2568
 */
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.IdentityModel.Tokens;
 
 [Route("api/auth")]
 [ApiController]
@@ -31,18 +31,21 @@ public class AuthController : ControllerBase
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginDTO model)
     {
-
         var user = _context.CemsUsers.FirstOrDefault(u => u.UsrEmployeeId == model.Username);
 
+        if (user == null)
+            return NotFound("Invalid username");
 
-    if (user == null)
-        return NotFound("Invalid username");
-
-        if(!BCrypt.Net.BCrypt.Verify(model.Password, user.UsrPassword)){
+        if (!BCrypt.Net.BCrypt.Verify(model.Password, user.UsrPassword))
+        {
             return Unauthorized("Invalid password");
         }
-        
-        var validateUser  = new LoginDTO { Username = user.UsrEmployeeId, Password = user.UsrPassword };
+
+        var validateUser = new LoginDTO
+        {
+            Username = user.UsrEmployeeId,
+            Password = user.UsrPassword,
+        };
 
         var token = GenerateJwtToken(validateUser);
         return Ok(new { token });
@@ -56,11 +59,13 @@ public class AuthController : ControllerBase
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
         var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
 
-        var token = new JwtSecurityToken(_config["Jwt:Issuer"],
+        var token = new JwtSecurityToken(
+            _config["Jwt:Issuer"],
             _config["Jwt:Audience"],
             new[] { new Claim(ClaimTypes.Name, user.Username) },
             expires: DateTime.UtcNow.AddHours(1),
-            signingCredentials: creds);
+            signingCredentials: creds
+        );
 
         return new JwtSecurityTokenHandler().WriteToken(token);
     }

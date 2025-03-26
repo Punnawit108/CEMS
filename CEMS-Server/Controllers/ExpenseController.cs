@@ -1,7 +1,7 @@
 /*
 * ชื่อไฟล์: ExpenseController.cs
 * คำอธิบาย: ไฟล์นี้ใช้สำหรับกำหนด logic API หน้ารายการเบิก และรายละเอียด
-* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล นายพงศธร บุญญามา , นางสาวอังคณา อุ่นเสียม
 * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
@@ -87,7 +87,9 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => (u.RqStatus == "reject" || u.RqStatus == "accept") && u.RqUsrId.Equals(usrId)) // เพิ่มเงื่อนไข Where
+            .Where(u =>
+                (u.RqStatus == "reject" || u.RqStatus == "accept") && u.RqUsrId.Equals(usrId)
+            ) // เพิ่มเงื่อนไข Where
             .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new ExpenseGetDto
             {
@@ -231,7 +233,7 @@ public class ExpenseController : ControllerBase
     /// <summary>สร้างข้อมูลคำขอเบิก</summary>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก /param>
     /// <returns>สถานะการบันทึกข้อมูลคำขอเบิก /returns>
-    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา , นางสาวอังคณา อุ่นเสียม</remark>
 
     [HttpPost]
     public async Task<ActionResult> CreateExpense([FromForm] ExpenseManageDto expenseDto)
@@ -445,7 +447,7 @@ public class ExpenseController : ControllerBase
     /// <param name="rqId"> id ของรายการคำขอเบิก </param>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก </param>
     /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก</returns>
-    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
+    /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา , นางสาวอังคณา อุ่นเสียม</remark>
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateExpense(

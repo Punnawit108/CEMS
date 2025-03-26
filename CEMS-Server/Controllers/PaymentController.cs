@@ -71,7 +71,9 @@ public class PaymentController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqDisburser == usrId && u.RqStatus == "accept" && u.RqProgress == "complete") // เพิ่มเงื่อนไข Where
+            .Where(u =>
+                u.RqDisburser == usrId && u.RqStatus == "accept" && u.RqProgress == "complete"
+            ) // เพิ่มเงื่อนไข Where
             .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new PaymentGetDto
             {

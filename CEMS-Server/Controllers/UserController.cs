@@ -87,6 +87,7 @@ public class UserController : ControllerBase
 
         return Ok(users); // ส่งข้อมูลกลับในรูปแบบ JSON
     }
+
     /// <summary> เปลี่ยนแปลงข้อมูลผู้ใช้ </summary>
     /// <param name="id" > id ของผู้ใช้ </param>
     /// <param name="updateDto" > ข้อมูลของผู้ใช้ที่สามารถแก้ไขได้ </param>
@@ -170,7 +171,8 @@ public class UserController : ControllerBase
 
         // ตรวจสอบว่าผู้ใช้เป็นผู้อนุมัติหรือไม่
         var approver = _context.CemsApprovers.FirstOrDefault(u => u.ApUsrId == user.UsrId);
-        if (approver != null) isApprover = 1; // กำหนดค่าสถานะผู้อนุมัติ
+        if (approver != null)
+            isApprover = 1; // กำหนดค่าสถานะผู้อนุมัติ
 
         // สร้างข้อมูลผู้ใช้ในรูปแบบที่ต้องการส่งกลับ
         var userLocal = new
@@ -181,7 +183,7 @@ public class UserController : ControllerBase
             UsrLastName = user.UsrLastName,
             UsrIsSeeReport = user.UsrIsSeeReport,
             UsrIsActive = user.UsrIsActive,
-            UsrIsApprover = isApprover
+            UsrIsApprover = isApprover,
         };
 
         return Ok(userLocal); // ส่งข้อมูลกลับในรูปแบบ JSON

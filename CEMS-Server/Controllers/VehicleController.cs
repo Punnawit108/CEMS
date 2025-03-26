@@ -1,28 +1,25 @@
 /*
 * ชื่อไฟล์: VehicleController.cs
 * คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ Vehicle ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้
-* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน , นางสาวนครียา วัฒนศรี
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 
 using System.Globalization;
-using CEMS_Server.AppContext; // ใช้สำหรับเชื่อมต่อกับบริบทของฐานข้อมูล
-using CEMS_Server.DTOs; // อ้างอิงถึง Data Transfer Object ที่เกี่ยวข้อง
-using CEMS_Server.Models; // อ้างอิงถึงโมเดลฐานข้อมูล
-using Microsoft.AspNetCore.Mvc; // ใช้สำหรับการสร้าง API
-using Microsoft.EntityFrameworkCore; // ใช้สำหรับการดำเนินการกับฐานข้อมูล
+using CEMS_Server.AppContext;
+using CEMS_Server.DTOs;
+using CEMS_Server.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
 
-/// <summary>Controller สำหรับจัดการข้อมูลยานพาหนะ</summary>
 [Route("api/vehicle")]
 [ApiController]
 public class VehicleController : ControllerBase
 {
-    private readonly CemsContext _context; // ตัวแปรบริบทของฐานข้อมูล
+    private readonly CemsContext _context;
 
-    /// <summary>Constructor สำหรับตั้งค่าบริบทของฐานข้อมูล</summary>
-    /// <param name="context">บริบทของฐานข้อมูล</param>
     public VehicleController(CemsContext context)
     {
         _context = context;
@@ -122,7 +119,7 @@ public class VehicleController : ControllerBase
     /// <summary>สร้างข้อมูลรถใหม่</summary>
     /// <param name="vehicleDto">ข้อมูลรถที่ต้องการสร้าง</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpPost]
     public IActionResult CreateVehicle([FromBody] VehicleDTO vehicleDto)
     {
@@ -150,7 +147,7 @@ public class VehicleController : ControllerBase
     /// <summary>อัปเดตสถานะการแสดงผลของรถ</summary>
     /// <param name="id">รหัสรถที่ต้องการอัปเดต</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpPut("{id}")]
     public IActionResult UpdateVehicle(int id)
     {
@@ -173,7 +170,7 @@ public class VehicleController : ControllerBase
     /// <summary>อัปเดตข้อมูลรถส่วนตัว</summary>
     /// <param name="vehicleDTO">ข้อมูลรถส่วนตัวที่ต้องการอัปเดต</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpPut("update/private")]
     public async Task<IActionResult> UpdatePrivate(VehiclePrivateUpdateDTO vehicleDTO)
     {
@@ -219,7 +216,7 @@ public class VehicleController : ControllerBase
     /// <summary>อัปเดตข้อมูลรถสาธารณะ</summary>
     /// <param name="vehicleDTO">ข้อมูลรถสาธารณะที่ต้องการอัปเดต</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpPut("update/public")]
     public async Task<IActionResult> UpdatePublic(VehiclePublicUpdateDTO vehicleDTO)
     {
@@ -264,7 +261,7 @@ public class VehicleController : ControllerBase
     /// <summary>ตรวจสอบว่ามีการใช้รถอยู่หรือไม่</summary>
     /// <param name="VhId">รหัสรถที่ต้องการตรวจสอบ</param>
     /// <returns>สถานะการใช้งานของรถ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpGet("validation/{VhId}")]
     public async Task<IActionResult> CheckVehicleUsage(int VhId)
     {
@@ -276,7 +273,7 @@ public class VehicleController : ControllerBase
     /// <summary>ลบข้อมูลรถ</summary>
     /// <param name="id">รหัสรถที่ต้องการลบ</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpDelete("{id}")]
     public IActionResult DeleteVehicle(int id)
     {

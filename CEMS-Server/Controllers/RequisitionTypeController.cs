@@ -1,15 +1,15 @@
 /*
 * ชื่อไฟล์: RuquisitionTypeController.cs
 * คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ RequisitionType ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้
-* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน , นางสาวนครียา วัฒนศรี
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 
-using CEMS_Server.AppContext; // อ้างอิงถึงบริบทของฐานข้อมูล
-using CEMS_Server.DTOs; // อ้างอิงถึง Data Transfer Objects (DTO)
-using CEMS_Server.Models; // อ้างอิงถึงโมเดลของฐานข้อมูล
-using Microsoft.AspNetCore.Mvc; // ใช้สำหรับการจัดการ API
-using Microsoft.EntityFrameworkCore; // ใช้สำหรับการดำเนินการเกี่ยวกับฐานข้อมูล
+using CEMS_Server.AppContext;
+using CEMS_Server.DTOs;
+using CEMS_Server.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace CEMS_Server.Controllers;
 
@@ -18,10 +18,8 @@ namespace CEMS_Server.Controllers;
 [Route("api/requisitiontype")]
 public class RequisitionTypeController : ControllerBase
 {
-    private readonly CemsContext _context; // ตัวแปรบริบทของฐานข้อมูล
+    private readonly CemsContext _context;
 
-    /// <summary>Constructor สำหรับตั้งค่าบริบทของฐานข้อมูล</summary>
-    /// <param name="context">บริบทของฐานข้อมูล</param>
     public RequisitionTypeController(CemsContext context)
     {
         _context = context;
@@ -49,7 +47,7 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>สลับสถานะการแสดงผลของประเภทคำขอ</summary>
     /// <param name="rqtId">รหัสประเภทคำขอ</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpPut("update/{rqtId}")]
     public async Task<ActionResult> ToggleVisibility(int rqtId)
     {
@@ -76,7 +74,7 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>สร้างประเภทคำขอใหม่</summary>
     /// <param name="requisitionTypeDto">ข้อมูลประเภทคำขอใหม่</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpPost]
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
@@ -96,7 +94,7 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>อัปเดตข้อมูลประเภทคำขอ</summary>
     /// <param name="requisitionTypeDto">ข้อมูลประเภทคำขอที่ต้องการอัปเดต</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpPut]
     public async Task<IActionResult> UpdateRequisitionType(
         RequisitionTypeUpdateDTO requisitionTypeDto
@@ -145,7 +143,7 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>ลบประเภทคำขอ</summary>
     /// <param name="id">รหัสประเภทคำขอที่ต้องการลบ</param>
     /// <returns>ผลการดำเนินการ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี</remarks>
     [HttpDelete("{id}")]
     public IActionResult DeleteExpense(int id)
     {
@@ -167,7 +165,7 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>ตรวจสอบว่าประเภทคำขอถูกใช้งานอยู่หรือไม่</summary>
     /// <param name="rqtId">รหัสประเภทคำขอที่ต้องการตรวจสอบ</param>
     /// <returns>สถานะการใช้งานของประเภทคำขอ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี </remarks>
     [HttpGet("validation/{rqtId}")]
     public async Task<IActionResult> CheckRequisitionTypeUsage(int rqtId)
     {

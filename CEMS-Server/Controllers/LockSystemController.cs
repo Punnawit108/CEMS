@@ -52,7 +52,8 @@ public class LockSystemController : ControllerBase
 
         await _context.SaveChangesAsync();
 
-        string message = status.SttLock == 1 ? "ระบบถูกล็อกเรียบร้อยแล้ว" : "ระบบถูกปลดล็อกเรียบร้อยแล้ว";
+        string message =
+            status.SttLock == 1 ? "ระบบถูกล็อกเรียบร้อยแล้ว" : "ระบบถูกปลดล็อกเรียบร้อยแล้ว";
         return Ok(new { Status = status.SttLock, Message = message });
     }
 
@@ -70,10 +71,14 @@ public class LockSystemController : ControllerBase
             return NotFound("ไม่พบข้อมูลสถานะระบบที่มี SttId = 1");
         }
 
-        return Ok(new
-        {
-            Status = systemStatus.SttLock,
-            Message = systemStatus.SttLock == 1 ? "ระบบอยู่ในสถานะล็อก" : "ระบบอยู่ในสถานะปลดล็อก"
-        });
+        return Ok(
+            new
+            {
+                Status = systemStatus.SttLock,
+                Message = systemStatus.SttLock == 1
+                    ? "ระบบอยู่ในสถานะล็อก"
+                    : "ระบบอยู่ในสถานะปลดล็อก",
+            }
+        );
     }
 }
