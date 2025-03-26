@@ -1,21 +1,33 @@
 <script setup lang="ts">
+ /*
+ * ชื่อไฟล์: DepartmentFilter.vue
+ * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกแผนก ใช้ในการกรองข้อมูลตามแผนกที่ต้องการ
+ * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
+ * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+ */
+// นำเข้า computed จาก Vue และ User interface จาก types
 import { computed } from 'vue'
 import { User } from '../../types'
 
 interface Props {
-  modelValue: string
-  users: User[]
-  loading?: boolean
+  modelValue: string  // ค่าแผนกที่เลือก
+  users: User[]       // ข้อมูลผู้ใช้ทั้งหมด
+  loading?: boolean   // สถานะ loading
 }
 
+// รับค่า props
 const props = defineProps<Props>()
 
+// กำหนด events ที่จะส่งออกไปยัง parent component
 const emit = defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: string]  // event เมื่อมีการเปลี่ยนแปลงค่าแผนกที่เลือก
 }>()
 
+// คำนวณรายชื่อแผนกที่ไม่ซ้ำกันจากข้อมูลผู้ใช้
 const departments = computed(() => {
+  // ใช้ Set เพื่อเก็บค่าที่ไม่ซ้ำกัน
   const depts = new Set(props.users.map(user => user.usrDptName))
+  // แปลงกลับเป็น array และเรียงลำดับตามตัวอักษร
   return Array.from(depts).sort()
 })
 </script>
@@ -25,6 +37,12 @@ const departments = computed(() => {
     <form class="grid">
       <label for="SelectDepartment" class="py-0.5 text-[14px] text-black text-start">แผนก</label>
       <div class="relative h-[32px] w-full justify-center items-center">
+        <!-- 
+          Select element สำหรับเลือกแผนก:
+          - :value="modelValue": ผูกค่าแผนกที่เลือกกับ prop modelValue
+          - @change: ส่ง event อัพเดตค่าแผนกไปยัง parent component เมื่อมีการเลือกแผนกใหม่
+          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
+        -->
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
@@ -35,6 +53,7 @@ const departments = computed(() => {
           <option value="">ทั้งหมด</option>
           <option v-for="dept in departments" :key="dept" :value="dept">{{ dept }}</option>
         </select>
+        <!-- ไอคอนลูกศรสำหรับ dropdown (custom design) -->
         <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
           <svg width="13" height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -48,18 +67,21 @@ const departments = computed(() => {
 </template>
 
 <style scoped>
+/* กำหนด custom styles สำหรับ select element */
 .custom-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: none;
+  -webkit-appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select บน webkit browsers */
+  -moz-appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select บน mozilla browsers */
+  appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select */
+  background-image: none; /* ไม่ใช้ background image ดั้งเดิม */
 }
 
+/* กำหนดสีพื้นหลังและสีข้อความสำหรับ select และ option */
 select, select option {
   background-color: white;
   color: #000000;
 }
 
+/* กำหนดสีข้อความสำหรับ option ที่ว่างหรือไม่ถูกต้อง */
 select:invalid, select option[value=""] {
   color: #999999;
 }

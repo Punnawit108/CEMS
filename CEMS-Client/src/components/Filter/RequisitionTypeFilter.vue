@@ -1,14 +1,23 @@
 <script setup lang="ts">
-import { ExpenseManage } from '../../../types'
+ /*
+ * ชื่อไฟล์: RequisitionTypeFilter.vue
+ * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกประเภทค่าใช้จ่าย ใช้ในการกรองข้อมูลตามประเภทค่าใช้จ่าย
+ * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
+ * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+ */
+// นำเข้า ExpenseManage interface จาก types
+import { ExpenseManage } from '../../types'
 
+// รับค่า props
 defineProps<{
-  modelValue: string | number | undefined
-  requisitionTypes: ExpenseManage[]
-  loading?: boolean
+  modelValue: string | number | undefined  // ค่าประเภทค่าใช้จ่ายที่เลือก (อาจเป็น string, number หรือ undefined)
+  requisitionTypes: ExpenseManage[]        // ข้อมูลประเภทค่าใช้จ่ายทั้งหมด
+  loading?: boolean                        // สถานะ loading
 }>()
 
+// กำหนด events ที่จะส่งออกไปยัง parent component
 defineEmits<{
-  'update:modelValue': [value: string]
+  'update:modelValue': [value: string]     // event เมื่อมีการเปลี่ยนแปลงค่าประเภทค่าใช้จ่ายที่เลือก
 }>()
 </script>
 
@@ -17,6 +26,12 @@ defineEmits<{
     <form class="grid">
       <label for="SelectRequisitionType" class="py-0.5 text-[14px] text-black text-start">ประเภทค่าใช้จ่าย</label>
       <div class="relative h-[32px] w-full justify-center items-center">
+        <!-- 
+          Select element สำหรับเลือกประเภทค่าใช้จ่าย:
+          - :value="modelValue": ผูกค่าประเภทค่าใช้จ่ายที่เลือกกับ prop modelValue
+          - @change: ส่ง event อัพเดตค่าประเภทค่าใช้จ่ายไปยัง parent component เมื่อมีการเลือกประเภทใหม่
+          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
+        -->
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
@@ -29,6 +44,7 @@ defineEmits<{
             {{ type.rqtName }}
           </option>
         </select>
+        <!-- ไอคอนลูกศรสำหรับ dropdown (custom design) -->
         <div class="absolute right-2 top-1/2 transform -translate-y-1/2 pointer-events-none">
           <svg width="13" height="8" viewBox="0 0 13 8" fill="none" xmlns="http://www.w3.org/2000/svg">
             <path fill-rule="evenodd" clip-rule="evenodd"
@@ -42,18 +58,21 @@ defineEmits<{
 </template>
 
 <style scoped>
+/* กำหนด custom styles สำหรับ select element */
 .custom-select {
-  -webkit-appearance: none;
-  -moz-appearance: none;
-  appearance: none;
-  background-image: none;
+  -webkit-appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select บน webkit browsers */
+  -moz-appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select บน mozilla browsers */
+  appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select */
+  background-image: none; /* ไม่ใช้ background image ดั้งเดิม */
 }
 
+/* กำหนดสีพื้นหลังและสีข้อความสำหรับ select และ option */
 select, select option {
   background-color: white;
   color: #000000;
 }
 
+/* กำหนดสีข้อความสำหรับ option ที่ว่างหรือไม่ถูกต้อง */
 select:invalid, select option[value=""] {
   color: #999999;
 }

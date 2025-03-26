@@ -1,4 +1,11 @@
 <script setup lang="ts">
+ /*
+ * ชื่อไฟล์: DateFilter.vue
+ * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกวันที่ ใช้ในการกรองข้อมูลตามช่วงเวลาที่ต้องการ ประกอบด้วยฟังก์ชันการเลือกวันที่ การตรวจสอบความถูกต้อง และการแสดงผลในรูปแบบที่กำหนด
+ * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
+ * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+ */
+// นำเข้า Component SingleDatePicker สำหรับใช้เป็นตัวเลือกวันที่
 import SingleDatePicker from '../SingleDatePicker.vue'
 
 interface Props {
@@ -11,16 +18,18 @@ interface Props {
   error?: boolean // สถานะข้อผิดพลาด (เพิ่มใหม่)
 }
 
+// กำหนดค่าเริ่มต้นให้กับ props ที่เป็น optional
 const props = withDefaults(defineProps<Props>(), {
-  loading: false,
-  error: false
+  loading: false, // ค่าเริ่มต้นของ loading คือ false
+  error: false    // ค่าเริ่มต้นของ error คือ false
 });
 
+// กำหนด events ที่จะส่งออกไปยัง parent component
 defineEmits<{
-  'update:modelValue': [value: Date]
-  'update:isOpen': [value: boolean] 
-  'confirm': [value: Date]
-  'cancel': []
+  'update:modelValue': [value: Date]  // event เมื่อมีการเปลี่ยนแปลงค่าวันที่
+  'update:isOpen': [value: boolean]   // event เมื่อมีการเปลี่ยนแปลงสถานะเปิด/ปิด
+  'confirm': [value: Date]            // event เมื่อยืนยันการเลือกวันที่
+  'cancel': []                        // event เมื่อยกเลิกการเลือกวันที่
 }>()
 </script>
 
@@ -29,6 +38,21 @@ defineEmits<{
     <form class="grid">
       <label class="py-0.5 text-[14px] text-start" :class="error ? 'text-red-500' : 'text-black'">{{ label }}</label>
       <div class="relative h-[32px] w-full date-picker-container">
+        <!-- 
+          SingleDatePicker component สำหรับเลือกวันที่:
+          - :model-value="modelValue": ผูกค่าวันที่ที่เลือกกับ prop modelValue
+          - @update:model-value: ส่ง event อัพเดทค่าวันที่ไปยัง parent component เมื่อมีการเลือกวันที่ใหม่
+          - placeholder="dd/mm/yyyy": แสดงข้อความ placeholder เมื่อยังไม่มีการเลือกวันที่
+          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
+          - :class="{ 'border-red-500': error }": เพิ่ม class border สีแดงเมื่อมีข้อผิดพลาด
+          - class="w-full": กำหนดความกว้างให้เต็มพื้นที่ parent
+          - @confirm: ส่ง event confirm พร้อมค่าวันที่ที่เลือกไปยัง parent component เมื่อยืนยันการเลือก
+          - @cancel: ส่ง event cancel ไปยัง parent component เมื่อยกเลิกการเลือก
+          - :confirmedDate: ผูกค่าวันที่ที่ยืนยันแล้วจาก prop
+          - :isOpen: ควบคุมสถานะการเปิด/ปิด datepicker
+          - :min-date: กำหนดวันที่ต่ำสุดที่สามารถเลือกได้
+          - @update:isOpen: ส่ง event เมื่อมีการเปลี่ยนแปลงสถานะเปิด/ปิดไปยัง parent component
+        -->
         <SingleDatePicker
           :model-value="modelValue"
           @update:model-value="$emit('update:modelValue', $event)"
