@@ -1,7 +1,7 @@
 /*
-* ชื่อไฟล์: ExportExcelProjectCOntroller.cs
-* คำอธิบาย: ไฟล์นี้ใช้สำหรับส่งออกไฟล์ประเภทxlsx ของโครงการ
-* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชย์ เชียนพลแสน
+* ชื่อไฟล์: ExportExcelProjectController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับส่งออกไฟล์ประเภท xlsx ของโครงการ
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
 */
 
@@ -20,11 +20,21 @@ public class ExportExcelProjectController : ControllerBase
 {
     private readonly CemsContext _dbContext;
 
+    /// <summary>
+    /// ตัวสร้างคลาส ExportExcelProjectController
+    /// </summary>
+    /// <param name="dbContext">บริบทของฐานข้อมูล CEMS</param>
+    /// <remarks>แก้ไขล่าสุด: 26 มีนาคม 2568 โดย นายปุณณะวิชญ์ เชียนพลแสน</remarks>
     public ExportExcelProjectController(CemsContext dbContext)
     {
         _dbContext = dbContext;
     }
 
+    /// <summary>
+    /// ส่งออกข้อมูลโครงการเป็นไฟล์ Excel
+    /// </summary>
+    /// <returns>ไฟล์ Excel ที่มีข้อมูลโครงการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 มีนาคม 2568 โดย นายปุณณะวิชญ์ เชียนพลแสน</remarks>
     [HttpGet("export")]
     public IActionResult ExportDataToExcel()
     {
@@ -55,12 +65,10 @@ public class ExportExcelProjectController : ControllerBase
             using (var headerRange = worksheet.Cells[1, 1, 1, 3])
             {
                 headerRange.Style.Font.Bold = true;
-               
-                
             }
-            worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center; // "ลำดับ" -> ตรงกลาง
-            worksheet.Cells[1, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;   // "โครงการ" -> ซ้าย
-            worksheet.Cells[1, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;  // "ยอดเบิกค่าใช้จ่าย (บาท)" -> ขวา
+            worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+            worksheet.Cells[1, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
+            worksheet.Cells[1, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
 
             int row = 2;
             int index = 1;
@@ -68,25 +76,22 @@ public class ExportExcelProjectController : ControllerBase
             // ✅ 3) เขียนข้อมูลและเพิ่มเส้นขอบ
             foreach (var item in data)
             {
-                worksheet.Cells[row, 1].Value = index++;  // ลำดับ
-                worksheet.Cells[row, 2].Value = item.PjName;  // ชื่อโครงการ
-                worksheet.Cells[row, 3].Value = item.PjSumAmountExpenses;  // จำนวนเงิน
-                worksheet.Cells[row, 3].Style.Numberformat.Format = "#,##0.00"; // จัดรูปแบบตัวเลข
+                worksheet.Cells[row, 1].Value = index++;
+                worksheet.Cells[row, 2].Value = item.PjName;
+                worksheet.Cells[row, 3].Value = item.PjSumAmountExpenses;
+                worksheet.Cells[row, 3].Style.Numberformat.Format = "#,##0.00";
 
-                // จัดแนวคอลัมน์
                 worksheet.Cells[row, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
                 worksheet.Cells[row, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
                 worksheet.Cells[row, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
-
-                
 
                 row++;
             }
 
             // ✅ 5) ปรับขนาดคอลัมน์ให้อ่านง่ายขึ้น
-            worksheet.Column(1).Width = 10;  // ลำดับ
-            worksheet.Column(2).Width = 50;  // โครงการ
-            worksheet.Column(3).Width = 30;  // จำนวนเงิน (บาท)
+            worksheet.Column(1).Width = 10;
+            worksheet.Column(2).Width = 50;
+            worksheet.Column(3).Width = 30;
 
             // บันทึกไฟล์ Excel ลงใน path
             package.SaveAs(new FileInfo(filePath));
