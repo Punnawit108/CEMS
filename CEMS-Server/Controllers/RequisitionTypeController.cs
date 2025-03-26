@@ -1,7 +1,7 @@
 /*
 * ชื่อไฟล์: RuquisitionTypeController.cs
 * คำอธิบาย: ไฟล์นี้คือไฟล์จัดการ API ของ RequisitionType ซึ่งสามารถ ดึงข้อมูล เพิ่ม ลบ และแก้ไขได้
-* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน , นางสาวนครียา วัฒนศรี
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
 
@@ -34,7 +34,12 @@ public class RequisitionTypeController : ControllerBase
     public async Task<ActionResult> GetAllAsDto()
     {
         var requisitionTypes = await _context
-            .CemsRequisitionTypes.Select(e => new { e.RqtId, e.RqtName, e.RqtVisible })
+            .CemsRequisitionTypes.Select(e => new
+            {
+                e.RqtId,
+                e.RqtName,
+                e.RqtVisible,
+            })
             .ToListAsync();
 
         return Ok(requisitionTypes);
@@ -47,8 +52,11 @@ public class RequisitionTypeController : ControllerBase
     [HttpPut("update/{rqtId}")]
     public async Task<ActionResult> ToggleVisibility(int rqtId)
     {
-        var requisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(e => e.RqtId == rqtId);
-        if (requisitionType == null) return NotFound(new { message = "Requisition type not found." });
+        var requisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(e =>
+            e.RqtId == rqtId
+        );
+        if (requisitionType == null)
+            return NotFound(new { message = "Requisition type not found." });
 
         requisitionType.RqtVisible = requisitionType.RqtVisible == 0 ? 1 : 0;
         await _context.SaveChangesAsync();
@@ -59,11 +67,15 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>เพิ่มข้อมูลประเภทคำขอใหม่</summary>
     /// <param name="requisitionTypeDto">ข้อมูลประเภทคำขอที่ต้องการเพิ่ม</param>
     /// <returns>ไม่มีค่าตอบกลับ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชณ์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี</remarks>
     [HttpPost]
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
-        var newRequisitionType = new CemsRequisitionType { RqtName = requisitionTypeDto.RqtName, RqtVisible = 1 };
+        var newRequisitionType = new CemsRequisitionType
+        {
+            RqtName = requisitionTypeDto.RqtName,
+            RqtVisible = 1,
+        };
         _context.CemsRequisitionTypes.Add(newRequisitionType);
         await _context.SaveChangesAsync();
 
@@ -73,14 +85,24 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>แก้ไขข้อมูลประเภทคำขอ</summary>
     /// <param name="requisitionTypeDto">ข้อมูลประเภทคำขอที่ต้องการแก้ไข</param>
     /// <returns>ผลลัพธ์ของการอัปเดต</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชณ์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี</remarks>
     [HttpPut]
-    public async Task<IActionResult> UpdateRequisitionType(RequisitionTypeUpdateDTO requisitionTypeDto)
+    public async Task<IActionResult> UpdateRequisitionType(
+        RequisitionTypeUpdateDTO requisitionTypeDto
+    )
     {
-        if (requisitionTypeDto == null || requisitionTypeDto.RqtId == 0 || string.IsNullOrEmpty(requisitionTypeDto.RqtName))
-            return BadRequest(new { message = "Invalid data. Please provide both RqtId and RqtName." });
+        if (
+            requisitionTypeDto == null
+            || requisitionTypeDto.RqtId == 0
+            || string.IsNullOrEmpty(requisitionTypeDto.RqtName)
+        )
+            return BadRequest(
+                new { message = "Invalid data. Please provide both RqtId and RqtName." }
+            );
 
-        var existingRequisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(rt => rt.RqtId == requisitionTypeDto.RqtId);
+        var existingRequisitionType = await _context.CemsRequisitionTypes.FirstOrDefaultAsync(rt =>
+            rt.RqtId == requisitionTypeDto.RqtId
+        );
         if (existingRequisitionType == null)
             return NotFound(new { message = "Requisition Type not found." });
 
@@ -92,7 +114,10 @@ public class RequisitionTypeController : ControllerBase
         }
         catch (DbUpdateConcurrencyException ex)
         {
-            return StatusCode(500, new { message = "Failed to update the record.", error = ex.Message });
+            return StatusCode(
+                500,
+                new { message = "Failed to update the record.", error = ex.Message }
+            );
         }
 
         return Ok(new { message = "Requisition Type updated successfully." });
@@ -101,12 +126,13 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>ลบประเภทคำขอ</summary>
     /// <param name="id">รหัสประเภทคำขอที่ต้องการลบ</param>
     /// <returns>ไม่มีค่าตอบกลับ</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชณ์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี</remarks>
     [HttpDelete("{id}")]
     public IActionResult DeleteExpense(int id)
     {
         var expense = _context.CemsRequisitionTypes.FirstOrDefault(v => v.RqtId == id);
-        if (expense == null) return NotFound($"Expense with ID {id} not found.");
+        if (expense == null)
+            return NotFound($"Expense with ID {id} not found.");
 
         _context.CemsRequisitionTypes.Remove(expense);
         _context.SaveChanges();
@@ -117,7 +143,7 @@ public class RequisitionTypeController : ControllerBase
     /// <summary>ตรวจสอบว่าประเภทคำขอถูกใช้งานอยู่หรือไม่</summary>
     /// <param name="rqtId">รหัสประเภทคำขอ</param>
     /// <returns>แสดงว่าถูกใช้งานอยู่หรือไม่</returns>
-    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชณ์ เชียนพลแสน</remarks>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นางสาวนครียา วัฒนศรี</remarks>
     [HttpGet("validation/{rqtId}")]
     public async Task<IActionResult> CheckRequisitionTypeUsage(int rqtId)
     {

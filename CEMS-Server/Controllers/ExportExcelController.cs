@@ -5,14 +5,14 @@
 * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
 */
 
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
-using OfficeOpenXml;
 using CEMS_Server.AppContext;
 using CEMS_Server.Models;
-using System.Globalization;
+using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 
 [ApiController]
 [Route("api/excel")]
@@ -42,29 +42,37 @@ public class ExportExcelController : ControllerBase
     /// <remarks>แก้ไขล่าสุด: 26 มีนาคม 2568 โดย นายปุณณะวิชญ์ เชียนพลแสน</remarks>
     [HttpGet("export")]
     public IActionResult ExportDataToExcel(
-        string searchQuery = "", 
-        string project = "", 
-        string requisitionType = "", 
-        DateTime? startDate = null, 
-        DateTime? endDate = null)
+        string searchQuery = "",
+        string project = "",
+        string requisitionType = "",
+        DateTime? startDate = null,
+        DateTime? endDate = null
+    )
     {
         // กรองข้อมูลตามพารามิเตอร์ที่ได้รับ
-        var query = _dbContext.CemsRequisitions
-            .Join(_dbContext.CemsUsers, e => e.RqUsrId, u => u.UsrId, (e, u) => new
-            {
-                UserFullName = u.UsrFirstName + " " + u.UsrLastName,
-                e.RqName,
-                PjName = e.RqPj.PjName,
-                RqtName = e.RqRqt.RqtName,
-                e.RqPayDate,
-                e.RqProgress,
-                e.RqStatus,
-                e.RqExpenses
-            });
+        var query = _dbContext.CemsRequisitions.Join(
+            _dbContext.CemsUsers,
+            e => e.RqUsrId,
+            u => u.UsrId,
+            (e, u) =>
+                new
+                {
+                    UserFullName = u.UsrFirstName + " " + u.UsrLastName,
+                    e.RqName,
+                    PjName = e.RqPj.PjName,
+                    RqtName = e.RqRqt.RqtName,
+                    e.RqPayDate,
+                    e.RqProgress,
+                    e.RqStatus,
+                    e.RqExpenses,
+                }
+        );
 
         if (!string.IsNullOrEmpty(searchQuery))
         {
-            query = query.Where(e => e.UserFullName.Contains(searchQuery) || e.RqName.Contains(searchQuery));
+            query = query.Where(e =>
+                e.UserFullName.Contains(searchQuery) || e.RqName.Contains(searchQuery)
+            );
         }
 
         if (!string.IsNullOrEmpty(project))
@@ -110,7 +118,10 @@ public class ExportExcelController : ControllerBase
             using (var headerRange = worksheet.Cells[1, 1, 1, 7])
             {
                 headerRange.Style.Font.Bold = true;
-                headerRange.Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
+                headerRange.Style.HorizontalAlignment = OfficeOpenXml
+                    .Style
+                    .ExcelHorizontalAlignment
+                    .Center;
             }
 
             int row = 2;
@@ -122,7 +133,10 @@ public class ExportExcelController : ControllerBase
                 worksheet.Cells[row, 3].Value = item.RqName;
                 worksheet.Cells[row, 4].Value = item.PjName;
                 worksheet.Cells[row, 5].Value = item.RqtName;
-                worksheet.Cells[row, 6].Value = item.RqPayDate.ToString("dd/MM/yyyy", CultureInfo.InvariantCulture);
+                worksheet.Cells[row, 6].Value = item.RqPayDate.ToString(
+                    "dd/MM/yyyy",
+                    CultureInfo.InvariantCulture
+                );
                 worksheet.Cells[row, 7].Value = item.RqExpenses;
                 worksheet.Cells[row, 7].Style.Numberformat.Format = "#,##0.00";
                 row++;
@@ -140,7 +154,11 @@ public class ExportExcelController : ControllerBase
             {
                 package.SaveAs(memoryStream);
                 memoryStream.Position = 0;
-                return File(memoryStream.ToArray(), "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "expenses.xlsx");
+                return File(
+                    memoryStream.ToArray(),
+                    "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+                    "expenses.xlsx"
+                );
             }
         }
     }

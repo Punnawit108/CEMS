@@ -26,6 +26,7 @@ public class AuthController : ControllerBase
     }
 
     /// <summary>เข้าสู่ระบบ</summary>
+    /// <param name="model">ข้อมูล Username และ Password</param>
     /// <returns>เข้าสู่ระบบด้วย Username และ Password</returns>
     /// <remarks>แก้ไขล่าสุด: 25 มีนาคม 2568 โดย นายพรชัย เพิ่มพูลกิจ</remarks>
     [HttpPost("login")]

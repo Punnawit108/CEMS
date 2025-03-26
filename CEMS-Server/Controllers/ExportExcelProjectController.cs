@@ -5,14 +5,14 @@
 * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
 */
 
-using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
-using OfficeOpenXml;
 using CEMS_Server.AppContext;
+using CEMS_Server.DTOs; // เพิ่ม import DTO ของ ProjectDto
 using CEMS_Server.Models;
-using CEMS_Server.DTOs;  // เพิ่ม import DTO ของ ProjectDto
+using Microsoft.AspNetCore.Mvc;
+using OfficeOpenXml;
 
 [ApiController]
 [Route("api/excelproject")]
@@ -39,12 +39,12 @@ public class ExportExcelProjectController : ControllerBase
     public IActionResult ExportDataToExcel()
     {
         // ดึงข้อมูลจากฐานข้อมูลและแปลงให้เป็น ProjectDto
-        var data = _dbContext.CemsProjects
-            .Select(p => new ProjectDto
+        var data = _dbContext
+            .CemsProjects.Select(p => new ProjectDto
             {
-                PjId = p.PjId,  
-                PjName = p.PjName,  
-                PjSumAmountExpenses = p.PjAmountExpenses  
+                PjId = p.PjId,
+                PjName = p.PjName,
+                PjSumAmountExpenses = p.PjAmountExpenses,
             })
             .ToList();
 
@@ -66,9 +66,18 @@ public class ExportExcelProjectController : ControllerBase
             {
                 headerRange.Style.Font.Bold = true;
             }
-            worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-            worksheet.Cells[1, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
-            worksheet.Cells[1, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+            worksheet.Cells[1, 1].Style.HorizontalAlignment = OfficeOpenXml
+                .Style
+                .ExcelHorizontalAlignment
+                .Center;
+            worksheet.Cells[1, 2].Style.HorizontalAlignment = OfficeOpenXml
+                .Style
+                .ExcelHorizontalAlignment
+                .Left;
+            worksheet.Cells[1, 3].Style.HorizontalAlignment = OfficeOpenXml
+                .Style
+                .ExcelHorizontalAlignment
+                .Right;
 
             int row = 2;
             int index = 1;
@@ -81,9 +90,18 @@ public class ExportExcelProjectController : ControllerBase
                 worksheet.Cells[row, 3].Value = item.PjSumAmountExpenses;
                 worksheet.Cells[row, 3].Style.Numberformat.Format = "#,##0.00";
 
-                worksheet.Cells[row, 1].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Center;
-                worksheet.Cells[row, 2].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Left;
-                worksheet.Cells[row, 3].Style.HorizontalAlignment = OfficeOpenXml.Style.ExcelHorizontalAlignment.Right;
+                worksheet.Cells[row, 1].Style.HorizontalAlignment = OfficeOpenXml
+                    .Style
+                    .ExcelHorizontalAlignment
+                    .Center;
+                worksheet.Cells[row, 2].Style.HorizontalAlignment = OfficeOpenXml
+                    .Style
+                    .ExcelHorizontalAlignment
+                    .Left;
+                worksheet.Cells[row, 3].Style.HorizontalAlignment = OfficeOpenXml
+                    .Style
+                    .ExcelHorizontalAlignment
+                    .Right;
 
                 row++;
             }
@@ -99,6 +117,10 @@ public class ExportExcelProjectController : ControllerBase
 
         // ส่งไฟล์กลับไปยังผู้ใช้
         var fileBytes = System.IO.File.ReadAllBytes(filePath);
-        return File(fileBytes, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", "expenses.xlsx");
+        return File(
+            fileBytes,
+            "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            "expenses.xlsx"
+        );
     }
 }
