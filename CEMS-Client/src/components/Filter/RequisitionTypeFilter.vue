@@ -1,5 +1,5 @@
 <script setup lang="ts">
- /*
+/*
  * ชื่อไฟล์: RequisitionTypeFilter.vue
  * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกประเภทค่าใช้จ่าย ใช้ในการกรองข้อมูลตามประเภทค่าใช้จ่าย
  * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
@@ -26,12 +26,6 @@ defineEmits<{
     <form class="grid">
       <label for="SelectRequisitionType" class="py-0.5 text-[14px] text-black text-start">ประเภทค่าใช้จ่าย</label>
       <div class="relative h-[32px] w-full justify-center items-center">
-        <!-- 
-          Select element สำหรับเลือกประเภทค่าใช้จ่าย:
-          - :value="modelValue": ผูกค่าประเภทค่าใช้จ่ายที่เลือกกับ prop modelValue
-          - @change: ส่ง event อัพเดตค่าประเภทค่าใช้จ่ายไปยัง parent component เมื่อมีการเลือกประเภทใหม่
-          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
-        -->
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"

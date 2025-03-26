@@ -1,5 +1,5 @@
 <script setup lang="ts">
- /*
+/*
  * ชื่อไฟล์: DepartmentFilter.vue
  * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกแผนก ใช้ในการกรองข้อมูลตามแผนกที่ต้องการ
  * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
@@ -37,12 +37,6 @@ const departments = computed(() => {
     <form class="grid">
       <label for="SelectDepartment" class="py-0.5 text-[14px] text-black text-start">แผนก</label>
       <div class="relative h-[32px] w-full justify-center items-center">
-        <!-- 
-          Select element สำหรับเลือกแผนก:
-          - :value="modelValue": ผูกค่าแผนกที่เลือกกับ prop modelValue
-          - @change: ส่ง event อัพเดตค่าแผนกไปยัง parent component เมื่อมีการเลือกแผนกใหม่
-          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
-        -->
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"

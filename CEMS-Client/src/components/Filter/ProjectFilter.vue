@@ -1,5 +1,5 @@
 <script setup lang="ts">
- /*
+/*
  * ชื่อไฟล์: ProjectFilter.vue
  * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกโครงการ ใช้ในการกรองข้อมูลตามโครงการที่ต้องการ
  * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
@@ -26,12 +26,6 @@ defineEmits<{
     <form class="grid">
       <label for="SelectProject" class="py-0.5 text-[14px] text-black text-start">โครงการ</label>
       <div class="relative h-[32px] w-full justify-center items-center">
-        <!-- 
-          Select element สำหรับเลือกโครงการ:
-          - :value="modelValue": ผูกค่าโครงการที่เลือกกับ prop modelValue
-          - @change: ส่ง event อัพเดตค่าโครงการไปยัง parent component เมื่อมีการเลือกโครงการใหม่
-          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
-        -->
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"

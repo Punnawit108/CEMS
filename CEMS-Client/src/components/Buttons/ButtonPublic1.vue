@@ -1,6 +1,6 @@
 <script setup lang="ts">
 /*
- * ชื่อไฟล์: ButtonPublic.vue
+ * ชื่อไฟล์: ButtonPublic1.vue
  * คำอธิบาย: ไฟล์นี้แสดง components ButtonPublic
  * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ
  * วันที่จัดทำ/แก้ไข: 12 กุมภาพันธ์ 2568

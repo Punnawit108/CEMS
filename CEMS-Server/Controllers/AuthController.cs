@@ -25,6 +25,9 @@ public class AuthController : ControllerBase
         _config = config;
     }
 
+    /// <summary>เข้าสู่ระบบ</summary>
+    /// <returns>เข้าสู่ระบบด้วย Username และ Password</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 มีนาคม 2568 โดย นายพรชัย เพิ่มพูลกิจ</remarks>
     [HttpPost("login")]
     public IActionResult Login([FromBody] LoginDTO model)
     {
@@ -45,6 +48,9 @@ public class AuthController : ControllerBase
         return Ok(new { token });
     }
 
+    /// <summary>สุ่ม Token</summary>
+    /// <returns>สุ่ม Token เพื่อนำไปใส่ใน Localstorage ตอนเข้าสู่ระบบด้วย Username และ Password</returns>
+    /// <remarks>แก้ไขล่าสุด: 25 มีนาคม 2568 โดย นายพรชัย เพิ่มพูลกิจ</remarks>
     private string GenerateJwtToken(LoginDTO user)
     {
         var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["Jwt:Key"]));
