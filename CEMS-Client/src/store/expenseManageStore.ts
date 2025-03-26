@@ -18,23 +18,26 @@ export const useExpenseManageStore = defineStore("expenseManage", {
     expenseTypes: [] as string[], // เก็บประเภทค่าใช้จ่ายที่ยืนยันแล้ว
   }),
   actions: {
+    /*
+     * คำอธิบาย: เคลียร์ค่า tempExpenseType ในกรณีกดยกเลิก
+     * Input: -
+     * Output: tempExpenseType ถูกเคลียร์
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     // ฟังก์ชันสำหรับปุ่มยกเลิก
     closePopupAddExpense() {
-      /*
-       * คำอธิบาย: เคลียร์ค่า tempExpenseType ในกรณีกดยกเลิก
-       * Input: -
-       * Output: tempExpenseType ถูกเคลียร์
-       */
       this.tempExpenseType = "";
     },
-
+    /*
+     * คำอธิบาย: ดึงข้อมูลประเภทค่าใช้จ่ายทั้งหมดจาก API
+     * Input: -
+     * Output: expenseRows จะถูกอัปเดตด้วยข้อมูลที่ได้จาก API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     // ฟังก์ชันสำหรับดึงข้อมูลประเภทค่าใช้จ่าย
     async getRequisitionType() {
-      /*
-       * คำอธิบาย: ดึงข้อมูลประเภทค่าใช้จ่ายทั้งหมดจาก API
-       * Input: -
-       * Output: expenseRows จะถูกอัปเดตด้วยข้อมูลที่ได้จาก API
-       */
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/list`
@@ -45,13 +48,14 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         throw new Error("ไม่สามารถดึงข้อมูลประเภทค่าใช้จ่ายได้");
       }
     },
-
+    /*
+     * คำอธิบาย: ดึงข้อมูลประเภทรถสาธารณะทั้งหมดจาก API
+     * Input: -
+     * Output: vehiclePublicRows จะถูกอัปเดตด้วยข้อมูลที่ได้จาก API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async getVehiclePublic() {
-      /*
-       * คำอธิบาย: ดึงข้อมูลประเภทค่าใช้จ่ายทั้งหมดจาก API
-       * Input: -
-       * Output: expenseRows จะถูกอัปเดตด้วยข้อมูลที่ได้จาก API
-       */
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle/public`
@@ -63,13 +67,14 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         throw new Error("ไม่สามารถดึงข้อมูลประเภทรถสาธารณะได้");
       }
     },
-
+    /*
+     * คำอธิบาย: ดึงข้อมูลประเภทรถส่วนตัวทั้งหมดจาก API
+     * Input: -
+     * Output: vehiclePrivateRows จะถูกอัปเดตด้วยข้อมูลที่ได้จาก API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async getVehiclePrivate() {
-      /*
-       * คำอธิบาย: ดึงข้อมูลประเภทค่าใช้จ่ายทั้งหมดจาก API
-       * Input: -
-       * Output: expenseRows จะถูกอัปเดตด้วยข้อมูลที่ได้จาก API
-       */
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle/private`
@@ -81,13 +86,15 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         throw new Error("ไม่สามารถดึงข้อมูลประเภทรถส่วนตัวได้");
       }
     },
+    /*
+     * คำอธิบาย: เพิ่มประเภทรถใหม่และบันทึกลงฐานข้อมูล
+     * Input: ข้อมูลประเภทรถ
+     * Output: ข้อมูลที่สร้างสำเร็จจาก API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     //post vehicle
     async createVehicle(vehicle: any) {
-      /*
-   * คำอธิบาย: เพิ่มประเภทรถใหม่และบันทึกลงฐานข้อมูล
-   * Input: ข้อมูลประเภทรถ 
-   * Output: ข้อมูลที่สร้างสำเร็จจาก API
-   */
       try {
         const result = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/vehicle`,
@@ -98,12 +105,14 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.log(error);
       }
     },
-    async createRequisitionType(requisitiontype: any) {
     /*
-   * คำอธิบาย: สร้างประเภทคำขอใหม่และบันทึกลงฐานข้อมูล
-   * Input: ข้อมูลประเภทคำขอ (requisitiontype)
-   * Output: ข้อมูลที่สร้างสำเร็จจาก API
-   */
+     * คำอธิบาย: สร้างประเภทคำขอใหม่และบันทึกลงฐานข้อมูล
+     * Input: ข้อมูลประเภทคำขอ (requisitiontype)
+     * Output: ข้อมูลที่สร้างสำเร็จจาก API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
+    async createRequisitionType(requisitiontype: any) {
       try {
         const result = await axios.post(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype`,
@@ -114,12 +123,14 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.log(error);
       }
     },
-    async changeRequisitionType(rqtId : number) {
-      /*
-   * คำอธิบาย: เปลี่ยนสถานะการใช้งานของประเภทคำขอ (เปิด/ปิด)
-   * Input: รหัสประเภทคำขอ (rqtId)
-   * Output: อัปเดตสถานะและดึงข้อมูลประเภทคำขอใหม่
-   */
+    /*
+     * คำอธิบาย: เปลี่ยนสถานะการใช้งานของประเภทคำขอ (เปิด/ปิด)
+     * Input: รหัสประเภทคำขอ (rqtId)
+     * Output: อัปเดตสถานะและดึงข้อมูลประเภทคำขอใหม่
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
+    async changeRequisitionType(rqtId: number) {
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/update/${rqtId}`
@@ -129,12 +140,14 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.error("Error updating requisition type:", err);
       }
     },
-    async updateRequisitionType(data : any) {
-       /*
-   * คำอธิบาย: อัปเดตข้อมูลประเภทคำขอ
-   * Input: ข้อมูลประเภทคำขอที่ต้องการอัปเดต
-   * Output: อัปเดตข้อมูลและดึงข้อมูลประเภทคำขอใหม่
-   */
+    /*
+     * คำอธิบาย: อัปเดตข้อมูลประเภทคำขอ
+     * Input: ข้อมูลประเภทคำขอที่ต้องการอัปเดต
+     * Output: อัปเดตข้อมูลและดึงข้อมูลประเภทคำขอใหม่
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
+    async updateRequisitionType(data: any) {
       try {
         await axios.put(
           `${import.meta.env.VITE_BASE_URL}/api/requisitiontype`,
@@ -145,104 +158,125 @@ export const useExpenseManageStore = defineStore("expenseManage", {
         console.error("Error updating requisition type:", err);
       }
     },
+    /*
+     * คำอธิบาย: เปลี่ยนสถานะการใช้งานของประเภทรถ
+     * Input: รหัสประเภทรถที่ต้องการเปลี่ยนสถานะ
+     * Output: สถานะการใช้งานถูกเปลี่ยนและดึงข้อมูลประเภทรถใหม่
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async changeVehicle(vhId: number) {
-      /*
-   * คำอธิบาย: เปลี่ยนสถานะการใช้งานของประเภทรถ
-   * Input: รหัสประเภทรถที่ต้องการเปลี่ยนสถานะ
-   * Output: สถานะการใช้งานถูกเปลี่ยนและดึงข้อมูลประเภทรถใหม่
-   */
       try {
-        await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`
-        );
+        await axios.put(`${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`);
       } catch (err) {
         console.log(err);
       }
     },
+    /*
+     * คำอธิบาย: ลบข้อมูลประเภทรถตามรหัสที่กำหนด
+     * Input: รหัสประเภทรถ (vhId)
+     * Output: ลบข้อมูลสำเร็จและดึงข้อมูลประเภทรถส่วนตัวใหม่
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async deleteVehicle(vhId: number) {
-      /*
-   * คำอธิบาย: ลบข้อมูลประเภทรถตามรหัสที่กำหนด
-   * Input: รหัสประเภทรถ (vhId)
-   * Output: ลบข้อมูลสำเร็จและดึงข้อมูลประเภทรถส่วนตัวใหม่
-   */
       try {
-        const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`);
+        const result = await axios.delete(
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/${vhId}`
+        );
         this.getVehiclePrivate(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
 
         return result;
-
       } catch (error) {
         console.error("Error deleting disburse data:", error);
       }
     },
+    /*
+     * คำอธิบาย: ลบข้อมูลประเภทค่าใช้จ่ายตามรหัสที่กำหนด
+     * Input: รหัสประเภทค่าใช้จ่าย (rqtId)
+     * Output: ผลลัพธ์จากการลบ
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async deleteExpense(rqtId: number) {
-      /*
-   * คำอธิบาย: ลบข้อมูลประเภทค่าใช้จ่ายตามรหัสที่กำหนด
-   * Input: รหัสประเภทค่าใช้จ่าย (rqtId)
-   * Output: ผลลัพธ์จากการลบ
-   */
       try {
-        const result = await axios.delete(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`);
+        const result = await axios.delete(
+          `${import.meta.env.VITE_BASE_URL}/api/requisitiontype/${rqtId}`
+        );
         //this.getRequisitionType(); // เรียกฟังก์ชันนี้เพื่อดึงข้อมูลใหม่หลังจากลบแล้ว
-
         return result;
-
       } catch (error) {
         console.error("Error deleting disburse data:", error);
       }
     },
+    /*
+     * คำอธิบาย: ตรวจสอบว่าประเภทคำขอถูกใช้งานในระบบหรือไม่
+     * Input: รหัสประเภทคำขอ (rqtId)
+     * Output: สถานะการใช้งาน (isInUse)
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async validationRequisitionTypes(rqtId: number) {
-       /*
-   * คำอธิบาย: ตรวจสอบว่าประเภทคำขอถูกใช้งานในระบบหรือไม่
-   * Input: รหัสประเภทคำขอ (rqtId)
-   * Output: สถานะการใช้งาน (isInUse)
-   */
       try {
-        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/requisitiontype/validation/${rqtId}`);
+        const result = await axios.get(
+          `${
+            import.meta.env.VITE_BASE_URL
+          }/api/requisitiontype/validation/${rqtId}`
+        );
         return result.data.isInUse;
       } catch (error) {
-        console.error('Failed to fetch requisition types:', error);
+        console.error("Failed to fetch requisition types:", error);
         throw error;
       }
     },
+    /*
+     * คำอธิบาย: ตรวจสอบว่าประเภทรถถูกใช้งานในระบบหรือไม่
+     * Input: รหัสประเภทรถ (VhId)
+     * Output: สถานะการใช้งาน (isInUse)
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async validationVehicle(VhId: number) {
-      /*
-   * คำอธิบาย: ตรวจสอบว่าประเภทรถถูกใช้งานในระบบหรือไม่
-   * Input: รหัสประเภทรถ (VhId)
-   * Output: สถานะการใช้งาน (isInUse)
-   */
       try {
-        console.log(VhId)
-        const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/vehicle/validation/${VhId}`);
+        console.log(VhId);
+        const result = await axios.get(
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/validation/${VhId}`
+        );
         return result.data.isInUse;
       } catch (error) {
-        console.error('Failed to fetch vehicle:', error);
+        console.error("Failed to fetch vehicle:", error);
         throw error;
       }
     },
+    /*
+     * คำอธิบาย: อัปเดตข้อมูลประเภทรถสาธารณะ
+     * Input: ข้อมูลประเภทรถสาธารณะที่ต้องการอัปเดต
+     * Output: ส่งคำขออัปเดตไปยัง API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async changeVehiclePublic(data: any) {
-       /*
-   * คำอธิบาย: อัปเดตข้อมูลประเภทรถสาธารณะ
-   * Input: ข้อมูลประเภทรถสาธารณะที่ต้องการอัปเดต
-   * Output: ส่งคำขออัปเดตไปยัง API
-   */
       try {
         await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/public`,data
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/public`,
+          data
         );
       } catch (err) {
         console.log(err);
       }
     },
+    /*
+     * คำอธิบาย: อัปเดตข้อมูลประเภทรถส่วนตัว
+     * Input: ข้อมูลประเภทรถส่วนตัวที่ต้องการอัปเดต
+     * Output: ส่งคำขออัปเดตไปยัง API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวนครียา วัฒนศรี
+     * วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+     */
     async changeVehiclePrivate(data: any) {
-      /*
-   * คำอธิบาย: อัปเดตข้อมูลประเภทรถส่วนตัว
-   * Input: ข้อมูลประเภทรถส่วนตัวที่ต้องการอัปเดต
-   * Output: ส่งคำขออัปเดตไปยัง API
-   */
       try {
         await axios.put(
-          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/private`,data
+          `${import.meta.env.VITE_BASE_URL}/api/vehicle/update/private`,
+          data
         );
       } catch (err) {
         console.log(err);
