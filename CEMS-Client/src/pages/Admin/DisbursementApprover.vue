@@ -1,23 +1,23 @@
 <script setup lang="ts">
 /*
-* ชื่อไฟล์: DisbursementApprover.vue
-* คำอธิบาย: ไฟล์นี้แสดงรายชื่อผู้มีสิทธิ์ในการอนุมัติ
-* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
-* วันที่จัดทำ/แก้ไข: 29 ธันวาคม 2567
-*/
-import { ref, onMounted, reactive, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
-import Icon from '../../components/Icon/CIcon.vue';
-import Button from '../../components/Buttons/Button.vue';
-import { useApprovalStore } from '../../store/approval';
-import { useUserStore } from '../../store/user';
-import { User } from '../../types';
-import { useCheckExpenseStore } from '../../store/checkExpense';
-import { useLockStore } from '../../store/lockSystem';
+ * ชื่อไฟล์: DisbursementApprover.vue
+ * คำอธิบาย: ไฟล์นี้แสดงรายชื่อผู้มีสิทธิ์ในการอนุมัติ
+ * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
+ * วันที่จัดทำ/แก้ไข: 22 มีนาคม 2568
+ */
+import { ref, onMounted, reactive, computed, watch } from "vue";
+import { useRoute } from "vue-router";
+import Icon from "../../components/Icon/CIcon.vue";
+import Button from "../../components/Buttons/Button.vue";
+import { useApprovalStore } from "../../store/approval";
+import { useUserStore } from "../../store/user";
+import { User } from "../../types";
+import { useCheckExpenseStore } from "../../store/checkExpense";
+import { useLockStore } from "../../store/lockSystem";
 
 // Import filters
-import FilterButtons from '../../components/Filter/FilterButtons.vue'
-import UserSearchInput from '../../components/Filter/UserSearchInput.vue';
+import FilterButtons from "../../components/Filter/FilterButtons.vue";
+import UserSearchInput from "../../components/Filter/UserSearchInput.vue";
 
 const approvalStore = useApprovalStore();
 const userStore = useUserStore();
@@ -39,33 +39,41 @@ let userNotRepeatWithApprovers = ref<User[]>();
 const selectUserId = ref<string>("");
 const approverSequence = reactive({
   apId: 0,
-  apSequence: 0
-})
+  apSequence: 0,
+});
 const selectedApproverId = ref<number>(0);
 const loading = ref(false);
 
 // เพิ่ม filters สำหรับการค้นหา
 const filters = ref({
-  searchTerm: '',
+  searchTerm: "",
 });
 
 // Last searched filters
 const lastSearchedFilters = ref({
-  searchTerm: '',
+  searchTerm: "",
 });
 
 // กรองข้อมูลผู้อนุมัติตามคำค้นหา
 const filteredApprovers = computed(() => {
   if (!approvalStore.approvers) return [];
 
-  return approvalStore.approvers.filter(approver => {
-    const fullName = `${approver.usrFirstName} ${approver.usrLastName}`.toLowerCase()
+  return approvalStore.approvers.filter((approver) => {
+    const fullName =
+      `${approver.usrFirstName} ${approver.usrLastName}`.toLowerCase();
 
-    const matchesSearch = lastSearchedFilters.value.searchTerm === '' ||
-      approver.usrFirstName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
-      approver.usrLastName.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+    const matchesSearch =
+      lastSearchedFilters.value.searchTerm === "" ||
+      approver.usrFirstName
+        .toLowerCase()
+        .includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
+      approver.usrLastName
+        .toLowerCase()
+        .includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
       fullName.includes(lastSearchedFilters.value.searchTerm.toLowerCase()) ||
-      approver.usrEmployeeId.toLowerCase().includes(lastSearchedFilters.value.searchTerm.toLowerCase());
+      approver.usrEmployeeId
+        .toLowerCase()
+        .includes(lastSearchedFilters.value.searchTerm.toLowerCase());
 
     return matchesSearch;
   });
@@ -95,7 +103,9 @@ const closePopupAdd = () => {
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
 
-const alertMessage = ref("ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว");
+const alertMessage = ref(
+  "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว"
+);
 
 const canEditOrder = computed(() => {
   return approvalStore.approvers && approvalStore.approvers.length > 1;
@@ -110,10 +120,15 @@ const openPopupEdit = () => {
     }, 1500);
   } else if (!canEditOrder.value) {
     // สลับข้อความทุกครั้งที่เปิด pop up
-    if (alertMessage.value === "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว") {
-      alertMessage.value = "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
+    if (
+      alertMessage.value ===
+      "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว"
+    ) {
+      alertMessage.value =
+        "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
     } else {
-      alertMessage.value = "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว";
+      alertMessage.value =
+        "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว";
     }
     isFreeEdit.value = true;
     setTimeout(() => {
@@ -124,18 +139,16 @@ const openPopupEdit = () => {
   }
 };
 
-
 // สมมุติว่า userStore มี currentUser
 const currentUser = userStore.currentUser;
 
 const filteredApproversForEdit = computed(() => {
   if (!approvalStore.approvers) return [];
-  return approvalStore.approvers.filter(approver => {
+  return approvalStore.approvers.filter((approver) => {
     // คัดกรองไม่ให้แสดงผู้ใช้งานตัวเอง
     return approver.usrId !== currentUser?.usrId;
   });
 });
-
 
 const closePopupEdit = () => {
   isPopupEditOpen.value = false;
@@ -189,10 +202,9 @@ const confirmAdd = async () => {
 const cancelEdit = async () => {
   // ปิด modal ทันทีเมื่อกดยืนยัน
   closePopupEdit();
-  approverSequence.apId = 0
-  approverSequence.apSequence = 0
+  approverSequence.apId = 0;
+  approverSequence.apSequence = 0;
 };
-
 
 const confirmEdit = async () => {
   if (!isEditValid.value) {
@@ -204,8 +216,8 @@ const confirmEdit = async () => {
   try {
     await approvalStore.changeSequence(approverSequence);
     isEditAlertOpen.value = true;
-    approverSequence.apId = 0
-    approverSequence.apSequence = 0
+    approverSequence.apId = 0;
+    approverSequence.apSequence = 0;
     setTimeout(() => {
       isEditAlertOpen.value = false;
       // รีเซ็ตค่าใน dropdown หากต้องการให้ modal พร้อมใช้งานครั้งถัดไป
@@ -254,7 +266,6 @@ const confirmLock = async () => {
   }
 };
 
-
 // ฟังก์ชันสำหรับการค้นหา
 const handleSearch = () => {
   lastSearchedFilters.value = {
@@ -266,18 +277,20 @@ const handleSearch = () => {
 const handleReset = () => {
   // รีเซ็ตค่าในฟิลเตอร์
   filters.value = {
-    searchTerm: '',
+    searchTerm: "",
   };
 
   // รีเซ็ตค่าล่าสุดที่ใช้ค้นหา
   lastSearchedFilters.value = {
-    searchTerm: '',
+    searchTerm: "",
   };
 };
 
 const fatchApproval = async () => {
   userNotRepeatWithApprovers.value = userStore.users.filter((user: any) => {
-    return !approvalStore.approvers.map((approver) => approver.usrId).includes(user.usrId)
+    return !approvalStore.approvers
+      .map((approver) => approver.usrId)
+      .includes(user.usrId);
   });
 };
 
@@ -297,7 +310,7 @@ onMounted(async () => {
       isEditPage.value = false;
     }
   } catch (error) {
-    console.error('Error in mounted:', error);
+    console.error("Error in mounted:", error);
   } finally {
     loading.value = false;
   }
@@ -352,14 +365,23 @@ const isEditValid = computed(() => {
         <div class="flex justify-between">
           <div class="flex flex-wrap gap-4 mb-4 lg:mb-0">
             <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
-              <UserSearchInput v-model="filters.searchTerm" :loading="loading" />
+              <UserSearchInput
+                v-model="filters.searchTerm"
+                :loading="loading"
+              />
             </div>
 
             <div class="min-w-[200px] flex-1 lg:max-w-[300px]">
               <div class="flex flex-col">
                 <!-- ข้อความเพื่อให้ปุ่มอยู่ในระดับเดียวกับฟิลเตอร์ -->
-                <div class="py-0.5 text-[14px] text-transparent">การดำเนินการ</div>
-                <FilterButtons :loading="loading" @reset="handleReset" @search="handleSearch" />
+                <div class="py-0.5 text-[14px] text-transparent">
+                  การดำเนินการ
+                </div>
+                <FilterButtons
+                  :loading="loading"
+                  @reset="handleReset"
+                  @search="handleSearch"
+                />
               </div>
             </div>
           </div>
@@ -370,11 +392,16 @@ const isEditValid = computed(() => {
             </Button>
             <button
               class="bg-[#B6B7BA] text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin mt-5"
-              @click="openPopupConfirmLock">
-              {{ lockStore.isLocked ? 'เปิดรับคำขอ' : 'ปิดรับคำขอ' }}
+              @click="openPopupConfirmLock"
+            >
+              {{ lockStore.isLocked ? "เปิดรับคำขอ" : "ปิดรับคำขอ" }}
             </button>
-            <button @click="openPopupAdd"
-              class=" bg-green text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin justify-center">เพิ่มผู้มีสิทธิ์อนุมัติ</button>
+            <button
+              @click="openPopupAdd"
+              class="bg-green text-white rounded-[6px] h-[32px] px-8 flex items-center text-[14px] font-thin justify-center"
+            >
+              เพิ่มผู้มีสิทธิ์อนุมัติ
+            </button>
           </div>
         </div>
         <!-- ปุ่มแก้ไขลำดับ และผู้มีสิทธิอนุมัติ -->
@@ -384,7 +411,9 @@ const isEditValid = computed(() => {
     <!-- หน้าหลัก รายการแสดงรายการข้อมูล /-->
     <div>
       <!-- แถบหัวข้อ -->
-      <div class="h-[50px] flex items-center justify-between text-[14px] text-black font-bold">
+      <div
+        class="h-[50px] flex items-center justify-between text-[14px] text-black font-bold"
+      >
         <p class="w-20 text-center">ลำดับ</p>
         <p class="w-36 text-center">รหัสพนักงาน</p>
         <p class="w-4/5 pl-2">ชื่อ-นามสกุล</p>
@@ -392,36 +421,60 @@ const isEditValid = computed(() => {
       </div>
       <!-- แถบเนื้อหา -->
       <div v-if="loading" class="flex justify-center items-center py-4">
-        <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+        ></div>
         <span class="ml-2">กำลังโหลดข้อมูล...</span>
       </div>
       <div v-else-if="filteredApprovers.length === 0" class="py-4 text-center">
         ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหา
       </div>
-      <div v-else v-for="(approver, index) in filteredApprovers" :key="approver.usrId"
-        class="h-[50px] flex items-center justify-between text-[14px] text-black border-b border-[#BBBBBB]">
+      <div
+        v-else
+        v-for="(approver, index) in filteredApprovers"
+        :key="approver.usrId"
+        class="h-[50px] flex items-center justify-between text-[14px] text-black border-b border-[#BBBBBB]"
+      >
         <p class="w-20 text-center">{{ index + 1 }}</p>
         <p class="w-36 text-center">{{ approver.usrEmployeeId }}</p>
-        <p class="w-4/5 pl-2">{{ approver.usrFirstName }} {{ approver.usrLastName }}</p>
+        <p class="w-4/5 pl-2">
+          {{ approver.usrFirstName }} {{ approver.usrLastName }}
+        </p>
         <div class="ml-5 w-52 text-center flex items-center justify-between">
-          <div class="">
+          <div class=""></div>
 
-          </div>
-
-          <Icon :icon="'bin'" @click="openPopupDelete(approver.apId)" class="mx-3" />
+          <Icon
+            :icon="'bin'"
+            @click="openPopupDelete(approver.apId)"
+            class="mx-3"
+          />
         </div>
       </div>
     </div>
 
     <!-- Popup Delete -->
-    <div v-if="isPopupDeleteOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isPopupDeleteOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-2">
-          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+          <svg
+            :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-3">
@@ -431,12 +484,16 @@ const isEditValid = computed(() => {
           คุณลบผู้มีสิทธิ์อนุมัติหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button @click="closePopupDelete"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="closePopupDelete"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยกเลิก
           </button>
-          <button @click="confirmDelete"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="confirmDelete"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยืนยัน
           </button>
         </div>
@@ -444,30 +501,51 @@ const isEditValid = computed(() => {
     </div>
 
     <!-- Popup ยืนยันการล็อคระบบ -->
-    <div v-if="isPopupConfirmLockOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isPopupConfirmLockOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-2">
-          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+          <svg
+            :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black mb-3">
-          ยืนยันการ{{ lockStore.isLocked ? 'เปิดรับ' : 'ปิดรับ' }}รายการเบิกค่าใช้จ่าย
+          ยืนยันการ{{
+            lockStore.isLocked ? "เปิดรับ" : "ปิดรับ"
+          }}รายการเบิกค่าใช้จ่าย
         </h2>
         <h2 class="text-[18px] text-center text-[#7E7E7E] mb-3">
-          คุณยืนยันการ{{ lockStore.isLocked ? 'เปิดรับ' : 'ปิดรับ' }}รายการเบิกค่าใช้จ่ายหรือไม่ ?
+          คุณยืนยันการ{{
+            lockStore.isLocked ? "เปิดรับ" : "ปิดรับ"
+          }}รายการเบิกค่าใช้จ่ายหรือไม่ ?
         </h2>
         <div class="flex justify-center space-x-4">
-          <button @click="closePopupConfirmLock"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="closePopupConfirmLock"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยกเลิก
           </button>
-          <button @click="confirmLock"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="confirmLock"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยืนยัน
           </button>
         </div>
@@ -475,36 +553,55 @@ const isEditValid = computed(() => {
     </div>
 
     <!-- POPUP +ผู้มีสิทธิ์อนุมัติ -->
-    <div v-if="isPopupAddOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isPopupAddOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <h2 class="text-[24px] font-bold text-center text-black mb-3">
           การเพิ่มลำดับผู้มีสิทธิ์อนุมัติ
         </h2>
 
-        <label class="block text-sm font-medium mb-2 items-end ml-8">เพิ่มผู้มีสิทธิ์อนุมัติลำดับ <span
-            class="text-red-500">*</span></label>
+        <label class="block text-sm font-medium mb-2 items-end ml-8"
+          >เพิ่มผู้มีสิทธิ์อนุมัติลำดับ
+          <span class="text-red-500">*</span></label
+        >
         <div class="w-full mb-3 flex justify-center">
           <form>
             <div class="relative">
-              <select required v-model="selectUserId"
-                class="appearance-none w-[350px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
+              <select
+                required
+                v-model="selectUserId"
+                class="appearance-none w-[350px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none"
+              >
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" :value="user.usrId" v-for="user in userNotRepeatWithApprovers"
-                  :key="user.usrId">
-                  {{ user.usrFirstName }} {{ user.usrLastName }}</option>
+                <option
+                  class="text-black"
+                  :value="user.usrId"
+                  v-for="user in userNotRepeatWithApprovers"
+                  :key="user.usrId"
+                >
+                  {{ user.usrFirstName }} {{ user.usrLastName }}
+                </option>
               </select>
             </div>
           </form>
         </div>
         <div class="flex justify-center space-x-4 mt-2">
-          <button @click="cancelmAdd"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="cancelmAdd"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยกเลิก
           </button>
-          <button @click="confirmAdd"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="confirmAdd"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             <!-- ถ้าอยากให้แสดง loading icon หรือข้อความตอนกด -->
             ยืนยัน
           </button>
@@ -512,21 +609,33 @@ const isEditValid = computed(() => {
       </div>
     </div>
     <!-- POPUP แก้ไขลำดับผู้อนุมัติ -->
-    <div v-else-if="isPopupEditOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-else-if="isPopupEditOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <h2 class="text-[24px] font-bold text-center text-black mb-2">
           การแก้ไขลำดับผู้มีสิทธิ์อนุมัติ
         </h2>
         <div class="w-full my-3 flex justify-center">
           <form>
             <div class="relative">
-              <select required v-model="approverSequence.apId"
-                class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
-                <option value=0 disabled selected hidden>
+              <select
+                required
+                v-model="approverSequence.apId"
+                class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none"
+              >
+                <option value="0" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
                 </option>
-                <option class="text-black" :value="approver.apId" v-for="approver in filteredApproversForEdit"
-                  :key="approver.usrId">
+                <option
+                  class="text-black"
+                  :value="approver.apId"
+                  v-for="approver in filteredApproversForEdit"
+                  :key="approver.usrId"
+                >
                   {{ approver.usrFirstName }} {{ approver.usrLastName }}
                 </option>
               </select>
@@ -535,24 +644,33 @@ const isEditValid = computed(() => {
         </div>
 
         <div class="w-full my-3 flex justify-center">
-          <select v-model="approverSequence.apSequence"
-            class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none">
-            <option value="0" disabled selected hidden>
-              ลำดับผู้อนุมัติ
-            </option>
-            <option v-for="seq in availableSequences" :key="seq" :value="seq" class="text-black">
+          <select
+            v-model="approverSequence.apSequence"
+            class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none"
+          >
+            <option value="0" disabled selected hidden>ลำดับผู้อนุมัติ</option>
+            <option
+              v-for="seq in availableSequences"
+              :key="seq"
+              :value="seq"
+              class="text-black"
+            >
               {{ "ลำดับที่ " + seq }}
             </option>
           </select>
         </div>
 
         <div class="flex justify-center space-x-4 mt-2">
-          <button @click="cancelEdit"
-            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="cancelEdit"
+            class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยกเลิก
           </button>
-          <button @click="confirmEdit"
-            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+          <button
+            @click="confirmEdit"
+            class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin"
+          >
             ยืนยัน
           </button>
         </div>
@@ -560,119 +678,224 @@ const isEditValid = computed(() => {
     </div>
 
     <!-- Popup แก้ไขไม่ได้ -->
-    <div v-if="isFreeEdit" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isFreeEdit"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-3">
-          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+          <svg
+            :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black" v-html="alertMessage"></h2>
+        <h2
+          class="text-[24px] font-bold text-center text-black"
+          v-html="alertMessage"
+        ></h2>
       </div>
     </div>
 
     <!-- Popup เพิ่มไม่ได้ -->
-    <div v-if="isFreeAdd" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isFreeAdd"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-3">
-          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+          <svg
+            :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black">
-          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br>
-          กรุณาตรวจสอบ หรือปิดรับรายการ<br>
+          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br />
+          กรุณาตรวจสอบ หรือปิดรับรายการ<br />
           ก่อนทำการเพิ่มผู้มีสิทธิ์อนุมัติการเบิกจ่าย
         </h2>
       </div>
     </div>
 
     <!-- Popup แก้ไขไม่ได้ -->
-    <div v-if="isFreeDelete" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+    <div
+      v-if="isFreeDelete"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center"
+      >
         <div class="flex justify-center mb-3">
-          <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+          <svg
+            :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="20"
+            height="20"
+            fill="#FFBE40"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black">
-          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br>
-          กรุณาตรวจสอบ หรือปิดรับรายการ<br>
+          รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br />
+          กรุณาตรวจสอบ หรือปิดรับรายการ<br />
           ก่อนทำการลบผู้อนุมัติการเบิกจ่าย
         </h2>
       </div>
     </div>
 
     <!-- Alert -->
-    <div v-if="isAddAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div
+      v-if="isAddAlertOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+      >
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+          <svg
+            :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="green"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd" />
-          </svg>
-        </div>
-        <h2 class="text-[24px] font-bold text-center text-black">ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
-      </div>
-    </div>
-
-    <!-- Alert ยืนยันการล็อคระบบ -->
-    <div v-if="isLockAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-        <div class="flex justify-center">
-          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
-              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
         <h2 class="text-[24px] font-bold text-center text-black">
-          ยืนยันการ{{ lockStore.isLocked ? 'ปิดรับ' : 'เปิดรับ' }}รายการเบิกค่าใช้จ่ายสำเร็จ
+          ยืนยันการเพิ่มผู้มีสิทธิ์อนุมัติสำเร็จ
         </h2>
       </div>
     </div>
 
-    <div v-if="isEditAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <!-- Alert ยืนยันการล็อคระบบ -->
+    <div
+      v-if="isLockAlertOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
-        <div class="flex justify-center mb-4">
-          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+      >
+        <div class="flex justify-center">
+          <svg
+            :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="green"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black">ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+        <h2 class="text-[24px] font-bold text-center text-black">
+          ยืนยันการ{{
+            lockStore.isLocked ? "ปิดรับ" : "เปิดรับ"
+          }}รายการเบิกค่าใช้จ่ายสำเร็จ
+        </h2>
       </div>
     </div>
 
-    <div v-if="isDeleteAlertOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div
+      v-if="isEditAlertOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
       <div
-        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center">
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+      >
         <div class="flex justify-center mb-4">
-          <svg :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`" aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="green" viewBox="0 0 24 24">
-            <path fill-rule="evenodd"
+          <svg
+            :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="green"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
               d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
-              clip-rule="evenodd" />
+              clip-rule="evenodd"
+            />
           </svg>
         </div>
-        <h2 class="text-[24px] font-bold text-center text-black">ยืนยันการลบผู้มีสิทธิ์อนุมัติสำเร็จ</h2>
+        <h2 class="text-[24px] font-bold text-center text-black">
+          ยืนยันการแก้ไขผู้มีสิทธิ์อนุมัติสำเร็จ
+        </h2>
+      </div>
+    </div>
+
+    <div
+      v-if="isDeleteAlertOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+    >
+      <div
+        class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center items-center"
+      >
+        <div class="flex justify-center mb-4">
+          <svg
+            :class="`w-[110px] h-[110px] text-gray-800 dark:text-white`"
+            aria-hidden="true"
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            fill="green"
+            viewBox="0 0 24 24"
+          >
+            <path
+              fill-rule="evenodd"
+              d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm13.707-1.293a1 1 0 0 0-1.414-1.414L11 12.586l-1.793-1.793a1 1 0 0 0-1.414 1.414l2.5 2.5a1 1 0 0 0 1.414 0l4-4Z"
+              clip-rule="evenodd"
+            />
+          </svg>
+        </div>
+        <h2 class="text-[24px] font-bold text-center text-black">
+          ยืนยันการลบผู้มีสิทธิ์อนุมัติสำเร็จ
+        </h2>
       </div>
     </div>
   </div>

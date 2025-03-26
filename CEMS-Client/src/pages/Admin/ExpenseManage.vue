@@ -1,9 +1,9 @@
 <script setup lang="ts">
 /*
- * ชื่อไฟล์: TravelManage.vue
+ * ชื่อไฟล์: ExpenseManage.vue
  * คำอธิบาย: ไฟล์นี้สามารถตั้งค่าประเภทการเดินทางต่างๆ ที่มีอยู่ในระบบ เพิ่ม แก้ไข หรือปิดการใช้งานได้
  * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน
- * วันที่จัดทำ/แก้ไข: 11 พฤศจิกายน 2567
+ * วันที่จัดทำ/แก้ไข: 22 มีนาคม 2568
  */
 import { onMounted, ref, reactive } from "vue";
 import Button from "../../components/Buttons/Button.vue";
