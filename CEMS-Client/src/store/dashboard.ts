@@ -30,9 +30,9 @@ export const useDashboard = defineStore("dashboard", {
   }),
   actions: {
     /*
-     * คำอธิบาย: ตรวจสอบการรับข้อมูลจาก API
+     * คำอธิบาย: ตรวจสอบการรับข้อมูลโครงการจาก API
      * Input: -
-     * Output: ข้อมูลต่างๆจาก API ที่ถูกนำไปแสดงบนแดชบอร์ด
+     * Output: ข้อมูลโครงการจาก API
      * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
      * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
      */
@@ -46,6 +46,13 @@ export const useDashboard = defineStore("dashboard", {
         console.error("Failed to fetch dashboard:", error);
       }
     },
+    /*
+     * คำอธิบาย: ตรวจสอบการรับข้อมูลโครงการจาก API แยกตาม user
+     * Input: usrId
+     * Output: ข้อมูลโครงการจาก API แยกตาม user
+     * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+     * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+     */
     async getDashboardProjectById(usrId: string) {
       try {
         const result = await axios.get(
@@ -56,6 +63,13 @@ export const useDashboard = defineStore("dashboard", {
         console.error("Failed to fetch dashboard:", error);
       }
     },
+    /*
+     * คำอธิบาย: ตรวจสอบการรับข้อมูลประเภทค่าใช้จ่ายจาก API
+     * Input: -
+     * Output: ข้อมูลประเภทค่าใช้จ่ายจาก API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+     * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+     */
     async getDashboardRequisitionType() {
       try {
         const result = await axios.get(
@@ -66,6 +80,13 @@ export const useDashboard = defineStore("dashboard", {
         console.error("Failed to fetch dashboard:", error);
       }
     },
+    /*
+     * คำอธิบาย: ตรวจสอบการรับข้อมูลประเภทค่าใช้จ่ายจาก API แยกตาม user
+     * Input: usrId
+     * Output: ข้อมูลประเภทค่าใช้จ่ายจาก API แยกตาม user
+     * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+     * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+     */
     async getDashboardRequisitionTypeById(usrId: string) {
       try {
         const result = await axios.get(
@@ -78,6 +99,13 @@ export const useDashboard = defineStore("dashboard", {
         console.error("Failed to fetch dashboard:", error);
       }
     },
+    /*
+     * คำอธิบาย: ตรวจสอบการรับข้อมูลคำขอเบิกค่าใช้จ่ายจาก API
+     * Input: -
+     * Output: ข้อมูลคำขอเบิกค่าใช้จ่ายจาก API
+     * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+     * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+     */
     async getDashboardTotalExpense() {
       try {
         const result = await axios.get(
@@ -88,6 +116,13 @@ export const useDashboard = defineStore("dashboard", {
         console.error("Failed to fetch dashboard:", error);
       }
     },
+    /*
+     * คำอธิบาย: ตรวจสอบการรับข้อมูลคำขอเบิกค่าใช้จ่ายจาก API แยกตาม user
+     * Input: usrId
+     * Output: ข้อมูลคำขอเบิกค่าใช้จ่ายจาก API แยกตาม user
+     * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+     * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+     */
     async getDashboardTotalExpenseById(usrId: string) {
       try {
         const result = await axios.get(
