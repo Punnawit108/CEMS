@@ -13,8 +13,6 @@ namespace CEMS_Server.Models
 
         public string FFileType { get; set; } = null!;
 
-        //public byte[] FFile { get; set; } = null;
-
         public int? FSize { get; set; }
 
         public string FUniqueName { get; set; } = null!;

@@ -39,11 +39,12 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลรายการคำขอเบิก</summary>
+    /// <param name="usrId"> รหัสผู้ใช้งาน</param>
     /// <returns>แสดงข้อมูลใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("list/{id}")]
-    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList(string id)
+    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList(string usrId)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -52,7 +53,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqVh)
             .Where(u =>
                 (u.RqStatus == "waiting" || u.RqStatus == "sketch" || u.RqStatus == "edit")
-                && u.RqUsrId.Equals(id)
+                && u.RqUsrId.Equals(usrId)
             )
             .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new ExpenseGetDto
@@ -74,18 +75,19 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลประวัติคำขอเบิก</summary>
+    /// <param name="usrId"> รหัสผู้ใช้งาน</param>
     /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
     [HttpGet("History/{id}")]
-    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory(string id)
+    public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory(string usrId)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => (u.RqStatus == "reject" || u.RqStatus == "accept") && u.RqUsrId.Equals(id)) // เพิ่มเงื่อนไข Where
+            .Where(u => (u.RqStatus == "reject" || u.RqStatus == "accept") && u.RqUsrId.Equals(usrId)) // เพิ่มเงื่อนไข Where
             .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new ExpenseGetDto
             {
@@ -159,12 +161,12 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>แสดงข้อมูลรายละเอียดคำขอเบิก</summary>
-    /// <param name="id"> id รายการคำขอเบิก</param>
+    /// <param name="rqId"> id รายการคำขอเบิก</param>
     /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกตาม id ที่รับ</returns>
     /// <remarks>แก้ไขล่าสุด: 12 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
-    [HttpGet("{id}")]
-    public async Task<ActionResult<ExpenseGetByIdDto>> GetExpenseById(string id)
+    [HttpGet("{rqId}")]
+    public async Task<ActionResult<ExpenseGetByIdDto>> GetExpenseById(string rqId)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
@@ -172,7 +174,7 @@ public class ExpenseController : ControllerBase
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqId == id) // ค้นหา RqId ด้วย id (parameter ที่รับค่าด้านบน)
+            .Where(u => u.RqId == rqId) // ค้นหา RqId ด้วย id (parameter ที่รับค่าด้านบน)
             .Select(u => new ExpenseGetByIdDto
             {
                 RqId = u.RqId,
@@ -220,7 +222,7 @@ public class ExpenseController : ControllerBase
 
         if (requisition == null)
         {
-            return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
+            return NotFound($"ไม่มีข้อมูลของ id {rqId} ในระบบ");
         }
         // ส่งข้อมูลที่พบกลับไป
         return Ok(requisition);
@@ -440,14 +442,14 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>เปลี่ยนแปลงข้อมูลคำขอเบิก</summary>
-    /// <param name="id"> id ของรายการคำขอเบิก </param>
+    /// <param name="rqId"> id ของรายการคำขอเบิก </param>
     /// <param name="expenseDto"> ข้อมูลรายการคำขอเบิก </param>
     /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก</returns>
     /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
     [HttpPut("{id}")]
     public async Task<IActionResult> UpdateExpense(
-        string id,
+        string rqId,
         [FromForm] ExpenseManageDto expenseDto
     )
     {
@@ -456,11 +458,11 @@ public class ExpenseController : ControllerBase
             return BadRequest("Expense data is null.");
         }
 
-        var expense = await _context.CemsRequisitions.FindAsync(id);
+        var expense = await _context.CemsRequisitions.FindAsync(rqId);
 
         if (expense == null)
         {
-            return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
+            return NotFound($"ไม่มีข้อมูลของ id {rqId} ในระบบ");
         }
 
         var payDate = DateOnly.ParseExact(
@@ -521,7 +523,7 @@ public class ExpenseController : ControllerBase
                 // สร้างข้อมูลไฟล์ในฐานข้อมูล
                 var cemsFile = new CemsFile
                 {
-                    FRqId = id,
+                    FRqId = rqId,
                     FName = file.FileName,
                     FFileType = file.ContentType,
                     FSize = (int)file.Length,
@@ -536,7 +538,7 @@ public class ExpenseController : ControllerBase
         if (expenseDto.RqStatus == "waiting")
         {
             var approver = await _context.CemsApproverRequisitions.FirstOrDefaultAsync(a =>
-                a.AprRqId == id && a.AprStatus == "edit"
+                a.AprRqId == rqId && a.AprStatus == "edit"
             );
 
             if (approver != null)
@@ -549,7 +551,7 @@ public class ExpenseController : ControllerBase
             }
             else
             {
-                await HandleApproverRequisitions(id, expenseDto.RqStatus);
+                await HandleApproverRequisitions(rqId, expenseDto.RqStatus);
             }
         }
         await _context.SaveChangesAsync();
@@ -557,18 +559,18 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>ลบข้อมูลคำขอเบิก</summary>
-    /// <param name="id"> id ของรายการคำขอเบิก </param>
+    /// <param name="rqId"> id ของรายการคำขอเบิก </param>
     /// <returns>สถานะการลบข้อมูลคำขอเบิก </returns>
     /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
 
-    [HttpDelete("{id}")]
-    public async Task<IActionResult> DeleteExpense(string id)
+    [HttpDelete("{rqId}")]
+    public async Task<IActionResult> DeleteExpense(string rqId)
     {
-        var expense = await _context.CemsRequisitions.FindAsync(id);
+        var expense = await _context.CemsRequisitions.FindAsync(rqId);
 
         if (expense == null)
         {
-            return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
+            return NotFound($"ไม่มีข้อมูลของ id {rqId} ในระบบ");
         }
 
         _context.CemsRequisitions.Remove(expense);
@@ -593,14 +595,14 @@ public class ExpenseController : ControllerBase
     }
 
     /// <summary>ลบข้อมูลไฟล์ตามคำขอเบิก</summary>
-    /// <param name="id"> id ของ file ที่ต้องการลบ </param>
+    /// <param name="fId"> id ของ file ที่ต้องการลบ </param>
     /// <returns>สถานะการลบข้อมูลไฟล์ </returns>
     /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา</remark>
-    [HttpDelete("file/{id}")]
-    public async Task<IActionResult> DeleteFile(int id)
+    [HttpDelete("file/{fId}")]
+    public async Task<IActionResult> DeleteFile(int fId)
     {
         // ค้นหาไฟล์ในฐานข้อมูล
-        var file = await _context.CemsFiles.FindAsync(id);
+        var file = await _context.CemsFiles.FindAsync(fId);
         if (file == null)
         {
             return NotFound(new { message = "ไม่พบไฟล์ที่ต้องการลบ" });
