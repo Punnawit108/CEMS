@@ -2,7 +2,7 @@
  * ชื่อไฟล์: approval.ts
  * คำอธิบาย: ไฟล์ store API ของการอนุมัติและผู้อนุมัติทั้งหมด
  * ชื่อผู้เขียน/แก้ไข: พรชัย เพิ่มพูลกิจ, ธีรวัฒน์ นิระมล
- * วันที่จัดทำ/แก้ไข: 30 ธันวาคม 2567
+ * วันที่จัดทำ/แก้ไข: 8 มกราคม 2568
  */
 import axios from "axios";
 import { defineStore } from "pinia";
@@ -76,7 +76,7 @@ export const useApprovalStore = defineStore("approval", {
      * Input: approverId
      * Output: มีการลบผู้อนุมัติในระบบ
      * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิะรมล
-     * วันที่จัดทำ/แก้ไข: 30 ธันวาคม 2567
+     * วันที่จัดทำ/แก้ไข: 8 มกราคม 2568
      */
     async deleteApprover(approverId: number) {
       try {

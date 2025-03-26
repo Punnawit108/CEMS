@@ -3,7 +3,7 @@
  * Input: -
  * Output: ภาพรวมข้อมูลต่างๆ
  * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
- * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+ * วันที่จัดทำ/แก้ไข: 16 ธันวาคม 2567
  */
 
 import axios from "axios";
@@ -16,7 +16,6 @@ import {
   DashboardRequisitionType,
   DashboardPayment,
 } from "../types";
-
 
 //ดึงข้อมูล Api Dashboard ของ Role User
 export const useDashboard = defineStore("dashboard", {
@@ -31,12 +30,12 @@ export const useDashboard = defineStore("dashboard", {
   }),
   actions: {
     /*
-    * คำอธิบาย: ตรวจสอบการรับข้อมูลจาก API
-    * Input: -
-    * Output: ข้อมูลต่างๆจาก API ที่ถูกนำไปแสดงบนแดชบอร์ด
-    * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
-    * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
-    */
+     * คำอธิบาย: ตรวจสอบการรับข้อมูลจาก API
+     * Input: -
+     * Output: ข้อมูลต่างๆจาก API ที่ถูกนำไปแสดงบนแดชบอร์ด
+     * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+     * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+     */
     async getDashboardProject() {
       try {
         const result = await axios.get(
@@ -89,7 +88,7 @@ export const useDashboard = defineStore("dashboard", {
         console.error("Failed to fetch dashboard:", error);
       }
     },
-    async getDashboardTotalExpenseById(usrId : string) {
+    async getDashboardTotalExpenseById(usrId: string) {
       try {
         const result = await axios.get(
           `${import.meta.env.VITE_BASE_URL}/api/dashboard/totalexpense/${usrId}`
@@ -138,7 +137,10 @@ export const useDashboardDetail = defineStore("dashboardDetail", {
                 value: data.totalRequisitionsAcceptedOrRejected,
               },
               { key: "รายการเบิกทั้งหมด", value: data.totalRequisitions },
-              { key: "ยอดที่อนุมัติแล้ว (บาท)", value: data.totalRequisitionExpenses },
+              {
+                key: "ยอดที่อนุมัติแล้ว (บาท)",
+                value: data.totalRequisitionExpenses,
+              },
             ];
           }
           return this.dashboard;
@@ -152,7 +154,10 @@ export const useDashboardDetail = defineStore("dashboardDetail", {
               { key: "ผู้ใช้งานทั้งหมด", value: data.totalUser },
               { key: "คำขอเบิกจ่ายทั้งหมด", value: data.totalRqAccept },
               { key: "โครงการทั้งหมด", value: data.totalProject },
-              { key: "ยอดเบิกจ่ายแล้ว (บาท)", value: data.totalRqAcceptExpense },
+              {
+                key: "ยอดเบิกจ่ายแล้ว (บาท)",
+                value: data.totalRqAcceptExpense,
+              },
             ];
           } else if (role == "accountant") {
             this.dashboard = [
