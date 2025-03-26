@@ -1,3 +1,11 @@
+/*
+* ชื่อไฟล์: exportExpenseReport.ts
+* คำอธิบาย: ไฟล์ store API สำหรับการจัดการส่งออกรายงานเบิกจ่าย
+* ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
+* วันที่จัดทำ/แก้ไข: 3 มีนาคม /2568
+*/
+
+
 import axios from "axios";
 import { defineStore } from "pinia";
 

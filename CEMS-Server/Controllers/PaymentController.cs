@@ -60,17 +60,18 @@ public class PaymentController : ControllerBase
     }
 
     /// <summary>แสดงช้อมูลรายการประวัติการนำจ่าย</summary>
+    /// <param name="usrId"> รหัสผู้ใช้งาน</param>
     /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
     [HttpGet("History/{id}")]
-    public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory(string id)
+    public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory(string usrId)
     {
         var requisition = await _context
             .CemsRequisitions.Include(e => e.RqUsr)
             .Include(e => e.RqPj)
             .Include(e => e.RqRqt)
             .Include(e => e.RqVh)
-            .Where(u => u.RqDisburser == id && u.RqStatus == "accept" && u.RqProgress == "complete") // เพิ่มเงื่อนไข Where
+            .Where(u => u.RqDisburser == usrId && u.RqStatus == "accept" && u.RqProgress == "complete") // เพิ่มเงื่อนไข Where
             .OrderBy(u => u.RqWithdrawDate)
             .Select(u => new PaymentGetDto
             {
@@ -89,50 +90,6 @@ public class PaymentController : ControllerBase
 
         return Ok(requisition);
     }
-
-    /// <summary>แสดงช้อมูลรายการรอนำจ่าย</summary>
-    /// <returns>ข้อมูลรายการรอนำจ่าย</returns>
-    /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
-    // [HttpGet("{id}")]
-    // public async Task<ActionResult<PaymentGetDto>> GetPaymentById(string id)
-    // {
-    //     var requisition = await _context
-    //         .CemsRequisitions.Include(e => e.RqUsr)
-    //         .Include(e => e.RqPj)
-    //         .Include(e => e.RqRqt)
-    //         .Include(e => e.RqVh)
-    //         .Where(u => u.RqId == id) // ค้นหา RqId ด้วย id (parameter ที่รับค่าด้านบน)
-    //         .Select(u => new PaymentGetDto
-    //         {
-    //             RqId = u.RqId,
-    //             RqUsrName = u.RqUsr.UsrFirstName + " " + u.RqUsr.UsrLastName,
-    //             RqPjName = u.RqPj.PjName,
-    //             RqRqtName = u.RqRqt.RqtName,
-    //             RqVhName = u.RqVh.VhVehicle,
-    //             RqName = u.RqName,
-    //             RqPayDate = u.RqPayDate,
-    //             RqWithdrawDate = u.RqWithdrawDate,
-    //             RqCode = u.RqCode,
-    //             RqInsteadEmail = u.RqInsteadEmail,
-    //             RqExpenses = u.RqExpenses,
-    //             RqStartLocation = u.RqStartLocation,
-    //             RqEndLocation = u.RqEndLocation,
-    //             RqDistance = u.RqDistance,
-    //             RqPurpose = u.RqPurpose,
-    //             RqReason = u.RqReason,
-    //             RqProof = u.RqProof,
-    //             RqStatus = u.RqStatus,
-    //             RqProgress = u.RqProgress,
-    //         })
-    //         .FirstOrDefaultAsync();
-
-    //     if (requisition == null)
-    //     {
-    //         return NotFound($"ไม่มีข้อมูลของ id {id} ในระบบ");
-    //     }
-    //     // ส่งข้อมูลที่พบกลับไป
-    //     return Ok(requisition);
-    // }
 
     /// <summary>นำจ่ายคำขอเบิก</summary>
     /// <param name="id">id ของรายการคำขอเบิก</param>

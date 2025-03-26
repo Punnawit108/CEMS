@@ -1,3 +1,9 @@
+/*
+* ชื่อไฟล์: ExportExcelController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับส่งออกไฟล์ประเภทxlsxของรายงานค่าใช้จ่าย
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชย์ เชียนพลแสน
+* วันที่จัดทำ/แก้ไข: 26 มีนาคม 2568
+*/
 using Microsoft.AspNetCore.Mvc;
 using System.Collections.Generic;
 using System.IO;

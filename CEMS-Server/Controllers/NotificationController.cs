@@ -84,19 +84,4 @@ public class NotificationController : ControllerBase
 
         return BadRequest(new { message = "Notification is already 'read' or status is invalid." });
     }
-
-    [HttpGet("send-notification")]
-    public async Task<IActionResult> SendTestNotification()
-    {
-        var testNotification = new
-        {
-            Message = "This is a test notification",
-            Date = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss"),
-        };
-
-        // ส่งข้อความไปยังทุกคนที่เชื่อมต่อกับ Hub
-        await _hubContext.Clients.All.SendAsync("ReceiveNotification", testNotification);
-
-        return Ok("Notification sent!");
-    }
 }
