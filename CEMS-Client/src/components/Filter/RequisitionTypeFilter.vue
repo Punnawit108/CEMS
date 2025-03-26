@@ -26,13 +26,11 @@ defineEmits<{
     <form class="grid">
       <label for="SelectRequisitionType" class="py-0.5 text-[14px] text-black text-start">ประเภทค่าใช้จ่าย</label>
       <div class="relative h-[32px] w-full justify-center items-center">
-        <select
-          :value="modelValue"
-          @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
-          id="SelectRequisitionType"
-          :disabled="loading"
-          class="custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8"
-        >
+        <select :value="modelValue" @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
+          id="SelectRequisitionType" :disabled="loading" :class="[
+            'custom-select appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none focus:border-blue-500 pl-4 pr-8',
+            { 'empty-value': modelValue === '' || modelValue === undefined }
+          ]">
           <option value="">ทั้งหมด</option>
           <option v-for="type in requisitionTypes" :key="type.rqtId" :value="type.rqtId">
             {{ type.rqtName }}
@@ -54,20 +52,35 @@ defineEmits<{
 <style scoped>
 /* กำหนด custom styles สำหรับ select element */
 .custom-select {
-  -webkit-appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select บน webkit browsers */
-  -moz-appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select บน mozilla browsers */
-  appearance: none; /* ซ่อนลูกศรดั้งเดิมของ select */
-  background-image: none; /* ไม่ใช้ background image ดั้งเดิม */
+  -webkit-appearance: none;
+  /* ซ่อนลูกศรดั้งเดิมของ select บน webkit browsers */
+  -moz-appearance: none;
+  /* ซ่อนลูกศรดั้งเดิมของ select บน mozilla browsers */
+  appearance: none;
+  /* ซ่อนลูกศรดั้งเดิมของ select */
+  background-image: none;
+  /* ไม่ใช้ background image ดั้งเดิม */
 }
 
 /* กำหนดสีพื้นหลังและสีข้อความสำหรับ select และ option */
-select, select option {
+select,
+select option {
   background-color: white;
   color: #000000;
 }
 
 /* กำหนดสีข้อความสำหรับ option ที่ว่างหรือไม่ถูกต้อง */
-select:invalid, select option[value=""] {
+select option[value=""] {
+  color: #999999 !important;
+}
+
+/* เพิ่มสำหรับการเลือก option ว่าง */
+select {
+  color: #000000;
+}
+
+/* เมื่อค่าที่เลือกเป็นค่าว่าง */
+select.empty-value {
   color: #999999;
 }
 </style>
