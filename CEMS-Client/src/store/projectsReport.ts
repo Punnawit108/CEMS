@@ -29,13 +29,5 @@ export const useProjectsStore = defineStore("projects", {
                 console.error("Failed to fetch projects:", error);
             }
         },
-        async getProjectsActive() {
-            try {
-                const result = await axios.get(`${import.meta.env.VITE_BASE_URL}/api/project/active`);
-                this.projects = result.data;
-            } catch (error) {
-                console.error("Failed to fetch projects:", error);
-            }
-        },
     },
 });
