@@ -17,6 +17,7 @@ import {
   DashboardPayment,
 } from "../types";
 
+
 //ดึงข้อมูล Api Dashboard ของ Role User
 export const useDashboard = defineStore("dashboard", {
   state: () => ({
@@ -29,6 +30,13 @@ export const useDashboard = defineStore("dashboard", {
     totalExpense: [],
   }),
   actions: {
+    /*
+    * คำอธิบาย: ตรวจสอบการรับข้อมูลจาก API
+    * Input: -
+    * Output: ข้อมูลต่างๆจาก API ที่ถูกนำไปแสดงบนแดชบอร์ด
+    * ชื่อผู้เขียน/แก้ไข: นางสาวอลิสา ปะกังพลัง
+    * วันที่จัดทำ/แก้ไข: 10 ธันวาคม 2567
+    */
     async getDashboardProject() {
       try {
         const result = await axios.get(
