@@ -4,6 +4,7 @@
 * ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชน์ เชียนพลแสน
 * วันที่จัดทำ/แก้ไข: 26 พฤศจิกายน 2567
 */
+
 using System.Globalization;
 using CEMS_Server.AppContext; // ใช้สำหรับเชื่อมต่อกับบริบทของฐานข้อมูล
 using CEMS_Server.DTOs; // อ้างอิงถึง Data Transfer Object ที่เกี่ยวข้อง
@@ -13,21 +14,23 @@ using Microsoft.EntityFrameworkCore; // ใช้สำหรับการด�
 
 namespace CEMS_Server.Controllers;
 
-// ระบุเส้นทางของ API และระบุว่าเป็น Controller สำหรับ API
+/// <summary>Controller สำหรับจัดการข้อมูลยานพาหนะ</summary>
 [Route("api/vehicle")]
 [ApiController]
 public class VehicleController : ControllerBase
 {
     private readonly CemsContext _context; // ตัวแปรบริบทของฐานข้อมูล
 
-    // Constructor สำหรับตั้งค่าบริบทของฐานข้อมูล
+    /// <summary>Constructor สำหรับตั้งค่าบริบทของฐานข้อมูล</summary>
+    /// <param name="context">บริบทของฐานข้อมูล</param>
     public VehicleController(CemsContext context)
     {
         _context = context;
     }
 
-    // ดึงข้อมูลรถทั้งหมด
-    // GET: api/Vehicle
+    /// <summary>ดึงข้อมูลรถส่วนตัวทั้งหมด</summary>
+    /// <returns>รายการข้อมูลรถส่วนตัวทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpGet("private")]
     public IActionResult GetVehiclesPrivate()
     {
@@ -56,8 +59,9 @@ public class VehicleController : ControllerBase
         return Ok(vehicleDetails);
     }
 
-    // ฟังก์ชันสำหรับดึงข้อมูลรถสาธารณะทั้งหมด
-    // GET: api/vehicle/public
+    /// <summary>ดึงข้อมูลรถสาธารณะทั้งหมด</summary>
+    /// <returns>รายการข้อมูลรถสาธารณะทั้งหมด</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpGet("public")]
     public IActionResult GetVehiclePublic()
     {
@@ -86,8 +90,10 @@ public class VehicleController : ControllerBase
         return Ok(vehicleDetails);
     }
 
-    // ดึงข้อมูลรถตาม ID
-    // GET: api/Vehicle/5
+    /// <summary>ดึงข้อมูลรถตามรหัส</summary>
+    /// <param name="id">รหัสรถที่ต้องการค้นหา</param>
+    /// <returns>ข้อมูลรถที่ค้นพบ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpGet("{id}")]
     public IActionResult GetVehicle(int id)
     {
@@ -113,8 +119,10 @@ public class VehicleController : ControllerBase
         return Ok(vehicleDetail);
     }
 
-    // เพิ่มข้อมูลรถใหม่
-    // POST: api/Vehicle
+    /// <summary>สร้างข้อมูลรถใหม่</summary>
+    /// <param name="vehicleDto">ข้อมูลรถที่ต้องการสร้าง</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpPost]
     public IActionResult CreateVehicle([FromBody] VehicleDTO vehicleDto)
     {
@@ -139,8 +147,10 @@ public class VehicleController : ControllerBase
         return CreatedAtAction(nameof(GetVehicle), new { id = vehicle.VhId }, vehicle);
     }
 
-    // อัปเดตข้อมูลรถ
-    // PUT: api/Vehicle/5
+    /// <summary>อัปเดตสถานะการแสดงผลของรถ</summary>
+    /// <param name="id">รหัสรถที่ต้องการอัปเดต</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpPut("{id}")]
     public IActionResult UpdateVehicle(int id)
     {
@@ -160,9 +170,10 @@ public class VehicleController : ControllerBase
         return NoContent();
     }
 
-    // PUT Private
-     // ฟังก์ชันสำหรับอัปเดตข้อมูลรถส่วนตัว
-    // PUT: api/vehicle/update/private
+    /// <summary>อัปเดตข้อมูลรถส่วนตัว</summary>
+    /// <param name="vehicleDTO">ข้อมูลรถส่วนตัวที่ต้องการอัปเดต</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpPut("update/private")]
     public async Task<IActionResult> UpdatePrivate(VehiclePrivateUpdateDTO vehicleDTO)
     {
@@ -205,9 +216,10 @@ public class VehicleController : ControllerBase
         return Ok(new { message = "Private vehicle updated successfully." });
     }
 
-    // PUT Public
-     // ฟังก์ชันสำหรับอัปเดตข้อมูลรถสาธารณะ
-    // PUT: api/vehicle/update/public
+    /// <summary>อัปเดตข้อมูลรถสาธารณะ</summary>
+    /// <param name="vehicleDTO">ข้อมูลรถสาธารณะที่ต้องการอัปเดต</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpPut("update/public")]
     public async Task<IActionResult> UpdatePublic(VehiclePublicUpdateDTO vehicleDTO)
     {
@@ -249,8 +261,10 @@ public class VehicleController : ControllerBase
         return Ok(new { message = "Public vehicle updated successfully." });
     }
 
-    // ฟังก์ชันสำหรับตรวจสอบว่ามีการใช้รถอยู่หรือไม่
-    // GET: api/vehicle/validation/5
+    /// <summary>ตรวจสอบว่ามีการใช้รถอยู่หรือไม่</summary>
+    /// <param name="VhId">รหัสรถที่ต้องการตรวจสอบ</param>
+    /// <returns>สถานะการใช้งานของรถ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpGet("validation/{VhId}")]
     public async Task<IActionResult> CheckVehicleUsage(int VhId)
     {
@@ -259,8 +273,10 @@ public class VehicleController : ControllerBase
         return Ok(new { VhId, isInUse });
     }
 
-    // ลบข้อมูลรถ
-    // DELETE: api/Vehicle/5
+    /// <summary>ลบข้อมูลรถ</summary>
+    /// <param name="id">รหัสรถที่ต้องการลบ</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpDelete("{id}")]
     public IActionResult DeleteVehicle(int id)
     {

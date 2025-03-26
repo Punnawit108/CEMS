@@ -13,21 +13,23 @@ using Microsoft.EntityFrameworkCore; // ใช้สำหรับการด�
 
 namespace CEMS_Server.Controllers;
 
-// ระบุว่าคลาสนี้เป็น Controller สำหรับ API
+/// <summary>Controller สำหรับจัดการประเภทคำขอเบิก</summary>
 [ApiController]
 [Route("api/requisitiontype")]
 public class RequisitionTypeController : ControllerBase
 {
     private readonly CemsContext _context; // ตัวแปรบริบทของฐานข้อมูล
 
-    // Constructor สำหรับตั้งค่าบริบทของฐานข้อมูล
+    /// <summary>Constructor สำหรับตั้งค่าบริบทของฐานข้อมูล</summary>
+    /// <param name="context">บริบทของฐานข้อมูล</param>
     public RequisitionTypeController(CemsContext context)
     {
         _context = context;
     }
 
-    // ดึงข้อมูลทั้งหมดในรูปแบบ DTO
-    // GET: api/requisitiontype/list
+    /// <summary>ดึงข้อมูลประเภทคำขอทั้งหมดในรูปแบบ DTO</summary>
+    /// <returns>รายการประเภทคำขอทั้งหมดในรูปแบบ DTO</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpGet("list")]
     public async Task<ActionResult> GetAllAsDto()
     {
@@ -44,8 +46,10 @@ public class RequisitionTypeController : ControllerBase
         return Ok(requisitionTypes); // ส่งข้อมูลกลับในรูปแบบ JSON
     }
 
-    // ฟังก์ชันสำหรับสลับสถานะการแสดงผลของประเภทคำขอ
-    // PUT: api/requisitiontype/update/{rqtId}
+    /// <summary>สลับสถานะการแสดงผลของประเภทคำขอ</summary>
+    /// <param name="rqtId">รหัสประเภทคำขอ</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpPut("update/{rqtId}")]
     public async Task<ActionResult> ToggleVisibility(int rqtId)
     {
@@ -69,8 +73,10 @@ public class RequisitionTypeController : ControllerBase
         return Ok();
     }
 
-    // เพิ่มข้อมูลใหม่
-    // POST: api/requisitiontype
+    /// <summary>สร้างประเภทคำขอใหม่</summary>
+    /// <param name="requisitionTypeDto">ข้อมูลประเภทคำขอใหม่</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpPost]
     public async Task<ActionResult> Create(RequisitionTypeDTO requisitionTypeDto)
     {
@@ -85,11 +91,12 @@ public class RequisitionTypeController : ControllerBase
         await _context.SaveChangesAsync(); // บันทึกการเปลี่ยนแปลงในฐานข้อมูล
 
         return NoContent();
-        //CreatedAtAction(new { id = newRequisitionType.RqtId }, requisitionTypeDto); // ส่งสถานะ 201 พร้อมข้อมูลที่เพิ่ม
     }
 
-    // แก้ไขข้อมูลที่มีอยู่
-    // PUT: api/requisitiontype/{id}
+    /// <summary>อัปเดตข้อมูลประเภทคำขอ</summary>
+    /// <param name="requisitionTypeDto">ข้อมูลประเภทคำขอที่ต้องการอัปเดต</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpPut]
     public async Task<IActionResult> UpdateRequisitionType(
         RequisitionTypeUpdateDTO requisitionTypeDto
@@ -135,9 +142,10 @@ public class RequisitionTypeController : ControllerBase
         return Ok(new { message = "Requisition Type updated successfully." });
     }
 
-
-    // ฟังก์ชันสำหรับลบประเภทคำขอ
-    // DELETE: api/requisitiontype/{id}
+    /// <summary>ลบประเภทคำขอ</summary>
+    /// <param name="id">รหัสประเภทคำขอที่ต้องการลบ</param>
+    /// <returns>ผลการดำเนินการ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpDelete("{id}")]
     public IActionResult DeleteExpense(int id)
     {
@@ -156,8 +164,10 @@ public class RequisitionTypeController : ControllerBase
         return NoContent();
     }
 
-    // ฟังก์ชันสำหรับตรวจสอบว่าประเภทคำขอถูกใช้งานอยู่หรือไม่
-    // GET: api/requisitiontype/validation/{rqtId}
+    /// <summary>ตรวจสอบว่าประเภทคำขอถูกใช้งานอยู่หรือไม่</summary>
+    /// <param name="rqtId">รหัสประเภทคำขอที่ต้องการตรวจสอบ</param>
+    /// <returns>สถานะการใช้งานของประเภทคำขอ</returns>
+    /// <remarks>แก้ไขล่าสุด: 26 พฤศจิกายน 2567 โดย นายปุณณะวิชน์ เชียนพลแสน</remarks>
     [HttpGet("validation/{rqtId}")]
     public async Task<IActionResult> CheckRequisitionTypeUsage(int rqtId)
     {
