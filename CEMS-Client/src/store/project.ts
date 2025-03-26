@@ -1,37 +1,37 @@
 /*
-* ชื่อไฟล์: project.ts
-* คำอธิบาย: ไฟล์ store API ของข้อมูลโครงการ
-* ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-* วันที่จัดทำ/แก้ไข: 8 ธันวาคม 2567
-*/
+ * ชื่อไฟล์: project.ts
+ * คำอธิบาย: ไฟล์ store API ของข้อมูลโครงการ
+ * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
+ * วันที่จัดทำ/แก้ไข: 8 ธันวาคม 2567
+ */
 
-import { defineStore } from 'pinia';
-import axios from 'axios';
-import type { Project } from '../types/index';
+import { defineStore } from "pinia";
+import axios from "axios";
+import type { Project } from "../types/index";
 
 // นำเข้า Base URL จาก environment variable
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 
-export const useProjectStore = defineStore('project', {
+export const useProjectStore = defineStore("project", {
   state: () => ({
-    projects: [] as Project[]
+    projects: [] as Project[],
   }),
   actions: {
     /*
-    * คำอธิบาย: เรียกข้อมูลของโครงการทั้งหมดในระบบ
-    * Input: -
-    * Output: ข้อมูลโครงการภายในระบบ
-    * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
-    * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
-    */
+     * คำอธิบาย: เรียกข้อมูลของโครงการทั้งหมดในระบบ
+     * Input: -
+     * Output: ข้อมูลโครงการภายในระบบ
+     * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
+     * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+     */
     async getAllProjects() {
       try {
         const result = await axios.get(`${BASE_URL}/api/project`);
         this.projects = result.data;
       } catch (error) {
-        console.error('Failed to fetch projects:', error);
+        console.error("Failed to fetch projects:", error);
         throw error;
       }
-    }
-  }
+    },
+  },
 });
