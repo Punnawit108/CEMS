@@ -1,5 +1,5 @@
 <script setup lang="ts">
- /*
+/*
  * ชื่อไฟล์: UserSearchInput.vue
  * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับช่องค้นหาผู้ใช้ ใช้ในการกรองข้อมูลตามรหัสพนักงานหรือชื่อ-นามสกุล
  * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
@@ -30,13 +30,6 @@ defineEmits<{
               stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
           </svg>
         </div>
-        <!-- 
-          Input element สำหรับค้นหา:
-          - :value="modelValue": ผูกค่าข้อความค้นหากับ prop modelValue
-          - @input: ส่ง event อัพเดตค่าข้อความค้นหาไปยัง parent component เมื่อมีการพิมพ์
-          - placeholder: แสดงข้อความช่วยเหลือเมื่อยังไม่มีการพิมพ์ค้นหา
-          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
-        -->
         <input 
           id="SearchBar"
           type="text"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
- /*
+/*
  * ชื่อไฟล์: DivisionFilter.vue
  * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกฝ่าย ใช้ในการกรองข้อมูลตามฝ่ายที่ต้องการ
  * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
@@ -37,12 +37,6 @@ const divisions = computed(() => {
     <form class="grid">
       <label for="SelectDivision" class="py-0.5 text-[14px] text-black text-start">ฝ่าย</label>
       <div class="relative h-[32px] w-full justify-center items-center">
-        <!-- 
-          Select element สำหรับเลือกฝ่าย:
-          - :value="modelValue": ผูกค่าฝ่ายที่เลือกกับ prop modelValue
-          - @change: ส่ง event อัพเดตค่าฝ่ายไปยัง parent component เมื่อมีการเลือกฝ่ายใหม่
-          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
-        -->
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"

@@ -1,5 +1,5 @@
 <script setup lang="ts">
- /*
+/*
  * ชื่อไฟล์: RoleFilter.vue
  * คำอธิบาย: ไฟล์นี้เป็น Component สำหรับตัวเลือกบทบาท ใช้ในการกรองข้อมูลตามบทบาทที่ต้องการ
  * ชื่อผู้เขียน/แก้ไข: จิรภัทร มณีวงษ์
@@ -37,12 +37,6 @@ const roles = computed(() => {
     <form class="grid">
       <label for="SelectRole" class="py-0.5 text-[14px] text-black text-start">บทบาท</label>
       <div class="relative h-[32px] w-full justify-center items-center">
-        <!-- 
-          Select element สำหรับเลือกบทบาท:
-          - :value="modelValue": ผูกค่าบทบาทที่เลือกกับ prop modelValue
-          - @change: ส่ง event อัพเดตค่าบทบาทไปยัง parent component เมื่อมีการเลือกบทบาทใหม่
-          - :disabled="loading": ปิดการใช้งานเมื่ออยู่ในสถานะ loading
-        -->
         <select
           :value="modelValue"
           @change="$emit('update:modelValue', ($event.target as HTMLSelectElement).value)"
