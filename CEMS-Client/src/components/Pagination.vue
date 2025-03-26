@@ -1,5 +1,10 @@
-<!-- Pagination.vue -->
 <script setup lang="ts">
+/*
+ * ชื่อไฟล์: Pagination.vue
+ * คำอธิบาย: ไฟล์นี้ Component Pagination
+ * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
+ * วันที่จัดทำ/แก้ไข: 21 มีนาคม 2568
+ */
 // Props
 const props = defineProps({
   currentPage: {

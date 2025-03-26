@@ -1,9 +1,9 @@
 <script setup lang="ts">
-/**
+/*
  * ชื่อไฟล์: SingleDatePicker.vue
  * คำอธิบาย: Component สำหรับแสดงปฏิทินในระบบ
  * ชื่อผู้เขียน/แก้ไข: นายจิรภัทร มณีวงษ์
- * วันที่จัดทำ/แก้ไข: 15 มกราคม 2568
+ * วันที่จัดทำ/แก้ไข: 22 มีนาคม 2568
  */
 import { ref, computed, onMounted, onUnmounted, watch } from "vue";
 import { ChevronLeft, ChevronRight, Calendar } from "lucide-vue-next";
