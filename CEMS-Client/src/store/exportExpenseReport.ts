@@ -1,16 +1,22 @@
 /*
-* ชื่อไฟล์: exportExpenseReport.ts
-* คำอธิบาย: ไฟล์ store API สำหรับการจัดการส่งออกรายงานเบิกจ่าย
-* ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
-* วันที่จัดทำ/แก้ไข: 3 มีนาคม /2568
-*/
-
+ * ชื่อไฟล์: exportExpenseReport.ts
+ * คำอธิบาย: ไฟล์ store API สำหรับการจัดการส่งออกรายงานเบิกจ่าย
+ * ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
+ * วันที่จัดทำ/แก้ไข: 3 มีนาคม 2568
+ */
 
 import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useExportExpenseReportStore = defineStore("exportExpenseReport", {
   actions: {
+    /*
+     * คำอธิบาย: ส่งออกข้อมูลรายงานเบิกจ่าย
+     * Input: fileType, filters
+     * Output: ไฟล์ข้อมูลรายงานเบิกจ่าย
+     * ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
+     * วันที่จัดทำ/แก้ไข: 3 มีนาคม 2568
+     */
     async exportFile(fileType: string, filters: Record<string, any>) {
       try {
         // ตรวจสอบค่าฟิลเตอร์ที่ส่งมา
@@ -18,7 +24,11 @@ export const useExportExpenseReportStore = defineStore("exportExpenseReport", {
 
         // ลบพารามิเตอร์ที่ว่างออกจาก filters
         Object.keys(filters).forEach((key) => {
-          if (filters[key] === "" || filters[key] === null || filters[key] === undefined) {
+          if (
+            filters[key] === "" ||
+            filters[key] === null ||
+            filters[key] === undefined
+          ) {
             delete filters[key];
           }
         });
