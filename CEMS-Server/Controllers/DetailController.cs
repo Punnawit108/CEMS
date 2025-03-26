@@ -1,3 +1,10 @@
+/*
+* ชื่อไฟล์: DetailController.cs
+* คำอธิบาย: ไฟล์นี้ใช้สำหรับการส่งออกข้อมูลหน้ารายละเอียด
+* ชื่อผู้เขียน/แก้ไข: นายปุณณะวิชญ์ เชียนพลแสน
+* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
+*/
+
 using Microsoft.AspNetCore.Mvc;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;

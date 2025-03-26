@@ -56,7 +56,13 @@ export const useDetailStore = defineStore('detailExpense', {
                 console.error("Error fetching approver data:", error);
             }
         },
-
+        /*
+        * คำอธิบาย: อนุมัติคำขอเบิกค่าใช้จ่าย
+        * Input: data (aprId,aprApId,aprName,aprStatus,rqReason)
+        * Output: สถานะการอนุมัติ
+        * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
+        * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+        */
         async updateApprove(data : any) {
             try {
                 const result = await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/approve` , data);
@@ -68,7 +74,13 @@ export const useDetailStore = defineStore('detailExpense', {
                 console.error("Error fetching approver data:", error);
             }
         },
-
+        /*
+        * คำอธิบาย: อนุมัติการนำจ่ายคำขอเบิกค่าใช้จ่าย
+        * Input: data (usrId,rqId)
+        * Output: สถานะการอนุมัติ
+        * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
+        * วันที่จัดทำ/แก้ไข: 28 พฤศจิกายน 2567
+        */
         async updateDisburse(data : any) {
             try {
                 const result = await axios.put(`${import.meta.env.VITE_BASE_URL}/api/approval/disburse` , data);
