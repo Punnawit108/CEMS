@@ -43,6 +43,7 @@ const approverSequence = reactive({
 });
 const selectedApproverId = ref<number>(0);
 const loading = ref(false);
+const errors = ref(false);
 
 // เพิ่ม filters สำหรับการค้นหา
 const filters = ref({
@@ -103,9 +104,7 @@ const closePopupAdd = () => {
   newApproverName.value = ""; // รีเซ็ตค่าเมื่อปิด
 };
 
-const alertMessage = ref(
-  ""
-);
+const alertMessage = ref("");
 
 const canEditOrder = computed(() => {
   return approvalStore.approvers && approvalStore.approvers.length > 1;
@@ -115,21 +114,19 @@ const canEditOrder = computed(() => {
 const openPopupEdit = () => {
   if (!checkExpenseStore.checkExpense) {
     alertMessage.value =
-        "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
+      "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
     isFreeEdit.value = true;
     setTimeout(() => {
       isFreeEdit.value = false;
-      alertMessage.value =
-        "";
+      alertMessage.value = "";
     }, 1500);
   } else if (!canEditOrder.value) {
     alertMessage.value =
-        "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว";
+      "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว";
     isFreeEdit.value = true;
     setTimeout(() => {
       isFreeEdit.value = false;
-      alertMessage.value =
-        "";
+      alertMessage.value = "";
     }, 1500);
   } else {
     isPopupEditOpen.value = true;
@@ -171,16 +168,16 @@ const closePopupDelete = () => {
 };
 
 const cancelmAdd = async () => {
-  // ปิด modal ทันทีเมื่อกดยืนยัน
   closePopupAdd();
   selectUserId.value = "";
+  isAddSubmitted.value = false; // รีเซ็ต flag เมื่อยกเลิก
 };
 
 const confirmAdd = async () => {
+  isAddSubmitted.value = true;
   if (!isAddValid.value) {
     return;
   }
-  // ปิด modal ทันทีเมื่อกดยืนยัน
   closePopupAdd();
   try {
     await approvalStore.addApprovers(selectUserId.value);
@@ -189,37 +186,35 @@ const confirmAdd = async () => {
     selectUserId.value = "";
     setTimeout(() => {
       isAddAlertOpen.value = false;
+      isAddSubmitted.value = false;
     }, 1500);
   } catch (error) {
     console.error(error);
-    // หากต้องการแสดง error ให้ผู้ใช้เห็น อาจเปิด modal หรือแจ้งเตือนได้
   }
 };
 
 const cancelEdit = async () => {
-  // ปิด modal ทันทีเมื่อกดยืนยัน
   closePopupEdit();
   approverSequence.apId = 0;
   approverSequence.apSequence = 0;
+  isEditSubmitted.value = false; // รีเซ็ต flag เมื่อยกเลิก
 };
 
 const confirmEdit = async () => {
+  isEditSubmitted.value = true;
   if (!isEditValid.value) {
     return;
   }
-  // ปิด modal ทันทีเมื่อกดยืนยัน
   closePopupEdit();
-
   try {
     await approvalStore.changeSequence(approverSequence);
     isEditAlertOpen.value = true;
+    // รีเซ็ตค่า
     approverSequence.apId = 0;
     approverSequence.apSequence = 0;
     setTimeout(() => {
       isEditAlertOpen.value = false;
-      // รีเซ็ตค่าใน dropdown หากต้องการให้ modal พร้อมใช้งานครั้งถัดไป
-      approverSequence.apId = 0;
-      approverSequence.apSequence = 0;
+      isEditSubmitted.value = false;
     }, 1500);
   } catch (error) {
     console.error(error);
@@ -342,9 +337,13 @@ watch(
     if (newVal !== oldVal) {
       // เมื่อ apId เปลี่ยน (เลือกชื่อใหม่) ก็ล้างลำดับ
       approverSequence.apSequence = 0;
+      isEditSubmitted.value = false;
     }
   }
 );
+
+const isAddSubmitted = ref(false);
+const isEditSubmitted = ref(false);
 
 const isAddValid = computed(() => {
   return selectUserId.value.trim() !== "";
@@ -571,7 +570,12 @@ const isEditValid = computed(() => {
               <select
                 required
                 v-model="selectUserId"
-                class="appearance-none w-[350px] h-[40px] bg-white border border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none"
+                :class="[
+                  'appearance-none w-[350px] h-[40px] bg-white rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none',
+                  isAddSubmitted && !isAddValid
+                    ? 'border border-red-500'
+                    : 'border border-[#d9d9d9]',
+                ]"
               >
                 <option value="" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
@@ -622,7 +626,13 @@ const isEditValid = computed(() => {
               <select
                 required
                 v-model="approverSequence.apId"
-                class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none"
+                :class="[
+                  'appearance-none w-[350px] h-[40px] bg-white border-2 rounded-lg pl-4 pr-8 text-[14px] focus:outline-none',
+                  isEditSubmitted && approverSequence.apId === 0
+                    ? 'border-red-500'
+                    : 'border-[#d9d9d9]',
+                  approverSequence.apId === 0 ? 'text-[#d9d9d9]' : 'text-black',
+                ]"
               >
                 <option value="0" disabled selected hidden>
                   เลือกชื่อ-นามสกุล
@@ -643,7 +653,13 @@ const isEditValid = computed(() => {
         <div class="w-full my-3 flex justify-center">
           <select
             v-model="approverSequence.apSequence"
-            class="appearance-none w-[350px] h-[40px] bg-white border-2 border-[#d9d9d9] rounded-lg pl-4 pr-8 text-[14px] text-black focus:outline-none"
+            :class="[
+              'appearance-none w-[350px] h-[40px] bg-white border-2 rounded-lg pl-4 pr-8 text-[14px] focus:outline-none',
+              isEditSubmitted && approverSequence.apSequence === 0
+                ? 'border-red-500'
+                : 'border-[#d9d9d9]',
+              approverSequence.apSequence === 0 ? 'text-[#d9d9d9]' : 'text-black',
+            ]"
           >
             <option value="0" disabled selected hidden>ลำดับผู้อนุมัติ</option>
             <option
@@ -900,4 +916,7 @@ const isEditValid = computed(() => {
 
 <style scoped>
 /* เพิ่มสไตล์ตามความต้องการ */
+select:invalid {
+  color: #d9d9d9; /* สีเทาที่ต้องการ */
+}
 </style>
