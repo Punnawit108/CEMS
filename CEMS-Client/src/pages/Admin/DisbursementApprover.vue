@@ -352,6 +352,12 @@ const isAddValid = computed(() => {
 const isEditValid = computed(() => {
   return approverSequence.apId !== 0 && approverSequence.apSequence !== 0;
 });
+
+const nextApproverOrder = computed(() => {
+  return availableSequences.value.length > 0
+    ? Math.max(...availableSequences.value)
+    : 1;
+});
 </script>
 
 <template>
@@ -560,9 +566,13 @@ const isEditValid = computed(() => {
           การเพิ่มลำดับผู้มีสิทธิ์อนุมัติ
         </h2>
 
-        <label class="block text-sm font-medium mb-2 items-end ml-8"
-          >เพิ่มผู้มีสิทธิ์อนุมัติลำดับ
-          <span class="text-red-500">*</span></label
+        <label
+          class="block text-sm font-medium mb-2 items-end ml-8"
+          :class="[
+            isAddSubmitted && !isAddValid ? 'text-red-500' : 'text-black',
+          ]"
+          >พิ่มผู้มีสิทธิ์อนุมัติลำดับที่ {{ nextApproverOrder + 1 }}
+          <span class="text-red-500"> *</span></label
         >
         <div class="w-full mb-3 flex justify-center">
           <form>
@@ -629,9 +639,10 @@ const isEditValid = computed(() => {
                 :class="[
                   'appearance-none w-[350px] h-[40px] bg-white border-2 rounded-lg pl-4 pr-8 text-[14px] focus:outline-none',
                   isEditSubmitted && approverSequence.apId === 0
-                    ? 'border-red-500'
-                    : 'border-[#d9d9d9]',
-                  approverSequence.apId === 0 ? 'text-[#d9d9d9]' : 'text-black',
+                    ? 'border-red-500 text-redNormal'
+                    : approverSequence.apId === 0
+                    ? 'text-[#d9d9d9] border-[#d9d9d9]'
+                    : 'text-black border-[#d9d9d9]',
                 ]"
               >
                 <option value="0" disabled selected hidden>
@@ -652,13 +663,15 @@ const isEditValid = computed(() => {
 
         <div class="w-full my-3 flex justify-center">
           <select
+            required
             v-model="approverSequence.apSequence"
             :class="[
               'appearance-none w-[350px] h-[40px] bg-white border-2 rounded-lg pl-4 pr-8 text-[14px] focus:outline-none',
               isEditSubmitted && approverSequence.apSequence === 0
-                ? 'border-red-500'
-                : 'border-[#d9d9d9]',
-              approverSequence.apSequence === 0 ? 'text-[#d9d9d9]' : 'text-black',
+                ? 'border-red-500 text-redNormal'
+                : approverSequence.apSequence === 0
+                ? 'text-[#d9d9d9] border-[#d9d9d9]'
+                : 'text-black border-[#d9d9d9]',
             ]"
           >
             <option value="0" disabled selected hidden>ลำดับผู้อนุมัติ</option>
