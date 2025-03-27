@@ -689,15 +689,15 @@ const confirmDeleteExpense = async () => {
 
       <!-- หัวตาราง -->
       <div class="flex items-center w-full py-4">
-        <div class=" w-[60%] flex space-x-4 px-3 ">
+        <div class="w-[60%] flex space-x-4 px-3">
           <p class="text-sm text-black font-bold mr-4">ลำดับ</p>
           <p class="text-sm text-black font-bold">ประเภทรถส่วนตัว</p>
         </div>
         <div class="w-[30%] flex justify-end px-3">
           <p class="text-sm text-black font-bold">อัตราค่าเดินทาง (บาท/กิโลเมตร)</p>
         </div>
-        <div class="w-[10%] flex justify-center ">
-          <p class="text-sm text-black font-bold ml-20">จัดการ</p>
+        <div class="w-[10%] flex justify-center">
+          <p class="text-sm text-black font-bold">จัดการ</p>
         </div>
       </div>
 
@@ -707,7 +707,7 @@ const confirmDeleteExpense = async () => {
 
         <!-- ลำดับ + ชื่อ -->
         <div class="w-[60%] flex space-x-4 px-3">
-          <p class="text-sm text-gray-800 px-3 mr-4">{{ index + 1 }}</p>
+          <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm px-3 mr-4">{{ index + 1 }}</p>
           <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">{{ item.vhName }}</p>
         </div>
 
@@ -722,7 +722,7 @@ const confirmDeleteExpense = async () => {
         </div>
 
         <!-- ปุ่มจัดการ -->
-        <div class="w-[10%] flex justify-end gap-1">
+        <div class="w-[10%] flex justify-center gap-1">
           <button @click="openPopupEditPrivatecar(item)">
             <Icon icon="edit" class="text-gray-600 hover:text-gray-800" />
           </button>
@@ -776,44 +776,23 @@ const confirmDeleteExpense = async () => {
 
     <!-- แถวสาธารณะ -->
     <div v-if="!isHiddenPrivate" class="flex flex-col space-y-4 ">
-      <div class="flex items-center justify-between w-full py-4">
-        <div class="flex w-1/3 space-x-4">
-          <p class="text-sm text-black font-bold mr-5 ml-3">ลำดับ</p>
+      <div class="flex items-center w-full py-4">
+        <div class="w-[90%] flex space-x-4 px-3">
+          <p class="text-sm text-black font-bold mr-4">ลำดับ</p>
           <p class="text-sm text-black font-bold">ประเภทรถสาธารณะ</p>
         </div>
-        <p class="w-1/2 text-sm text-right text-black"></p>
-        <div class="w-[100px] flex justify-center">
-          <p class="text-sm text-right text-black font-bold ml-3">จัดการ</p>
+        <div class="w-[10%] flex justify-center">
+          <p class="text-sm text-black font-bold">จัดการ</p>
         </div>
       </div>
 
       <div v-for="(item, index) in vehiclePublic" :key="'public-' + index" class="flex flex-col space-y-4">
         <div :class="{ 'text-gray-400': item.isDisabled }" class="flex items-center justify-between w-full ">
-          <div class="flex w-full space-x-4   ">
-            <p class="text-sm px-3 text-grayNormal mr-5 ml-3" v-if="item.vhVisible == 0">
-              {{ index + 1 }}
-            </p>
-            <p class="text-sm px-3 text-black mr-5 ml-3" v-if="item.vhVisible == 1">
-              {{ index + 1 }}
-            </p>
-            <div v-if="!item.isSubmitted">
-              <p class="text-black text-sm" v-if="item.vhVisible == 1">
-                {{ item.vhName }}
-              </p>
-              <p class="text-grayNormal text-sm" v-if="item.vhVisible == 0">
-                {{ item.vhName }}
-              </p>
-            </div>
-            <div v-else>
-              <p :class="{
-                'text-gray-400': item.isDisabled,
-                'text-black': !item.isDisabled,
-              }" class="text-sm">
-                {{ item.vehicleType }}
-              </p>
-            </div>
+          <div class="w-[90%] flex space-x-4 px-3">
+            <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm px-3 mr-4">{{ index + 1 }}</p>
+            <p :class="{ 'text-gray-400': item.vhVisible == 0 }" class="text-sm">{{ item.vhName }}</p>
           </div>
-          <div class="flex justify-end gap-1">
+          <div class="flex  w-[10%] justify-center gap-1">
             <button>
               <Icon :icon="'edit'" @click="openPopupEditPubliccar(item)" />
             </button>
