@@ -384,7 +384,7 @@ const previewFile = (file: string) => {
               >{{ statusInfo.label }}</span
             >
           </h3>
-          <div class="flex flex-row pr-[42px] gap-4">
+          <div class="flex flex-row pr-[36px] gap-4">
             <RouterLink
               v-if="
                 (expenseData.rqStatus === 'edit' ||

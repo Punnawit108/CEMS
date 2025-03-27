@@ -43,7 +43,7 @@ public class ExpenseController : ControllerBase
     /// <returns>แสดงข้อมูลใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
-    [HttpGet("list/{id}")]
+    [HttpGet("list/{usrId}")]
     public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseList(string usrId)
     {
         var requisition = await _context
@@ -79,7 +79,7 @@ public class ExpenseController : ControllerBase
     /// <returns>แสดงข้อมูลประวัติใบคำขอเบิกทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายพงศธร บุญญามา</remark>
 
-    [HttpGet("History/{id}")]
+    [HttpGet("History/{usrId}")]
     public async Task<ActionResult<IEnumerable<ExpenseGetDto>>> GetExpenseHistory(string usrId)
     {
         var requisition = await _context
