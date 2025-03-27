@@ -1,386 +1,398 @@
 <script setup lang="ts">
 /*
-* ชื่อไฟล์: ProjectReport.vue
-* คำอธิบาย: ไฟล์นี้แสดงรายงานของ Project
-* ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
-* วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
-*/
-// import Icon from '../../components/template/CIcon.vue';
-import { onMounted , ref } from "vue";
+ * ชื่อไฟล์: ProjectReport.vue
+ * คำอธิบาย: ไฟล์นี้แสดงรายงานของ Project
+ * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒน์ นิระมล
+ * วันที่จัดทำ/แก้ไข: 22 มีนาคม 2568
+ */
+import { onMounted, ref, computed } from "vue";
 import ChartDataLabels from "chartjs-plugin-datalabels";
-import Ctable from '../../components/template/CTable.vue';
-import { useProjectsStore } from '../../store/projectsReport';
-import Button from "../../components/template/Button.vue";
-import ProjectReport from '../../types/index';
+import Ctable from "../../components/Table/CTable.vue";
+import { useProjectsStore } from "../../store/projectsReport";
+import Button from "../../components/Buttons/Button.vue";
+import ProjectReport from "../../types/index";
+import Decimal from "decimal.js";
 import { useExportProjectReportStore } from "../../store/exportProjectReport";
+import Pagination from "../../components/Pagination.vue";
 import {
-    Chart,
-    BarController,
-    BarElement,
-    PieController,
-    ArcElement,
-    Legend,
-    Tooltip,
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    Title,
-    CategoryScale,
+  Chart,
+  BarController,
+  BarElement,
+  PieController,
+  ArcElement,
+  Legend,
+  Tooltip,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  Title,
+  CategoryScale,
 } from "chart.js";
+import { storeToRefs } from "pinia";
 
 // Register Chart.js components, including for the bar chart
 Chart.register(
-    BarController,
-    BarElement,
-    PieController,
-    ArcElement,
-    Legend,
-    Tooltip,
-    LineController,
-    LineElement,
-    PointElement,
-    LinearScale,
-    Title,
-    CategoryScale,
-    ChartDataLabels
+  BarController,
+  BarElement,
+  PieController,
+  ArcElement,
+  Legend,
+  Tooltip,
+  LineController,
+  LineElement,
+  PointElement,
+  LinearScale,
+  Title,
+  CategoryScale,
+  ChartDataLabels
 );
 
 const projectsStore = useProjectsStore();
 const showModal = ref(false);
 const selectedType = ref<string | null>(null);
 const exportProjectReportStore = useExportProjectReportStore();
+const { projects } = storeToRefs(projectsStore);
+const loading = ref(false);
 
-const handleExport = (type: string) => {
-    selectedType.value = type; // อัปเดตประเภทที่เลือก
-};
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
+const totalPages = computed(() => {
+  return Math.ceil(projects.value.length / itemsPerPage.value);
+});
 
+const paginated = computed(() => {
+  const start = (currentPage.value - 1) * itemsPerPage.value;
+  const end = start + itemsPerPage.value;
+  const pageItems = projects.value.slice(start, end);
+
+  // Add empty rows if fewer than 10 items
+  while (pageItems.length < itemsPerPage.value) {
+    pageItems.push(null);
+  }
+
+  return pageItems;
+});
+
+// const handleExport = (type: string) => {
+//   selectedType.value = type; // อัปเดตประเภทที่เลือก
+// };
+
+const isAlertPrintOpen = ref(false); // ควบคุมการแสดง Alert ส่งออก
 
 const exportFile = async () => {
-    if (!selectedType.value) return;
-
-    try {
-        await exportProjectReportStore.exportFile(selectedType.value);
-       
-        selectedType.value = null; 
-        showModal.value = false;
-    } catch (error) {
-        console.error("Error exporting file:", error);
-        if (selectedType.value) {
-            alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์ ${selectedType.value.toUpperCase()}`);
-        }
+  try {
+    await exportProjectReportStore.exportFile('xlsx');
+    showModal.value = false;
+    isAlertPrintOpen.value = true;
+    setTimeout(() => {
+      isAlertPrintOpen.value = false; // ปิด popup หลังจาก 3 วินาที
+    }, 1500);
+  } catch (error) {
+    console.error("Error exporting file:", error);
+    if (selectedType.value) {
+      alert(`เกิดข้อผิดพลาดในการส่งออกไฟล์`);
     }
+  }
 };
+
 // Bar chart setup
 // โครงการ
 const project: string[] = [];
-
 // จำนวนเงินของแต่ละโครงการ
 const amountMoney: number[] = [];
 
+const customXAxisTitle = {
+  id: "customXAxisTitle",
+  afterDraw: (chart: any) => {
+    const { ctx, chartArea } = chart;
+    const xPos = chartArea.right + 70;
+    const yPos = chartArea.bottom;
+    ctx.save();
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.font = "14px Sarabun";
+    ctx.fillStyle = "#000";
+    ctx.fillText("โครงการ", xPos, yPos);
+    ctx.restore();
+  },
+};
+
+const customYAxisTitle = {
+  id: "customYAxisTitle",
+  afterDraw: (chart: any) => {
+    const { ctx, chartArea } = chart;
+    const xPos = chartArea.left + 15;
+    const yPos = chartArea.top - 50;
+    ctx.save();
+    ctx.textAlign = "right";
+    ctx.textBaseline = "middle";
+    ctx.font = "14px Sarabun";
+    ctx.fillStyle = "#000";
+    ctx.fillText("จำนวนเงิน (บาท)", xPos, yPos);
+    ctx.restore();
+  },
+};
+
 onMounted(async () => {
+  loading.value = true;
+  try {
     await projectsStore.getAllProjects();
 
+    // อัปเดตข้อมูลสำหรับตัวกรอง
     projectsStore.projects.forEach((item: ProjectReport) => {
-        project.push(item.pjName);
-        amountMoney.push(item.pjSumAmountExpenses);
+      project.push(item.pjName);
+      amountMoney.push(item.pjSumAmountExpenses);
     });
+  } catch (error) {
+    console.error("Error fetching project:", error);
+  } finally {
+    setTimeout(() => {
+      loading.value = false;
+    }, 500);
+  }
 
-    const barchart = document.getElementById("barChart") as HTMLCanvasElement;
-    if (barchart) {
-        new Chart(barchart, {
-            type: "bar",
-            data: {
-                labels: project,
-                datasets: [
-                    {
-                        label: "จำนวนเงิน (บาท)",
-                        data: amountMoney,
-                        backgroundColor: "#C81C1B",
-                        barPercentage: 0.2, // ความหนาของแท่งกราฟ
-                        datalabels: {
-                            display: false, // ช่อนข้อมูลของ "จำนวนเงิน (บาท)" ที่ขึ้นบนแท่งกราฟ
-                        },
-                    },
-                ],
+  const barchart = document.getElementById("barChart") as HTMLCanvasElement;
+  if (barchart) {
+    new Chart(barchart, {
+      type: "bar",
+      data: {
+        labels: project,
+        datasets: [
+          {
+            label: "จำนวนเงิน (บาท)",
+            data: amountMoney,
+            backgroundColor: "#C81C1B",
+            barPercentage: 0.2,
+            datalabels: {
+              display: false,
             },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                scales: {
-                    x: {
-                        title: {
-                            display: true,
-                            text: "โครงการ",
-                            font: {
-                                weight: 'bold',
-                                size: 14,
-                            },
-                            padding: {
-                                top: 20,
-                            }
-                        },
-                        ticks: {
-                            font: {
-                                weight: 'bold',
-                                size: 12,
-                            },
-                        },
-                        grid: {
-                            display: false,
-                        },
-                    },
-                    y: {
-                        beginAtZero: true, // แกน y เริ่มที่ 0
-                        ticks: {
-                            font: {
-                                weight: 'bold',
-                                size: 12,
-                            },
-                            stepSize: 500, // ค่าแกน y เพิ่มที่ละตามจำนวนที่ตั้ง
-                        },
-                        border: {
-                            display: false, // ลบเส้นแรกของแกน y
-                        },
-                    },
-                },
-                plugins: {
-                    title: {
-                        display: true,
-                        text: "จำนวนเงิน (บาท)",
-                        align: "start",
-                        padding: {
-                            top: 10,
-                            bottom: 30,
-                        },
-                        font: {
-                            weight: 'bold',
-                            size: 14,
-                        },
-                    },
-                    legend: {
-                        display: false, // ซ่อนชนิดของแท่งกราฟ
-                    },
-                    tooltip: {
-                        callbacks: {
-                            label: (tooltipItem) => {
-                                return `จำนวนเงิน: ${tooltipItem.raw} บาท`;
-                            },
-                        },
-                    },
-                },
+          },
+        ],
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        layout: {
+          padding: {
+            top: 60,
+            left: 30,
+            right: 120,
+          },
+        },
+        scales: {
+          x: {
+            ticks: {
+              color: "#000",
+              font: {
+                size: 14,
+                family: "Sarabun",
+              },
             },
-        });
-    } else {
-        console.error("Canvas element for bar chart not found");
-    }
+            grid: {
+              display: false,
+            },
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              color: "#000",
+              font: {
+                size: 14,
+                family: "Sarabun",
+              },
+              stepSize: 10000,
+            },
+            border: {
+              display: false,
+            },
+          },
+        },
+        plugins: {
+          legend: {
+            display: false,
+          },
+          tooltip: {
+            callbacks: {
+              label: (tooltipItem) => {
+                const value = Number(tooltipItem.raw);
+                const formatted = value.toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                });
+                return `จำนวนเงิน: ${formatted} บาท`;
+              },
+            },
+            titleFont: {
+              family: "Sarabun",
+              size: 14,
+            },
+            bodyFont: {
+              family: "Sarabun",
+              size: 14,
+            },
+            footerFont: {
+              family: "Sarabun",
+              size: 14,
+            },
+          },
+        },
+      },
+      plugins: [customXAxisTitle, customYAxisTitle],
+    });
+  } else {
+    console.error("Canvas element for bar chart not found");
+  }
 });
 </script>
 
 <template>
-    <!-- path for test = /report/project -->
-
+  <div>
     <!-- begin::Filter -->
     <div class="flex w-full gap-6 mb-8">
-        <!-- Filter ค้นหา -->
-        <div class="h-fit w-[266px] ">
-            <form class="grid">
-                <label for="SearchBar" class="py-0.5 text-[14px] text-black text-start">ค้นหา</label>
-                <div class="relative h-[32px] w-[266px]  justify-center items-center">
+      <div class="relative w-full">
+        <Button :type="'btn-print2'" @click="showModal = true"
+          class="absolute right-0 mr-4 transform -translate-y-1/2 top-1/2">
+          ส่งออก
+        </Button>
+      </div>
+      <!-- Modal -->
+      <!-- Popup สำหรับยืนยันการส่งออกรายงานโครงการ -->
+      <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg px-6 py-4 flex flex-col justify-center">
+          <div class="flex justify-center mb-4">
+            <svg :class="`w-[90px] h-[90px] text-gray-800 dark:text-white`" aria-hidden="true"
+              xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="#FFBE40" viewBox="0 0 24 24">
+              <path fill-rule="evenodd"
+                d="M2 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10S2 17.523 2 12Zm11-4a1 1 0 1 0-2 0v5a1 1 0 1 0 2 0V8Zm-1 7a1 1 0 1 0 0 2h.01a1 1 0 1 0 0-2H12Z"
+                clip-rule="evenodd" />
+            </svg>
+          </div>
+          <h2 class="text-[24px] font-bold text-center text-black mb-4">
+            ยืนยันส่งออกรายงานโครงการ
+          </h2>
+          <h2 class="text-[18px] text-center text-[#7E7E7E] mb-4">
+            คุณยืนยันส่งออกรายงานโครงการหรือไม่ ?
+          </h2>
+          <div class="flex justify-center space-x-4">
+            <button @click="showModal = false"
+              class="btn-ยกเลิก bg-white border-2 border-grayNormal text-grayNormal rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+              ยกเลิก
+            </button>
 
-                    <div class="absolute transform -translate-y-1/2 pointer-events-none left-2 top-1/2">
-                        <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M12.6629 13.1759L17 17.5M14.5 8.75C14.5 12.2017 11.7017 15 8.25 15C4.79822 15 2 12.2017 2 8.75C2 5.29822 4.79822 2.5 8.25 2.5C11.7017 2.5 14.5 5.29822 14.5 8.75Z"
-                                stroke="black" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
-                        </svg>
-                    </div>
-
-                    <input type="text" id="SearchBar"
-                        class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-9"
-                        placeholder="ชื่อ-นามสกุล" />
-                </div>
-            </form>
+            <button @click="exportFile"
+              class="btn-ยืนยัน bg-green text-white rounded-[6px] h-[40px] w-[95px] text-[14px] font-thin">
+              ยืนยัน
+            </button>
+          </div>
         </div>
-        <!-- Filter ประเภทค่าใช้จ่าย -->
-        <div class="h-fit w-[266px] ">
-            <form class="grid">
-                <label for="ExpenseType" class="py-0.5 text-[14px] text-black text-start">ประเภทค่าใช้จ่าย</label>
-                <div class="relative h-[32px] w-[266px]  justify-center items-center">
+      </div>
 
-                    <select required
-                        class="custom-select text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4">
-                        <option value="" disabled selected hidden class="placeholder">ประเภทค่าใช้จ่าย</option>
-                        <option value="Type1">ประเภทที่ 1</option>
-                        <option value="Type2">ประเภทที่ 2</option>
-                    </select>
-
-                    <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
-                        <svg width="13" height="8" viewBox="0 0 13 8" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path fill-rule="evenodd" clip-rule="evenodd"
-                                d="M7.2071 7.2071C6.8166 7.5976 6.1834 7.5976 5.7929 7.2071L0.79289 2.20711C0.40237 1.81658 0.40237 1.18342 0.79289 0.79289C1.18342 0.40237 1.81658 0.40237 2.20711 0.79289L6.5 5.0858L10.7929 0.79289C11.1834 0.40237 11.8166 0.40237 12.2071 0.79289C12.5976 1.18342 12.5976 1.81658 12.2071 2.20711L7.2071 7.2071Z"
-                                fill="black" />
-                        </svg>
-                    </div>
-                </div>
-            </form>
+      <div v-if="isAlertPrintOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+        <div class="bg-white w-[460px] h-[295px] rounded-lg shadow-lg flex flex-col justify-center items-center">
+          <div class="mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="80" height="80" viewBox="0 0 80 80" fill="none">
+              <path
+                d="M40 0C17.9433 0 0 17.9433 0 40C0 62.0567 17.9433 80 40 80C62.0567 80 80 62.0567 80 40C80 17.9433 62.0567 0 40 0ZM39.6967 51.3967C38.4067 52.6867 36.71 53.33 35.0067 53.33C33.3033 53.33 31.59 52.68 30.2867 51.38L21.0133 42.3933L25.6567 37.6033L34.9667 46.6267L54.33 27.6233L59.01 32.3733L39.6967 51.3967Z"
+                fill="#12B669" />
+            </svg>
+          </div>
+          <h2 class="text-[24px] font-bold text-center text-black" style="white-space: pre-line;">
+            ส่งออกรายงานโครงการสำเร็จ
+          </h2>
         </div>
-        <!-- Filter วันที่เบิก -->
-        <div class="h-fit w-[266px]">
-            <form class="grid">
-                <label for="Calendar" class="py-0.5 text-[14px] text-black text-start">วันที่เบิก</label>
-                <div class="relative h-[32px] w-[266px]  justify-center items-center">
-
-                    <input type="text" id="Calendar"
-                        class="appearance-none text-sm flex justify-between w-full h-[32px] bg-white rounded-md border border-black border-solid focus:outline-none pl-4"
-                        placeholder="01/01/2567-31/12/2567" />
-
-                    <div class="absolute transform -translate-y-1/2 pointer-events-none right-2 top-1/2">
-                        <svg width="19" height="20" viewBox="0 0 19 20" fill="none"
-                            xmlns="http://www.w3.org/2000/svg">
-                            <path
-                                d="M3.31847 16.72C2.94262 16.72 2.62905 16.5998 2.37775 16.3596C2.12646 16.1193 2.00054 15.8196 2 15.4602V5.49922C2 5.1404 2.12592 4.84087 2.37775 4.60062C2.62959 4.36037 2.94316 4.23999 3.31847 4.23947H4.76176V2.5H5.64047V4.23947H11.4773V2.5H12.2932V4.23947H13.7365C14.1118 4.23947 14.4253 4.35985 14.6772 4.60062C14.929 4.84139 15.0547 5.14119 15.0541 5.5V9.20593C15.0541 9.31721 15.0152 9.41004 14.9374 9.4844C14.8597 9.55876 14.7626 9.59594 14.6462 9.59594C14.5298 9.59594 14.4327 9.55876 14.3549 9.4844C14.2771 9.41004 14.2382 9.31721 14.2382 9.20593V8.61934H2.81588V15.4602C2.81588 15.5798 2.8681 15.6898 2.97253 15.7902C3.07696 15.8905 3.192 15.9405 3.31765 15.9399H8.56785C8.68425 15.9399 8.78134 15.9771 8.85912 16.0515C8.93691 16.1258 8.9758 16.2187 8.9758 16.33C8.9758 16.4412 8.93691 16.5341 8.85912 16.6084C8.78134 16.6828 8.68425 16.72 8.56785 16.72H3.31847ZM13.7365 17.5C12.8276 17.5 12.0563 17.1973 11.4226 16.592C10.7895 15.9857 10.4729 15.2483 10.4729 14.3799C10.4729 13.5114 10.7895 12.7743 11.4226 12.1685C12.0558 11.5627 12.8268 11.2597 13.7357 11.2597C14.6445 11.2597 15.4158 11.5627 16.0495 12.1685C16.6832 12.7743 17 13.5114 17 14.3799C17 15.2483 16.6832 15.9857 16.0495 16.592C15.4158 17.1984 14.6448 17.501 13.7365 17.5ZM15.0868 16.0975L15.5322 15.6716L14.0498 14.2535V12.1303H13.4224V14.5062L15.0868 16.0975Z"
-                                fill="black" />
-                        </svg>
-                    </div>
-                </div>
-            </form>
-        </div>
-        <Button :type="'btn-print2'"  @click="showModal = true"
-                    class="fixed right-0 mr-4 transform -translate-y-1/2 top-1/2">
-                    ส่งออก
-                </Button>
-                <!-- Modal -->
-                <div v-if="showModal" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-50">
-                    <div class="p-6 bg-white rounded-lg shadow-2xl w-96">
-                        <h2 class="mb-6 text-lg font-bold text-gray-700"></h2>
-
-                        <!-- ปุ่มเลือกประเภทไฟล์ -->
-                        <div>
-                            <div class="flex justify-center space-x-6">
-                                <!-- ปุ่ม PDF -->
-                                <button @click="handleExport('pdf')"
-                                    :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'pdf' ? 'bg-blue-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                                    <!-- ไอคอน PDF -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        class="w-8 h-8 mr-2">
-                                        <path
-                                            d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM8 12h2v6H8v-6zm3 0h1.5c.828 0 1.5.672 1.5 1.5v3a1.5 1.5 0 01-1.5 1.5H11v-6zm3 0h2.5v6H14v-6z" />
-                                    </svg>
-                                </button>
-
-                                <!-- ปุ่ม XLSX -->
-                                <button @click="handleExport('xlsx')"
-                                    :class="['px-5 py-3 rounded-lg flex items-center justify-center transition-colors duration-200', selectedType === 'xlsx' ? 'bg-green-500 text-white' : 'bg-gray-100 hover:bg-gray-200']">
-                                    <!-- ไอคอน XLSX -->
-                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor"
-                                        class="w-8 h-8 mr-2">
-                                        <path
-                                            d="M6 2a1 1 0 00-1 1v18a1 1 0 001 1h12a1 1 0 001-1V8.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0013.586 2H6zm7 2.414L18.586 10H13V4.414zM9 14h1.5l.75 1.5.75-1.5H14v4h-1.5v-1.5l-.75 1.5-.75-1.5V18H9v-4z" />
-                                    </svg>
-                                </button>
-                            </div>
-
-                            <div class="flex justify-center mb-6 space-x-20">
-                                <span class="mt-2 text-sm text-gray-600">PDF</span>
-                                <span class="mt-2 text-sm text-gray-600">XLSX</span>
-                            </div>
-
-                            <!-- ปุ่มยืนยันและยกเลิก -->
-                            <div class="flex justify-center space-x-4">
-                                <button @click="showModal = false"
-                                    class="px-6 py-3 bg-gray-300 rounded-lg hover:bg-gray-400">
-                                    ยกเลิก
-                                </button>
-                                <button @click="exportFile" :disabled="!selectedType"
-                                    class="px-6 py-3 text-white bg-blue-500 rounded-lg hover:bg-blue-600 disabled:bg-gray-300">
-                                    ยืนยัน
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
+      </div>
     </div>
     <!-- end::Filter -->
 
     <!-- begin::Content -->
     <div class="flex flex-col items-center justify-center">
-
-        <!-- begin::Bar chart -->
-        <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
-            <p class="mb-10 font-bold text-center text-black">ยอดการเบิกของค่าใช้จ่ายแต่ละโครงการ</p>
-            <div class="w-3/4 h-full ">
-                <canvas id="barChart"></canvas>
-            </div>
+      <div class="flex flex-col items-center h-[500px] w-[1240px] mb-5">
+        <p class="mb-10 font-bold text-center text-black">
+          ยอดการเบิกของค่าใช้จ่ายแต่ละโครงการ
+        </p>
+        <div v-if="loading" class="flex justify-center items-center">
+          <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"></div>
+          <span class="ml-2">กำลังโหลดข้อมูล...</span>
         </div>
-        <!-- end::Bar chart -->
-
-        <!-- begin::Table -->
-        <!-- <div class="w-full h-fit border-[2px] flex flex-col items-start"> -->
-        <div class="w-full border-r-[2px] border-l-[2px] border-t-[2px] mt-12">
-            <!-- Table Header -->
-            <Ctable :table="'Table4-head'" />
-            <!-- Table Data -->
-            <table class="w-full text-center text-black table-auto">
-                <tbody>
-                    <tr v-for="(project, index) in projectsStore.projects" :key="index"
-                        class="text-[16px] border-b-2 border-[#BBBBBB] h-[46px]">
-                        <th class="px-2 py-3 w-14">{{ index + 1 }}</th>
-                        <th class="w-auto px-2 py-3 overflow-hidden truncate text-start"
-                            style="max-width: 208px; white-space: nowrap; text-overflow: ellipsis; overflow: hidden;"
-                            title="กระชับมิตรความสัมพันธ์ในองค์กรทีม 4 Eleant">
-                            {{ project.pjName }}
-                        </th>
-                        <th class="py-3 px-2 w-60 text-end font-[100]">{{ project.pjSumAmountExpenses }}</th>
-                    </tr>
-                </tbody>
-            </table>
-            <!-- Table Footer -->
-            <Ctable :table="'Table4-footer'" />
+        <div class="w-3/4 h-full">
+          <canvas id="barChart" v-show="!loading"></canvas>
         </div>
-        <!-- end::Table -->
-
+      </div>
+      <div class="w-full h-fit border-[2px] flex flex-col items-start border-[#BBBBBB]">
+        <Ctable :table="'Table4-head'" />
+        <table class="w-full text-center text-black table-auto">
+          <tbody>
+            <tr v-if="loading">
+              <td colspan="100%" class="py-4">
+                <div class="flex justify-center items-center">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"></div>
+                  <span class="ml-2">กำลังโหลดข้อมูล...</span>
+                </div>
+              </td>
+            </tr>
+            <tr v-else v-for="(project, index) in paginated" :key="project ? project.pjId : `empty-${index}`"
+              :class="project ? 'text-[14px] h-[46px] border-b-2 border-[#BBBBBB] hover:bg-gray-50' : 'h-[50px]'">
+              <template v-if="project">
+                <th class="px-2 py-3 w-12">{{ index + 1 + (currentPage - 1) * itemsPerPage }}</th>
+                <th class="w-auto px-2 py-3 text-start" :title="project.pjName">
+                  {{ project.pjName }}
+                </th>
+                <th class="py-3 px-2 w-60 text-end font-[100]">
+                  {{
+                  new Decimal(project.pjSumAmountExpenses ?? 0).toNumber().toLocaleString("en-US", {
+                  minimumFractionDigits: 2,
+                  maximumFractionDigits: 2,
+                  })
+                  }}
+                </th>
+              </template>
+              <template v-else>
+                <td>&nbsp;</td>
+              </template>
+            </tr>
+          </tbody>
+          <Pagination :current-page="currentPage" :total-pages="totalPages"
+            @update:currentPage="(page) => (currentPage = page)" />
+        </table>
+      </div>
     </div>
-    <!-- end::Content -->
+  </div>
 </template>
 
 <style scoped>
 .custom-select {
-    -webkit-appearance: none;
-    -moz-appearance: none;
-    appearance: none;
-    background-image: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  background-image: none;
 }
 
 .custom-select::-ms-expand {
-    display: none;
+  display: none;
 }
 
 select,
 select option {
-    background-color: white;
-    color: #000000;
+  background-color: white;
+  color: #000000;
 }
 
 select:invalid,
 select option[value=""] {
-    color: #999999;
+  color: #999999;
 }
 
 [hidden] {
-    display: none;
+  display: none;
 }
 
-/* Additional styles to ensure the dropdown arrow is hidden in WebKit browsers */
-@media screen and (-webkit-min-device-pixel-ratio:0) {
-    .custom-select {
-        background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
-        background-repeat: no-repeat;
-        background-position-x: 100%;
-        background-position-y: 5px;
-    }
+@media screen and (-webkit-min-device-pixel-ratio: 0) {
+  .custom-select {
+    background-image: url("data:image/svg+xml;utf8,<svg fill='transparent' height='24' viewBox='0 0 24 24' width='24' xmlns='http://www.w3.org/2000/svg'><path d='M7 10l5 5 5-5z'/></svg>");
+    background-repeat: no-repeat;
+    background-position-x: 100%;
+    background-position-y: 5px;
+  }
 }
 </style>

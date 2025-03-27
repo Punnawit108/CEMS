@@ -20,21 +20,20 @@ import UserSetting from '../pages/Admin/UserSetting.vue';
 import DetailUserSetting from '../pages/Admin/DetailUserSetting.vue';
 import DisbursementApprover from '../pages/Admin/DisbursementApprover.vue';
 import ExpenseManage from '../pages/Admin/ExpenseManage.vue';
-import TravelManage from '../pages/Admin/TravelManage.vue';
 import PaymentList from '../pages/Accountant/PaymentList.vue';
 import PaymentHistory from '../pages/Accountant/PaymentHistory.vue';
 import ApprovalList from '../pages/User/ApprovalList.vue';
 import Login from '../pages/Login.vue'
 //template
-import icon from '../components/template/Icon.vue';
-import DropDown from '../components/template/Dropdown.vue';
-import Filter from '../components/template/Filter.vue';
-import Progress from '../components/template/Progress.vue';
-import Table from '../components/template/Table.vue';
-import Popup from '../components/template/Popup.vue';
-import UploadPicture from '../components/template/UploadPicture.vue';
-import ForUseButton from '../components/template/ForUseButton.vue';
-import ForUseStatus from '../components/template/ForUseStatus.vue';
+import icon from '../components/ForUse/Icon.vue';
+import DropDown from '../components/Dropdown.vue';
+import Filter from '../components/Filter.vue';
+import Progress from '../components/Progress.vue';
+import Table from '../components/ForUse/Table.vue';
+import UploadPicture from '../components/UploadPicture.vue';
+import ForUseButton from '../components/ForUse/ForUseButton.vue';
+import ForUseStatus from '../components/ForUse/ForUseStatus.vue';
+// import Test from '../pages/User/Test.vue';
 
 const router = createRouter({
   history: createWebHistory(),
@@ -73,11 +72,6 @@ const router = createRouter({
       path: '/temp/table',
       name: 'table',
       component: Table
-    },
-    {
-      path: '/temp/popup',
-      name: 'popup',
-      component: Popup
     },
     //button
     {
@@ -207,6 +201,15 @@ const router = createRouter({
       meta: {
         breadcrumb: 'รายงานเบิกค่าใช้จ่าย',
         parent: 'report'
+      }
+    },
+    {
+      path: '/report/expense/detail/:id',
+      name: 'reportExpenseDetail',
+      component: Details,
+      meta: {
+        breadcrumb: 'รายละเอียด',
+        parent: 'reportExpense'
       }
     },
     //การอนุมัติ
@@ -344,36 +347,7 @@ const router = createRouter({
         parent: 'systemSettingsDisbursementTypeExpense'
       }
     },
-    //จัดการประเภทการเดินทาง
-    {
-      path: '/systemSettings/disbursementType/vehicle',
-      name: 'systemSettingsDisbursementTypeVehicle',
-      component: TravelManage,
-      meta: {
-        breadcrumb: 'จัดการประเภทการเดินทาง',
-        parent: 'systemSettingsDisbursementType'
-      }
-    },
-    //เพิ่มประเภทรถสาธารณะ
-    {
-      path: '/systemSettings/disbursementType/vehicle/addPublic',
-      name: 'systemSettingsDisbursementTypeVehicleAddPublic',
-      component: TravelManage,
-      meta: {
-        breadcrumb: 'เพิ่มประเภทรถสาธารณะ',
-        parent: 'systemSettingsDisbursementTypeVehicle'
-      }
-    },
-    //เพิ่มประเภทรถส่วนตัว
-    {
-      path: '/systemSettings/disbursementType/vehicle/addPrivate',
-      name: 'systemSettingsDisbursementTypeVehicleAddPrivate',
-      component: TravelManage,
-      meta: {
-        breadcrumb: 'เพิ่มประเภทรถส่วนตัว',
-        parent: 'systemSettingsDisbursementTypeVehicle'
-      }
-    },
+    
     //นักบัญชี
     //การนำจ่าย
     {

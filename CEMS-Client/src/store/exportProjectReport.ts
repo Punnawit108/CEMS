@@ -1,15 +1,22 @@
 /*
-* ชื่อไฟล์: exportExpenseReport.ts
-* คำอธิบาย: ไฟล์ store API สำหรับการจัดการการส่งออกรายงาน PDF และ Excel
-* ชื่อผู้เขียน/แก้ไข: 
-* วันที่จัดทำ/แก้ไข: 
-*/
+ * ชื่อไฟล์: exportProjectReport.ts
+ * คำอธิบาย: ไฟล์ store API สำหรับการจัดการการส่งออกรายงานโครงการ
+ * ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
+ * วันที่จัดทำ/แก้ไข: 3 มีนาคม 2568
+ */
 
 import axios from "axios";
 import { defineStore } from "pinia";
 
-export const useExportProjectReportStore = defineStore("exportExpenseReport", {
+export const useExportProjectReportStore = defineStore("exportProjectReport", {
   actions: {
+    /*
+     * คำอธิบาย: ส่งออกข้อมูลรายงานโครงการ
+     * Input: fileType
+     * Output: ไฟล์ข้อมูลรายงานโครงการ
+     * ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
+     * วันที่จัดทำ/แก้ไข: 3 มีนาคม 2568
+     */
     async exportFile(fileType: string) {
       try {
         // กำหนด URL สำหรับ Export ตามประเภทไฟล์ที่เลือก
@@ -30,10 +37,7 @@ export const useExportProjectReportStore = defineStore("exportExpenseReport", {
         });
         const link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
-        link.setAttribute(
-          "download",
-          `ExportedExpenseData.${fileType}`
-        );
+        link.setAttribute("download", `ExportedExpenseData.${fileType}`);
         document.body.appendChild(link);
         link.click();
         link.remove();

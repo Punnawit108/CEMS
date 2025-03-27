@@ -14,7 +14,6 @@ namespace CEMS_Server.Controllers;
 
 [ApiController]
 [Route("api/project")]
-
 public class ProjectController : ControllerBase
 {
     private readonly CemsContext _context;
@@ -31,12 +30,11 @@ public class ProjectController : ControllerBase
     public async Task<ActionResult<IEnumerable<ProjectDto>>> GetProject()
     {
         var project = await _context
-            .CemsProjects
-            .Select(u => new ProjectDto
+            .CemsProjects.Select(u => new ProjectDto
             {
                 PjId = u.PjId,
                 PjName = u.PjName,
-                PjSumAmountExpenses = u.PjAmountExpenses
+                PjSumAmountExpenses = u.PjAmountExpenses,
             })
             .ToListAsync();
 

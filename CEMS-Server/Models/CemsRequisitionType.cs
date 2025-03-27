@@ -10,5 +10,6 @@ public partial class CemsRequisitionType
     public string RqtName { get; set; } = null!;
     public int? RqtVisible { get; set; }
 
-    public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; } = new List<CemsRequisition>();
+    public virtual ICollection<CemsRequisition> CemsRequisitions { get; set; } =
+        new List<CemsRequisition>();
 }

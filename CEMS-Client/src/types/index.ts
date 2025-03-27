@@ -2,7 +2,7 @@
 * ชื่อไฟล์: index.ts
 * คำอธิบาย: ไฟล์นี้ประกาศ type ของข้อมูล API ทั้งระบบ
 * ชื่อผู้เขียน/แก้ไข: นายพงศธร บุญญามา
-* วันที่จัดทำ/แก้ไข: 21 พฤศจิกายน 2567
+* วันที่จัดทำ/แก้ไข: 11 มีนาคม 2568
 */
 
 //ตัวแปรคำขอเบิก
@@ -16,7 +16,7 @@ export interface Expense {
     rqVhType: string;
     rqVhPayrate: string;
     rqPayDate: Date;
-    rqDateWithdraw: Date;
+    rqWithdrawDate: Date;
     rqCode: string | null;
     rqInsteadName: string | null;
     rqExpenses: number;
@@ -37,16 +37,14 @@ export interface createRequisition {
     rqPjId: string;
     rqRqtId: number;
     rqVhId: number | null;
-    rqPayDate: string;
-    rqWithdrawDate: string;
-    rqCode: string;
-    rqInsteadEmail: string;
+    rqPayDate: string | null;
+    rqWithdrawDate: string | null;
+    rqInsteadEmail: string | null;
     rqExpenses: number;
     rqStartLocation: string | null;
     rqEndLocation: string | null;
     rqDistance: string | null;
     rqPurpose: string | null;
-    rqProof: string | null;
     rqStatus: string;
     rqProgress: string;
     rqAny: string | null;
@@ -82,6 +80,7 @@ export interface TravelManage {
     vhType: string;
     vhVehicle: string;
     vhPayrate?: number | null;
+    vhVisible:number ;
 }
 //ตัวแปรผู้ใช้
 export interface User {
@@ -100,11 +99,17 @@ export interface User {
     usrIsActive: number;
 }
 
+export interface UserInstead {
+    usrId: string;
+    usrName: string;
+    usrEmail: string;
+}
+
 //ข้อมูลแสดงผลของกราฟ และตาราง project 
 export interface ProjectReport {
     pjId: number;
     pjName: string;
-    pjSumAmountExpenses: string;
+    pjSumAmountExpenses: number;
 }
 //ข้อมูลแสดงผลของกราฟ expense
 export interface ExpenseReportGraph {
@@ -115,11 +120,11 @@ export interface ExpenseReportGraph {
 //ข้อมูลแสดงผลของตาราง expense
 export interface ExpenseReportList {
     rqId: number;
-    rqName: number;
+    rqName: string;
     rqUsrName: string;
     rqPjName: string;
     rqRqtName: string;
-    rqDatePay: Date;
+    rqWithDrawDate: String;
     rqExpenses: number;
     // rqSumExpenses: number;
 }
@@ -194,6 +199,7 @@ export interface Project {
     pjId: number;
     pjName: string;
     pjAmountExpenses: number;
+    pjIsActice : number;
 }
 
 //ข้อมูล notification

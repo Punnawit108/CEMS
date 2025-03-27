@@ -1,25 +1,51 @@
 /*
-* ชื่อไฟล์: exportExpenseReport.ts
-* คำอธิบาย: ไฟล์ store API สำหรับการจัดการการส่งออกรายงาน PDF และ Excel
-* ชื่อผู้เขียน/แก้ไข: 
-* วันที่จัดทำ/แก้ไข: 
-*/
+ * ชื่อไฟล์: exportExpenseReport.ts
+ * คำอธิบาย: ไฟล์ store API สำหรับการจัดการส่งออกรายงานเบิกจ่าย
+ * ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
+ * วันที่จัดทำ/แก้ไข: 3 มีนาคม 2568
+ */
 
 import axios from "axios";
 import { defineStore } from "pinia";
 
 export const useExportExpenseReportStore = defineStore("exportExpenseReport", {
   actions: {
-    async exportFile(fileType: string) {
+    /*
+     * คำอธิบาย: ส่งออกข้อมูลรายงานเบิกจ่าย
+     * Input: fileType, filters
+     * Output: ไฟล์ข้อมูลรายงานเบิกจ่าย
+     * ชื่อผู้เขียน/แก้ไข: ปุณณะวิชญ์ เชียนพลแสน
+     * วันที่จัดทำ/แก้ไข: 3 มีนาคม 2568
+     */
+    async exportFile(fileType: string, filters: Record<string, any>) {
       try {
-        // กำหนด URL สำหรับ Export ตามประเภทไฟล์ที่เลือก
+        // ตรวจสอบค่าฟิลเตอร์ที่ส่งมา
+        console.log("Filters to be sent:", filters);
+
+        // ลบพารามิเตอร์ที่ว่างออกจาก filters
+        Object.keys(filters).forEach((key) => {
+          if (
+            filters[key] === "" ||
+            filters[key] === null ||
+            filters[key] === undefined
+          ) {
+            delete filters[key];
+          }
+        });
+
         const url =
           fileType === "pdf"
             ? `${import.meta.env.VITE_BASE_URL}/api/pdf/export`
             : `${import.meta.env.VITE_BASE_URL}/api/excel/export`;
 
-        // เรียก API และรับ response เป็น Blob
-        const response = await axios.get(url, { responseType: "blob" });
+        // ลอง log URL ที่จะถูกเรียก
+        console.log("Request URL:", url, "Params:", filters);
+
+        // เรียก API และส่งค่าฟิลเตอร์ไปพร้อมกับ request
+        const response = await axios.get(url, {
+          params: filters, // ส่งค่า filters เป็น query parameters
+          responseType: "blob",
+        });
 
         // สร้าง Blob และดาวน์โหลดไฟล์
         const blob = new Blob([response.data], {
@@ -30,10 +56,7 @@ export const useExportExpenseReportStore = defineStore("exportExpenseReport", {
         });
         const link = document.createElement("a");
         link.href = window.URL.createObjectURL(blob);
-        link.setAttribute(
-          "download",
-          `ExportedExpenseData.${fileType}`
-        );
+        link.setAttribute("download", `ExportedExpenseData.${fileType}`);
         document.body.appendChild(link);
         link.click();
         link.remove();
