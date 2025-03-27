@@ -3,7 +3,7 @@
  * ชื่อไฟล์: DisbursementApprover.vue
  * คำอธิบาย: ไฟล์นี้แสดงรายชื่อผู้มีสิทธิ์ในการอนุมัติ
  * ชื่อผู้เขียน/แก้ไข: นายธีรวัฒ์ นิระมล
- * วันที่จัดทำ/แก้ไข: 22 มีนาคม 2568
+ * วันที่จัดทำ/แก้ไข: 27 มีนาคม 2568
  */
 import { ref, onMounted, reactive, computed, watch } from "vue";
 import { useRoute } from "vue-router";
@@ -104,7 +104,7 @@ const closePopupAdd = () => {
 };
 
 const alertMessage = ref(
-  "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว"
+  ""
 );
 
 const canEditOrder = computed(() => {
@@ -114,25 +114,22 @@ const canEditOrder = computed(() => {
 // เปิด Popup  Edit ผู้อนุมัติ
 const openPopupEdit = () => {
   if (!checkExpenseStore.checkExpense) {
+    alertMessage.value =
+        "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
     isFreeEdit.value = true;
     setTimeout(() => {
       isFreeEdit.value = false;
+      alertMessage.value =
+        "";
     }, 1500);
   } else if (!canEditOrder.value) {
-    // สลับข้อความทุกครั้งที่เปิด pop up
-    if (
-      alertMessage.value ===
-      "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว"
-    ) {
-      alertMessage.value =
-        "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
-    } else {
-      alertMessage.value =
+    alertMessage.value =
         "ไม่สามารถแก้ไขลำดับได้<br>เนื่องจากมีผู้อนุมัติเพียงคนเดียว";
-    }
     isFreeEdit.value = true;
     setTimeout(() => {
       isFreeEdit.value = false;
+      alertMessage.value =
+        "";
     }, 1500);
   } else {
     isPopupEditOpen.value = true;
