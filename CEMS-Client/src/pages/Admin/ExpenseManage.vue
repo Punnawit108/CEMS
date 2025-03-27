@@ -270,6 +270,7 @@ const openPopupAddExpense = () => {
 const closePopupAddExpense = () => {
   isPopupAddExpenseOpen.value = false;
   isFormSubmitted.value = false; // รีเซ็ตสถานะเมื่อปิด Popup
+  formRequisitiontype.rqtName = '';
 };
 // เปิด PopupConfirmAdd ค่าใช้จ่าย
 const openPopupConfirmAddExpense = () => {
@@ -287,6 +288,10 @@ const closePopupConfirmAddExpense = () => {
   isPopupConfirmAddExpenseOpen.value = false;
 };
 const confirmAddExpense = async () => {
+  isFormSubmitted.value = true;
+  if (formRequisitiontype.rqtName.trim() === "") {
+    return; // ไม่เปิด Popup ยืนยันถ้าฟิลด์จำเป็นไม่ถูกกรอก
+  }
   await expenseManageType.createRequisitionType(formRequisitiontype);
   expenseType.value = await expenseManageType.getRequisitionType();
 
@@ -297,6 +302,7 @@ const confirmAddExpense = async () => {
     isAddExpenseAlertOpen.value = false; // ปิด Alert
     closePopupAddExpense(); // ปิด Popup แก้ไข
     closePopupConfirmAddExpense(); // ปิด Popup ยืนยัน
+    formRequisitiontype.rqtName = '';
   }, 1500); // 1.5 วินาที
 };
 
@@ -331,6 +337,11 @@ const closePopupConfirmAddPrivatecar = () => {
 
 const isAddPrivatecarAlertOpen = ref(false);
 const confirmAddPrivatecar = async () => {
+  isFormSubmittedPrivate.value = true;
+  if (formData.vhVehicle.trim() === "" || !formData.vhPayrate) {
+    // เปลี่ยนจาก vhVehicle เป็น vhName
+    return; // ไม่เปิด Popup ยืนยันถ้าฟิลด์จำเป็นไม่ถูกกรอก
+  }
   // เปิด Popup Alert
   formData.vhType = "private";
   await expenseManageType.createVehicle(formData);
@@ -374,6 +385,11 @@ const closePopupConfirmAddPublictravel = () => {
   isPopupConfirmAddPublictravelOpen.value = false;
 };
 const confirmAddPublictravel = async () => {
+  isFormSubmittedPublic.value = true;
+  if (formData.vhVehicle.trim() === "") {
+    // เปลี่ยนจาก vhVehicle เป็น vhName
+    return; // ไม่เปิด Popup ยืนยันถ้าฟิลด์จำเป็นไม่ถูกกรอก
+  }
   // เปิด Popup Alert
   formData.vhType = "public";
   formData.vhPayrate = null;
@@ -442,6 +458,9 @@ const closePopupConfirmEditPrivatecar = () => {
 
 const isEditPrivatecarAlertOpen = ref(false);
 const confirmEditPrivatecar = async () => {
+  if (!formVehiclePrivateEdit.vhVehicle.trim() || !formVehiclePrivateEdit.vhPayrate.trim()) {
+    return;
+  }
   // เปิด Popup Alert
   formData.vhType = "private";
   await expenseManageType.changeVehiclePrivate(formVehiclePrivateEdit);
@@ -497,6 +516,9 @@ const closePopupConfirmEditPubliccar = () => {
 
 const isEditPubliccarAlertOpen = ref(false);
 const confirmEditPubliccar = async () => {
+  if (!formVehiclePublicEdit.vhVehicle.trim()) {
+    return;
+  }
   // เปิด Popup Alert
   formData.vhType = "public";
   await expenseManageType.changeVehiclePublic(formVehiclePublicEdit);
@@ -555,6 +577,9 @@ const formRequisitionTypeEdit = reactive<any>({
 
 const isEditExpenseAlertOpen = ref(false);
 const confirmUpdateExpense = async () => {
+  if (!formRequisitionTypeEdit.rqtName.trim()) {
+    return;
+  }
   // เปิด Popup Alert
   formData.vhType = "expense";
   await expenseManageType.updateRequisitionType(formRequisitionTypeEdit);
@@ -630,6 +655,8 @@ const confirmDeleteExpense = async () => {
     closePopupDeleteExpense();
   }, 1500);
 };
+
+
 </script>
 
 <template>
@@ -998,14 +1025,14 @@ const confirmDeleteExpense = async () => {
             </form>
           </div>
           <label for="rqName" class="block text-sm font-medium mb-1 items-end" :class="[
-            isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
+            isFormSubmittedPrivate && !formData.vhPayrate
               ? 'text-redNormal '
               : 'border-[#d9d9d9]',
           ]">อัตราค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
           <div class="relative">
             <input type="number" required v-model="formData.vhPayrate" placeholder="กรอกอัตราค่าเดินทาง" :class="[
               'w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none',
-              isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
+              isFormSubmittedPrivate && !formData.vhPayrate
                 ? 'border-red-500'
                 : 'border-[#d9d9d9]',
             ]" />
@@ -1231,7 +1258,7 @@ const confirmDeleteExpense = async () => {
         แก้ไขข้อมูลประเภทค่าใช้จ่าย
       </h2>
       <label for="rqName" class="block text-sm font-medium ml-[58px] mb-1 items-end" :class="[
-        isFormSubmitted && formRequisitiontype.rqtName.trim() === ''
+        !formRequisitionTypeEdit.rqtName.trim()
           ? 'text-redNormal '
           : 'border-[#d9d9d9]',
       ]">ประเภทค่าใช้จ่าย <span class="text-red-500">*</span></label>
@@ -1241,7 +1268,7 @@ const confirmDeleteExpense = async () => {
             <input type="text" required placeholder="กรอกข้อมูลประเภทค่าใช้จ่าย"
               v-model="formRequisitionTypeEdit.rqtName"
               class="w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none"
-              :class="formRequisitionTypeEdit.rqtName.trim() === '' ? 'border-red-500' : 'border-[#d9d9d9]'" />
+              :class="!formRequisitionTypeEdit.rqtName.trim() ? 'border-red-500' : 'border-[#d9d9d9]'" />
           </div>
         </form>
       </div>
@@ -1287,7 +1314,7 @@ const confirmDeleteExpense = async () => {
         <form>
           <div class="relative mb-3">
             <label for="rqName" class="block text-sm font-medium mb-1 items-end" :class="[
-              isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
+              formVehiclePrivateEdit.vhVehicle.trim() === ''
                 ? 'text-redNormal '
                 : 'border-[#d9d9d9]',
             ]">ประเภทค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
@@ -1298,7 +1325,7 @@ const confirmDeleteExpense = async () => {
           </div>
           <div class="relative">
             <label for="rqName" class="block text-sm font-medium mb-1 items-end" :class="[
-              isFormSubmittedPrivate && formData.vhVehicle.trim() === ''
+              String(formVehiclePrivateEdit.vhPayrate).trim() === ''
                 ? 'text-redNormal '
                 : 'border-[#d9d9d9]',
             ]">อัตราค่าเดินทางส่วนตัว <span class="text-red-500">*</span></label>
@@ -1378,7 +1405,7 @@ const confirmDeleteExpense = async () => {
         แก้ไขประเภทค่าเดินทางสาธารณะ
       </h2>
       <label for="rqName" class="block text-sm font-medium ml-[58px] mb-1 items-end" :class="[
-        isFormSubmittedPublic && formData.vhVehicle.trim() === ''
+        formVehiclePublicEdit.vhVehicle.trim() === ''
           ? 'text-redNormal '
           : 'border-[#d9d9d9]',
       ]">ประเภทค่าเดินทางสาธารณะ <span class="text-red-500">*</span></label>
@@ -1388,7 +1415,7 @@ const confirmDeleteExpense = async () => {
             <input type="text" required placeholder="กรอกข้อมูลประเภทค่าเดินทางสาธารณะ"
               v-model="formVehiclePublicEdit.vhVehicle"
               class="w-[300px] h-[40px] bg-white border rounded-lg pl-4 text-[14px] text-black focus:outline-none"
-              :class="String(formVehiclePublicEdit.vhVehicle).trim() === '' ? 'border-red-500' : 'border-[#d9d9d9]'" />
+              :class="formVehiclePublicEdit.vhVehicle.trim() === '' ? 'border-red-500' : 'border-[#d9d9d9]'" />
           </div>
         </form>
       </div>
