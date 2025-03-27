@@ -34,7 +34,6 @@ builder.Services.AddSwaggerGen(c =>
 
 // Add SignalR service
 builder.Services.AddSignalR();
-builder.Services.AddScoped<GetDataExport>();
 builder.Services.AddScoped<PdfService>();
 builder.Services.AddScoped<PdfServiceProject>();
 builder.Services.AddScoped<DetailService>();
