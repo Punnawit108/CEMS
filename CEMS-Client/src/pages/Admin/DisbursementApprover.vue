@@ -114,7 +114,7 @@ const canEditOrder = computed(() => {
 const openPopupEdit = () => {
   if (!checkExpenseStore.checkExpense) {
     alertMessage.value =
-      "กรุณาตรวจสอบรายการเบิกค่าใช้จ่าย<br>หรือปิดรับรายการ<br>เพื่อแก้ไขลำดับผู้อนุมัติ";
+      "รายการเบิกค่าใช้จ่ายค้างอยู่ในระบบ<br/>กรุณาตรวจสอบ หรือปิดรับรายการ<br/>ก่อนทำการเพิ่มผู้มีสิทธิ์อนุมัติการเบิกจ่าย";
     isFreeEdit.value = true;
     setTimeout(() => {
       isFreeEdit.value = false;
