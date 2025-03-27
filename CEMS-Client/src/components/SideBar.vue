@@ -316,7 +316,7 @@ watch(clickSettingTypeWithdraw, (newVal) => {
           class="flex relative gap-2.5 items-center w-56 max-w-full hover:bg-neutral-100 rounded-xl" tabindex="0">
           <div class="flex absolute right-0 bottom-0 z-0 shrink-0 self-start w-56 h-10 rounded-xl"></div>
           <Icon :icon="'disbursement'" class="ml-2" />
-          <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การเบิกจ่าย</span>
+          <span class="self-stretch py-2.5 my-auto w-[134px] text-left">การเบิกค่าใช้จ่าย</span>
           <img loading="lazy"
             src="https://cdn.builder.io/api/v1/image/assets/TEMP/6dbdcd13be406ba0564e7ceae089fdddfd52a9bc3536460ba87e6e13c22a5f4c?placeholderIfAbsent=true&apiKey=b075c04e5be74b53b5cb51cf80fcda46"
             class="object-contain z-0 shrink-0 self-stretch my-auto aspect-[0.75] w-[30px]" alt="" />
