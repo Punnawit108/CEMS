@@ -5,9 +5,9 @@
 * วันที่จัดทำ/แก้ไข: 1 ธันวาคม 2567
 */
 
-using Microsoft.AspNetCore.Mvc;
 using CEMS_Server.AppContext;
 using CEMS_Server.DTOs;
+using Microsoft.AspNetCore.Mvc;
 using QuestPDF.Fluent;
 using QuestPDF.Infrastructure;
 
@@ -22,6 +22,10 @@ public class DetailController : ControllerBase
         _pdfService = pdfService;
     }
 
+    /// <summary>ส่งออกไฟล์ PDF ของรายละเอียดการเบิกค่าใช้จ่าย</summary>
+    /// <param name="expenseId"> รหัสคำขอเบิกค่าใช้จ่าย </param>
+    /// <returns>ไฟล์ PDF ของรายละเอียดการเบิก หรือข้อความแสดงข้อผิดพลาดหากไม่พบข้อมูล</returns>
+    /// <remarks>แก้ไขล่าสุด: 1 ธันวาคม 2567 โดย นายปุณณะวิชญ์ เชียนพลแสน</remark>
     [HttpGet("export")]
     public IActionResult ExportToPdf([FromQuery] string? expenseId)
     {
