@@ -1,4 +1,11 @@
-﻿using System;
+﻿/*
+* ชื่อไฟล์: CemsApproverRequisition.cs
+* คำอธิบาย: ไฟล์ Model ของ ApproverRequisition
+* ชื่อผู้เขียน/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+* วันที่จัดทำ/แก้ไข: นายพรชัย เพิ่มพูลกิจ
+*/
+
+using System;
 using System.Collections.Generic;
 
 namespace CEMS_Server.Models;
