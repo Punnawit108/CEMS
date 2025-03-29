@@ -549,7 +549,7 @@ const toDetails = async (data: Expense) => {
             <td colspan="100%" class="py-4">
               <div class="flex justify-center items-center">
                 <div
-                  class="animate-spin rounded-full h-8 w-8 border-b-2 border-[#B67D12]"
+                  class="animate-spin rounded-full h-8 w-8 border-b-2 border-black"
                 ></div>
                 <span class="ml-2">กำลังโหลดข้อมูล...</span>
               </div>

@@ -63,7 +63,7 @@ public class PaymentController : ControllerBase
     /// <param name="usrId"> รหัสผู้ใช้งาน</param>
     /// <returns>ข้อมูลรายการประวัติการนำจ่ายทั้งหมด</returns>
     /// <remarks>แก้ไขล่าสุด: 25 พฤศจิกายน 2567 โดย นายขุนแผน ไชยโชติ</remark>
-    [HttpGet("History/{id}")]
+    [HttpGet("History/{usrId}")]
     public async Task<ActionResult<IEnumerable<PaymentGetDto>>> GetPaymentHistory(string usrId)
     {
         var requisition = await _context
