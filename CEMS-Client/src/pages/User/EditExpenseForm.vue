@@ -105,7 +105,7 @@ onMounted(async () => {
         selectedDate.value = parseDate(data.rqPayDate);
 
         selectedFiles.value = data.files.map((file: any) => {
-          const fileUrl = `http://localhost:5247${file.fPath}`;
+          const fileUrl = `http://dekdee2.informatics.buu.ac.th:8024${file.fPath}`;
           return {
             file: fileUrl,
             fId: file.fId,

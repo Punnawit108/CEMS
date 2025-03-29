@@ -449,7 +449,7 @@ public class ExpenseController : ControllerBase
     /// <returns>สถานะการปรับเปลี่ยนข้อมูลคำขอเบิก</returns>
     /// <remarks>แก้ไขล่าสุด: 13 กุมภาพันธ์ 2568 โดย นายพงศธร บุญญามา , นางสาวอังคณา อุ่นเสียม</remark>
 
-    [HttpPut("{id}")]
+    [HttpPut("{rqId}")]
     public async Task<IActionResult> UpdateExpense(
         string rqId,
         [FromForm] ExpenseManageDto expenseDto
