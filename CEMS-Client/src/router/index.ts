@@ -26,7 +26,6 @@ import ApprovalList from '../pages/User/ApprovalList.vue';
 import Login from '../pages/Login.vue'
 //template
 import icon from '../components/ForUse/Icon.vue';
-import DropDown from '../components/Dropdown.vue';
 import Filter from '../components/Filter.vue';
 import Progress from '../components/Progress.vue';
 import Table from '../components/ForUse/Table.vue';
@@ -42,11 +41,6 @@ const router = createRouter({
       path: '/temp/icon',
       name: 'icon',
       component: icon
-    },
-    {
-      path: '/temp/dropdown',
-      name: 'dropdown',
-      component: DropDown
     },
     {
       path: '/temp/filter',
@@ -273,7 +267,7 @@ const router = createRouter({
       name: 'systemSettingsUser',
       component: UserSetting,
       meta: {
-        breadcrumb: 'ตั้งค่าผู้ใช้',
+        breadcrumb: 'ผู้ใช้งาน',
         parent: 'systemSettings'
       }
     },
